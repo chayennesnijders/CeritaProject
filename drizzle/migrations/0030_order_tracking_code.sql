@@ -1,0 +1,1 @@
+ALTER TABLE public.shop_orders ADD COLUMN tracking_code text;

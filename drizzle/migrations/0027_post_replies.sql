@@ -1,0 +1,1 @@
+ALTER TABLE public.posts ADD COLUMN reply_to uuid REFERENCES public.posts(id) ON DELETE SET NULL;

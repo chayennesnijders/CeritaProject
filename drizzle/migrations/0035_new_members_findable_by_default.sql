@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ALTER COLUMN allow_messages SET DEFAULT true;

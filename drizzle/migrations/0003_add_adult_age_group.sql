@@ -1,0 +1,1 @@
+ALTER TYPE public.age_group ADD VALUE IF NOT EXISTS 'adult';

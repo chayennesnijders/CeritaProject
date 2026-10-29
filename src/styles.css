@@ -1,0 +1,159 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --font-hand: "Caveat", cursive;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-blush: var(--blush);
+  --color-cocoa: var(--cocoa);
+}
+
+:root {
+  --chat-1: oklch(0.5 0.15 25);
+  --chat-2: oklch(0.5 0.13 150);
+  --chat-3: oklch(0.5 0.15 260);
+  --chat-4: oklch(0.55 0.15 320);
+  --chat-5: oklch(0.55 0.13 60);
+  --chat-6: oklch(0.5 0.12 200);
+  --radius: 1rem;
+  --background: oklch(0.955 0.025 75);         /* crème */
+  --foreground: oklch(0.15 0.01 30);           /* zwart */
+  --card: oklch(0.985 0.012 75);
+  --card-foreground: oklch(0.15 0.01 30);
+  --popover: oklch(0.985 0.012 75);
+  --popover-foreground: oklch(0.15 0.01 30);
+  --primary: oklch(0.15 0.01 30);              /* zwart, stoer */
+  --primary-foreground: oklch(0.82 0.1 355);   /* logo-roze */
+  --secondary: oklch(0.82 0.1 355);            /* logo-roze */
+  --secondary-foreground: oklch(0.15 0.01 30);
+  --muted: oklch(0.91 0.03 70);
+  --muted-foreground: oklch(0.42 0.05 45);
+  --accent: oklch(0.9 0.05 355);
+  --accent-foreground: oklch(0.15 0.01 30);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.15 0.01 30 / 0.85);
+  --input: oklch(0.15 0.01 30 / 0.5);
+  --ring: oklch(0.72 0.14 355);
+  --ink: oklch(0.13 0.005 30);                 /* zwart */
+  --ink-foreground: oklch(0.82 0.1 355);
+  --blush: oklch(0.82 0.1 355);
+  --cocoa: oklch(0.4 0.07 45);                 /* bruin */
+  --shadow-soft: 3px 3px 0 oklch(0.13 0.005 30);
+  --gradient-warm: linear-gradient(135deg, oklch(0.13 0.005 30), oklch(0.4 0.07 45));
+}
+
+.dark {
+  --background: oklch(0.17 0.012 35);          /* donkerbruin-zwart */
+  --foreground: oklch(0.94 0.02 75);           /* crème */
+  --card: oklch(0.22 0.018 40);
+  --card-foreground: oklch(0.94 0.02 75);
+  --popover: oklch(0.22 0.018 40);
+  --popover-foreground: oklch(0.94 0.02 75);
+  --primary: oklch(0.82 0.1 355);              /* logo-roze */
+  --primary-foreground: oklch(0.15 0.01 30);
+  --secondary: oklch(0.35 0.06 355);
+  --secondary-foreground: oklch(0.94 0.02 75);
+  --muted: oklch(0.26 0.02 40);
+  --muted-foreground: oklch(0.72 0.04 60);
+  --accent: oklch(0.3 0.05 355);
+  --accent-foreground: oklch(0.94 0.02 75);
+  --destructive: oklch(0.62 0.19 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.94 0.02 75 / 0.35);
+  --input: oklch(0.94 0.02 75 / 0.4);
+  --ring: oklch(0.82 0.1 355);
+  --ink: oklch(0.82 0.1 355);
+  --ink-foreground: oklch(0.15 0.01 30);
+  --blush: oklch(0.82 0.1 355);
+  --cocoa: oklch(0.7 0.06 55);
+  --shadow-soft: 3px 3px 0 oklch(0.82 0.1 355 / 0.4);
+  --gradient-warm: linear-gradient(135deg, oklch(0.3 0.05 355), oklch(0.35 0.07 45));
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; font-weight: 700; }
+}
+
+@utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility bg-warm { background-image: var(--gradient-warm); }
+
+/* Dagboekpagina: gelinieerd papier met een roze kantlijn, zoals een echt dagboek */
+@utility diary-page {
+  background-color: var(--color-card);
+  background-image:
+    linear-gradient(to right, transparent 34px, oklch(0.72 0.14 355 / 0.5) 34px, oklch(0.72 0.14 355 / 0.5) 36px, transparent 36px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--color-border) 31px, var(--color-border) 32px);
+  background-attachment: local;
+}
+
+@keyframes pet-bob { 0%,100% { transform: translateY(0) scale(1,1) } 50% { transform: translateY(-6px) scale(1.02,.98) } }
+@keyframes pet-jump { 0%,100% { transform: translateY(0) } 30% { transform: translateY(-40px) scale(.95,1.08) } 60% { transform: translateY(0) scale(1.1,.9) } }
+@keyframes pet-blink { 0%,92%,100% { transform: scaleY(1) } 95% { transform: scaleY(.1) } }
+@keyframes pet-float { 0% { opacity: 1; transform: translateY(0) } 100% { opacity: 0; transform: translateY(-60px) } }
+@keyframes pet-eat { 0% { opacity: 1; transform: translate(0,0) scale(1) } 100% { opacity: 0; transform: translate(0,-110px) scale(.4) } }
+.pet-bob { animation: pet-bob 2.4s ease-in-out infinite; transform-origin: 50% 100% }
+.pet-sleep { animation: pet-bob 4s ease-in-out infinite; transform-origin: 50% 100% }
+.pet-jump { animation: pet-jump .7s ease-out }
+.pet-blink { animation: pet-blink 4s infinite; transform-box: fill-box; transform-origin: center }
+.pet-float { animation: pet-float 1.2s ease-out forwards }
+@keyframes pet-ball { 0% { transform: translate(-40px,0) rotate(0) } 50% { transform: translate(45vw,-120px) rotate(360deg) } 100% { transform: translate(min(80vw,340px),0) rotate(720deg); opacity:0 } }
+.pet-ball { animation: pet-ball .9s ease-in-out forwards }
+.pet-eat { animation: pet-eat .8s ease-in forwards }
+
+/* Scène-bewegingen achter het diertje: bloemen wiegen, wolken drijven, sterren twinkelen */
+@keyframes scene-sway { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(3deg) } }
+@keyframes scene-drift { 0%,100% { transform: translateX(0) } 50% { transform: translateX(18px) } }
+@keyframes scene-twinkle { 0%,100% { opacity: .35 } 50% { opacity: 1 } }
+@keyframes scene-fall { 0% { transform: translateY(-12px); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(130px); opacity: 0 } }
+@keyframes scene-flap { 0%,100% { transform: translate(0,0) } 50% { transform: translate(16px,-14px) } }
+.scene-sway { animation: scene-sway 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100% }
+.scene-drift { animation: scene-drift 14s ease-in-out infinite }
+.scene-twinkle { animation: scene-twinkle 2.6s ease-in-out infinite }
+.scene-fall { animation: scene-fall 6s linear infinite }
+.scene-flap { animation: scene-flap 4.5s ease-in-out infinite }
+
+
+/* Meldingen (sonner) onder de vaste kopbalk houden, zodat de knoppen aantikbaar blijven */
+[data-sonner-toaster][data-y-position='top'] {
+  --offset-top: 4.5rem !important;
+  --mobile-offset-top: 4.5rem !important;
+}

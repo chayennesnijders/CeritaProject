@@ -1,0 +1,328 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792075236562,
+      "tag": "0000_cerita_basis",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792075303843,
+      "tag": "0001_require_birthdate_for_groups",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792076619018,
+      "tag": "0002_create_can_use_community",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792076711310,
+      "tag": "0003_add_adult_age_group",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792076730858,
+      "tag": "0004_three_community_bands",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792077020684,
+      "tag": "0005_admin_activity_log",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792077199307,
+      "tag": "0006_private_messages",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792077337869,
+      "tag": "0007_daily_age_group_refresh",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792077385500,
+      "tag": "0008_allow_service_birthdate_fix",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792077939285,
+      "tag": "0009_message_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792077947664,
+      "tag": "0010_conversation_requested_by",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792078188092,
+      "tag": "0011_delete_declined_conversations",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792079438348,
+      "tag": "0012_push_tokens",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792081905054,
+      "tag": "0013_articles",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792082016301,
+      "tag": "0014_fix_article_newlines",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1792082233713,
+      "tag": "0015_admin_read_conversations",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792082382513,
+      "tag": "0016_article_images",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792082524675,
+      "tag": "0017_daily_challenges_diary",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792083174744,
+      "tag": "0018_virtual_pet",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792083364749,
+      "tag": "0019_pet_todos",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792083629979,
+      "tag": "0020_pet_customization",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792083743607,
+      "tag": "0021_calls_permission",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792083831224,
+      "tag": "0022_pet_collection_lists",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792084238927,
+      "tag": "0023_usernames",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792084505529,
+      "tag": "0024_profile_avatars",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792084619120,
+      "tag": "0025_mute_archive_prefs",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792086125135,
+      "tag": "0026_birthday_bonus",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792086405720,
+      "tag": "0027_post_replies",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1792090131755,
+      "tag": "0028_shop_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1792090712956,
+      "tag": "0029_shop_points_weekly_push",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792093121960,
+      "tag": "0030_order_tracking_code",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792093295017,
+      "tag": "0031_story_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792093376547,
+      "tag": "0032_shop_products",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792094028510,
+      "tag": "0033_digital_downloads",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792095685175,
+      "tag": "0034_group_chat_admin_members",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792096123725,
+      "tag": "0035_new_members_findable_by_default",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792096675629,
+      "tag": "0036_group_invites_member_invites",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792149571653,
+      "tag": "0037_add_owner_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792149583546,
+      "tag": "0038_owner_orders_and_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1792152222719,
+      "tag": "0039_admin_ids",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792153521966,
+      "tag": "0040_unread_chat_counters",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792156114183,
+      "tag": "0041_post_mentions",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1792156199431,
+      "tag": "0042_dm_other_read_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1792228452808,
+      "tag": "0043_report_responses",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1792311215601,
+      "tag": "0044_chat_voice_memos",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1792514032553,
+      "tag": "0045_qualify_chat_audio_upload_path",
+      "breakpoints": true
+    }
+  ]
+}

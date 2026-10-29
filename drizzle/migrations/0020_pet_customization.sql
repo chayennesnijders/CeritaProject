@@ -1,0 +1,1 @@
+ALTER TABLE public.pets ADD COLUMN background text NOT NULL DEFAULT 'kamer', ADD COLUMN outfit text NOT NULL DEFAULT 'geen', ADD COLUMN house text NOT NULL DEFAULT 'geen';
