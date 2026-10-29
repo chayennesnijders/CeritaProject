@@ -4,9 +4,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
-import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, OUTFITS, HOUSES, isUnlocked, unlocksAt, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
+import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, OUTFITS, isUnlocked, unlocksAt, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
 import { useEffect, useRef } from "react";
 import { PetAvatar, growthStage, STAGE_LABELS } from "@/components/PetAvatar";
+import { PetGames } from "@/components/PetGames";
 import { DailyTodoPopup } from "@/components/DailyTodoPopup";
 import { PetScene } from "@/components/PetScene";
 
@@ -126,9 +127,9 @@ function PetPage() {
   ];
 
   const bg = BACKGROUNDS.find((b) => b.id === pet.background) ?? BACKGROUNDS[0]!;
-  async function choose(field: "background" | "outfit" | "house", id: string) {
+  async function choose(field: "background" | "outfit", id: string) {
     if (field === "outfit" && companion) await supabase.from("companions").update({ outfit: id }).eq("id", companion.id);
-    else await supabase.from("pets").update({ [field]: id } as { background?: string; outfit?: string; house?: string }).eq("user_id", uid!);
+    else await supabase.from("pets").update({ [field]: id } as { background?: string; outfit?: string }).eq("user_id", uid!);
     burst("✨"); refresh();
   }
 
@@ -212,7 +213,7 @@ function PetPage() {
         </div>
       )}
       <div ref={stageRef} className="relative min-h-[330px] touch-none select-none overflow-hidden rounded-3xl p-6 text-center shadow-soft" style={{ background: bg.css }}>
-        <PetScene id={bg.id} house={pet.house} />
+        <PetScene id={bg.id} />
 
         <div onPointerDown={startHug} onPointerUp={endHug} onPointerLeave={endHug}>
           <PetAvatar outfit={active.outfit} species={active.species} mood={mood} jumping={jumping} onTap={() => burst("💕")} level={level} />
@@ -272,7 +273,7 @@ function PetPage() {
       </div>
 
       {drag && <span className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 text-5xl" style={{ left: drag.x, top: drag.y }}>🍓</span>}
-      <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} />
+      <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} games={<PetGames uid={uid} petEmoji={speciesEmoji(active.species)} />} />
 
       <div className="rounded-3xl bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between gap-3">
@@ -379,24 +380,25 @@ function useLevelUpToast(level: number | null) {
   }, [level]);
 }
 
-function Wardrobe({ level, pet, onChoose }: {
+function Wardrobe({ level, pet, onChoose, games }: {
   level: number;
-  pet: { background: string; outfit: string; house: string };
-  onChoose: (field: "background" | "outfit" | "house", id: string) => void;
+  pet: { background: string; outfit: string };
+  onChoose: (field: "background" | "outfit", id: string) => void;
+  games: React.ReactNode;
 }) {
-  const [tab, setTab] = useState<"background" | "outfit" | "house">("outfit");
-  const lists: Record<typeof tab, Unlockable[]> = { background: BACKGROUNDS, outfit: OUTFITS, house: HOUSES };
-  const tabs = [["outfit", "👕 Kleding"], ["background", "🖼️ Achtergrond"], ["house", "🏠 Huisje"]] as const;
+  const [tab, setTab] = useState<"background" | "outfit" | "games">("outfit");
+  const lists: Record<"background" | "outfit", Unlockable[]> = { background: BACKGROUNDS, outfit: OUTFITS };
+  const tabs = [["outfit", "👕 Kleding"], ["background", "🖼️ Achtergrond"], ["games", "🎮 Spelletjes"]] as const;
   return (
     <div className="rounded-3xl bg-card p-5 shadow-soft">
-      <p className="font-semibold">Aankleden</p>
-      <p className="text-xs text-muted-foreground">Bij elk nieuw level komen er dingetjes bij.</p>
+      <p className="font-semibold">{tab === "games" ? "Spelletjes" : "Aankleden"}</p>
+      <p className="text-xs text-muted-foreground">{tab === "games" ? "Speel samen met je diertje." : "Bij elk nieuw level komen er dingetjes bij."}</p>
       <div className="mt-3 flex gap-2">
         {tabs.map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`rounded-full px-3 py-1 text-xs font-semibold ${tab === id ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{label}</button>
         ))}
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      {tab === "games" ? <div className="mt-3">{games}</div> : <div className="mt-3 grid grid-cols-3 gap-2">
         {lists[tab].map((item) => {
           const open = isUnlocked(item, level);
           const active = pet[tab] === item.id;
@@ -408,7 +410,7 @@ function Wardrobe({ level, pet, onChoose }: {
             </button>
           );
         })}
-      </div>
+      </div>}
     </div>
   );
 }

@@ -54,19 +54,11 @@ export const OUTFITS: Unlockable[] = [
   { id: "kroon", label: "Kroontje", emoji: "👑", level: 6 },
 ];
 
-export const HOUSES: Unlockable[] = [
-  { id: "geen", label: "Niks", emoji: "🚫", level: 1 },
-  { id: "mand", label: "Mandje", emoji: "🧺", level: 2 },
-  { id: "tent", label: "Tentje", emoji: "⛺", level: 4 },
-  { id: "huis", label: "Huisje", emoji: "🏡", level: 6 },
-  { id: "kasteel", label: "Kasteel", emoji: "🏰", level: 8 },
-];
-
 export const isUnlocked = (item: Unlockable, level: number) => level >= item.level;
 
 /** Items that became available exactly at this level (for the level-up message). */
 export function unlocksAt(level: number) {
-  return [...BACKGROUNDS, ...OUTFITS, ...HOUSES].filter((i) => i.level === level);
+  return [...BACKGROUNDS, ...OUTFITS].filter((i) => i.level === level);
 }
 
 /** Extra pets you may collect: one more every 2 levels (level 3, 5, 7, ...). */

@@ -12,14 +12,14 @@ describe("virtueel diertje", () => {
   });
 });
 
-import { BACKGROUNDS, OUTFITS, HOUSES, isUnlocked, unlocksAt } from "./pet";
+import { BACKGROUNDS, OUTFITS, isUnlocked, unlocksAt } from "./pet";
 describe("upgrades", () => {
   it("level 1 heeft alleen de basis", () => {
-    const all = [...BACKGROUNDS, ...OUTFITS, ...HOUSES].filter((i) => isUnlocked(i, 1)).map((i) => i.id);
-    expect(all).toEqual(["kamer", "geen", "geen"]);
+    const all = [...BACKGROUNDS, ...OUTFITS].filter((i) => isUnlocked(i, 1)).map((i) => i.id);
+    expect(all).toEqual(["kamer", "geen"]);
   });
   it("bij level 2 komen er dingen bij", () => {
-    expect(unlocksAt(2).map((i) => i.id)).toEqual(["tuin", "strik", "mand"]);
+    expect(unlocksAt(2).map((i) => i.id)).toEqual(["tuin", "strik"]);
   });
 });
 

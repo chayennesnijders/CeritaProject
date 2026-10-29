@@ -469,88 +469,6 @@ function Sneeuw() {
   );
 }
 
-// Het huisje hoort bij het diertje: het staat op de grond in dezelfde scène,
-// met een schaduw eronder, in plaats van als los plaatje ergens te zweven.
-function House({ id }: { id: string }) {
-  const x = 296;
-  const y = GROUND + 62;
-  const shadowDefs = (
-    <defs>
-      <radialGradient id="houseShadow" cx="50%" cy="50%" r="50%">
-        <stop offset="0" stopColor="#000000" stopOpacity="0.3" />
-        <stop offset="65%" stopColor="#000000" stopOpacity="0.16" />
-        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-      </radialGradient>
-    </defs>
-  );
-  const shadow = (
-    <>
-      {shadowDefs}
-      <ellipse cx={x} cy={y + 2} rx={54} ry={13} fill="url(#houseShadow)" />
-    </>
-  );
-
-
-  if (id === "mand") {
-    return (
-      <g>
-        {shadow}
-        <path d={`M${x - 30} ${y - 4} L${x - 24} ${y - 26} L${x + 24} ${y - 26} L${x + 30} ${y - 4} z`} fill="#c07a4a" />
-        <path d={`M${x - 32} ${y - 26} q32 -12 64 0 q-32 8 -64 0z`} fill="#d9955f" />
-        <path d={`M${x - 26} ${y - 14} h52`} stroke="#a3603a" strokeWidth="2.5" />
-        <path d={`M${x - 12} ${y - 27} q12 -9 24 0`} stroke="#f2a6bd" strokeWidth="4" fill="none" strokeLinecap="round" />
-      </g>
-    );
-  }
-  if (id === "tent") {
-    return (
-      <g>
-        {shadow}
-        <path d={`M${x} ${y - 58} L${x + 38} ${y} L${x - 38} ${y} z`} fill="#f2a6bd" />
-        <path d={`M${x} ${y - 58} L${x + 38} ${y} L${x + 6} ${y} z`} fill="#e58ba6" />
-        <path d={`M${x - 11} ${y} q11 -28 22 0z`} fill="#5a3a2a" />
-        <path d={`M${x} ${y - 58} v-12 l12 6z`} fill="#f7d154" />
-      </g>
-    );
-  }
-  if (id === "kasteel") {
-    return (
-      <g>
-        {shadowDefs}
-        <ellipse cx={x} cy={y + 3} rx={62} ry={15} fill="url(#houseShadow)" />
-
-        <rect x={x - 44} y={y - 8} width={88} height={12} rx={6} fill="#c2b6a3" />
-        <rect x={x - 40} y={y - 56} width={80} height={56} rx={4} fill="#d8cbb8" />
-
-        <rect x={x - 46} y={y - 76} width={18} height={76} fill="#c9bba6" />
-        <rect x={x + 28} y={y - 76} width={18} height={76} fill="#c9bba6" />
-        <path d={`M${x - 46} ${y - 76} l9 -14 l9 14z`} fill="#a8543f" />
-        <path d={`M${x + 28} ${y - 76} l9 -14 l9 14z`} fill="#a8543f" />
-        {[0, 1, 2, 3].map((i) => <rect key={i} x={x - 36 + i * 20} y={y - 66} width={10} height={12} fill="#d8cbb8" />)}
-        <path d={`M${x - 14} ${y} v-22 a14 14 0 0 1 28 0 v22z`} fill="#8a5a3c" />
-        <rect x={x - 2} y={y - 100} width={3} height={22} fill="#8a5a3c" />
-        <path d={`M${x + 1} ${y - 100} h18 l-18 9z`} fill="#ef7fa6" />
-      </g>
-    );
-  }
-  // standaard: huisje
-  return (
-    <g>
-      {shadowDefs}
-      <ellipse cx={x} cy={y + 3} rx={56} ry={14} fill="url(#houseShadow)" />
-
-      <rect x={x - 34} y={y - 8} width={68} height={11} rx={5} fill="#d8c3a2" />
-      <rect x={x + 14} y={y - 90} width={9} height={22} fill="#8a5a3c" />
-      <rect x={x - 30} y={y - 44} width={60} height={44} rx={4} fill="#e9d3b4" />
-
-      <path d={`M${x - 38} ${y - 44} L${x} ${y - 76} L${x + 38} ${y - 44} z`} fill="#a8543f" />
-      <rect x={x - 9} y={y - 26} width={18} height={26} rx={3} fill="#8a5a3c" />
-      <rect x={x + 12} y={y - 36} width={14} height={12} rx={2} fill="#bfe3f5" stroke="#8a5a3c" strokeWidth="2" />
-      <circle cx={x - 22} cy={y - 34} r="5" fill="#f2a6bd" />
-    </g>
-  );
-}
-
 const SCENES: Record<string, () => ReactElement> = {
   kamer: Kamer,
   tuin: Tuin,
@@ -560,12 +478,11 @@ const SCENES: Record<string, () => ReactElement> = {
   sneeuw: Sneeuw,
 };
 
-export function PetScene({ id, house }: { id: string; house?: string }) {
+export function PetScene({ id }: { id: string }) {
   const Scene = SCENES[id] ?? Tuin;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden className="pointer-events-none absolute inset-0 h-full w-full">
       <Scene />
-      {house && house !== "geen" && <House id={house} />}
     </svg>
   );
 }

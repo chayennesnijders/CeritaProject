@@ -714,6 +714,36 @@ export type Database = {
           },
         ]
       }
+      pet_games: {
+        Row: {
+          created_at: string
+          game: string
+          id: string
+          play_date: string
+          score: number
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          created_at?: string
+          game: string
+          id?: string
+          play_date?: string
+          score: number
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          created_at?: string
+          game?: string
+          id?: string
+          play_date?: string
+          score?: number
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       pet_lists: {
         Row: {
           created_at: string
@@ -1246,6 +1276,10 @@ export type Database = {
       }
       conv_other: { Args: { _conv: string }; Returns: string }
       dm_other_read_at: { Args: { _conv: string }; Returns: string }
+      finish_pet_game: {
+        Args: { _game: string; _score: number }
+        Returns: number
+      }
       free_items_available: { Args: never; Returns: number }
       has_role: {
         Args: {
