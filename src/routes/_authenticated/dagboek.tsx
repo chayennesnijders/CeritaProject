@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { useSignedImage } from "@/lib/articles";
 import { Button } from "@/components/ui/button";
@@ -32,17 +33,12 @@ function DagboekPage() {
 
 function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   const qc = useQueryClient();
-  const today = new Date().toISOString().slice(0, 10);
   const [text, setText] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [audio, setAudio] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const { data: challenge } = useQuery({
-    queryKey: ["challenge", today],
-    queryFn: async () =>
-      (await supabase.from("daily_challenges").select("*").lte("challenge_date", today).order("challenge_date", { ascending: false }).limit(1).maybeSingle()).data,
-  });
+  const { data: challenge } = useTodayChallenge();
 
   const { data: entries } = useQuery({
     queryKey: ["diary", me?.profile?.id],

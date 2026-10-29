@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ModerationNotice } from "@/components/ModerationNotice";
 
@@ -11,12 +10,7 @@ export const Route = createFileRoute("/_authenticated/home")({
 
 function HomePage() {
   const { data: me } = useMe();
-  const today = new Date().toISOString().slice(0, 10);
-  const { data: challenge } = useQuery({
-    queryKey: ["challenge", today],
-    queryFn: async () =>
-      (await supabase.from("daily_challenges").select("*").lte("challenge_date", today).order("challenge_date", { ascending: false }).limit(1).maybeSingle()).data,
-  });
+  const { data: challenge } = useTodayChallenge();
   const p = me?.profile;
   return (
     <div className="space-y-5 pt-2">

@@ -1267,6 +1267,16 @@ export type Database = {
         Args: { _action: string; _report: string; _response?: string }
         Returns: string
       }
+      today_challenge: {
+        Args: never
+        Returns: {
+          challenge_date: string
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+        }[]
+      }
     }
     Enums: {
       age_group: "junior" | "senior" | "adult"
