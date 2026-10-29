@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/auth";
+import { Riti3D } from "@/components/Riti3D";
 
 const KEY = "cerita-rondleiding-gezien";
 type Step = { target?: string; emoji: string; title: string; text: string };
 const STEPS: Step[] = [
-  { emoji: "👋", title: "Welkom bij CeritaProject!", text: "We laten je even zien waar alles staat. Kijk naar het oplichtende vakje." },
-  { target: "home", emoji: "🏠", title: "Home", text: "Hier: je dagopdracht, de quote van vandaag en berichten van de beheerders." },
+  { emoji: "👋", title: "Welkom bij CeritaProject!", text: "Ik ben Riti, een klein vriendje voor grote verhalen. Ik laat je even zien waar alles staat. Kijk naar het oplichtende vakje." },
+  { target: "home", emoji: "🏠", title: "Home", text: "Hier vertel je mij hoe je je voelt, en zie je je dagopdracht, je diertje en een positief zinnetje." },
   { target: "community", emoji: "👥", title: "Community", text: "Hier vind je groepen met leeftijdsgenoten. Tik op een groep om mee te chatten." },
   { target: "ontdekken", emoji: "🧭", title: "Ontdekken", text: "Hier staan artikelen en anonieme verhalen van andere jongeren." },
   { target: "berichten", emoji: "💬", title: "Berichten", text: "Hier zijn je privéchats en kun je vrienden zoeken." },
@@ -59,8 +60,10 @@ export function WelcomeTour() {
       )}
       <div className={`absolute inset-x-0 mx-auto w-[calc(100%-2rem)] max-w-sm ${rect ? (atTop ? "top-24" : "bottom-32") : "top-1/2 -translate-y-1/2"}`}>
         <div className="rounded-3xl border-2 border-foreground bg-card p-5 text-center shadow-soft">
-          <div className="text-4xl">{s.emoji}</div>
-          <h2 className="mt-2 text-xl font-extrabold">{s.title}</h2>
+          <Riti3D size={rect ? 96 : 150} wave={!rect} className="mx-auto -mt-2" />
+          <h2 className="text-xl font-extrabold">
+            {s.emoji} {s.title}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">{s.text}</p>
           <div className="mt-3 flex justify-center gap-1">
             {steps.map((_, n) => <span key={n} className={`size-2 rounded-full ${n === i ? "bg-primary" : "bg-muted"}`} />)}

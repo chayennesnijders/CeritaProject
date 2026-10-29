@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { challengeDay, useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ModerationNotice } from "@/components/ModerationNotice";
+import { Riti3D } from "@/components/Riti3D";
 import { CARE_ACTIONS, levelFor, petDay, speciesEmoji } from "@/lib/pet";
 import { useUnreadCounts } from "@/lib/unread";
 import { useDiscover } from "@/lib/use-discover";
@@ -74,7 +75,7 @@ function HomePage() {
         </Link>
       )}
 
-      <MoodCheckIn uid={uid} day={day} />
+      <MoodCheckIn uid={uid} day={day} name={p?.display_name ?? ""} />
       <ChallengeCard uid={uid} />
       <PetCard uid={uid} />
       <AffirmationCard day={day} />
@@ -84,7 +85,8 @@ function HomePage() {
 }
 
 /** "Hoe voel je je vandaag?" Remembered per member and day on this device only; nobody else sees it. */
-function MoodCheckIn({ uid, day }: { uid: string | undefined; day: string }) {
+/** Riti asks how you feel. */
+function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string; name: string }) {
   const key = uid ? `cerita-gevoel-${uid}-${day}` : null;
   const [mood, setMood] = useState<MoodId | null>(null);
   useEffect(() => {
@@ -108,10 +110,32 @@ function MoodCheckIn({ uid, day }: { uid: string | undefined; day: string }) {
 
   return (
     <section className="rounded-3xl bg-card p-5 shadow-soft">
+      <div className="-ml-2 -mt-2 flex items-center">
+        <Riti3D size={130} />
+        <div
+          key={mood ?? "vraag"}
+          className="relative flex-1 rounded-2xl bg-muted p-3 text-sm animate-in fade-in zoom-in-95"
+        >
+          <span
+            aria-hidden
+            className="absolute -left-1.5 top-1/2 size-3 -translate-y-1/2 rotate-45 bg-muted"
+          />
+          {!m ? (
+            <>
+              <p className="font-semibold">
+                Hoi{name ? ` ${name}` : ""}! Ik ben Riti 🧸 Hoe voel je je vandaag?
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">Alleen jij ziet je antwoord.</p>
+            </>
+          ) : (
+            <p>
+              {m.emoji} {m.reply}
+            </p>
+          )}
+        </div>
+      </div>
       {!m ? (
         <>
-          <p className="font-semibold">Hoe voel je je vandaag?</p>
-          <p className="text-xs text-muted-foreground">Alleen jij ziet je antwoord.</p>
           <div className="mt-3 grid grid-cols-5 gap-1">
             {MOODS.map((x) => (
               <button
@@ -127,15 +151,6 @@ function MoodCheckIn({ uid, day }: { uid: string | undefined; day: string }) {
         </>
       ) : (
         <div className="animate-in fade-in zoom-in-95">
-          <div className="flex items-start gap-3">
-            <span className="text-4xl">{m.emoji}</span>
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">
-                Je voelt je vandaag: <b>{m.label.toLowerCase()}</b>
-              </p>
-              <p className="mt-1 text-sm">{m.reply}</p>
-            </div>
-          </div>
           <div className="mt-3 space-y-2">
             {m.tips.map((t) => (
               <Link
