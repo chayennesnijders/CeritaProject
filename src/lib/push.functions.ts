@@ -203,3 +203,22 @@ export const notifyGroupInvite = createServerFn({ method: "POST" })
     });
     return { sent };
   });
+
+// Admin-only: when a planned story appears, push to everyone who gave it a heart on the story board.
+export const notifyStoryVoters = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ planId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Alleen beheerders.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: plan } = await supabaseAdmin.from("story_plans").select("title, emoji, status, article_id").eq("id", data.planId).maybeSingle();
+    if (!plan || plan.status !== "verschenen") return { sent: 0, users: 0 };
+    const { data: votes } = await supabaseAdmin.from("story_votes").select("user_id").eq("plan_id", data.planId);
+    const link = plan.article_id ? `/ontdekken/${plan.article_id}` : "/ontdekken";
+    let sent = 0;
+    for (const v of votes ?? []) {
+      sent += await pushToUser(v.user_id, { title: `${plan.emoji} Het verhaal waar je op wachtte is er!`, body: plan.title, link, tag: `story-${data.planId}` });
+    }
+    return { sent, users: votes?.length ?? 0 };
+  });

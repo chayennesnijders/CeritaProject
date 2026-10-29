@@ -372,6 +372,13 @@
       "when": 1792600600000,
       "tag": "0052_pet_minigames",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1792600700000,
+      "tag": "0053_story_board",
+      "breakpoints": true
     }
   ]
 }

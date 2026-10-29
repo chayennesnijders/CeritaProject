@@ -10,6 +10,7 @@ import { AnnouncementSender } from "@/components/AnnouncementSender";
 import { ArticleComposer } from "@/components/ArticleComposer";
 import { ShopOrdersAdmin } from "@/components/ShopOrdersAdmin";
 import { StorySubmissionsAdmin } from "@/components/StorySubmissionsAdmin";
+import { StoryBoardAdmin } from "@/components/StoryBoardAdmin";
 import { AdminWeekly } from "@/components/AdminWeekly";
 import { ReportInbox } from "@/components/ReportInbox";
 import { reportsQueryOptions } from "@/lib/reports";
@@ -18,6 +19,7 @@ const TABS = [
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
+  { id: "verhalenbord", label: "Verhalenbord" },
   { id: "groepen", label: "Groepen" },
   { id: "logboek", label: "Logboek" },
 ] as const;
@@ -219,6 +221,8 @@ export function AdminPanel() {
           <StorySubmissionsAdmin />
         </div>
       )}
+
+      {tab === "verhalenbord" && <StoryBoardAdmin />}
 
       {tab === "groepen" && (
         <div className="space-y-5">

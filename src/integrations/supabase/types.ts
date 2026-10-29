@@ -1198,6 +1198,54 @@ export type Database = {
         }
         Relationships: []
       }
+      story_plans: {
+        Row: {
+          article_id: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          emoji: string
+          id: string
+          planned_date: string | null
+          published_at: string | null
+          sort: number
+          status: string
+          teaser: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          article_id?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          emoji?: string
+          id?: string
+          planned_date?: string | null
+          published_at?: string | null
+          sort?: number
+          status?: string
+          teaser?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          article_id?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          emoji?: string
+          id?: string
+          planned_date?: string | null
+          published_at?: string | null
+          sort?: number
+          status?: string
+          teaser?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       story_submissions: {
         Row: {
           body: string
@@ -1235,6 +1283,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      story_votes: {
+        Row: {
+          created_at: string
+          plan_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          plan_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          plan_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -1319,6 +1385,24 @@ export type Database = {
         Args: { _action: string; _report: string; _response?: string }
         Returns: string
       }
+      story_board: {
+        Args: never
+        Returns: {
+          article_id: string | null
+          category: string
+          emoji: string
+          id: string
+          planned_date: string | null
+          published_at: string | null
+          sort: number
+          status: string
+          teaser: string | null
+          title: string
+          voted: boolean
+          votes: number
+        }[]
+      }
+      story_is_planned: { Args: { _plan: string }; Returns: boolean }
       today_challenge: {
         Args: never
         Returns: {

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ARTICLE_CATEGORIES, categoryLabel, excerpt, useArticleImage } from "@/lib/articles";
+import { ComingSoon } from "@/components/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/ontdekken/")({
   head: () => ({
@@ -36,6 +37,7 @@ function OntdekkenPage() {
     <div className="pt-2">
       <h1 className="text-3xl">Ontdekken</h1>
       <p className="mt-1 text-sm text-muted-foreground">Verhalen en tips van andere jongeren. Lees in je eigen tempo.</p>
+      <ComingSoon />
       <div className="mt-4 flex flex-wrap gap-2">
         {["alles", ...ARTICLE_CATEGORIES].map((c) => (
           <button
