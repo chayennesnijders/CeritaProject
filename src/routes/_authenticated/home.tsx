@@ -30,7 +30,7 @@ function HomePage() {
       <div className="grid grid-cols-2 gap-3">
         <Link to="/community" className="rounded-3xl bg-card p-5 shadow-soft"><p className="text-2xl">💬</p><p className="mt-2 font-semibold">Community</p><p className="text-xs text-muted-foreground">Praat mee in groepen</p></Link>
         <Link to="/diertje" className="rounded-3xl bg-accent p-5"><p className="text-2xl">🐾</p><p className="mt-2 font-semibold">Mijn diertje</p><p className="text-xs text-muted-foreground">Verzorg en zie het groeien</p></Link>
-        <Link to="/ontdekken" className="rounded-3xl bg-card p-5 shadow-soft"><p className="text-2xl">📖</p><p className="mt-2 font-semibold">Verhalen</p><p className="text-xs text-muted-foreground">Lees verhalen en tips</p></Link>
+        <Link to="/ontdekken" className="rounded-3xl bg-card p-5 shadow-soft"><p className="text-2xl">📖</p><p className="mt-2 font-semibold">Ontdekken</p><p className="text-xs text-muted-foreground">Lees verhalen en artikelen</p></Link>
         <Link to="/dagboek" className="rounded-3xl bg-card p-5 shadow-soft"><p className="text-2xl">📔</p><p className="mt-2 font-semibold">Dagboek</p><p className="text-xs text-muted-foreground">Privé, met slot</p></Link>
         <Link to="/vrienden" className="rounded-3xl bg-card p-5 shadow-soft"><p className="text-2xl">💛</p><p className="mt-2 font-semibold">Vrienden zoeken</p><p className="text-xs text-muted-foreground">Vind leden van jouw leeftijd</p></Link>
         <Link to="/shop" className="rounded-3xl bg-card p-5 shadow-soft"><p className="text-2xl">🛍️</p><p className="mt-2 font-semibold">CeritaShop</p><p className="text-xs text-muted-foreground">Binnenkort</p></Link>

@@ -407,6 +407,13 @@
       "when": 1792601100000,
       "tag": "0057_discover_interactions",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792601200000,
+      "tag": "0058_article_kind",
+      "breakpoints": true
     }
   ]
 }

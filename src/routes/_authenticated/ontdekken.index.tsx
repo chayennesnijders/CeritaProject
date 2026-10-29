@@ -8,6 +8,9 @@ import { ComingSoon } from "@/components/ComingSoon";
 import {
   categoryCounts,
   filterStories,
+  KINDS,
+  kindForTab,
+  ofKind,
   readingMinutes,
   sortStories,
   storiesByCategory,
@@ -23,17 +26,19 @@ export const Route = createFileRoute("/_authenticated/ontdekken/")({
       { title: "Ontdekken — CeritaProject" },
       {
         name: "description",
-        content: "Lees verhalen en tips van andere jongeren in CeritaProject.",
+        content: "Lees verhalen en artikelen in CeritaProject.",
       },
       { property: "og:title", content: "Ontdekken — CeritaProject" },
       {
         property: "og:description",
-        content: "Lees verhalen en tips van andere jongeren in CeritaProject.",
+        content: "Lees verhalen en artikelen in CeritaProject.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { soort?: "artikelen" } =>
+    s["soort"] === "artikelen" ? { soort: "artikelen" } : {},
   component: OntdekkenPage,
 });
 
@@ -42,13 +47,18 @@ const NO_FILTER: StoryFilter = { query: "", category: null, onlySaved: false, on
 function OntdekkenPage() {
   const { data: me } = useMe();
   const nav = useNavigate();
-  const { stories, isLoading, counts, saved, read } = useDiscover(me?.user.id);
+  const { soort } = Route.useSearch();
+  const k = kindForTab(soort);
+  const { stories: all, isLoading, counts, saved, read } = useDiscover(me?.user.id);
+  const stories = ofKind(all, k.kind);
   const [f, setF] = useState<StoryFilter>(NO_FILTER);
   const [sort, setSort] = useState<"nieuw" | "herkend">("nieuw");
   const today = storyOfTheDay(stories, challengeDay());
   const shown = sortStories(filterStories(stories, f, saved, read), sort, counts);
   const filtering = f.query !== "" || f.category !== null || f.onlySaved || f.onlyUnread;
   const unreadCount = stories.filter((s) => !read.has(s.id)).length;
+  const savedCount = stories.filter((s) => saved.has(s.id)).length;
+  const n = (x: number) => `${x} ${x === 1 ? k.one : k.many}`;
 
   function surprise() {
     const pool = stories.filter((s) => !read.has(s.id));
@@ -65,7 +75,9 @@ function OntdekkenPage() {
         <div>
           <h1 className="text-3xl">Ontdekken</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Echte verhalen van jongeren. Lees in je eigen tempo.
+            {k.kind === "verhaal"
+              ? "Echte verhalen van jongeren. Lees in je eigen tempo."
+              : "Uitleg en tips over hoe je je voelt en wat je meemaakt."}
           </p>
         </div>
         <button
@@ -77,12 +89,26 @@ function OntdekkenPage() {
         </button>
       </div>
 
-      <label className="mt-4 flex items-center gap-2 rounded-full bg-card px-4 py-2.5 shadow-soft">
+      <div className="mt-4 grid grid-cols-2 gap-1 rounded-full bg-card p-1 shadow-soft">
+        {KINDS.map((x) => (
+          <Link
+            key={x.kind}
+            to="/ontdekken"
+            search={x.tab === "artikelen" ? { soort: "artikelen" } : {}}
+            onClick={() => setF(NO_FILTER)}
+            className={`rounded-full py-2 text-center text-sm font-semibold transition-colors ${x.kind === k.kind ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            {x.emoji} {x.label} · {ofKind(all, x.kind).length}
+          </Link>
+        ))}
+      </div>
+
+      <label className="mt-3 flex items-center gap-2 rounded-full bg-card px-4 py-2.5 shadow-soft">
         <Search className="size-4 shrink-0 text-muted-foreground" />
         <input
           value={f.query}
           onChange={(e) => setF({ ...f, query: e.target.value })}
-          placeholder="Zoek een verhaal, bijvoorbeeld 'pesten'"
+          placeholder={`Zoek een ${k.one}, bijvoorbeeld 'pesten'`}
           className="min-w-0 flex-1 bg-transparent text-sm outline-none"
         />
         {f.query && (
@@ -101,7 +127,7 @@ function OntdekkenPage() {
           <HeroImage imageUrl={today.image_url} />
           <div className="relative p-5 pt-32">
             <span className="rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-              🌟 Verhaal van de dag
+              🌟 {k.kind === "verhaal" ? "Verhaal" : "Artikel"} van de dag
             </span>
             <p className="mt-3 font-display text-2xl leading-snug text-white drop-shadow">
               {today.title}
@@ -114,7 +140,7 @@ function OntdekkenPage() {
         </Link>
       )}
 
-      {!filtering && <ComingSoon />}
+      {!filtering && k.kind === "verhaal" && <ComingSoon />}
 
       <div className="-mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-1">
         <button
@@ -133,7 +159,7 @@ function OntdekkenPage() {
           onClick={() => setF({ ...f, onlySaved: !f.onlySaved })}
           className={chip(f.onlySaved)}
         >
-          ⭐ Bewaard · {saved.size}
+          ⭐ Bewaard · {savedCount}
         </button>
       </div>
       {filtering && (
@@ -146,9 +172,7 @@ function OntdekkenPage() {
             >
               <span className="text-xl">{categoryEmoji(category)}</span>
               <span className="text-xs font-semibold">{categoryLabel(category)}</span>
-              <span className="text-[11px] opacity-70">
-                {count} {count === 1 ? "verhaal" : "verhalen"}
-              </span>
+              <span className="text-[11px] opacity-70">{n(count)}</span>
             </button>
           ))}
         </div>
@@ -201,9 +225,7 @@ function OntdekkenPage() {
       ) : (
         <>
           <div className="mt-4 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
-              {shown.length} {shown.length === 1 ? "verhaal" : "verhalen"}
-            </span>
+            <span className="text-muted-foreground">{n(shown.length)}</span>
             <div className="flex rounded-full bg-card p-0.5 shadow-soft">
               {(
                 [
@@ -262,17 +284,17 @@ function OntdekkenPage() {
 
       <div className="mt-3 space-y-3">
         {!isLoading && stories.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nog geen verhalen. Er komen er snel meer.</p>
+          <p className="text-sm text-muted-foreground">Nog geen {k.many}. Er komen er snel meer.</p>
         )}
         {!isLoading && stories.length > 0 && shown.length === 0 && (
           <div className="rounded-3xl bg-card p-5 text-center text-sm shadow-soft">
             <p className="text-3xl">🔍</p>
             <p className="mt-1">
               {f.onlySaved
-                ? "Je hebt nog niets bewaard. Tik op ⭐ bij een verhaal."
+                ? `Je hebt nog niets bewaard. Tik op ⭐ bij een ${k.one}.`
                 : f.onlyUnread
                   ? "Je hebt alles gelezen! 🎉"
-                  : "Geen verhalen gevonden. Probeer een ander woord."}
+                  : `Geen ${k.many} gevonden. Probeer een ander woord.`}
             </p>
             <button onClick={() => setF(NO_FILTER)} className="mt-3 text-primary underline">
               Alles laten zien

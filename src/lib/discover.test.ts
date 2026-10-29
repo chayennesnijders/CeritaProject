@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   categoryCounts,
   filterStories,
+  kindForTab,
+  ofKind,
   readingMinutes,
   relatedStories,
   sortStories,
@@ -92,5 +94,17 @@ describe("discover", () => {
       ["jong-zijn", 1, ["b"]],
       ["relaties", 1, ["d"]],
     ]);
+  });
+
+  it("splits stories and articles", () => {
+    const items = [
+      { id: "1", kind: "verhaal" },
+      { id: "2", kind: "artikel" },
+      { id: "3", kind: "iets-anders" },
+    ];
+    expect(ofKind(items, "verhaal").map((x) => x.id)).toEqual(["1", "3"]);
+    expect(ofKind(items, "artikel").map((x) => x.id)).toEqual(["2"]);
+    expect(kindForTab("artikelen").kind).toBe("artikel");
+    expect(kindForTab(undefined).kind).toBe("verhaal");
   });
 });

@@ -111,6 +111,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_published: boolean
+          kind: string
           min_age: number
           title: string
           updated_at: string
@@ -125,6 +126,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_published?: boolean
+          kind?: string
           min_age?: number
           title: string
           updated_at?: string
@@ -139,6 +141,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_published?: boolean
+          kind?: string
           min_age?: number
           title?: string
           updated_at?: string

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { categoryLabel, photoInParagraph, useArticleImage } from "@/lib/articles";
 import { useMe } from "@/lib/auth";
-import { NO_REACTIONS, REACTIONS, readingMinutes, relatedStories } from "@/lib/discover";
+import { kindInfo, NO_REACTIONS, ofKind, REACTIONS, readingMinutes, relatedStories } from "@/lib/discover";
 import { useDiscover, useStoryActions } from "@/lib/use-discover";
 
 export const Route = createFileRoute("/_authenticated/ontdekken/$articleId")({
@@ -36,11 +36,15 @@ function ArticlePage() {
   const markRead = actions.markRead;
   useEffect(() => { if (article?.id && uid) markRead(article.id); }, [article?.id, uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const k = kindInfo(article?.kind ?? "verhaal");
+  const back = k.tab === "artikelen" ? { soort: "artikelen" as const } : {};
+  const related = article ? relatedStories(article, ofKind(stories, k.kind), read) : [];
+
   if (isLoading) return <p className="pt-6 text-sm text-muted-foreground">Laden…</p>;
   if (!article)
     return (
       <div className="pt-6">
-        <p className="text-sm text-muted-foreground">Dit verhaal is er niet (meer).</p>
+        <p className="text-sm text-muted-foreground">Dit verhaal of artikel is er niet (meer).</p>
         <Link to="/ontdekken" className="mt-3 inline-block rounded-full bg-secondary px-4 py-2 text-sm text-secondary-foreground">
           Terug naar Ontdekken
         </Link>
@@ -49,15 +53,18 @@ function ArticlePage() {
 
   return (
     <article className="pt-2">
-      <Link to="/ontdekken" className="text-sm text-primary underline">
-        Terug naar Ontdekken
+      <Link to="/ontdekken" search={back} className="text-sm text-primary underline">
+        Terug naar {k.label}
       </Link>
       {imageSrc ? (
         <img src={imageSrc} alt="" className="mt-4 w-full rounded-3xl object-cover" />
       ) : (
         <p className="mt-4 text-4xl">{article.emoji}</p>
       )}
-      <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{categoryLabel(article.category)}</p>
+      <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="mr-2 rounded-full bg-secondary px-2 py-0.5 text-secondary-foreground">{k.emoji} {k.one}</span>
+        {categoryLabel(article.category)}
+      </p>
       <h1 className="mt-1 text-3xl">{article.title}</h1>
       <div className="mt-2 flex items-center justify-between gap-2">
         <p className="text-xs text-muted-foreground">{new Date(article.created_at).toLocaleDateString("nl-NL")} · ⏱️ {readingMinutes(article.body)} min lezen</p>
@@ -66,7 +73,7 @@ function ArticlePage() {
           {saved.has(article.id) ? "⭐ Bewaard" : "☆ Bewaren"}
         </button>
       </div>
-      {SENSITIVE.has(article.category) && (
+      {k.kind === "verhaal" && SENSITIVE.has(article.category) && (
         <div className="mt-4 rounded-2xl bg-secondary p-4 text-sm text-secondary-foreground">
           💛 Dit is een echt verhaal van een jongere en het kan over moeilijke dingen gaan. Lees in je eigen tempo en stop wanneer je wilt.
           Raakt het je? Praat erover met iemand die je vertrouwt, of bel gratis de Kindertelefoon (0800-0432) of 113 (0800-0113).
@@ -79,8 +86,8 @@ function ArticlePage() {
         })}
       </div>
       <section className="mt-8 rounded-3xl bg-card p-5 text-center shadow-soft">
-        <p className="font-semibold">Hoe raakt dit verhaal je?</p>
-        <p className="text-xs text-muted-foreground">De schrijver ziet hoeveel steun er is, maar niemand ziet van wie.</p>
+        <p className="font-semibold">{k.kind === "verhaal" ? "Hoe raakt dit verhaal je?" : "Wat vond je van dit artikel?"}</p>
+        <p className="text-xs text-muted-foreground">Iedereen ziet hoeveel reacties er zijn, maar niemand ziet van wie.</p>
         <div className="mt-3 grid grid-cols-3 gap-2">
           {REACTIONS.map((r) => {
             const on = reacted.has(`${article.id}:${r.kind}`);
@@ -96,11 +103,11 @@ function ArticlePage() {
           })}
         </div>
       </section>
-      {relatedStories(article, stories, read).length > 0 && (
+      {related.length > 0 && (
         <section className="mt-6">
           <h2 className="text-lg">📚 Lees ook</h2>
           <div className="mt-2 space-y-2">
-            {relatedStories(article, stories, read).map((s) => (
+            {related.map((s) => (
               <Link key={s.id} to="/ontdekken/$articleId" params={{ articleId: s.id }} className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3 shadow-soft">
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold">{s.title}</span>
@@ -113,8 +120,8 @@ function ArticlePage() {
         </section>
       )}
       <div className="mt-6 flex flex-col gap-2">
-        <Link to="/ontdekken" className="rounded-full bg-secondary px-4 py-2.5 text-center text-sm font-semibold text-secondary-foreground">
-          Meer verhalen lezen
+        <Link to="/ontdekken" search={back} className="rounded-full bg-secondary px-4 py-2.5 text-center text-sm font-semibold text-secondary-foreground">
+          Meer {k.many} lezen
         </Link>
         <Link to="/verhaal-insturen" className="rounded-full bg-primary px-4 py-2.5 text-center text-sm font-semibold text-primary-foreground">
           Deel jouw verhaal

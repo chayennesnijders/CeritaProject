@@ -107,3 +107,31 @@ export function storiesByCategory<T extends StoryCard>(stories: T[]) {
     stories: newest.filter((s) => s.category === category),
   }));
 }
+
+/** Ontdekken has two tabs: personal stories and informative articles. */
+export const KINDS = [
+  {
+    kind: "verhaal",
+    tab: "verhalen",
+    emoji: "📖",
+    one: "verhaal",
+    many: "verhalen",
+    label: "Verhalen",
+  },
+  {
+    kind: "artikel",
+    tab: "artikelen",
+    emoji: "📰",
+    one: "artikel",
+    many: "artikelen",
+    label: "Artikelen",
+  },
+] as const;
+export type StoryKind = (typeof KINDS)[number]["kind"];
+export type KindTab = (typeof KINDS)[number]["tab"];
+export const kindInfo = (kind: string) => KINDS.find((k) => k.kind === kind) ?? KINDS[0];
+export const kindForTab = (tab: string | undefined) => KINDS.find((k) => k.tab === tab) ?? KINDS[0];
+
+/** Only the stories or only the articles (anything unknown counts as a story). */
+export const ofKind = <T extends { kind: string }>(items: T[], kind: StoryKind) =>
+  items.filter((s) => kindInfo(s.kind).kind === kind);

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ARTICLE_CATEGORIES, categoryLabel, type ArticleCategory } from "@/lib/articles";
+import { KINDS, kindInfo, type StoryKind } from "@/lib/discover";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-/** Beheerders schrijven hier verhalen en tips; die verschijnen meteen onder Ontdekken. */
+/** Beheerders schrijven hier verhalen en artikelen; die verschijnen meteen onder Ontdekken (elk in een eigen tabblad). */
 export function ArticleComposer() {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
@@ -26,6 +27,7 @@ export function ArticleComposer() {
   const [category, setCategory] = useState<ArticleCategory>("in-je-hoofd");
   const [photo, setPhoto] = useState<File | null>(null);
   const [sixteen, setSixteen] = useState(false);
+  const [kind, setKind] = useState<StoryKind>("verhaal");
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -35,7 +37,7 @@ export function ArticleComposer() {
       (
         await supabase
           .from("articles")
-          .select("id, title, emoji, category, is_published, created_at, min_age")
+          .select("id, title, emoji, category, is_published, created_at, min_age, kind")
           .order("created_at", { ascending: false })
       ).data ?? [],
   });
@@ -59,22 +61,21 @@ export function ArticleComposer() {
       }
       image_url = path;
     }
-    const { error } = await supabase
-      .from("articles")
-      .insert({
-        title,
-        body,
-        emoji: emoji || "📖",
-        category,
-        image_url,
-        min_age: sixteen ? 16 : 12,
-      });
+    const { error } = await supabase.from("articles").insert({
+      title,
+      body,
+      emoji: emoji || "📖",
+      category,
+      image_url,
+      min_age: sixteen ? 16 : 12,
+      kind,
+    });
     setBusy(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success("Verhaal geplaatst");
+    toast.success(kind === "verhaal" ? "Verhaal geplaatst" : "Artikel geplaatst");
     setTitle("");
     setBody("");
     setPhoto(null);
@@ -97,6 +98,12 @@ export function ArticleComposer() {
     refresh();
   }
 
+  async function setArticleKind(id: string, next: StoryKind) {
+    const { error } = await supabase.from("articles").update({ kind: next }).eq("id", id);
+    if (error) toast.error(error.message);
+    refresh();
+  }
+
   async function confirmRemove() {
     if (!deleting) return;
     const { data, error } = await supabase
@@ -105,14 +112,30 @@ export function ArticleComposer() {
       .eq("id", deleting.id)
       .select("id");
     if (error || !data?.length) toast.error(error?.message ?? "Verwijderen lukte niet.");
-    else toast.success("Verhaal verwijderd.");
+    else toast.success("Verwijderd.");
     setDeleting(null);
     refresh();
   }
 
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
-      <h2 className="text-lg">Verhalen &amp; tips</h2>
+      <h2 className="text-lg">Verhalen &amp; artikelen</h2>
+      <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
+        {KINDS.map((x) => (
+          <button
+            key={x.kind}
+            onClick={() => setKind(x.kind)}
+            className={`rounded-full py-1.5 text-sm font-semibold ${kind === x.kind ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            {x.emoji} {x.kind === "verhaal" ? "Verhaal" : "Artikel"}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {kind === "verhaal"
+          ? "Een verhaal is een echte ervaring van een jongere."
+          : "Een artikel geeft uitleg of tips, bijvoorbeeld over angst of slapen."}
+      </p>
       <div className="flex gap-2">
         <Input
           placeholder="📖"
@@ -142,7 +165,7 @@ export function ArticleComposer() {
         ))}
       </div>
       <Textarea
-        placeholder="Het verhaal. Laat een regel over tussen de alinea's."
+        placeholder={`${kind === "verhaal" ? "Het verhaal" : "Het artikel"}. Laat een regel over tussen de alinea's.`}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={6}
@@ -180,6 +203,15 @@ export function ArticleComposer() {
             </span>
             <span className="flex shrink-0 items-center gap-2">
               <button
+                className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold"
+                onClick={() =>
+                  setArticleKind(a.id, kindInfo(a.kind).kind === "verhaal" ? "artikel" : "verhaal")
+                }
+                title="Tik om te wisselen tussen verhaal en artikel"
+              >
+                {kindInfo(a.kind).emoji}
+              </button>
+              <button
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.min_age >= 16 ? "bg-primary text-primary-foreground" : "bg-muted"}`}
                 onClick={() => setAge(a.id, a.min_age >= 16 ? 12 : 16)}
                 title="Tik om te wisselen tussen iedereen (12+) en 16+"
@@ -203,12 +235,13 @@ export function ArticleComposer() {
         ))}
       </div>
       <p className="text-xs text-muted-foreground">
-        12+ = iedereen, 16+ = alleen leden van 16 jaar en ouder. Tik op het labeltje om te wisselen.
+        📖 = verhaal, 📰 = artikel. 12+ = iedereen, 16+ = alleen leden van 16 jaar en ouder. Tik op
+        een labeltje om te wisselen.
       </p>
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <AlertDialogContent className="rounded-3xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Verhaal verwijderen?</AlertDialogTitle>
+            <AlertDialogTitle>Verwijderen?</AlertDialogTitle>
             <AlertDialogDescription>
               "{deleting?.title}" verdwijnt voor altijd uit de app.
             </AlertDialogDescription>
