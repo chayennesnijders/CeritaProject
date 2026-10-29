@@ -79,34 +79,6 @@ function HomePage() {
       <PetCard uid={uid} />
       <AffirmationCard day={day} />
       <StoryOfTheDay uid={uid} day={day} />
-
-      <div>
-        <h2 className="text-lg">Snel naar</h2>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {[
-            { to: "/community", emoji: "💬", label: "Community", n: unread.groupTotal },
-            { to: "/dagboek", emoji: "📔", label: "Dagboek", n: 0 },
-            { to: "/ontdekken", emoji: "📖", label: "Ontdekken", n: 0 },
-            { to: "/vrienden", emoji: "💛", label: "Vrienden", n: 0 },
-            { to: "/verhaal-insturen", emoji: "✍️", label: "Deel je verhaal", n: 0 },
-            { to: "/shop", emoji: "🛍️", label: "Shop", n: 0 },
-          ].map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="relative flex flex-col items-center gap-1 rounded-3xl bg-card p-3 text-center shadow-soft transition-transform active:scale-95"
-            >
-              <span className="text-2xl">{l.emoji}</span>
-              <span className="text-xs font-semibold leading-tight">{l.label}</span>
-              {l.n > 0 && (
-                <span className="absolute right-2 top-2 min-w-5 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-5 text-primary-foreground">
-                  {l.n > 99 ? "99+" : l.n}
-                </span>
-              )}
-            </Link>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
