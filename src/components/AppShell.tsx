@@ -5,9 +5,10 @@ import { BirthdayPopup } from "@/components/BirthdayPopup";
 import { AppLock } from "@/components/AppLock";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { BirthdateGate } from "@/components/BirthdateGate";
+import { PetLink, StreakChip } from "@/components/HeaderStats";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
-import { Home, Users, Compass, MessageCircle, User, PawPrint, ShoppingBag, Shield } from "lucide-react";
+import { Home, Users, Compass, MessageCircle, User, ShoppingBag, Shield } from "lucide-react";
 import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,19 +66,24 @@ export function AppShell() {
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <BirthdayPopup />
       <WelcomeTour />
-      <header className="sticky top-0 z-20 flex items-center justify-between rounded-b-3xl bg-ink px-5 py-2 text-ink-foreground">
-        <Link to="/home" aria-label="Cerita Project"><img src="/cerita-beer.png" alt="Cerita Project" className="size-12 rounded-full bg-[#faf3ea] object-cover" /></Link>
-        <div className="flex items-center gap-1">
+      <header className="sticky top-0 z-20 flex items-center justify-between gap-2 rounded-b-3xl bg-ink px-4 py-2 text-ink-foreground">
+        <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
+          <img src="/cerita-beer.png" alt="" className="size-12 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
+          <span className="min-w-0 leading-tight">
+            <span className="block truncate font-display text-base">CeritaProject</span>
+            <span className="block truncate text-[10px] opacity-70">Jouw verhaal mag er zijn</span>
+          </span>
+        </Link>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <StreakChip uid={me?.user.id} />
           {me?.isAdmin && (
-            <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-2 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
+            <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
               <Shield className="size-5" />
               <TabBadge n={unread.reports} />
             </Link>
           )}
-          <Link to="/diertje" data-tour="diertje" aria-label="Mijn diertje" className="rounded-full p-2 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
-            <PawPrint className="size-5" />
-          </Link>
-          <Link to="/shop" data-tour="shop" aria-label="CeritaShop" className="rounded-full p-2 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
+          <PetLink uid={me?.user.id} />
+          <Link to="/shop" data-tour="shop" aria-label="CeritaShop" className="rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
             <ShoppingBag className="size-5" />
           </Link>
         </div>
