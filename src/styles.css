@@ -144,6 +144,7 @@
 @keyframes scene-drift { 0%,100% { transform: translateX(0) } 50% { transform: translateX(18px) } }
 @keyframes scene-twinkle { 0%,100% { opacity: .35 } 50% { opacity: 1 } }
 @keyframes scene-fall { 0% { transform: translateY(-12px); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(130px); opacity: 0 } }
+@keyframes confetti { 0% { transform: translateY(0) rotate(0); opacity: 0 } 10% { opacity: 1 } 100% { transform: translateY(110vh) rotate(540deg); opacity: .8 } }
 @keyframes scene-flap { 0%,100% { transform: translate(0,0) } 50% { transform: translate(16px,-14px) } }
 .scene-sway { animation: scene-sway 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100% }
 .scene-drift { animation: scene-drift 14s ease-in-out infinite }

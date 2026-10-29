@@ -1,40 +1,58 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
+import { birthdayAge } from "@/lib/birthday";
+import { challengeDay } from "@/lib/challenges";
 
-// Toont één keer per jaar een verjaardagskaart als het lid vandaag jarig is,
-// met een cadeautje: 25 punten voor het diertje (eenmalig per jaar).
-// We onthouden per toestel (localStorage) voor welk jaar de kaart al getoond is.
+const CONFETTI = ["🎉", "🎈", "✨", "🎊", "💖", "🌟"];
+
+// Toont na het inloggen één keer per jaar een verjaardagskaart als het lid vandaag jarig is
+// (Nederlandse datum), met een cadeautje: 25 punten voor het diertje (de server geeft die max. één keer per jaar).
+// Per account en toestel onthouden we (localStorage) voor welk jaar de kaart al getoond is.
 export function BirthdayPopup() {
   const { data: me } = useMe();
-  const [show, setShow] = useState(false);
+  const [age, setAge] = useState<number | null>(null);
   const [bonus, setBonus] = useState(0);
 
   useEffect(() => {
     const bd = me?.profile?.birthdate;
-    if (!bd) return;
-    const birth = new Date(bd);
-    const now = new Date();
-    if (birth.getMonth() !== now.getMonth() || birth.getDate() !== now.getDate()) return;
-    const key = `cerita-verjaardag-${now.getFullYear()}`;
-    if (localStorage.getItem(key)) return;
-    localStorage.setItem(key, "1");
-    // Cadeau ophalen: de server geeft 25 punten, max één keer per jaar.
+    if (!bd || !me) return;
+    const day = challengeDay();
+    const turns = birthdayAge(bd, day);
+    if (turns === null) return;
+    const key = `cerita-verjaardag-${me.user.id}-${day.slice(0, 4)}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      // Geen opslag (privévenster): dan gewoon tonen.
+    }
     supabase.rpc("claim_birthday_bonus").then(({ data }) => {
       setBonus(typeof data === "number" ? data : 0);
-      setShow(true);
+      setAge(turns);
     });
   }, [me]);
 
-  if (!show) return null;
+  if (age === null) return null;
   const name = me?.profile?.display_name ?? "";
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6" role="dialog" aria-modal="true">
-      <div className="w-full max-w-sm rounded-3xl bg-card p-8 text-center shadow-soft">
-        <p className="text-5xl">🎂</p>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-hidden bg-black/50 px-6" role="dialog" aria-modal="true" aria-label="Gefeliciteerd">
+      {Array.from({ length: 24 }, (_, i) => (
+        <span
+          key={i}
+          aria-hidden
+          className="pointer-events-none absolute -top-10 animate-[confetti_3.5s_linear_infinite] text-2xl"
+          style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i % 8) * 0.4}s` }}
+        >
+          {CONFETTI[i % CONFETTI.length]}
+        </span>
+      ))}
+      <div className="relative w-full max-w-sm animate-in zoom-in-90 rounded-3xl bg-card p-8 text-center shadow-soft duration-500">
+        <p className="animate-bounce text-6xl">🎂</p>
         <h2 className="mt-4 font-display text-3xl text-primary">Gefeliciteerd{name ? `, ${name}` : ""}!</h2>
+        <p className="mt-2 text-lg font-semibold">Je bent vandaag {age} jaar! 🥳</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Vandaag is jouw dag. We wensen je een hele fijne verjaardag! 🎉
+          Hiep hiep hoera! Het hele CeritaProject-team wenst je een superfijne verjaardag. Geniet van je dag, je verdient het 💛
         </p>
         {bonus > 0 && (
           <div className="mt-4 rounded-2xl bg-secondary p-4 text-secondary-foreground">
@@ -43,10 +61,10 @@ export function BirthdayPopup() {
           </div>
         )}
         <button
-          onClick={() => setShow(false)}
+          onClick={() => setAge(null)}
           className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground"
         >
-          Dankjewel! 🥳
+          Dankjewel! 🎈
         </button>
       </div>
     </div>
