@@ -597,7 +597,7 @@ export type Database = {
       }
       member_timeouts: {
         Row: {
-          admin_id: string
+          admin_id: string | null
           created_at: string
           id: string
           member_id: string
@@ -605,7 +605,7 @@ export type Database = {
           until: string
         }
         Insert: {
-          admin_id: string
+          admin_id?: string | null
           created_at?: string
           id?: string
           member_id: string
@@ -613,7 +613,7 @@ export type Database = {
           until: string
         }
         Update: {
-          admin_id?: string
+          admin_id?: string | null
           created_at?: string
           id?: string
           member_id?: string
@@ -639,21 +639,21 @@ export type Database = {
       }
       member_warnings: {
         Row: {
-          admin_id: string
+          admin_id: string | null
           created_at: string
           id: string
           member_id: string
           message: string
         }
         Insert: {
-          admin_id: string
+          admin_id?: string | null
           created_at?: string
           id?: string
           member_id: string
           message: string
         }
         Update: {
-          admin_id?: string
+          admin_id?: string | null
           created_at?: string
           id?: string
           member_id?: string

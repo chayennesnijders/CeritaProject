@@ -169,7 +169,7 @@ export function AdminPanel({ ledenOnly = false }: { ledenOnly?: boolean }) {
             <div className="mt-3 space-y-3">
               {data?.warnings.map((w) => (
                 <div key={w.id} className="rounded-2xl bg-muted p-3 text-sm">
-                  <p><span className="font-semibold">{data.names[w.admin_id] ?? "Beheerder"}</span> waarschuwde <span className="font-semibold">{data.names[w.member_id] ?? "een lid"}</span></p>
+                  <p><span className="font-semibold">{(w.admin_id && data.names[w.admin_id]) || "Beheerder"}</span> waarschuwde <span className="font-semibold">{data.names[w.member_id] ?? "een lid"}</span></p>
                   <p className="mt-1">“{w.message}”</p>
                   <p className="mt-1 text-xs text-muted-foreground">{new Date(w.created_at).toLocaleString("nl-NL")}</p>
                 </div>
@@ -186,7 +186,7 @@ export function AdminPanel({ ledenOnly = false }: { ledenOnly?: boolean }) {
                 return (
                   <div key={t.id} className="rounded-2xl bg-muted p-3 text-sm">
                     <p><span className="font-semibold">{data.names[t.member_id] ?? "Een lid"}</span> {active ? `heeft een time-out tot ${new Date(t.until).toLocaleString("nl-NL")}` : `had een time-out tot ${new Date(t.until).toLocaleString("nl-NL")}`}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Gegeven door {data.names[t.admin_id] ?? "beheerder"} op {new Date(t.created_at).toLocaleString("nl-NL")}{t.reason ? ` · Reden: ${t.reason}` : ""}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Gegeven door {(t.admin_id && data.names[t.admin_id]) || "beheerder"} op {new Date(t.created_at).toLocaleString("nl-NL")}{t.reason ? ` · Reden: ${t.reason}` : ""}</p>
                     {active && <Button size="sm" variant="outline" className="mt-2 rounded-full" onClick={() => endTimeout(t.id)}>Time-out beëindigen</Button>}
                   </div>
                 );

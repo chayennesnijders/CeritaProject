@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { enablePush, pushMessages } from "@/lib/push-client";
 import { UserAvatar } from "@/components/UserAvatar";
+import { DeleteAccount } from "@/components/DeleteAccount";
 import { Camera, Moon, Sun } from "lucide-react";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 
@@ -141,6 +142,7 @@ function ProfilePage() {
       </div>
       <Button onClick={save} className="h-12 w-full rounded-full">Opslaan</Button>
       <Button onClick={signOut} variant="outline" className="h-12 w-full rounded-full">Uitloggen</Button>
+      <DeleteAccount />
     </div>
   );
 }

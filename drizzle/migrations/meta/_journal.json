@@ -337,6 +337,13 @@
       "when": 1792600100000,
       "tag": "0047_storage_buckets_diary_audio",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1792600200000,
+      "tag": "0048_account_deletion",
+      "breakpoints": true
     }
   ]
 }
