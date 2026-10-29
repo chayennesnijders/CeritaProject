@@ -9,7 +9,7 @@ describe("artikel categorieën", () => {
     expect(categoryLabel("vriendschap")).toBe("Vriendschap");
     expect(categoryLabel("inspiratie")).toBe("Inspiratie");
     expect(categoryLabel("in-je-hoofd")).toBe("In je hoofd");
-    expect(categoryLabel("iets anders")).toBe("Verhalen");
+    expect(categoryLabel("iets anders")).toBe("Overig");
   });
 });
 

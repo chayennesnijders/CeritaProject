@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { enablePush, pushMessages } from "@/lib/push-client";
 import { UserAvatar } from "@/components/UserAvatar";
 import { DeleteAccount } from "@/components/DeleteAccount";
+import { ContactAdminsButton } from "@/components/ContactAdminsButton";
 import { Camera, Moon, Sun } from "lucide-react";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 
@@ -124,6 +125,7 @@ function ProfilePage() {
           ))}
         </div>
       </div>
+      <ContactAdminsButton uid={p.id} />
       <div className="space-y-4 rounded-3xl bg-card p-5 shadow-soft">
         <h2 className="text-lg">Privacy</h2>
         <label className="flex items-center justify-between gap-4 text-sm">Privéprofiel (alleen volgers zien je verhalen)<Switch checked={priv} onCheckedChange={setPriv} /></label>

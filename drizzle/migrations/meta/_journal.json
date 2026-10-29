@@ -435,6 +435,13 @@
       "when": 1792601500000,
       "tag": "0061_admin_news_push",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1792601600000,
+      "tag": "0062_admin_messages",
+      "breakpoints": true
     }
   ]
 }

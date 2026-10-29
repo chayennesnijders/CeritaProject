@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronRight, Search, X } from "lucide-react";
 import { categoryEmoji, categoryLabel, excerpt, useArticleImage } from "@/lib/articles";
-import { challengeDay } from "@/lib/challenges";
+import { useChallengeDay } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ComingSoon } from "@/components/ComingSoon";
 import {
@@ -53,7 +53,7 @@ function OntdekkenPage() {
   const stories = ofKind(all, k.kind);
   const [f, setF] = useState<StoryFilter>(NO_FILTER);
   const [sort, setSort] = useState<"nieuw" | "herkend">("nieuw");
-  const today = storyOfTheDay(stories, challengeDay());
+  const today = storyOfTheDay(stories, useChallengeDay());
   const shown = sortStories(filterStories(stories, f, saved, read), sort, counts);
   const filtering = f.query !== "" || f.category !== null || f.onlySaved || f.onlyUnread;
   const unreadCount = stories.filter((s) => !read.has(s.id)).length;

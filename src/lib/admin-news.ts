@@ -12,6 +12,7 @@ export const NEWS_KINDS = {
   aanmelding: { emoji: "🎉", label: "Nieuw lid", tab: "groepen" },
   bestelling: { emoji: "🛍️", label: "Nieuwe bestelling", tab: "overzicht" },
   verhaal: { emoji: "✍️", label: "Verhaal ingestuurd", tab: "verhalen" },
+  bericht: { emoji: "💌", label: "Bericht van een lid", tab: "berichten" },
   melding: { emoji: "🚩", label: "Melding", tab: "inbox" },
 } as const;
 export type NewsKind = keyof typeof NEWS_KINDS;
@@ -51,6 +52,7 @@ const PLURAL: Record<NewsKind, [string, string]> = {
   aanmelding: ["nieuw lid", "nieuwe leden"],
   bestelling: ["bestelling", "bestellingen"],
   verhaal: ["ingestuurd verhaal", "ingestuurde verhalen"],
+  bericht: ["bericht", "berichten"],
   melding: ["melding", "meldingen"],
 };
 

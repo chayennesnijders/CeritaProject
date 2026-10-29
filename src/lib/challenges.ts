@@ -21,7 +21,7 @@ export function challengeCycleDay(day: string): number {
 }
 
 /** Re-renders when the Dutch date changes, so an open app shows the new challenge right after midnight. */
-function useChallengeDay() {
+export function useChallengeDay() {
   const [day, setDay] = useState(challengeDay);
   useEffect(() => {
     const t = setInterval(() => setDay(challengeDay()), 30_000);

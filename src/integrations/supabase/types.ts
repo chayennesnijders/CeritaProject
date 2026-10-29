@@ -20,6 +20,45 @@ export type Database = {
         Update: { id?: number; last_run?: string }
         Relationships: []
       }
+      admin_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          replied_at: string | null
+          replied_by: string | null
+          reply: string | null
+          reply_seen: boolean
+          status: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          reply?: string | null
+          reply_seen?: boolean
+          status?: string
+          topic?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          reply?: string | null
+          reply_seen?: boolean
+          status?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_news_seen: {
         Row: { push: boolean; seen_at: string; user_id: string }
         Insert: { push?: boolean; seen_at?: string; user_id: string }
@@ -1413,6 +1452,8 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      answer_admin_message: { Args: { _message: string; _reply?: string }; Returns: string }
+      mark_admin_replies_seen: { Args: never; Returns: undefined }
       schedule_admin_news_push: { Args: { site_url: string }; Returns: number }
       admin_news: {
         Args: { _days?: number }

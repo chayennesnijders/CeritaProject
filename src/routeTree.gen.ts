@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
+import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
@@ -54,6 +55,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
   id: '/beheer',
   path: '/beheer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedContactRoute = AuthenticatedContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDagboekRoute = AuthenticatedDagboekRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
+  '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/beheer'
+    | '/contact'
     | '/dagboek'
     | '/diertje'
     | '/home'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/beheer'
+    | '/contact'
     | '/dagboek'
     | '/diertje'
     | '/home'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/beheer'
+    | '/_authenticated/contact'
     | '/_authenticated/dagboek'
     | '/_authenticated/diertje'
     | '/_authenticated/home'
@@ -340,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/beheer'
       fullPath: '/beheer'
       preLoaderRoute: typeof AuthenticatedBeheerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contact': {
+      id: '/_authenticated/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof AuthenticatedContactRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dagboek': {
@@ -466,6 +485,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
+  AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
@@ -483,6 +503,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
+  AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,

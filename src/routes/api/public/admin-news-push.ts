@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { pushToUser } from "@/lib/push.functions";
 import { adminPushMessage } from "@/lib/admin-news";
 
-// Called every 5 minutes by the database scheduler: pushes new members, orders, stories and reports
+// Called every 5 minutes by the database scheduler: pushes new members, orders, stories, reports and messages
 // to the admins who turned on push in Beheer → Nieuws.
 export const Route = createFileRoute("/api/public/admin-news-push")({
   server: {
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
         const until = new Date().toISOString();
         await supabaseAdmin.from("admin_push_state").upsert({ id: 1, last_run: until });
 
-        const [members, orders, stories, reports] = await Promise.all([
+        const [members, orders, stories, reports, messages] = await Promise.all([
           supabaseAdmin
             .from("profiles")
             .select("display_name")
@@ -48,6 +48,11 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
             .select("reason")
             .gt("created_at", since)
             .lte("created_at", until),
+          supabaseAdmin
+            .from("admin_messages")
+            .select("body")
+            .gt("created_at", since)
+            .lte("created_at", until),
         ]);
         const items = [
           ...(members.data ?? []).map((m) => ({ kind: "aanmelding", title: m.display_name })),
@@ -57,6 +62,7 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
           })),
           ...(stories.data ?? []).map((s) => ({ kind: "verhaal", title: s.title })),
           ...(reports.data ?? []).map((r) => ({ kind: "melding", title: r.reason.slice(0, 100) })),
+          ...(messages.data ?? []).map((m) => ({ kind: "bericht", title: m.body.slice(0, 100) })),
         ];
         if (items.length === 0) return Response.json({ sent: 0 });
 

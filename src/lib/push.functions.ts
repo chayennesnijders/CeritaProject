@@ -10,20 +10,27 @@ export async function pushToUser(userId: string, msg: Push) {
   const sa = fcmServiceAccount();
   if (!sa) return 0;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: tokens } = await supabaseAdmin.from("push_tokens").select("token").eq("user_id", userId);
+  const { data: tokens } = await supabaseAdmin
+    .from("push_tokens")
+    .select("token")
+    .eq("user_id", userId);
   let sent = 0;
   for (const { token } of tokens ?? []) {
     const res = await sendFcm(sa, {
       token,
       notification: { title: msg.title, body: msg.body },
       data: { link: msg.link },
-      webpush: { notification: { tag: msg.tag, renotify: true, icon: "/apple-touch-icon.png" }, fcm_options: { link: msg.link } },
+      webpush: {
+        notification: { tag: msg.tag, renotify: true, icon: "/apple-touch-icon.png" },
+        fcm_options: { link: msg.link },
+      },
     });
     if (res.ok) sent++;
     else {
       const body = await res.text();
       console.error(`FCM send failed [${res.status}]: ${body}`);
-      if (res.status === 404 || res.status === 400) await supabaseAdmin.from("push_tokens").delete().eq("token", token);
+      if (res.status === 404 || res.status === 400)
+        await supabaseAdmin.from("push_tokens").delete().eq("token", token);
     }
   }
   return sent;
@@ -31,7 +38,11 @@ export async function pushToUser(userId: string, msg: Push) {
 
 async function senderName(userId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.from("profiles").select("display_name").eq("id", userId).maybeSingle();
+  const { data } = await supabaseAdmin
+    .from("profiles")
+    .select("display_name")
+    .eq("id", userId)
+    .maybeSingle();
   return data?.display_name ?? "Iemand";
 }
 
@@ -41,11 +52,20 @@ export const notifyChatRequest = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ convId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: conv } = await context.supabase
-      .from("conversations").select("id, user_a, user_b, requested_by, status").eq("id", data.convId).maybeSingle();
-    if (!conv || conv.requested_by !== context.userId || conv.status !== "pending") return { sent: 0 };
+      .from("conversations")
+      .select("id, user_a, user_b, requested_by, status")
+      .eq("id", data.convId)
+      .maybeSingle();
+    if (!conv || conv.requested_by !== context.userId || conv.status !== "pending")
+      return { sent: 0 };
     const recipient = conv.user_a === context.userId ? conv.user_b : conv.user_a;
     const name = await senderName(context.userId);
-    const sent = await pushToUser(recipient, { title: "Nieuw chatverzoek", body: `${name} wil met je chatten.`, link: "/berichten", tag: `req-${conv.id}` });
+    const sent = await pushToUser(recipient, {
+      title: "Nieuw chatverzoek",
+      body: `${name} wil met je chatten.`,
+      link: "/berichten",
+      tag: `req-${conv.id}`,
+    });
     return { sent };
   });
 
@@ -55,46 +75,81 @@ export const notifyNewMessage = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ messageId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: msg } = await context.supabase
-      .from("direct_messages").select("id, body, sender_id, conversation_id").eq("id", data.messageId).maybeSingle();
+      .from("direct_messages")
+      .select("id, body, sender_id, conversation_id")
+      .eq("id", data.messageId)
+      .maybeSingle();
     if (!msg || msg.sender_id !== context.userId) return { sent: 0 };
     const { data: conv } = await context.supabase
-      .from("conversations").select("user_a, user_b").eq("id", msg.conversation_id).maybeSingle();
+      .from("conversations")
+      .select("user_a, user_b")
+      .eq("id", msg.conversation_id)
+      .maybeSingle();
     if (!conv) return { sent: 0 };
     const recipient = conv.user_a === context.userId ? conv.user_b : conv.user_a;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: pref } = await supabaseAdmin.from("conversation_prefs").select("muted").eq("user_id", recipient).eq("conversation_id", msg.conversation_id).maybeSingle();
+    const { data: pref } = await supabaseAdmin
+      .from("conversation_prefs")
+      .select("muted")
+      .eq("user_id", recipient)
+      .eq("conversation_id", msg.conversation_id)
+      .maybeSingle();
     if (pref?.muted) return { sent: 0 };
     const name = await senderName(context.userId);
     const preview = msg.body.length > 120 ? `${msg.body.slice(0, 117)}...` : msg.body;
-    const sent = await pushToUser(recipient, { title: name, body: preview, link: `/berichten/${msg.conversation_id}`, tag: `conv-${msg.conversation_id}` });
+    const sent = await pushToUser(recipient, {
+      title: name,
+      body: preview,
+      link: `/berichten/${msg.conversation_id}`,
+      tag: `conv-${msg.conversation_id}`,
+    });
     return { sent };
   });
 
 // Admin-only: sends an announcement push to every registered device and logs it.
 export const sendAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ title: z.string().trim().min(1).max(60), body: z.string().trim().min(1).max(200) }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({ title: z.string().trim().min(1).max(60), body: z.string().trim().min(1).max(200) })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Alleen beheerders kunnen aankondigingen sturen.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin.from("push_tokens").select("user_id");
     const users = [...new Set((rows ?? []).map((r) => r.user_id))];
     const tag = `ann-${Date.now()}`;
     let sent = 0;
-    for (const u of users) sent += await pushToUser(u, { title: data.title, body: data.body, link: "/home", tag });
-    await supabaseAdmin.from("activity_log").insert({ actor_id: context.userId, action: "announcement", target_table: "push_tokens", details: { title: data.title, body: data.body, sent } });
+    for (const u of users)
+      sent += await pushToUser(u, { title: data.title, body: data.body, link: "/home", tag });
+    await supabaseAdmin.from("activity_log").insert({
+      actor_id: context.userId,
+      action: "announcement",
+      target_table: "push_tokens",
+      details: { title: data.title, body: data.body, sent },
+    });
     return { sent, users: users.length };
   });
 
 // Push to the other party when someone starts a (video)call. Only allowed when the caller may call in this chat.
 export const notifyCall = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ convId: z.string().uuid(), video: z.boolean() }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({ convId: z.string().uuid(), video: z.boolean() }).parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { data: ok } = await context.supabase.rpc("can_call", { _conv: data.convId });
     if (!ok) return { sent: 0 };
-    const { data: conv } = await context.supabase.from("conversations").select("user_a, user_b").eq("id", data.convId).maybeSingle();
+    const { data: conv } = await context.supabase
+      .from("conversations")
+      .select("user_a, user_b")
+      .eq("id", data.convId)
+      .maybeSingle();
     if (!conv) return { sent: 0 };
     const recipient = conv.user_a === context.userId ? conv.user_b : conv.user_a;
     const name = await senderName(context.userId);
@@ -112,14 +167,23 @@ export const notifyOrderUpdate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ orderId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: isOwner } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "owner" });
+    const { data: isOwner } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "owner",
+    });
     if (!isOwner) throw new Error("Alleen de eigenaar.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: order } = await supabaseAdmin.from("shop_orders").select("user_id, status, tracking_code").eq("id", data.orderId).maybeSingle();
+    const { data: order } = await supabaseAdmin
+      .from("shop_orders")
+      .select("user_id, status, tracking_code")
+      .eq("id", data.orderId)
+      .maybeSingle();
     if (!order || order.status !== "verzonden") return { sent: 0 };
     const sent = await pushToUser(order.user_id, {
       title: "📦 Je bestelling is onderweg!",
-      body: order.tracking_code ? `Track&trace: ${order.tracking_code}` : "Je Game Clicks is verzonden.",
+      body: order.tracking_code
+        ? `Track&trace: ${order.tracking_code}`
+        : "Je Game Clicks is verzonden.",
       link: "/shop",
       tag: `order-${data.orderId}`,
     });
@@ -131,13 +195,22 @@ export const notifyNewArticle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ title: z.string().trim().min(1).max(80) }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Alleen beheerders.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin.from("push_tokens").select("user_id");
     const users = [...new Set((rows ?? []).map((r) => r.user_id))];
     let sent = 0;
-    for (const u of users) sent += await pushToUser(u, { title: "📖 Nieuw verhaal", body: data.title, link: "/ontdekken", tag: `art-${Date.now()}` });
+    for (const u of users)
+      sent += await pushToUser(u, {
+        title: "📖 Nieuw verhaal",
+        body: data.title,
+        link: "/ontdekken",
+        tag: `art-${Date.now()}`,
+      });
     return { sent, users: users.length };
   });
 
@@ -146,17 +219,39 @@ export const notifyGroupReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ postId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: post } = await context.supabase.from("posts").select("id, body, author_id, group_id, reply_to").eq("id", data.postId).maybeSingle();
+    const { data: post } = await context.supabase
+      .from("posts")
+      .select("id, body, author_id, group_id, reply_to")
+      .eq("id", data.postId)
+      .maybeSingle();
     if (!post || post.author_id !== context.userId || !post.reply_to) return { sent: 0 };
-    const { data: parent } = await context.supabase.from("posts").select("author_id").eq("id", post.reply_to).maybeSingle();
+    const { data: parent } = await context.supabase
+      .from("posts")
+      .select("author_id")
+      .eq("id", post.reply_to)
+      .maybeSingle();
     if (!parent || parent.author_id === context.userId) return { sent: 0 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: pref } = await supabaseAdmin.from("group_prefs").select("muted").eq("user_id", parent.author_id).eq("group_id", post.group_id).maybeSingle();
+    const { data: pref } = await supabaseAdmin
+      .from("group_prefs")
+      .select("muted")
+      .eq("user_id", parent.author_id)
+      .eq("group_id", post.group_id)
+      .maybeSingle();
     if (pref?.muted) return { sent: 0 };
-    const { data: g } = await supabaseAdmin.from("groups").select("name").eq("id", post.group_id).maybeSingle();
+    const { data: g } = await supabaseAdmin
+      .from("groups")
+      .select("name")
+      .eq("id", post.group_id)
+      .maybeSingle();
     const name = await senderName(context.userId);
     const preview = post.body.length > 120 ? `${post.body.slice(0, 117)}...` : post.body;
-    const sent = await pushToUser(parent.author_id, { title: `↩️ ${name} reageerde op jou${g?.name ? ` in ${g.name}` : ""}`, body: preview, link: `/community/${post.group_id}`, tag: `reply-${post.id}` });
+    const sent = await pushToUser(parent.author_id, {
+      title: `↩️ ${name} reageerde op jou${g?.name ? ` in ${g.name}` : ""}`,
+      body: preview,
+      link: `/community/${post.group_id}`,
+      tag: `reply-${post.id}`,
+    });
     return { sent };
   });
 
@@ -165,13 +260,21 @@ export const notifyGroupMention = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ postId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: post } = await context.supabase.from("posts").select("id, body, author_id, group_id, mentions").eq("id", data.postId).maybeSingle();
+    const { data: post } = await context.supabase
+      .from("posts")
+      .select("id, body, author_id, group_id, mentions")
+      .eq("id", data.postId)
+      .maybeSingle();
     if (!post || post.author_id !== context.userId) return { sent: 0 };
     const targets = (post.mentions ?? []).filter((u) => u !== context.userId);
     if (targets.length === 0) return { sent: 0 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: prefs }, { data: g }] = await Promise.all([
-      supabaseAdmin.from("group_prefs").select("user_id, muted").eq("group_id", post.group_id).in("user_id", targets),
+      supabaseAdmin
+        .from("group_prefs")
+        .select("user_id, muted")
+        .eq("group_id", post.group_id)
+        .in("user_id", targets),
       supabaseAdmin.from("groups").select("name").eq("id", post.group_id).maybeSingle(),
     ]);
     const muted = new Set((prefs ?? []).filter((p) => p.muted).map((p) => p.user_id));
@@ -180,7 +283,12 @@ export const notifyGroupMention = createServerFn({ method: "POST" })
     let sent = 0;
     for (const u of targets) {
       if (muted.has(u)) continue;
-      sent += await pushToUser(u, { title: `@ ${name} noemde jou${g?.name ? ` in ${g.name}` : ""}`, body: preview, link: `/community/${post.group_id}`, tag: `mention-${post.id}` });
+      sent += await pushToUser(u, {
+        title: `@ ${name} noemde jou${g?.name ? ` in ${g.name}` : ""}`,
+        body: preview,
+        link: `/community/${post.group_id}`,
+        tag: `mention-${post.id}`,
+      });
     }
     return { sent };
   });
@@ -191,10 +299,17 @@ export const notifyGroupInvite = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ inviteId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: inv } = await context.supabase
-      .from("group_invites").select("id, group_id, inviter_id, invitee_id, status").eq("id", data.inviteId).maybeSingle();
+      .from("group_invites")
+      .select("id, group_id, inviter_id, invitee_id, status")
+      .eq("id", data.inviteId)
+      .maybeSingle();
     if (!inv || inv.inviter_id !== context.userId || inv.status !== "pending") return { sent: 0 };
     const name = await senderName(context.userId);
-    const { data: g } = await context.supabase.from("groups").select("name, emoji").eq("id", inv.group_id).maybeSingle();
+    const { data: g } = await context.supabase
+      .from("groups")
+      .select("name, emoji")
+      .eq("id", inv.group_id)
+      .maybeSingle();
     const sent = await pushToUser(inv.invitee_id, {
       title: `👋 ${name} nodigt je uit`,
       body: `Kom je in de groep ${g?.emoji ?? ""} ${g?.name ?? ""}?`.trim(),
@@ -209,16 +324,31 @@ export const notifyStoryVoters = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ planId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Alleen beheerders.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: plan } = await supabaseAdmin.from("story_plans").select("title, emoji, status, article_id").eq("id", data.planId).maybeSingle();
+    const { data: plan } = await supabaseAdmin
+      .from("story_plans")
+      .select("title, emoji, status, article_id")
+      .eq("id", data.planId)
+      .maybeSingle();
     if (!plan || plan.status !== "verschenen") return { sent: 0, users: 0 };
-    const { data: votes } = await supabaseAdmin.from("story_votes").select("user_id").eq("plan_id", data.planId);
+    const { data: votes } = await supabaseAdmin
+      .from("story_votes")
+      .select("user_id")
+      .eq("plan_id", data.planId);
     const link = plan.article_id ? `/ontdekken/${plan.article_id}` : "/ontdekken";
     let sent = 0;
     for (const v of votes ?? []) {
-      sent += await pushToUser(v.user_id, { title: `${plan.emoji} Het verhaal waar je op wachtte is er!`, body: plan.title, link, tag: `story-${data.planId}` });
+      sent += await pushToUser(v.user_id, {
+        title: `${plan.emoji} Het verhaal waar je op wachtte is er!`,
+        body: plan.title,
+        link,
+        tag: `story-${data.planId}`,
+      });
     }
     return { sent, users: votes?.length ?? 0 };
   });
@@ -227,16 +357,54 @@ export const notifyStoryVoters = createServerFn({ method: "POST" })
 // on this app's own address.
 export const setAdminNewsPush = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ on: z.boolean(), origin: z.string().url().startsWith("https://") }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({ on: z.boolean(), origin: z.string().url().startsWith("https://") }).parse(d),
+  )
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Alleen voor beheerders.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("admin_news_seen").upsert({ user_id: context.userId, push: data.on }, { onConflict: "user_id" });
+    const { error } = await supabaseAdmin
+      .from("admin_news_seen")
+      .upsert({ user_id: context.userId, push: data.on }, { onConflict: "user_id" });
     if (error) throw new Error(error.message);
     if (data.on) {
-      const { error: cronError } = await supabaseAdmin.rpc("schedule_admin_news_push", { site_url: data.origin });
+      const { error: cronError } = await supabaseAdmin.rpc("schedule_admin_news_push", {
+        site_url: data.origin,
+      });
       if (cronError) throw new Error(cronError.message);
     }
     return { on: data.on };
+  });
+
+// Admin-only: answer a member's message (or mark it as read). The member gets a push when answered.
+export const answerAdminMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), reply: z.string().trim().max(2000).optional() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("answer_admin_message", {
+      _message: data.id,
+      _reply: data.reply ?? "",
+    });
+    if (error) throw new Error(error.message);
+    if (data.reply) {
+      const { data: msg } = await context.supabase
+        .from("admin_messages")
+        .select("user_id")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (msg)
+        await pushToUser(msg.user_id, {
+          title: "💌 Antwoord van de beheerders",
+          body: "Je hebt een antwoord op je bericht.",
+          link: "/contact",
+          tag: `antwoord-${data.id}`,
+        });
+    }
+    return { ok: true };
   });

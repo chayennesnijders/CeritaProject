@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { challengeDay, useTodayChallenge } from "@/lib/challenges";
+import { useChallengeDay, useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ModerationNotice } from "@/components/ModerationNotice";
+import { ContactAdminsButton } from "@/components/ContactAdminsButton";
 import { Riti } from "@/components/Riti";
 import { ritiFor } from "@/lib/riti";
 import { CARE_ACTIONS, levelFor, petDay, speciesEmoji } from "@/lib/pet";
@@ -40,7 +41,7 @@ function HomePage() {
   const { data: me } = useMe();
   const p = me?.profile;
   const uid = me?.user.id;
-  const day = challengeDay();
+  const day = useChallengeDay();
   const hi = greeting(dutchHour());
   const unread = useUnreadCounts();
   const messages = unread.dmTotal + unread.requests;
@@ -81,6 +82,7 @@ function HomePage() {
       <PetCard uid={uid} />
       <AffirmationCard day={day} />
       <StoryOfTheDay uid={uid} day={day} />
+      <ContactAdminsButton uid={uid} />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { ArticleComposer } from "@/components/ArticleComposer";
 import { ShopOrdersAdmin } from "@/components/ShopOrdersAdmin";
 import { StorySubmissionsAdmin } from "@/components/StorySubmissionsAdmin";
 import { AdminNews } from "@/components/AdminNews";
+import { AdminMessages } from "@/components/AdminMessages";
 import { useAdminNews } from "@/lib/use-admin-news";
 import { StoryBoardAdmin } from "@/components/StoryBoardAdmin";
 import { AdminWeekly } from "@/components/AdminWeekly";
@@ -19,6 +20,7 @@ import { reportsQueryOptions } from "@/lib/reports";
 
 const TABS = [
   { id: "nieuws", label: "Nieuws" },
+  { id: "berichten", label: "Berichten" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
@@ -129,6 +131,8 @@ export function AdminPanel() {
       </div>
 
       {tab === "nieuws" && <AdminNews uid={me.user.id} onOpenTab={(t) => setTab(t as Tab)} />}
+
+      {tab === "berichten" && <AdminMessages />}
 
       {tab === "overzicht" && (
         <div className="space-y-5">

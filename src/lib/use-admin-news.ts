@@ -19,7 +19,7 @@ export function useAdminNews(uid: string | undefined) {
       (
         await supabase
           .from("admin_news_seen")
-          .select("seen_at, push")
+          .select("*")
           .eq("user_id", uid!)
           .maybeSingle()
       ).data ?? null,

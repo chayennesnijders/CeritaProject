@@ -47,7 +47,7 @@ export function Riti({
             src={ritiImage(shown)}
             alt=""
             draggable={false}
-            className={`h-full w-full object-contain drop-shadow-[0_8px_10px_rgba(120,60,60,0.18)] ${jump ? "motion-safe:animate-[riti-jump_0.6s_ease-out]" : "animate-in fade-in zoom-in-90 duration-300"}`}
+            className={`h-full w-full object-contain drop-shadow-[0_8px_10px_rgba(120,60,60,0.18)] ${jump ? "animate-[riti-jump_0.7s_ease-out]" : "animate-in fade-in zoom-in-90 duration-300"}`}
           />
         </span>
       </span>

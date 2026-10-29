@@ -15,7 +15,7 @@ export const ARTICLE_CATEGORIES = Object.keys(CATEGORY_LABELS) as (keyof typeof 
 
 export type ArticleCategory = keyof typeof CATEGORY_LABELS;
 
-export const categoryLabel = (c: string) => CATEGORY_LABELS[c as ArticleCategory] ?? OLD_LABELS[c] ?? "Verhalen";
+export const categoryLabel = (c: string) => CATEGORY_LABELS[c as ArticleCategory] ?? OLD_LABELS[c] ?? "Overig";
 
 /** An emoji per category, for the category buttons in Ontdekken. */
 export const categoryEmoji = (c: string) =>
