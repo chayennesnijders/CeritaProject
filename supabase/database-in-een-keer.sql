@@ -2031,3 +2031,11 @@ ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS kind text NOT NULL DEFAULT 
 ALTER TABLE public.articles DROP CONSTRAINT IF EXISTS articles_kind_check;
 ALTER TABLE public.articles ADD CONSTRAINT articles_kind_check CHECK (kind IN ('verhaal', 'artikel'));
 COMMIT;
+
+-- ===== 0059_story_submission_details =====
+-- "Deel jouw verhaal" asks the same as the website: a name to show (optional), an e-mail address
+-- for contact (optional) and whether CeritaProject may publish the story.
+ALTER TABLE public.story_submissions ADD COLUMN IF NOT EXISTS pen_name text CHECK (char_length(pen_name) <= 80);
+ALTER TABLE public.story_submissions ADD COLUMN IF NOT EXISTS contact_email text CHECK (char_length(contact_email) <= 200);
+ALTER TABLE public.story_submissions ADD COLUMN IF NOT EXISTS may_publish boolean NOT NULL DEFAULT true;
+COMMIT;

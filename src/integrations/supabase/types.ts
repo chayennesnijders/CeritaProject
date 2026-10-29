@@ -1317,7 +1317,10 @@ export type Database = {
           body: string
           category: string
           created_at: string
+          contact_email: string | null
           id: string
+          may_publish: boolean
+          pen_name: string | null
           status: string
           title: string
           user_id: string
@@ -1326,7 +1329,10 @@ export type Database = {
           body: string
           category?: string
           created_at?: string
+          contact_email?: string | null
           id?: string
+          may_publish?: boolean
+          pen_name?: string | null
           status?: string
           title: string
           user_id: string
@@ -1335,7 +1341,10 @@ export type Database = {
           body?: string
           category?: string
           created_at?: string
+          contact_email?: string | null
           id?: string
+          may_publish?: boolean
+          pen_name?: string | null
           status?: string
           title?: string
           user_id?: string

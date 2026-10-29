@@ -414,6 +414,13 @@
       "when": 1792601200000,
       "tag": "0058_article_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1792601300000,
+      "tag": "0059_story_submission_details",
+      "breakpoints": true
     }
   ]
 }
