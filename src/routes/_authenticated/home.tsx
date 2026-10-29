@@ -6,6 +6,8 @@ import { useChallengeDay, useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ModerationNotice } from "@/components/ModerationNotice";
 import { ContactAdminsButton } from "@/components/ContactAdminsButton";
+import { useMedia } from "@/lib/use-media";
+import { formatDuration, isFresh, mediaKind } from "@/lib/media";
 import { Riti } from "@/components/Riti";
 import { ritiFor } from "@/lib/riti";
 import { CARE_ACTIONS, levelFor, petDay, speciesEmoji } from "@/lib/pet";
@@ -82,6 +84,7 @@ function HomePage() {
       <PetCard uid={uid} />
       <AffirmationCard day={day} />
       <StoryOfTheDay uid={uid} day={day} />
+      <NewToListen />
       <ContactAdminsButton uid={uid} />
     </div>
   );
@@ -341,6 +344,34 @@ function StoryOfTheDay({ uid, day }: { uid: string | undefined; day: string }) {
           ⏱️ {readingMinutes(story.body)} min{read.has(story.id) ? " · ✓ Gelezen" : ""}
         </p>
       </div>
+    </Link>
+  );
+}
+
+/** The newest podcast or interview, for a week after it came out. */
+function NewToListen() {
+  const { data: items = [] } = useMedia();
+  const item = items[0];
+  if (!item || !isFresh(item)) return null;
+  const k = mediaKind(item.kind);
+  return (
+    <Link
+      to="/luisteren/$mediaId"
+      params={{ mediaId: item.id }}
+      className="flex items-center gap-4 rounded-3xl bg-secondary p-4 text-secondary-foreground shadow-soft"
+    >
+      <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-2xl text-primary-foreground">
+        ▶
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[11px] font-semibold uppercase tracking-wide">
+          ✨ Nieuw · {k.emoji} {k.label}
+        </span>
+        <span className="block font-semibold leading-snug">{item.title}</span>
+        {item.duration_seconds ? (
+          <span className="text-xs opacity-80">{formatDuration(item.duration_seconds)}</span>
+        ) : null}
+      </span>
     </Link>
   );
 }

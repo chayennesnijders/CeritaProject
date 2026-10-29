@@ -763,6 +763,51 @@ export type Database = {
           },
         ]
       }
+      media_items: {
+        Row: {
+          cover_path: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          duration_seconds: number | null
+          id: string
+          kind: string
+          media_path: string
+          media_type: string
+          min_age: number
+          publish_at: string
+          title: string
+        }
+        Insert: {
+          cover_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          duration_seconds?: number | null
+          id?: string
+          kind?: string
+          media_path: string
+          media_type?: string
+          min_age?: number
+          publish_at?: string
+          title: string
+        }
+        Update: {
+          cover_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          duration_seconds?: number | null
+          id?: string
+          kind?: string
+          media_path?: string
+          media_type?: string
+          min_age?: number
+          publish_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
       member_warnings: {
         Row: {
           admin_id: string | null
@@ -1465,6 +1510,7 @@ export type Database = {
       }
       can_access_group: { Args: { _group: string }; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
+      can_open_media: { Args: { _path: string }; Returns: boolean }
       can_message: { Args: { _other: string }; Returns: boolean }
       can_use_community: { Args: never; Returns: boolean }
       claim_birthday_bonus: { Args: never; Returns: number }

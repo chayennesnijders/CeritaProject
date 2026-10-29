@@ -18,6 +18,7 @@ import {
   type StoryFilter,
 } from "@/lib/discover";
 import { useDiscover } from "@/lib/use-discover";
+import { DiscoverTabs } from "@/components/DiscoverTabs";
 
 export const Route = createFileRoute("/_authenticated/ontdekken/")({
   head: () => ({
@@ -88,19 +89,11 @@ function OntdekkenPage() {
         </button>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-1 rounded-full bg-card p-1 shadow-soft">
-        {KINDS.map((x) => (
-          <Link
-            key={x.kind}
-            to="/ontdekken"
-            search={x.tab === "artikelen" ? { soort: "artikelen" } : {}}
-            onClick={() => setF(NO_FILTER)}
-            className={`rounded-full py-2 text-center text-sm font-semibold transition-colors ${x.kind === k.kind ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-          >
-            {x.emoji} {x.label} · {ofKind(all, x.kind).length}
-          </Link>
-        ))}
-      </div>
+      <DiscoverTabs
+        active={k.kind}
+        counts={{ verhaal: ofKind(all, "verhaal").length, artikel: ofKind(all, "artikel").length }}
+        onSelect={() => setF(NO_FILTER)}
+      />
 
       <label className="mt-3 flex items-center gap-2 rounded-full bg-card px-4 py-2.5 shadow-soft">
         <Search className="size-4 shrink-0 text-muted-foreground" />
@@ -138,7 +131,6 @@ function OntdekkenPage() {
           </div>
         </Link>
       )}
-
 
       <div className="-mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-1">
         <button

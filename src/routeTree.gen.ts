@@ -28,6 +28,8 @@ import { Route as AuthenticatedBerichtenIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedBerichtenIdRouteImport } from './routes/_authenticated/berichten.$id'
 import { Route as AuthenticatedCommunityIndexRouteImport } from './routes/_authenticated/community.index'
 import { Route as AuthenticatedCommunityGroupIdRouteImport } from './routes/_authenticated/community.$groupId'
+import { Route as AuthenticatedLuisterenIndexRouteImport } from './routes/_authenticated/luisteren.index'
+import { Route as AuthenticatedLuisterenMediaIdRouteImport } from './routes/_authenticated/luisteren.$mediaId'
 import { Route as AuthenticatedOntdekkenIndexRouteImport } from './routes/_authenticated/ontdekken.index'
 import { Route as AuthenticatedOntdekkenArticleIdRouteImport } from './routes/_authenticated/ontdekken.$articleId'
 import { Route as ApiPublicAdminNewsPushRouteImport } from './routes/api/public/admin-news-push'
@@ -132,6 +134,18 @@ const AuthenticatedCommunityGroupIdRoute =
     path: '/community/$groupId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLuisterenIndexRoute =
+  AuthenticatedLuisterenIndexRouteImport.update({
+    id: '/luisteren/',
+    path: '/luisteren/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLuisterenMediaIdRoute =
+  AuthenticatedLuisterenMediaIdRouteImport.update({
+    id: '/luisteren/$mediaId',
+    path: '/luisteren/$mediaId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOntdekkenIndexRoute =
   AuthenticatedOntdekkenIndexRouteImport.update({
     id: '/ontdekken/',
@@ -173,11 +187,13 @@ export interface FileRoutesByFullPath {
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
+  '/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/community/': typeof AuthenticatedCommunityIndexRoute
+  '/luisteren/': typeof AuthenticatedLuisterenIndexRoute
   '/ontdekken/': typeof AuthenticatedOntdekkenIndexRoute
 }
 export interface FileRoutesByTo {
@@ -197,11 +213,13 @@ export interface FileRoutesByTo {
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
+  '/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/berichten': typeof AuthenticatedBerichtenIndexRoute
   '/community': typeof AuthenticatedCommunityIndexRoute
+  '/luisteren': typeof AuthenticatedLuisterenIndexRoute
   '/ontdekken': typeof AuthenticatedOntdekkenIndexRoute
 }
 export interface FileRoutesById {
@@ -223,11 +241,13 @@ export interface FileRoutesById {
   '/api/transcribe': typeof ApiTranscribeRoute
   '/_authenticated/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/_authenticated/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
+  '/_authenticated/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/_authenticated/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/_authenticated/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/_authenticated/community/': typeof AuthenticatedCommunityIndexRoute
+  '/_authenticated/luisteren/': typeof AuthenticatedLuisterenIndexRoute
   '/_authenticated/ontdekken/': typeof AuthenticatedOntdekkenIndexRoute
 }
 export interface FileRouteTypes {
@@ -249,11 +269,13 @@ export interface FileRouteTypes {
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
+    | '/luisteren/$mediaId'
     | '/ontdekken/$articleId'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/berichten/'
     | '/community/'
+    | '/luisteren/'
     | '/ontdekken/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -273,11 +295,13 @@ export interface FileRouteTypes {
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
+    | '/luisteren/$mediaId'
     | '/ontdekken/$articleId'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/berichten'
     | '/community'
+    | '/luisteren'
     | '/ontdekken'
   id:
     | '__root__'
@@ -298,11 +322,13 @@ export interface FileRouteTypes {
     | '/api/transcribe'
     | '/_authenticated/berichten/$id'
     | '/_authenticated/community/$groupId'
+    | '/_authenticated/luisteren/$mediaId'
     | '/_authenticated/ontdekken/$articleId'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/_authenticated/berichten/'
     | '/_authenticated/community/'
+    | '/_authenticated/luisteren/'
     | '/_authenticated/ontdekken/'
   fileRoutesById: FileRoutesById
 }
@@ -452,6 +478,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunityGroupIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/luisteren/': {
+      id: '/_authenticated/luisteren/'
+      path: '/luisteren'
+      fullPath: '/luisteren/'
+      preLoaderRoute: typeof AuthenticatedLuisterenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/luisteren/$mediaId': {
+      id: '/_authenticated/luisteren/$mediaId'
+      path: '/luisteren/$mediaId'
+      fullPath: '/luisteren/$mediaId'
+      preLoaderRoute: typeof AuthenticatedLuisterenMediaIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ontdekken/': {
       id: '/_authenticated/ontdekken/'
       path: '/ontdekken'
@@ -495,9 +535,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedVriendenRoute: typeof AuthenticatedVriendenRoute
   AuthenticatedBerichtenIdRoute: typeof AuthenticatedBerichtenIdRoute
   AuthenticatedCommunityGroupIdRoute: typeof AuthenticatedCommunityGroupIdRoute
+  AuthenticatedLuisterenMediaIdRoute: typeof AuthenticatedLuisterenMediaIdRoute
   AuthenticatedOntdekkenArticleIdRoute: typeof AuthenticatedOntdekkenArticleIdRoute
   AuthenticatedBerichtenIndexRoute: typeof AuthenticatedBerichtenIndexRoute
   AuthenticatedCommunityIndexRoute: typeof AuthenticatedCommunityIndexRoute
+  AuthenticatedLuisterenIndexRoute: typeof AuthenticatedLuisterenIndexRoute
   AuthenticatedOntdekkenIndexRoute: typeof AuthenticatedOntdekkenIndexRoute
 }
 
@@ -513,9 +555,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVriendenRoute: AuthenticatedVriendenRoute,
   AuthenticatedBerichtenIdRoute: AuthenticatedBerichtenIdRoute,
   AuthenticatedCommunityGroupIdRoute: AuthenticatedCommunityGroupIdRoute,
+  AuthenticatedLuisterenMediaIdRoute: AuthenticatedLuisterenMediaIdRoute,
   AuthenticatedOntdekkenArticleIdRoute: AuthenticatedOntdekkenArticleIdRoute,
   AuthenticatedBerichtenIndexRoute: AuthenticatedBerichtenIndexRoute,
   AuthenticatedCommunityIndexRoute: AuthenticatedCommunityIndexRoute,
+  AuthenticatedLuisterenIndexRoute: AuthenticatedLuisterenIndexRoute,
   AuthenticatedOntdekkenIndexRoute: AuthenticatedOntdekkenIndexRoute,
 }
 
