@@ -116,3 +116,39 @@ export const fillPhotos = (body: string, paths: string[]) =>
 /** File extension for a photo URL (jpg when unclear). */
 export const photoExt = (url: string) =>
   (/\.(jpe?g|png|gif|webp|heic)(?:\?|$)/i.exec(url)?.[1] ?? "jpg").toLowerCase();
+
+/**
+ * Words that point to very heavy topics; an imported story containing one starts as 16+.
+ * Admins can change every story afterwards (Beheer → Verhalen), and a re-import keeps their choice.
+ */
+const HEAVY_TOPICS = [
+  "pistool",
+  "wapen",
+  "messteek",
+  "seksueel",
+  "misbruik",
+  "verkracht",
+  "aangerand",
+  "aanranding",
+  "grensoverschrijd",
+  "zelfmoord",
+  "suïcid",
+  "suicid",
+  "zelfbeschadig",
+  "overdosis",
+  "verslaving",
+  "verslaafd",
+  "drugs",
+  "psychose",
+  "anorexia",
+  "boulimia",
+  "eetstoornis",
+  "mishandel",
+  "huiselijk geweld",
+  "triggerwarning",
+  "trigger warning",
+];
+export function suggestedMinAge(title: string, body: string): 12 | 16 {
+  const text = `${title}\n${body}`.toLowerCase();
+  return HEAVY_TOPICS.some((w) => text.includes(w)) ? 16 : 12;
+}

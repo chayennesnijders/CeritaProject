@@ -5,6 +5,7 @@ import {
   fillPhotos,
   htmlToStory,
   photoExt,
+  suggestedMinAge,
   wpPostToArticle,
   type WpPost,
 } from "./wordpress";
@@ -62,5 +63,15 @@ describe("WordPress import", () => {
 
   it("ignores empty paragraphs", () => {
     expect(htmlToStory("<p> </p><p>Hoi</p>").body).toBe("Hoi");
+  });
+
+  it("starts stories about very heavy topics as 16+", () => {
+    expect(suggestedMinAge(a.title, a.body)).toBe(12);
+    expect(
+      suggestedMinAge("Ik was 6 toen voor het eerst een pistool op mij werd gericht", ""),
+    ).toBe(16);
+    expect(suggestedMinAge("Seksueel grensoverschrijdend gedrag (triggerwarning!)", "")).toBe(16);
+    expect(suggestedMinAge("Van verlies en verslaving naar een nieuw begin", "")).toBe(16);
+    expect(suggestedMinAge("Iets", "Ze heeft me jarenlang MISHANDELD.")).toBe(16);
   });
 });

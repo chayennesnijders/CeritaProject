@@ -54,6 +54,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_published: boolean
+          min_age: number
           title: string
           updated_at: string
           wp_id: number | null
@@ -67,6 +68,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_published?: boolean
+          min_age?: number
           title: string
           updated_at?: string
           wp_id?: number | null
@@ -80,6 +82,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_published?: boolean
+          min_age?: number
           title?: string
           updated_at?: string
           wp_id?: number | null
@@ -1360,6 +1363,7 @@ export type Database = {
       is_member: { Args: { _group: string }; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_timed_out: { Args: { _user_id: string }; Returns: boolean }
+      my_age: { Args: never; Returns: number }
       my_age_group: {
         Args: never
         Returns: Database["public"]["Enums"]["age_group"]

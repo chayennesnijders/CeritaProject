@@ -5,6 +5,7 @@ import {
   DEFAULT_WORDPRESS_SITE,
   fillPhotos,
   photoExt,
+  suggestedMinAge,
   wpPostToArticle,
   type WpPost,
 } from "@/lib/wordpress";
@@ -68,15 +69,17 @@ export const importWordPressPage = createServerFn({ method: "POST" })
       }
     }
 
-    const imported: { title: string; isNew: boolean }[] = [];
+    const imported: { title: string; isNew: boolean; sixteen: boolean }[] = [];
     for (const post of posts) {
       const a = wpPostToArticle(post);
       const { data: existing } = await supabaseAdmin
         .from("articles")
-        .select("id, image_url, body")
+        .select("id, image_url, body, min_age")
         .eq("wp_id", a.wp_id)
         .maybeSingle();
       const base = `wordpress/${a.wp_id}`;
+      // New stories start at a suggested age; for stories imported before, the admin's choice stays.
+      const minAge = existing ? existing.min_age : suggestedMinAge(a.title, a.body);
       let photos: string[];
       let cover: string | null;
       if (existing) {
@@ -104,9 +107,11 @@ export const importWordPressPage = createServerFn({ method: "POST" })
       };
       const { error } = existing
         ? await context.supabase.from("articles").update(row).eq("id", existing.id)
-        : await context.supabase.from("articles").insert({ ...row, author_id: context.userId });
+        : await context.supabase
+            .from("articles")
+            .insert({ ...row, author_id: context.userId, min_age: minAge });
       if (error) throw new Error(`"${a.title}": ${error.message}`);
-      imported.push({ title: a.title, isNew: !existing });
+      imported.push({ title: a.title, isNew: !existing, sixteen: minAge === 16 });
     }
     return {
       page: data.page,

@@ -26,7 +26,7 @@ function OntdekkenPage() {
       (
         await supabase
           .from("articles")
-          .select("id, title, body, emoji, category, created_at, image_url")
+          .select("id, title, body, emoji, category, created_at, image_url, min_age")
           .eq("is_published", true)
           .order("created_at", { ascending: false })
       ).data ?? [],
@@ -63,7 +63,10 @@ function OntdekkenPage() {
           >
             <ArticleThumb emoji={a.emoji} imageUrl={a.image_url} />
             <div className="flex-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{categoryLabel(a.category)}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {categoryLabel(a.category)}
+                {a.min_age >= 16 && <span className="ml-2 rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">16+</span>}
+              </p>
               <p className="mt-0.5 font-semibold">{a.title}</p>
               <p className="mt-1 text-xs text-muted-foreground">{excerpt(a.body)}</p>
             </div>

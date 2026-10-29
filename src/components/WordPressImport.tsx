@@ -11,13 +11,16 @@ export function WordPressImport() {
   const importPage = useServerFn(importWordPressPage);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [result, setResult] = useState<{ added: number; updated: number } | null>(null);
+  const [result, setResult] = useState<{ added: number; updated: number; sixteen: number } | null>(
+    null,
+  );
 
   async function run() {
     setBusy(true);
     setResult(null);
     let added = 0,
       updated = 0,
+      sixteen = 0,
       done = 0;
     try {
       for (let page = 1; ; page++) {
@@ -25,19 +28,21 @@ export function WordPressImport() {
         for (const s of r.imported) {
           if (s.isNew) added++;
           else updated++;
+          if (s.isNew && s.sixteen) sixteen++;
         }
         done += r.imported.length;
         setProgress({ done, total: Math.max(r.total, done) });
         if (r.done) break;
       }
-      setResult({ added, updated });
+      setResult({ added, updated, sixteen });
       toast.success(`${added + updated} verhalen staan in de app! 📚`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Ophalen lukte niet.");
-      if (added + updated) setResult({ added, updated });
+      if (added + updated) setResult({ added, updated, sixteen });
     } finally {
       setBusy(false);
       qc.invalidateQueries({ queryKey: ["articles"] });
+      qc.invalidateQueries({ queryKey: ["admin-articles"] });
     }
   }
 
@@ -67,6 +72,8 @@ export function WordPressImport() {
       {result && (
         <p className="text-sm">
           ✅ {result.added} nieuw, {result.updated} bijgewerkt.
+          {result.sixteen > 0 &&
+            ` ${result.sixteen === 1 ? "1 nieuw verhaal staat" : `${result.sixteen} nieuwe verhalen staan`} op 16+ omdat het over heel zware dingen gaat. Kijk ze na bij "Verhalen & tips" hierboven.`}
         </p>
       )}
     </div>

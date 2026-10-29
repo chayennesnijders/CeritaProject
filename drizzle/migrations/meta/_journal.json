@@ -393,6 +393,13 @@
       "when": 1792600900000,
       "tag": "0055_wordpress_import",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1792601000000,
+      "tag": "0056_article_min_age",
+      "breakpoints": true
     }
   ]
 }
