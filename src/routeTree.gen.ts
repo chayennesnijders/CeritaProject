@@ -22,6 +22,7 @@ import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedVerhaalInsturenRouteImport } from './routes/_authenticated/verhaal-insturen'
 import { Route as AuthenticatedVriendenRouteImport } from './routes/_authenticated/vrienden'
+import { Route as ApiAuthEmailRouteImport } from './routes/api/auth-email'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as AuthenticatedBerichtenIndexRouteImport } from './routes/_authenticated/berichten.index'
 import { Route as AuthenticatedBerichtenIdRouteImport } from './routes/_authenticated/berichten.$id'
@@ -30,8 +31,6 @@ import { Route as AuthenticatedCommunityGroupIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedOntdekkenIndexRouteImport } from './routes/_authenticated/ontdekken.index'
 import { Route as AuthenticatedOntdekkenArticleIdRouteImport } from './routes/_authenticated/ontdekken.$articleId'
 import { Route as ApiPublicFreeItemsWeeklyRouteImport } from './routes/api/public/free-items-weekly'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -98,6 +97,11 @@ const AuthenticatedVriendenRoute = AuthenticatedVriendenRouteImport.update({
   path: '/vrienden',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAuthEmailRoute = ApiAuthEmailRouteImport.update({
+  id: '/api/auth-email',
+  path: '/api/auth-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   id: '/api/transcribe',
   path: '/api/transcribe',
@@ -145,16 +149,6 @@ const ApiPublicFreeItemsWeeklyRoute =
     path: '/api/public/free-items-weekly',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -169,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/shop': typeof AuthenticatedShopRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
+  '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
@@ -177,8 +172,6 @@ export interface FileRoutesByFullPath {
   '/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/community/': typeof AuthenticatedCommunityIndexRoute
   '/ontdekken/': typeof AuthenticatedOntdekkenIndexRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -193,6 +186,7 @@ export interface FileRoutesByTo {
   '/shop': typeof AuthenticatedShopRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
+  '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
@@ -201,8 +195,6 @@ export interface FileRoutesByTo {
   '/berichten': typeof AuthenticatedBerichtenIndexRoute
   '/community': typeof AuthenticatedCommunityIndexRoute
   '/ontdekken': typeof AuthenticatedOntdekkenIndexRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -219,6 +211,7 @@ export interface FileRoutesById {
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/_authenticated/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/_authenticated/vrienden': typeof AuthenticatedVriendenRoute
+  '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/_authenticated/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/_authenticated/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
@@ -227,8 +220,6 @@ export interface FileRoutesById {
   '/_authenticated/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/_authenticated/community/': typeof AuthenticatedCommunityIndexRoute
   '/_authenticated/ontdekken/': typeof AuthenticatedOntdekkenIndexRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
-  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -245,6 +236,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/verhaal-insturen'
     | '/vrienden'
+    | '/api/auth-email'
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
@@ -253,8 +245,6 @@ export interface FileRouteTypes {
     | '/berichten/'
     | '/community/'
     | '/ontdekken/'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -269,6 +259,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/verhaal-insturen'
     | '/vrienden'
+    | '/api/auth-email'
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
@@ -277,8 +268,6 @@ export interface FileRouteTypes {
     | '/berichten'
     | '/community'
     | '/ontdekken'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
   id:
     | '__root__'
     | '/'
@@ -294,6 +283,7 @@ export interface FileRouteTypes {
     | '/_authenticated/shop'
     | '/_authenticated/verhaal-insturen'
     | '/_authenticated/vrienden'
+    | '/api/auth-email'
     | '/api/transcribe'
     | '/_authenticated/berichten/$id'
     | '/_authenticated/community/$groupId'
@@ -302,8 +292,6 @@ export interface FileRouteTypes {
     | '/_authenticated/berichten/'
     | '/_authenticated/community/'
     | '/_authenticated/ontdekken/'
-    | '/lovable/email/auth/preview'
-    | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -311,10 +299,9 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiAuthEmailRoute: typeof ApiAuthEmailRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiPublicFreeItemsWeeklyRoute: typeof ApiPublicFreeItemsWeeklyRoute
-  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
-  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -410,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVriendenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/auth-email': {
+      id: '/api/auth-email'
+      path: '/api/auth-email'
+      fullPath: '/api/auth-email'
+      preLoaderRoute: typeof ApiAuthEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/transcribe': {
       id: '/api/transcribe'
       path: '/api/transcribe'
@@ -466,20 +460,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFreeItemsWeeklyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -527,10 +507,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiAuthEmailRoute: ApiAuthEmailRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiPublicFreeItemsWeeklyRoute: ApiPublicFreeItemsWeeklyRoute,
-  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
-  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

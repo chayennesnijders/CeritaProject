@@ -6,24 +6,18 @@ type Push = { title: string; body: string; link: string; tag: string };
 
 // Sends one push to every registered device of a user. Removes stale tokens.
 export async function pushToUser(userId: string, msg: Push) {
-  const lovKey = process.env["LOVABLE_API_KEY"];
-  const fcmKey = process.env["FIREBASE_MESSAGING_API_KEY_1"] ?? process.env["FIREBASE_MESSAGING_API_KEY"];
-  if (!lovKey || !fcmKey) return 0;
+  const { fcmServiceAccount, sendFcm } = await import("@/lib/fcm.server");
+  const sa = fcmServiceAccount();
+  if (!sa) return 0;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: tokens } = await supabaseAdmin.from("push_tokens").select("token").eq("user_id", userId);
   let sent = 0;
   for (const { token } of tokens ?? []) {
-    const res = await fetch("https://connector-gateway.lovable.dev/firebase_messaging/v1/projects/_/messages:send", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${lovKey}`, "X-Connection-Api-Key": fcmKey, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: {
-          token,
-          notification: { title: msg.title, body: msg.body },
-          data: { link: msg.link },
-          webpush: { notification: { tag: msg.tag, renotify: true, icon: "/favicon.ico" }, fcm_options: { link: msg.link } },
-        },
-      }),
+    const res = await sendFcm(sa, {
+      token,
+      notification: { title: msg.title, body: msg.body },
+      data: { link: msg.link },
+      webpush: { notification: { tag: msg.tag, renotify: true, icon: "/favicon.ico" }, fcm_options: { link: msg.link } },
     });
     if (res.ok) sent++;
     else {

@@ -9,27 +9,23 @@ VERVOLGSTAPPEN: 3–5 concrete stappen als lijst (bijv. bericht verbergen, gebru
 Wees kort en praktisch. Verzin geen feiten die niet in de melding staan.`;
 
 export async function runReportAnalysis(text: string): Promise<{ result: string }> {
-  const key = process.env["LOVABLE_API_KEY"];
+  const key = process.env["OPENAI_API_KEY"];
   if (!key) throw new Error("AI is niet geconfigureerd.");
-  const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey: key,
-    headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-  });
+  const provider = createOpenAI({ apiKey: key });
   let failure: unknown;
   const result = streamText({
-    model: provider.responses("openai/gpt-6-astra"),
+    model: provider.responses(process.env["OPENAI_MODEL"] ?? "gpt-5-mini"),
     system: SYSTEM,
     messages: [{ role: "user", content: `Melding:\n${text}` }],
     providerOptions: {
-      openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] },
+      openai: { reasoningEffort: "low", store: false },
     },
     onError: ({ error }) => { failure = error; },
   });
   const out = await result.text;
   if (failure || !out.trim()) {
     const status = (failure as { statusCode?: number })?.statusCode;
-    if (status === 402) throw new Error("De AI-tegoeden zijn op. Vul ze aan via Instellingen → Plans & credits.");
+    if (status === 402) throw new Error("Het OpenAI-tegoed is op. Vul het aan op platform.openai.com.");
     if (status === 429) throw new Error("Even te veel verzoeken. Probeer het over een minuutje opnieuw.");
     throw new Error("De AI kon geen samenvatting maken.");
   }

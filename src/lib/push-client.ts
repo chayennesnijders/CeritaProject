@@ -1,16 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 type FbEnv = {
-  VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID?: string;
-  VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY?: string;
-  VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_WEB_API_KEY?: string;
-  VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_PROJECT_ID?: string;
+  VITE_FIREBASE_APP_ID?: string;
+  VITE_FIREBASE_VAPID_KEY?: string;
+  VITE_FIREBASE_API_KEY?: string;
+  VITE_FIREBASE_PROJECT_ID?: string;
 };
 
-const appId = (import.meta.env as FbEnv).VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID;
-const vapidKey = (import.meta.env as FbEnv).VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY;
+const appId = (import.meta.env as FbEnv).VITE_FIREBASE_APP_ID;
+const vapidKey = (import.meta.env as FbEnv).VITE_FIREBASE_VAPID_KEY;
 const config = {
-  apiKey: (import.meta.env as FbEnv).VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_WEB_API_KEY ?? "",
-  projectId: (import.meta.env as FbEnv).VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_PROJECT_ID ?? "",
+  apiKey: (import.meta.env as FbEnv).VITE_FIREBASE_API_KEY ?? "",
+  projectId: (import.meta.env as FbEnv).VITE_FIREBASE_PROJECT_ID ?? "",
   appId: appId ?? "",
   messagingSenderId: appId?.split(":")[1] ?? "",
 };

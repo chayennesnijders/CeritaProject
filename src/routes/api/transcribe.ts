@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/transcribe")({
         const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
         if (userErr || !userData.user) return Response.json({ error: "Niet ingelogd" }, { status: 401 });
 
-        const apiKey = process.env["LOVABLE_API_KEY"];
+        const apiKey = process.env["OPENAI_API_KEY"];
         if (!apiKey) return Response.json({ error: "Spraakherkenning is niet ingesteld" }, { status: 500 });
 
         const contentLength = Number(request.headers.get("Content-Length") ?? 0);
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/api/transcribe")({
         if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Opname is te groot" }, { status: 413 });
 
         const form = new FormData();
-        form.append("model", "openai/gpt-transcribe");
+        form.append("model", process.env["OPENAI_TRANSCRIBE_MODEL"] ?? "gpt-4o-transcribe");
         form.append("file", file, file.name);
         form.append("response_format", "json");
         form.append("stream", "true");
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/api/transcribe")({
         // Helpt het model ook bij hele korte opnames ("hoi", "ja") Nederlands te verstaan.
         form.append("prompt", "Een korte Nederlandse dagboekopname van een jongere, bijvoorbeeld: hoi, ja, goedemorgen.");
 
-        const upstream = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+        const upstream = await fetch("https://api.openai.com/v1/audio/transcriptions", {
           method: "POST",
           headers: { Authorization: `Bearer ${apiKey}` },
           body: form,
