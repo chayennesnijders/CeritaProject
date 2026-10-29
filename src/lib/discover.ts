@@ -97,3 +97,13 @@ export function relatedStories<T extends StoryCard>(story: T, all: T[], read: Se
     )
     .slice(0, 3);
 }
+
+/** "Alles" view: one row per category (biggest first), each row newest first. */
+export function storiesByCategory<T extends StoryCard>(stories: T[]) {
+  const newest = sortStories(stories, "nieuw", new Map());
+  return categoryCounts(stories).map(({ category, count }) => ({
+    category,
+    count,
+    stories: newest.filter((s) => s.category === category),
+  }));
+}

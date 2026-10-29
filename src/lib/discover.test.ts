@@ -5,6 +5,7 @@ import {
   readingMinutes,
   relatedStories,
   sortStories,
+  storiesByCategory,
   storyOfTheDay,
   type ReactionCounts,
 } from "./discover";
@@ -81,5 +82,15 @@ describe("discover", () => {
   it("suggests unread stories from the same category", () => {
     const more = [...stories, s("e", "in-je-hoofd", "2026-07-05")];
     expect(relatedStories(more[0]!, more, new Set(["e"])).map((x) => x.id)).toEqual(["c", "e"]);
+  });
+
+  it("groups stories per category for the overview, newest first", () => {
+    expect(
+      storiesByCategory(stories).map((r) => [r.category, r.count, r.stories.map((x) => x.id)]),
+    ).toEqual([
+      ["in-je-hoofd", 2, ["c", "a"]],
+      ["jong-zijn", 1, ["b"]],
+      ["relaties", 1, ["d"]],
+    ]);
   });
 });
