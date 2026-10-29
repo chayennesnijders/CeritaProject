@@ -4,7 +4,6 @@ import { ChevronRight, Search, X } from "lucide-react";
 import { categoryEmoji, categoryLabel, excerpt, useArticleImage } from "@/lib/articles";
 import { useChallengeDay } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
-import { ComingSoon } from "@/components/ComingSoon";
 import {
   categoryCounts,
   filterStories,
@@ -140,7 +139,6 @@ function OntdekkenPage() {
         </Link>
       )}
 
-      {!filtering && k.kind === "verhaal" && <ComingSoon />}
 
       <div className="-mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-1">
         <button
