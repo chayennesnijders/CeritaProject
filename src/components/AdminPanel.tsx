@@ -11,7 +11,6 @@ import { ArticleComposer } from "@/components/ArticleComposer";
 import { ShopOrdersAdmin } from "@/components/ShopOrdersAdmin";
 import { StorySubmissionsAdmin } from "@/components/StorySubmissionsAdmin";
 import { StoryBoardAdmin } from "@/components/StoryBoardAdmin";
-import { WordPressImport } from "@/components/WordPressImport";
 import { AdminWeekly } from "@/components/AdminWeekly";
 import { ReportInbox } from "@/components/ReportInbox";
 import { reportsQueryOptions } from "@/lib/reports";
@@ -219,7 +218,6 @@ export function AdminPanel() {
       {tab === "verhalen" && (
         <div className="space-y-5">
           <ArticleComposer />
-          <WordPressImport />
           <StorySubmissionsAdmin />
         </div>
       )}
