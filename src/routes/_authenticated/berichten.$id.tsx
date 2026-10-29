@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -95,6 +96,7 @@ function ChatPage() {
       const fallback = attachment ? attachmentLabel(attachment.attachment_type) : "🎙️ Spraakmemo";
       const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || fallback, audio_path: path, ...attachment }).select("id").single();
       if (error) throw error;
+      if (needsCare(body)) showCareHelp();
       setBody(""); setAudio(null); setFile(null); refresh();
       if (sent) notify({ data: { messageId: sent.id } }).catch(() => {});
     } catch (e) {

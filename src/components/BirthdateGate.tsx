@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ageGroupFor, useMe } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ConsentGate } from "@/components/ConsentGate";
 
 /**
  * Everyone needs a birthdate (it decides your age group and which stories you see).
@@ -19,7 +20,7 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [tooYoung, setTooYoung] = useState(false);
 
-  if (!me?.profile || me.profile.birthdate) return <>{children}</>;
+  if (!me?.profile || me.profile.birthdate) return <ConsentGate>{children}</ConsentGate>;
 
   async function save() {
     if (!date || !me?.profile) return;

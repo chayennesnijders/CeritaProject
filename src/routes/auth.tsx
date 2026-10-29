@@ -1,5 +1,6 @@
 import { Riti } from "@/components/Riti";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LegalLinks } from "@/components/LegalPage";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -141,7 +142,12 @@ function AuthPage() {
           <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-6 w-full text-center text-sm text-primary underline">
             {mode === "in" ? "Nog geen account? Aanmelden" : "Al een account? Inloggen"}
           </button>
-          <p className="mt-8 text-center text-xs text-muted-foreground">Inloggen met telefoonnummer komt binnenkort.</p>
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            Door verder te gaan ga je akkoord met de <Link to="/huisregels" className="underline">huisregels</Link>, de{" "}
+            <Link to="/privacy" className="underline">privacyverklaring</Link> en de{" "}
+            <Link to="/voorwaarden" className="underline">voorwaarden</Link>.
+          </p>
+          <LegalLinks className="mt-4 text-muted-foreground" />
         </>
       )}
     </div>

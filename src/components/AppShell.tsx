@@ -6,6 +6,7 @@ import { AppLock } from "@/components/AppLock";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { BirthdateGate } from "@/components/BirthdateGate";
 import { PetLink, StreakChip } from "@/components/HeaderStats";
+import { CareHelpDialog } from "@/components/CareHelpDialog";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
 import { Home, Users, Compass, MessageCircle, User, ShoppingBag, Shield } from "lucide-react";
@@ -67,8 +68,9 @@ export function AppShell() {
     <CallProvider>
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <BirthdayPopup />
+      <CareHelpDialog />
       <WelcomeTour />
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-2 rounded-b-3xl bg-ink px-4 py-2 text-ink-foreground">
+      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink px-4 py-2 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
           <img src="/cerita-beer.png" alt="" className="size-12 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
           <span className="min-w-0 leading-tight">
@@ -93,7 +95,7 @@ export function AppShell() {
       <main className="flex-1 px-5 pb-28">
         <Outlet />
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+      <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
         <div className="flex justify-around rounded-3xl border-2 border-secondary bg-ink px-2 py-2 text-ink-foreground shadow-soft">
           {visibleTabs.map(({ to, label, icon: Icon }) => {
             const n = to === "/berichten" ? unread.dmTotal + unread.requests : to === "/community" ? unread.groupTotal : 0;

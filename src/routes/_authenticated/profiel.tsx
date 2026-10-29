@@ -14,6 +14,7 @@ import { enablePush, pushMessages } from "@/lib/push-client";
 import { UserAvatar } from "@/components/UserAvatar";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ContactAdminsButton } from "@/components/ContactAdminsButton";
+import { LegalLinks } from "@/components/LegalPage";
 import { Camera, Moon, Sun } from "lucide-react";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 
@@ -145,6 +146,7 @@ function ProfilePage() {
       <Button onClick={save} className="h-12 w-full rounded-full">Opslaan</Button>
       <Button onClick={signOut} variant="outline" className="h-12 w-full rounded-full">Uitloggen</Button>
       <DeleteAccount />
+      <LegalLinks className="pb-2 text-muted-foreground" />
     </div>
   );
 }

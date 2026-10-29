@@ -11,6 +11,8 @@ import { ArticleComposer } from "@/components/ArticleComposer";
 import { ShopOrdersAdmin } from "@/components/ShopOrdersAdmin";
 import { StorySubmissionsAdmin } from "@/components/StorySubmissionsAdmin";
 import { AdminNews } from "@/components/AdminNews";
+import { ImpactReport } from "@/components/ImpactReport";
+import { SafetyAlerts } from "@/components/SafetyAlerts";
 import { MediaAdmin } from "@/components/MediaAdmin";
 import { AdminMessages } from "@/components/AdminMessages";
 import { useAdminNews } from "@/lib/use-admin-news";
@@ -21,6 +23,7 @@ import { reportsQueryOptions } from "@/lib/reports";
 const TABS = [
   { id: "nieuws", label: "Nieuws" },
   { id: "berichten", label: "Berichten" },
+  { id: "impact", label: "Impact" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
@@ -134,6 +137,8 @@ export function AdminPanel() {
 
       {tab === "berichten" && <AdminMessages />}
 
+      {tab === "impact" && <ImpactReport />}
+
       {tab === "luisteren" && <MediaAdmin />}
 
       {tab === "overzicht" && (
@@ -146,6 +151,7 @@ export function AdminPanel() {
 
       {tab === "inbox" && (
         <div className="space-y-5">
+          <SafetyAlerts />
           <ReportInbox onWarn={(id) => { setWarnTarget(id); setWarnText(""); }} onTimeout={timeoutMember} />
           <section className="rounded-3xl bg-card p-5 shadow-soft">
             <h2 className="text-lg">Lid waarschuwen of time-out geven</h2>

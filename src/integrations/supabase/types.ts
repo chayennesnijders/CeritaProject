@@ -1261,6 +1261,42 @@ export type Database = {
           },
         ]
       }
+      safety_alerts: {
+        Row: {
+          author_id: string | null
+          created_at: string
+          excerpt: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          ref_id: string
+          source: string
+          status: string
+        }
+        Insert: {
+          author_id?: string | null
+          created_at?: string
+          excerpt: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ref_id: string
+          source: string
+          status?: string
+        }
+        Update: {
+          author_id?: string | null
+          created_at?: string
+          excerpt?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ref_id?: string
+          source?: string
+          status?: string
+        }
+        Relationships: []
+      }
       shop_orders: {
         Row: {
           amount_cents: number
@@ -1473,6 +1509,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_consents: {
+        Row: {
+          parent_confirmed_at: string | null
+          terms_accepted_at: string
+          terms_version: string
+          user_id: string
+        }
+        Insert: {
+          parent_confirmed_at?: string | null
+          terms_accepted_at?: string
+          terms_version: string
+          user_id: string
+        }
+        Update: {
+          parent_confirmed_at?: string | null
+          terms_accepted_at?: string
+          terms_version?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1511,6 +1568,8 @@ export type Database = {
       can_access_group: { Args: { _group: string }; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_open_media: { Args: { _path: string }; Returns: boolean }
+      impact_stats: { Args: never; Returns: Json }
+      needs_care: { Args: { _text: string }; Returns: boolean }
       can_message: { Args: { _other: string }; Returns: boolean }
       can_use_community: { Args: never; Returns: boolean }
       claim_birthday_bonus: { Args: never; Returns: number }

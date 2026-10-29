@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { LegalLinks } from "@/components/LegalPage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +31,7 @@ function Landing() {
           <Link to="/auth">Beginnen</Link>
         </Button>
         <p className="text-center text-xs opacity-75">Leeftijdsgroepen 12–15, 16–25 en 26–27 hebben elk hun eigen omgeving.</p>
+        <LegalLinks className="pt-2" />
       </div>
     </div>
   );

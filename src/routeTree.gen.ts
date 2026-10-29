@@ -12,7 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as HuisregelsRouteImport } from './routes/huisregels'
+import { Route as HulpRouteImport } from './routes/hulp'
+import { Route as OrganisatiesRouteImport } from './routes/organisaties'
+import { Route as OudersRouteImport } from './routes/ouders'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
@@ -49,9 +55,39 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HuisregelsRoute = HuisregelsRouteImport.update({
+  id: '/huisregels',
+  path: '/huisregels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HulpRoute = HulpRouteImport.update({
+  id: '/hulp',
+  path: '/hulp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganisatiesRoute = OrganisatiesRouteImport.update({
+  id: '/organisaties',
+  path: '/organisaties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OudersRoute = OudersRouteImport.update({
+  id: '/ouders',
+  path: '/ouders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoorwaardenRoute = VoorwaardenRouteImport.update({
+  id: '/voorwaarden',
+  path: '/voorwaarden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
@@ -173,7 +209,13 @@ const ApiPublicFreeItemsWeeklyRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/huisregels': typeof HuisregelsRoute
+  '/hulp': typeof HulpRoute
+  '/organisaties': typeof OrganisatiesRoute
+  '/ouders': typeof OudersRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -199,7 +241,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/huisregels': typeof HuisregelsRoute
+  '/hulp': typeof HulpRoute
+  '/organisaties': typeof OrganisatiesRoute
+  '/ouders': typeof OudersRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -227,7 +275,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/huisregels': typeof HuisregelsRoute
+  '/hulp': typeof HulpRoute
+  '/organisaties': typeof OrganisatiesRoute
+  '/ouders': typeof OudersRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/voorwaarden': typeof VoorwaardenRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
@@ -255,7 +309,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/huisregels'
+    | '/hulp'
+    | '/organisaties'
+    | '/ouders'
+    | '/privacy'
     | '/reset-password'
+    | '/voorwaarden'
     | '/beheer'
     | '/contact'
     | '/dagboek'
@@ -281,7 +341,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/huisregels'
+    | '/hulp'
+    | '/organisaties'
+    | '/ouders'
+    | '/privacy'
     | '/reset-password'
+    | '/voorwaarden'
     | '/beheer'
     | '/contact'
     | '/dagboek'
@@ -308,7 +374,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/huisregels'
+    | '/hulp'
+    | '/organisaties'
+    | '/ouders'
+    | '/privacy'
     | '/reset-password'
+    | '/voorwaarden'
     | '/_authenticated/beheer'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
@@ -336,7 +408,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  HuisregelsRoute: typeof HuisregelsRoute
+  HulpRoute: typeof HulpRoute
+  OrganisatiesRoute: typeof OrganisatiesRoute
+  OudersRoute: typeof OudersRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  VoorwaardenRoute: typeof VoorwaardenRoute
   ApiAuthEmailRoute: typeof ApiAuthEmailRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiPublicAdminNewsPushRoute: typeof ApiPublicAdminNewsPushRoute
@@ -366,11 +444,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/huisregels': {
+      id: '/huisregels'
+      path: '/huisregels'
+      fullPath: '/huisregels'
+      preLoaderRoute: typeof HuisregelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hulp': {
+      id: '/hulp'
+      path: '/hulp'
+      fullPath: '/hulp'
+      preLoaderRoute: typeof HulpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organisaties': {
+      id: '/organisaties'
+      path: '/organisaties'
+      fullPath: '/organisaties'
+      preLoaderRoute: typeof OrganisatiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ouders': {
+      id: '/ouders'
+      path: '/ouders'
+      fullPath: '/ouders'
+      preLoaderRoute: typeof OudersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voorwaarden': {
+      id: '/voorwaarden'
+      path: '/voorwaarden'
+      fullPath: '/voorwaarden'
+      preLoaderRoute: typeof VoorwaardenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/beheer': {
@@ -570,7 +690,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  HuisregelsRoute: HuisregelsRoute,
+  HulpRoute: HulpRoute,
+  OrganisatiesRoute: OrganisatiesRoute,
+  OudersRoute: OudersRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  VoorwaardenRoute: VoorwaardenRoute,
   ApiAuthEmailRoute: ApiAuthEmailRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiPublicAdminNewsPushRoute: ApiPublicAdminNewsPushRoute,

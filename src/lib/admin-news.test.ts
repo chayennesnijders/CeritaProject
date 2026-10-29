@@ -83,3 +83,20 @@ describe("adminPushMessage", () => {
     expect(adminPushMessage([{ kind: "bestelling", title: "D" }], false)).toBeNull();
   });
 });
+
+describe("care signals in pushes", () => {
+  it("puts care signals first", () => {
+    expect(
+      adminPushMessage(
+        [
+          { kind: "zorg", title: "x" },
+          { kind: "aanmelding", title: "A" },
+        ],
+        false,
+      ),
+    ).toEqual({
+      title: "🆘 Zorgsignaal: kijk even mee",
+      body: "Iemand schreef iets zorgwekends. En 1 ander nieuws.",
+    });
+  });
+});

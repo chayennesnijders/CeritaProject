@@ -86,6 +86,9 @@ function HomePage() {
       <StoryOfTheDay uid={uid} day={day} />
       <NewToListen />
       <ContactAdminsButton uid={uid} />
+      <Link to="/hulp" className="block text-center text-sm font-semibold text-primary underline">
+        🆘 Hulp nodig? Bekijk wie je kunt bellen
+      </Link>
     </div>
   );
 }
@@ -173,7 +176,10 @@ function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string;
           {needsHelpLine(m.id) && (
             <p className="mt-3 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
               Wil je met iemand praten? Bel of chat gratis met de Kindertelefoon (0800-0432) of 113
-              (0800-0113).
+              (0800-0113).{" "}
+              <Link to="/hulp" className="font-semibold underline">
+                Meer hulp
+              </Link>
             </p>
           )}
           <button

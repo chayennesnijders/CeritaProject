@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -80,6 +81,8 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
       return;
     }
     toast.success("Opgeslagen in je dagboek");
+    // Your diary stays private (no admin sees it), but you do get the help numbers.
+    if (needsCare(text)) showCareHelp();
     setText("");
     setPhoto(null);
     setAudio(null);

@@ -14,6 +14,7 @@ export const NEWS_KINDS = {
   verhaal: { emoji: "✍️", label: "Verhaal ingestuurd", tab: "verhalen" },
   bericht: { emoji: "💌", label: "Bericht van een lid", tab: "berichten" },
   melding: { emoji: "🚩", label: "Melding", tab: "inbox" },
+  zorg: { emoji: "🆘", label: "Zorgsignaal", tab: "inbox" },
 } as const;
 export type NewsKind = keyof typeof NEWS_KINDS;
 export const newsKind = (k: string) =>
@@ -54,12 +55,22 @@ const PLURAL: Record<NewsKind, [string, string]> = {
   verhaal: ["ingestuurd verhaal", "ingestuurde verhalen"],
   bericht: ["bericht", "berichten"],
   melding: ["melding", "meldingen"],
+  zorg: ["zorgsignaal", "zorgsignalen"],
 };
 
 /** Push text for an admin about news since the last check; orders only for the owner. */
 export function adminPushMessage(items: Pick<NewsItem, "kind" | "title">[], isOwner: boolean) {
   const mine = items.filter((i) => i.kind in NEWS_KINDS && (i.kind !== "bestelling" || isOwner));
   if (mine.length === 0) return null;
+  // Care signals come first and get their own urgent title.
+  const care = mine.filter((i) => i.kind === "zorg").length;
+  if (care > 0) {
+    const others = mine.length - care;
+    return {
+      title: "🆘 Zorgsignaal: kijk even mee",
+      body: `${care === 1 ? "Iemand schreef" : `${care} keer schreef iemand`} iets zorgwekends.${others ? ` En ${others} ander nieuws.` : ""}`,
+    };
+  }
   if (mine.length === 1) {
     const k = newsKind(mine[0]!.kind);
     return { title: `${k.emoji} ${k.label}`, body: mine[0]!.title };

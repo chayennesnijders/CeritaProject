@@ -1,4 +1,5 @@
 import { Shield } from "lucide-react";
+import { needsCare, showCareHelp } from "@/lib/care";
 import { useAdminIds } from "@/components/UserAvatar";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -129,6 +130,7 @@ function GroupPage() {
     const fallback = attachment ? attachmentLabel(attachment.attachment_type) : "🎙️ Spraakmemo";
     const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions }).select("id").single();
     if (error) throw error;
+    if (needsCare(text)) showCareHelp();
     if (replyTo && created) notifyReply({ data: { postId: created.id } }).catch(() => {});
     if (created && mentions.length > 0) notifyMention({ data: { postId: created.id } }).catch(() => {});
     setReplyTo(null); refresh();
