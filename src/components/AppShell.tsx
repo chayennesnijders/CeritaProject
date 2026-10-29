@@ -64,7 +64,7 @@ export function AppShell() {
       <BirthdayPopup />
       <WelcomeTour />
       <header className="sticky top-0 z-20 flex items-center justify-between rounded-b-3xl bg-ink px-5 py-2 text-ink-foreground">
-        <Link to="/home" aria-label="Cerita Project"><img src="/cerita-logo.png" alt="Cerita Project" className="h-12 w-24 object-cover" /></Link>
+        <Link to="/home" aria-label="Cerita Project"><img src="/cerita-beer.png" alt="Cerita Project" className="size-12 rounded-full bg-[#faf3ea] object-cover" /></Link>
         <div className="flex items-center gap-1">
           {me?.isAdmin && (
             <Link to="/leden" data-tour="leden" aria-label="Leden" className="rounded-full p-2 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>

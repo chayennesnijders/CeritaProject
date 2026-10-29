@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-between bg-warm px-6 py-10 text-blush">
-      <p className="font-display text-2xl font-bold">Cerita</p>
+      <img src="/cerita-logo.png" alt="CeritaProject — jouw verhaal mag er zijn" className="mx-auto size-44 rounded-[2.5rem] shadow-lg" />
       <div>
         <h1 className="text-5xl font-bold leading-tight">Jouw verhaal telt.</h1>
         <p className="mt-4 text-lg opacity-90">

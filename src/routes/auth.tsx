@@ -104,7 +104,7 @@ function AuthPage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md px-6 py-10">
-      <p className="font-display text-2xl font-bold text-primary">Cerita</p>
+      <img src="/cerita-logo.png" alt="CeritaProject" className="size-24 rounded-3xl" />
       <h1 className="mt-8 text-4xl text-foreground">{mode === "in" ? "Welkom terug" : mode === "up" ? "Maak je account" : mode === "forgot" ? "Wachtwoord vergeten" : "Bevestig je e-mail"}</h1>
       {sent ? (
         <div className="mt-8 space-y-3 rounded-3xl bg-secondary p-6 text-secondary-foreground">

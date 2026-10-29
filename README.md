@@ -54,7 +54,7 @@ De build werkt vanzelf op de meeste hostingdiensten: Vercel, Netlify en Cloudfla
 node .output/server/index.mjs
 ```
 
-Wil je zelf kiezen voor welke hosting je bouwt? Zet dan bijvoorbeeld `NITRO_PRESET=vercel` of `NITRO_PRESET=cloudflare-module`. Vergeet niet om alle sleutels uit `.env` ook bij je hosting in te vullen.
+Wil je zelf kiezen voor welke hosting je bouwt? Zet dan bijvoorbeeld `NITRO_PRESET=vercel` of `NITRO_PRESET=cloudflare-module`. Vergeet niet om alle sleutels uit `.env` ook bij je hosting in te vullen. Let op: de sleutels die met `VITE_` beginnen worden tijdens het bouwen in de app gestopt. Zonder die sleutels laat de app alleen "Er ging iets mis" zien.
 
 ## Handige commando's
 

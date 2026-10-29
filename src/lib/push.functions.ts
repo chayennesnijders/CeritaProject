@@ -17,7 +17,7 @@ export async function pushToUser(userId: string, msg: Push) {
       token,
       notification: { title: msg.title, body: msg.body },
       data: { link: msg.link },
-      webpush: { notification: { tag: msg.tag, renotify: true, icon: "/favicon.ico" }, fcm_options: { link: msg.link } },
+      webpush: { notification: { tag: msg.tag, renotify: true, icon: "/apple-touch-icon.png" }, fcm_options: { link: msg.link } },
     });
     if (res.ok) sent++;
     else {

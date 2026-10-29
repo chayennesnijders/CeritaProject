@@ -39,7 +39,7 @@ function ResetPage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md px-6 py-10">
-      <p className="font-display text-2xl font-bold text-primary">Cerita</p>
+      <img src="/cerita-logo.png" alt="CeritaProject" className="size-24 rounded-3xl" />
       <h1 className="mt-8 text-4xl text-foreground">Nieuw wachtwoord</h1>
       <form onSubmit={submit} className="mt-8 space-y-4">
         <div><Label htmlFor="p1">Nieuw wachtwoord</Label><Input id="p1" type="password" minLength={8} required value={pw} onChange={(e) => setPw(e.target.value)} className="mt-1 h-12 rounded-2xl" /></div>
