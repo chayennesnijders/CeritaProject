@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 import { ARTICLE_CATEGORIES, categoryLabel, excerpt } from "@/lib/articles";
 
 describe("artikel categorieën", () => {
-  it("kent de WordPress-categorieën en familie, vriendschap en inspiratie", () =>
-    expect(ARTICLE_CATEGORIES).toEqual(["in-je-hoofd", "overkomen", "relaties", "jong-zijn", "leven-daarna", "familie", "vriendschap", "inspiratie"]));
+  it("kent de vijf onderwerpen van de WordPress-site", () =>
+    expect(ARTICLE_CATEGORIES).toEqual(["in-je-hoofd", "overkomen", "relaties", "jong-zijn", "leven-daarna"]));
   it("vertaalt categorieën naar Nederlandse labels", () => {
     expect(categoryLabel("familie")).toBe("Familie");
     expect(categoryLabel("vriendschap")).toBe("Vriendschap");
     expect(categoryLabel("inspiratie")).toBe("Inspiratie");
     expect(categoryLabel("in-je-hoofd")).toBe("In je hoofd");
-    expect(categoryLabel("iets anders")).toBe("Familie");
+    expect(categoryLabel("iets anders")).toBe("Verhalen");
   });
 });
 

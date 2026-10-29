@@ -1,22 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-/** Artikel categorieën: onderwerpen waar verhalen en tips over gaan (de eerste vijf komen van de WordPress-site). */
+/** Artikel categorieën: dezelfde onderwerpen als op de WordPress-site. */
 const CATEGORY_LABELS = {
   "in-je-hoofd": "In je hoofd",
   overkomen: "Dingen die je zijn overkomen",
   relaties: "Relaties & mensen",
   "jong-zijn": "Jong zijn",
   "leven-daarna": "Het leven daarna",
-  familie: "Familie",
-  vriendschap: "Vriendschap",
-  inspiratie: "Inspiratie",
 } as const;
+// Oudere categorieën houden hun naam, maar je kunt ze niet meer kiezen.
+const OLD_LABELS: Record<string, string> = { familie: "Familie", vriendschap: "Vriendschap", inspiratie: "Inspiratie" };
 export const ARTICLE_CATEGORIES = Object.keys(CATEGORY_LABELS) as (keyof typeof CATEGORY_LABELS)[];
 
 export type ArticleCategory = keyof typeof CATEGORY_LABELS;
 
-export const categoryLabel = (c: string) => CATEGORY_LABELS[c as ArticleCategory] ?? "Familie";
+export const categoryLabel = (c: string) => CATEGORY_LABELS[c as ArticleCategory] ?? OLD_LABELS[c] ?? "Verhalen";
+
+/** An emoji per category, for the category buttons in Ontdekken. */
+export const categoryEmoji = (c: string) =>
+  ({ "in-je-hoofd": "🧠", overkomen: "🌧️", relaties: "💞", "jong-zijn": "🎒", "leven-daarna": "🌱" })[c] ?? "📖";
 
 /** A paragraph that is only "[[foto:…]]" is a photo between the text (a storage path or a web address). */
 export const photoInParagraph = (p: string) => /^\[\[foto:(.+)\]\]$/.exec(p.trim())?.[1] ?? null;

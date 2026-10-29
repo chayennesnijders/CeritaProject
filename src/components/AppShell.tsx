@@ -4,6 +4,7 @@ import { CallProvider } from "@/components/CallProvider";
 import { BirthdayPopup } from "@/components/BirthdayPopup";
 import { AppLock } from "@/components/AppLock";
 import { WelcomeTour } from "@/components/WelcomeTour";
+import { BirthdateGate } from "@/components/BirthdateGate";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
 import { Home, Users, Compass, MessageCircle, User, PawPrint, ShoppingBag, Shield } from "lucide-react";
@@ -59,6 +60,7 @@ export function AppShell() {
   const visibleTabs = tabs.filter((t) => band !== "no_community" || (t.to !== "/community" && t.to !== "/berichten"));
   return (
     <AppLock>
+    <BirthdateGate>
     <CallProvider>
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <BirthdayPopup />
@@ -107,6 +109,7 @@ export function AppShell() {
       </nav>
     </div>
     </CallProvider>
+    </BirthdateGate>
     </AppLock>
   );
 }

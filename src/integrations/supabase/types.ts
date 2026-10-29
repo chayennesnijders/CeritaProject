@@ -44,6 +44,63 @@ export type Database = {
         }
         Relationships: []
       }
+      article_reactions: {
+        Row: {
+          article_id: string
+          created_at: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          kind: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      article_reads: {
+        Row: {
+          article_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      article_saves: {
+        Row: {
+          article_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           author_id: string | null
@@ -1332,6 +1389,10 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      article_reaction_counts: {
+        Args: never
+        Returns: { article_id: string; herkenbaar: number; knuffel: number; sterk: number }[]
+      }
       can_access_group: { Args: { _group: string }; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_message: { Args: { _other: string }; Returns: boolean }

@@ -25,7 +25,7 @@ function SubmitStoryPage() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [category, setCategory] = useState<ArticleCategory>("inspiratie");
+  const [category, setCategory] = useState<ArticleCategory>("in-je-hoofd");
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -57,9 +57,9 @@ function SubmitStoryPage() {
           en halen namen en andere herkenbare dingen eruit. Daarna verschijnt het <b>anoniem</b> bij Ontdekken.
         </p>
         <Input placeholder="Titel van je verhaal" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className="rounded-2xl" />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {ARTICLE_CATEGORIES.map((c) => (
-            <Button key={c} variant={category === c ? "default" : "outline"} size="sm" className="flex-1 rounded-full" onClick={() => setCategory(c)}>
+            <Button key={c} variant={category === c ? "default" : "outline"} size="sm" className="rounded-full" onClick={() => setCategory(c)}>
               {categoryLabel(c)}
             </Button>
           ))}

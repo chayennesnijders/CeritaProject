@@ -23,7 +23,7 @@ export function ArticleComposer() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [emoji, setEmoji] = useState("📖");
-  const [category, setCategory] = useState<ArticleCategory>("familie");
+  const [category, setCategory] = useState<ArticleCategory>("in-je-hoofd");
   const [photo, setPhoto] = useState<File | null>(null);
   const [sixteen, setSixteen] = useState(false);
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
