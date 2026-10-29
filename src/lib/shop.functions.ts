@@ -30,8 +30,9 @@ export const createShopCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ clientSecret: string } | { error: string }> => {
     const product = await loadProduct(data.productId);
     if (!product) return { error: "Dit product is er niet (meer)." };
-    const digital = product.kind === "digitaal";
-    const gift = data.tier === "gift" && !digital;
+    // Digitale producten verkopen we niet: in de app-winkels van Apple en Google moet dat via hun eigen betaalsysteem.
+    if (product.kind === "digitaal") return { error: "Dit product is er niet (meer)." };
+    const gift = data.tier === "gift";
     const price = tierPrice(gift ? "gift" : data.tier, product);
     try {
       const stripe = createStripeClient(data.environment);
@@ -42,7 +43,7 @@ export const createShopCheckout = createServerFn({ method: "POST" })
       const a = data.address;
       const line_items: NonNullable<Stripe.Checkout.SessionCreateParams["line_items"]> = [
         { quantity: 1, price_data: { currency: "eur", unit_amount: price.totalCents - price.shippingCents, tax_behavior: "inclusive",
-          product_data: { name: gift ? `${product.name} + 1 cadeau voor een jongere` : product.name, tax_code: digital ? "txcd_10000000" : "txcd_99999999" } } },
+          product_data: { name: gift ? `${product.name} + 1 cadeau voor een jongere` : product.name, tax_code: "txcd_99999999" } } },
       ];
       if (price.shippingCents > 0) {
         line_items.push({ quantity: 1, price_data: { currency: "eur", unit_amount: price.shippingCents, tax_behavior: "inclusive",

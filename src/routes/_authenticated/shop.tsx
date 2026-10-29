@@ -49,7 +49,7 @@ function ShopPage() {
   const { data: products = [] } = useQuery({
     queryKey: ["shop-products"],
     queryFn: async () =>
-      ((await supabase.from("shop_products").select("*").eq("is_active", true).order("sort")).data ?? []) as ShopProduct[],
+      ((await supabase.from("shop_products").select("*").eq("is_active", true).eq("kind", "fysiek").order("sort")).data ?? []) as ShopProduct[],
   });
   const { data: freeCount = 0 } = useQuery({
     queryKey: ["free-items"],
