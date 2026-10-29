@@ -1,0 +1,91 @@
+-- Leeftijd per WordPress-verhaal, beoordeeld door Claude (samenvatting, triggerwaarschuwing en bij twijfel de hele tekst).
+-- 16+ = seksueel misbruik/grensoverschrijding, (huiselijk) geweld/mishandeling, zelfbeschadiging/suïcidale gedachten,
+--       verslaving/drugs of een eetstoornis. 12+ = pesten, angst, somberheid, scheiding, ziekte, rouw.
+-- Plak dit in Supabase → SQL Editor → New query → Run. Daarna kun je per verhaal nog wisselen in Beheer → Verhalen.
+
+-- 16+ (53 verhalen):
+--   740  Ik verloor bijna alles, maar vond langzaam mezelf terug
+--   1033  Ik was 6 toen voor het eerst een pistool op mij werd gericht
+--   969  Een leven met veel verlies en pijn
+--   960  Ik ben 18, maar draag al jaren een rugzak die veel te zwaar voelt
+--   954  Ik ben 14, maar soms voelt het alsof ik al een heel leven achter me heb
+--   949  Ik ben geen slecht mens. Ik ben gevormd door wat ik heb meegemaakt.
+--   943  Ik was nog maar drie toen ik leerde wat angst thuis betekende
+--   928  Als kind dacht ik dat schreeuwen en angst normaal waren…
+--   925  Iedereen zegt dat ik moet blijven vechten… maar soms ben ik gewoon op.
+--   920  Hij liet me geloven dat het liefde was…
+--   914  Jarenlang dacht ik dat ik nergens écht bij hoorde…
+--   911  Jarenlang dacht ik dat ík het probleem was…
+--   908  Ik dacht jarenlang dat het nooit meer beter zou worden…
+--   903  Ik zocht liefde, maar kwam steeds opnieuw in onveilige situaties terecht.
+--   901  De onzekerheid van mijn beste vriendin werd langzaam ook die van mij…
+--   891  Iedereen dacht dat het goed met mij ging…
+--   884  Ze noemden me te complex om te helpen…
+--   869  Ze zeiden dat ik veilig zou zijn, maar ik bleef mijn hele jeugd vechten om te overleven
+--   864  Ik dacht dat ik hem kon vertrouwen…
+--   860  Iedereen zei dat ik contact moest houden met mijn vader…
+--   856  Hoe vaak kan een mens breken voordat iemand vraagt hoe het écht gaat?
+--   853  Jarenlang leefde ik in angst, en niemand zag hoe slecht het met me ging
+--   849  Ze noemden me ‘dat kind met dat gat’ en ik begon mezelf te haten
+--   843  Iedereen zei: ‘het blijft je moeder’…
+--   827  Ik groeide op tussen ruzies, maar niemand zag wat het met mij deed
+--   814  Niemand zag hoeveel angst ik elke dag voelde
+--   807  Soms mis ik hem nog elke dag
+--   802  Ik dacht dat mijn leven voorbij was, maar het begon pas echt
+--   795  Ik dacht jarenlang dat het niet erg genoeg was
+--   790  Ik was nog een kind toen mijn veiligheid werd afgenomen
+--   783  Ik dacht dat ik haar moest redden
+--   780  Ik was nog een kind toen ik leerde wat angst was
+--   777  Mijn vader zei dat ik het nooit zou maken
+--   752  Ik dacht lange tijd dat er iets mis was met mij
+--   750  Ik dacht dat ik moest veranderen om geaccepteerd te worden
+--   737  Van verlies en verslaving naar een nieuw begin
+--   733  Ik verloor mezelf door pesten, maar ik geef niet op
+--   724  Ik zocht veiligheid, maar vond die niet altijd
+--   715  Mijn lichaam gaf signalen af, maar niemand luisterde
+--   710  Achter mijn glimlach zat een strijd die bijna niemand zag
+--   702  Na alles wat ik heb meegemaakt, kies ik ervoor om door te gaan
+--   688  Alsof mijn waardigheid werd afgenomen
+--   677  Van buiten leek alles perfect
+--   682  Ik hoop dat ik mijn leven weer terug kan kijken
+--   671  Ik gaf niet op, ook niet toen ik alles verloor
+--   663  Ik probeer te blijven vechten, ook als het zwaar voelt
+--   625  Seksueel grensoverschrijdend gedrag, pesten en angst
+--   605  Jarenlang dacht ik dat het normaal was
+--   600  Na jaren van overleven leer ik eindelijk leven
+--   590  Ik wil niet dat zij winnen
+--   585  Ik verloor mezelf terwijl ik anderen probeerde te redden
+--   548  Ik was pas 12 toen alles veranderde..
+--   495  Ik dacht dat het beter ging
+
+-- 12+ (24 verhalen):
+--   965  Mijn moeder was boos, mijn vader trok partij en ik leerde zwijgen
+--   948  Ik was ziek, maar uiteindelijk verloor ik ook mijn opleiding
+--   898  Ik bleef doorgaan voor iedereen… tot mijn lichaam niet meer kon
+--   875  Ze zeiden dat het tussen mijn oren zat…
+--   858  Ik wil gewoon rust, maar alles voelt als een strijd
+--   825  Ik begon zonder vader, maar ik leer mezelf terug te vinden
+--   821  Sinds die dag mis ik haar elke dag
+--   813  Ik zit al 5 jaar gevangen in mijn eigen lichaam
+--   810  Ik was bang dat iedereen me weer zou verlaten
+--   772  Ik was nog een kind toen ik mijn moeder verloor
+--   769  Niemand zag hoe ziek ik eigenlijk was
+--   763  Ik leefde alsof ik twee verschillende levens had
+--   755  Alle lichten die uitgaan, kunnen ook weer aangaan
+--   748  Na een psychose kreeg ik de diagnose bipolair
+--   742  De littekens van pesten draag ik nog elke dag mee
+--   728  Ik ben een deel van mezelf kwijtgeraakt in 2020
+--   691  Soms voelt het alsof mijn lichaam en hoofd tegelijk strijden
+--   684  Niemand zag hoe slecht het echt met mij ging
+--   650  Pas na 20 jaar leerde ik voelen wat ik al die tijd had weggestopt
+--   621  Het moeilijkste was accepteren dat ik niets kon doen
+--   617  Ik voelde alsof ik moest kiezen tussen mijn vader en mezelf
+--   595  Jarenlang wist niemand waar mijn angst vandaan kwam
+--   561  Soms voelde het alsof niemand zag hoe hard ik aan het vechten was
+--   480  Ik blijf mezelf uitleggen tot iemand mij begrijpt
+
+UPDATE public.articles SET min_age = 16 WHERE wp_id IN (495, 548, 585, 590, 600, 605, 625, 663, 671, 677, 682, 688, 702, 710, 715, 724, 733, 737, 740, 750, 752, 777, 780, 783, 790, 795, 802, 807, 814, 827, 843, 849, 853, 856, 860, 864, 869, 884, 891, 901, 903, 908, 911, 914, 920, 925, 928, 943, 949, 954, 960, 969, 1033);
+UPDATE public.articles SET min_age = 12 WHERE wp_id IN (480, 561, 595, 617, 621, 650, 684, 691, 728, 742, 748, 755, 763, 769, 772, 810, 813, 821, 825, 858, 875, 898, 948, 965);
+
+-- Controle: hoeveel staan er nu op 12+ en 16+?
+SELECT min_age, count(*) FROM public.articles WHERE wp_id IS NOT NULL GROUP BY min_age ORDER BY min_age;

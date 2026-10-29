@@ -55,7 +55,6 @@ export const PET_GAMES = [
 ] as const;
 export type PetGameId = (typeof PET_GAMES)[number]["id"];
 
-export const GAME_XP = 5;
 export const GAMES_WITH_XP_PER_DAY = 3;
 
 const pick = <T>(list: readonly T[], rnd: () => number) => list[Math.floor(rnd() * list.length)]!;

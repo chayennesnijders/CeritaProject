@@ -8,8 +8,6 @@ import {
   BREATH_ROUNDS,
   COLOURS,
   FEELING_ROUNDS,
-  GAME_XP,
-  GAMES_WITH_XP_PER_DAY,
   PET_GAMES,
   THOUGHTS,
   THOUGHT_ROUNDS,
@@ -133,10 +131,6 @@ export function PetGames({
           </button>
         );
       })}
-      <p className="text-center text-xs text-muted-foreground">
-        Elk nieuw level een nieuw spelletje. De eerste {GAMES_WITH_XP_PER_DAY} spelletjes per dag
-        geven je diertje +{GAME_XP} XP.
-      </p>
     </div>
   );
 }
