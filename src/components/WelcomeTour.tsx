@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/auth";
-import { Riti3D } from "@/components/Riti3D";
+import { Riti } from "@/components/Riti";
 
 const KEY = "cerita-rondleiding-gezien";
 type Step = { target?: string; emoji: string; title: string; text: string };
@@ -60,7 +60,7 @@ export function WelcomeTour() {
       )}
       <div className={`absolute inset-x-0 mx-auto w-[calc(100%-2rem)] max-w-sm ${rect ? (atTop ? "top-24" : "bottom-32") : "top-1/2 -translate-y-1/2"}`}>
         <div className="rounded-3xl border-2 border-foreground bg-card p-5 text-center shadow-soft">
-          <Riti3D size={rect ? 96 : 150} wave={!rect} className="mx-auto -mt-2" />
+          <Riti size={rect ? 96 : 150} wave={!rect} className="mx-auto -mt-2 block" />
           <h2 className="text-xl font-extrabold">
             {s.emoji} {s.title}
           </h2>

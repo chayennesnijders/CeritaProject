@@ -1,4 +1,4 @@
-import { Riti3D } from "@/components/Riti3D";
+import { Riti } from "@/components/Riti";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -105,7 +105,7 @@ function AuthPage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md px-6 py-10">
-      <Riti3D size={170} wave />
+      <Riti size={170} wave />
       <h1 className="mt-8 text-4xl text-foreground">{mode === "in" ? "Welkom terug" : mode === "up" ? "Maak je account" : mode === "forgot" ? "Wachtwoord vergeten" : "Bevestig je e-mail"}</h1>
       {sent ? (
         <div className="mt-8 space-y-3 rounded-3xl bg-secondary p-6 text-secondary-foreground">

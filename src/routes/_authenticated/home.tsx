@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { challengeDay, useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ModerationNotice } from "@/components/ModerationNotice";
-import { Riti3D } from "@/components/Riti3D";
+import { Riti } from "@/components/Riti";
+import { ritiFor } from "@/lib/riti";
 import { CARE_ACTIONS, levelFor, petDay, speciesEmoji } from "@/lib/pet";
 import { useUnreadCounts } from "@/lib/unread";
 import { useDiscover } from "@/lib/use-discover";
@@ -111,7 +112,7 @@ function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string;
   return (
     <section className="rounded-3xl bg-card p-5 shadow-soft">
       <div className="-ml-2 -mt-2 flex items-center">
-        <Riti3D size={130} />
+        <Riti size={130} expression={ritiFor(mood)} />
         <div
           key={mood ?? "vraag"}
           className="relative flex-1 rounded-2xl bg-muted p-3 text-sm animate-in fade-in zoom-in-95"
