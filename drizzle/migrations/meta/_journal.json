@@ -358,6 +358,13 @@
       "when": 1792600400000,
       "tag": "0050_hide_journals",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1792600500000,
+      "tag": "0051_chat_attachments",
+      "breakpoints": true
     }
   ]
 }

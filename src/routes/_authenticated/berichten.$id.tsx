@@ -13,6 +13,8 @@ import { notifyNewMessage } from "@/lib/push.functions";
 import { UserAvatar } from "@/components/UserAvatar";
 import { ChatAudio, ChatVoiceMemo } from "@/components/ChatVoiceMemo";
 import { uploadChatAudio } from "@/lib/chat-audio";
+import { ChatAttachment, ChatAttachmentPicker } from "@/components/ChatAttachment";
+import { attachmentLabel, uploadChatFile } from "@/lib/chat-files";
 import { ChatDayDivider } from "@/components/ChatDayDivider";
 import { isToday, shortDay, withDayDividers } from "@/lib/chat-dates";
 
@@ -29,6 +31,7 @@ function ChatPage() {
   const notify = useServerFn(notifyNewMessage);
   const [body, setBody] = useState("");
   const [audio, setAudio] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const { startCall } = useCall();
@@ -82,18 +85,22 @@ function ChatPage() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["chat", id] });
 
   async function send() {
-    if (!uid || sending || recording || (!body.trim() && !audio)) return;
+    if (!uid || sending || recording || (!body.trim() && !audio && !file)) return;
     setSending(true);
     let path: string | null = null;
+    let attachment: Awaited<ReturnType<typeof uploadChatFile>> | null = null;
     try {
       if (audio) path = await uploadChatAudio(audio, uid, "dm", id);
-      const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || "🎙️ Spraakmemo", audio_path: path }).select("id").single();
+      if (file) attachment = await uploadChatFile(file, uid, "dm", id);
+      const fallback = attachment ? attachmentLabel(attachment.attachment_type) : "🎙️ Spraakmemo";
+      const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || fallback, audio_path: path, ...attachment }).select("id").single();
       if (error) throw error;
-      setBody(""); setAudio(null); refresh();
+      setBody(""); setAudio(null); setFile(null); refresh();
       if (sent) notify({ data: { messageId: sent.id } }).catch(() => {});
     } catch (e) {
       if (path) await supabase.storage.from("chat-audio").remove([path]);
-      toast.error(e instanceof Error ? e.message : "Spraakmemo of bericht kon niet worden verstuurd.");
+      if (attachment) await supabase.storage.from("chat-files").remove([attachment.attachment_path]);
+      toast.error(e instanceof Error ? e.message : "Bericht kon niet worden verstuurd.");
     } finally { setSending(false); }
   }
   async function setPref(patch: { muted?: boolean; archived?: boolean }) {
@@ -156,6 +163,7 @@ function ChatPage() {
               <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-soft"}`}>
                 <p className="whitespace-pre-wrap">{m.body}</p>
                 {m.audio_path && <ChatAudio path={m.audio_path} />}
+                {m.attachment_path && <ChatAttachment path={m.attachment_path} name={m.attachment_name} type={m.attachment_type} />}
                 <div className="mt-1 flex items-center gap-2 text-[10px] opacity-70">
                   {!isToday(m.created_at) && <span>{shortDay(m.created_at)}</span>}
                   {new Date(m.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
@@ -171,8 +179,11 @@ function ChatPage() {
         {data?.msgs.length === 0 && <p className="text-sm text-muted-foreground">Zeg hallo 👋</p>}
       </div>
       <Textarea rows={2} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Typ een bericht…" className="rounded-2xl" />
-      <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending || !!data?.blocked || !data} onRecordingChange={setRecording} />
-      <Button disabled={sending || recording || (!body.trim() && !audio) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending || !!data?.blocked || !data} />
+        <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending || !!data?.blocked || !data} onRecordingChange={setRecording} />
+      </div>
+      <Button disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>
     </div>
   );
 }

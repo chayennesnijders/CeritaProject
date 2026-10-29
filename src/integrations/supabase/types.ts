@@ -371,6 +371,9 @@ export type Database = {
       }
       direct_messages: {
         Row: {
+          attachment_name: string | null
+          attachment_path: string | null
+          attachment_type: string | null
           audio_path: string | null
           body: string
           conversation_id: string
@@ -379,6 +382,9 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_type?: string | null
           audio_path?: string | null
           body: string
           conversation_id: string
@@ -387,6 +393,9 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_type?: string | null
           audio_path?: string | null
           body?: string
           conversation_id?: string
@@ -867,6 +876,9 @@ export type Database = {
       }
       posts: {
         Row: {
+          attachment_name: string | null
+          attachment_path: string | null
+          attachment_type: string | null
           audio_path: string | null
           author_id: string
           body: string
@@ -878,6 +890,9 @@ export type Database = {
           reply_to: string | null
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_type?: string | null
           audio_path?: string | null
           author_id: string
           body: string
@@ -889,6 +904,9 @@ export type Database = {
           reply_to?: string | null
         }
         Update: {
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_type?: string | null
           audio_path?: string | null
           author_id?: string
           body?: string

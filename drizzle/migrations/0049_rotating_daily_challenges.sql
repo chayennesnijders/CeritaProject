@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.challenge_pool (
 );
 GRANT ALL ON public.challenge_pool TO service_role;
 ALTER TABLE public.challenge_pool ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "admin challenge pool" ON public.challenge_pool;
 CREATE POLICY "admin challenge pool" ON public.challenge_pool FOR ALL TO authenticated USING (public.has_role(auth.uid(),'admin')) WITH CHECK (public.has_role(auth.uid(),'admin'));
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.challenge_pool TO authenticated;
 --> statement-breakpoint

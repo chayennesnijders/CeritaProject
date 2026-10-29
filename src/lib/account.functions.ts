@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // Buckets where a member's own files live under "<user id>/…".
-const OWN_FILE_BUCKETS = ["avatars", "diary-photos", "diary-audio", "chat-audio"];
+const OWN_FILE_BUCKETS = ["avatars", "diary-photos", "diary-audio", "chat-audio", "chat-files"];
 
 /** Deletes the signed-in member's account: their files, push tokens and the auth user (the rest cascades). */
 export const deleteMyAccount = createServerFn({ method: "POST" })

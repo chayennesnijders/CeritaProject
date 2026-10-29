@@ -14,6 +14,8 @@ import { notifyGroupMention, notifyGroupReply } from "@/lib/push.functions";
 import { Button } from "@/components/ui/button";
 import { ChatAudio, ChatVoiceMemo } from "@/components/ChatVoiceMemo";
 import { uploadChatAudio } from "@/lib/chat-audio";
+import { ChatAttachment, ChatAttachmentPicker } from "@/components/ChatAttachment";
+import { attachmentLabel, uploadChatFile } from "@/lib/chat-files";
 import { ChatDayDivider } from "@/components/ChatDayDivider";
 import { isToday, shortDay, withDayDividers } from "@/lib/chat-dates";
 
@@ -116,13 +118,16 @@ function GroupPage() {
     if (error) toast.error(error.message);
     refresh(); qc.invalidateQueries({ queryKey: ["groups"] });
   }
-  async function post(text: string, audio: File | null) {
+  async function post(text: string, audio: File | null, file: File | null) {
     if (!uid) return false;
     let path: string | null = null;
+    let attachment: Awaited<ReturnType<typeof uploadChatFile>> | null = null;
     try {
     if (audio) path = await uploadChatAudio(audio, uid, "group", groupId);
+    if (file) attachment = await uploadChatFile(file, uid, "group", groupId);
     const mentions = parseMentions(text, data?.members ?? []);
-    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || "🎙️ Spraakmemo", audio_path: path, reply_to: replyTo?.id ?? null, mentions }).select("id").single();
+    const fallback = attachment ? attachmentLabel(attachment.attachment_type) : "🎙️ Spraakmemo";
+    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions }).select("id").single();
     if (error) throw error;
     if (replyTo && created) notifyReply({ data: { postId: created.id } }).catch(() => {});
     if (created && mentions.length > 0) notifyMention({ data: { postId: created.id } }).catch(() => {});
@@ -130,6 +135,7 @@ function GroupPage() {
     return true;
     } catch (e) {
       if (path) await supabase.storage.from("chat-audio").remove([path]);
+      if (attachment) await supabase.storage.from("chat-files").remove([attachment.attachment_path]);
       toast.error(e instanceof Error ? e.message : "Plaatsen lukte niet");
       return false;
     }
@@ -225,6 +231,7 @@ function GroupPage() {
                   )}
                 </p>
                 {p.audio_path && !p.is_hidden && <ChatAudio path={p.audio_path} />}
+                {p.attachment_path && !p.is_hidden && <ChatAttachment path={p.attachment_path} name={p.attachment_name} type={p.attachment_type} />}
                 <p className="mt-1 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
                   {!isToday(p.created_at) && <span>{shortDay(p.created_at)}</span>}
                   {new Date(p.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
@@ -262,12 +269,13 @@ function ReadMark({ readers }: { readers: number }) {
 function ChatComposer({ replyTo, onCancelReply, onSend, inset, members }: {
   replyTo: { id: string; name: string; body: string } | null;
   onCancelReply: () => void;
-  onSend: (text: string, audio: File | null) => Promise<boolean>;
+  onSend: (text: string, audio: File | null, file: File | null) => Promise<boolean>;
   inset: number;
   members: Mentionable[];
 }) {
   const [body, setBody] = useState("");
   const [audio, setAudio] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -302,9 +310,9 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members }: {
 
   async function submit() {
     const text = body.trim();
-    if (sending || recording || (!text && !audio)) return;
+    if (sending || recording || (!text && !audio && !file)) return;
     setSending(true);
-    try { if (await onSend(text, audio)) { setBody(""); setAudio(null); } }
+    try { if (await onSend(text, audio, file)) { setBody(""); setAudio(null); setFile(null); } }
     finally { setSending(false); }
   }
 
@@ -334,11 +342,14 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members }: {
             enterKeyHint="send" placeholder="Typ een bericht…"
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
             className="min-h-10 min-w-0 flex-1 resize-none rounded-2xl border border-input bg-background px-3 py-2 text-sm" />
-          <Button size="icon" onClick={submit} disabled={sending || recording || (!body.trim() && !audio)} aria-label="Versturen" title="Versturen" className="shrink-0">
+          <Button size="icon" onClick={submit} disabled={sending || recording || (!body.trim() && !audio && !file)} aria-label="Versturen" title="Versturen" className="shrink-0">
             <Send className="size-4" />
           </Button>
         </div>
-        <div className="mt-2"><ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending} onRecordingChange={setRecording} /></div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending} />
+          <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending} onRecordingChange={setRecording} />
+        </div>
       </div>
     </div>
   );
