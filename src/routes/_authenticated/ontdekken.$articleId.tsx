@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { categoryLabel, useArticleImage } from "@/lib/articles";
+import { categoryLabel, photoInParagraph, useArticleImage } from "@/lib/articles";
 
 export const Route = createFileRoute("/_authenticated/ontdekken/$articleId")({
   head: () => ({
@@ -49,10 +49,17 @@ function ArticlePage() {
       <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{categoryLabel(article.category)}</p>
       <h1 className="mt-1 text-3xl">{article.title}</h1>
       <p className="mt-2 text-xs text-muted-foreground">{new Date(article.created_at).toLocaleDateString("nl-NL")}</p>
+      {SENSITIVE.has(article.category) && (
+        <div className="mt-4 rounded-2xl bg-secondary p-4 text-sm text-secondary-foreground">
+          💛 Dit is een echt verhaal van een jongere en het kan over moeilijke dingen gaan. Lees in je eigen tempo en stop wanneer je wilt.
+          Raakt het je? Praat erover met iemand die je vertrouwt, of bel gratis de Kindertelefoon (0800-0432) of 113 (0800-0113).
+        </div>
+      )}
       <div className="mt-4 space-y-4 text-[15px] leading-relaxed">
-        {article.body.split("\n\n").map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
+        {article.body.split("\n\n").map((p, i) => {
+          const photo = photoInParagraph(p);
+          return photo ? <StoryPhoto key={i} path={photo} /> : <p key={i} className="whitespace-pre-line">{p}</p>;
+        })}
       </div>
       <div className="mt-6 flex flex-col gap-2">
         <Link to="/ontdekken" className="rounded-full bg-secondary px-4 py-2.5 text-center text-sm font-semibold text-secondary-foreground">
@@ -64,4 +71,12 @@ function ArticlePage() {
       </div>
     </article>
   );
+}
+
+// Stories about hard experiences get a gentle note with where to find help.
+const SENSITIVE = new Set(["overkomen", "in-je-hoofd"]);
+
+function StoryPhoto({ path }: { path: string }) {
+  const { data: src } = useArticleImage(path);
+  return src ? <img src={src} alt="" loading="lazy" className="w-full rounded-3xl object-cover" /> : null;
 }

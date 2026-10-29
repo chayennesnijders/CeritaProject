@@ -56,6 +56,7 @@ export type Database = {
           is_published: boolean
           title: string
           updated_at: string
+          wp_id: number | null
         }
         Insert: {
           author_id?: string | null
@@ -68,6 +69,7 @@ export type Database = {
           is_published?: boolean
           title: string
           updated_at?: string
+          wp_id?: number | null
         }
         Update: {
           author_id?: string | null
@@ -80,6 +82,7 @@ export type Database = {
           is_published?: boolean
           title?: string
           updated_at?: string
+          wp_id?: number | null
         }
         Relationships: []
       }

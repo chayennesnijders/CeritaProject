@@ -1940,3 +1940,10 @@ ALTER TABLE public.pet_games DROP CONSTRAINT IF EXISTS pet_games_game_check;
 ALTER TABLE public.pet_games ADD CONSTRAINT pet_games_game_check
   CHECK (game IN ('ademen', 'memory', 'kleuren', 'gevoelens', 'lichtjes', 'gedachten', 'zoeken', 'vangen', 'ballonnen'));
 COMMIT;
+
+-- ===== 0055_wordpress_import =====
+-- Stories imported from the WordPress site keep their WordPress post id,
+-- so importing again updates them instead of adding duplicates.
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS wp_id bigint;
+CREATE UNIQUE INDEX IF NOT EXISTS articles_wp_id_key ON public.articles (wp_id);
+COMMIT;
