@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { dayLabel, isNew, newsCounts, newsKind, unreadNews, type NewsItem } from "./admin-news";
+import {
+  adminPushMessage,
+  dayLabel,
+  isNew,
+  newsCounts,
+  newsKind,
+  unreadNews,
+  type NewsItem,
+} from "./admin-news";
 
 const item = (kind: string, created_at: string): NewsItem => ({
   kind,
@@ -46,5 +54,32 @@ describe("admin news", () => {
     expect(dayLabel("2026-10-28T23:30:00Z", now)).toBe("Vandaag"); // already the 29th in the Netherlands
     expect(dayLabel("2026-10-28T08:00:00Z", now)).toBe("Gisteren");
     expect(dayLabel("2026-10-20T08:00:00Z", now)).toBe("dinsdag 20 oktober");
+  });
+});
+
+describe("adminPushMessage", () => {
+  it("names a single event", () => {
+    expect(adminPushMessage([{ kind: "aanmelding", title: "Sanne" }], false)).toEqual({
+      title: "🎉 Nieuw lid",
+      body: "Sanne",
+    });
+  });
+
+  it("sums up several events", () => {
+    const items = [
+      { kind: "aanmelding", title: "A" },
+      { kind: "aanmelding", title: "B" },
+      { kind: "verhaal", title: "C" },
+      { kind: "bestelling", title: "D" },
+    ];
+    expect(adminPushMessage(items, true)?.body).toBe(
+      "2 nieuwe leden, 1 ingestuurd verhaal, 1 bestelling",
+    );
+    expect(adminPushMessage(items, false)?.body).toBe("2 nieuwe leden, 1 ingestuurd verhaal");
+  });
+
+  it("sends nothing when there is nothing for you", () => {
+    expect(adminPushMessage([], true)).toBeNull();
+    expect(adminPushMessage([{ kind: "bestelling", title: "D" }], false)).toBeNull();
   });
 });

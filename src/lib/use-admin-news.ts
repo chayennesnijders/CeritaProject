@@ -16,16 +16,23 @@ export function useAdminNews(uid: string | undefined) {
     queryKey: ["admin-news-seen", uid],
     enabled: !!uid,
     queryFn: async () =>
-      (await supabase.from("admin_news_seen").select("seen_at").eq("user_id", uid!).maybeSingle())
-        .data?.seen_at ?? null,
+      (
+        await supabase
+          .from("admin_news_seen")
+          .select("seen_at, push")
+          .eq("user_id", uid!)
+          .maybeSingle()
+      ).data ?? null,
   });
   const items = news.data ?? [];
-  const seenAt = seen.data ?? null;
+  const seenAt = seen.data?.seen_at ?? null;
   return {
     items,
     seenAt,
     isLoading: news.isLoading || seen.isLoading,
     unread: uid ? unreadNews(items, seenAt) : 0,
+    push: seen.data?.push ?? false,
+    refreshSeen: () => qc.invalidateQueries({ queryKey: ["admin-news-seen", uid] }),
     async markSeen() {
       if (!uid) return;
       await supabase

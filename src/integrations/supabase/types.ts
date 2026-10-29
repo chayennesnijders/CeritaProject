@@ -14,10 +14,16 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_push_state: {
+        Row: { id: number; last_run: string }
+        Insert: { id?: number; last_run?: string }
+        Update: { id?: number; last_run?: string }
+        Relationships: []
+      }
       admin_news_seen: {
-        Row: { seen_at: string; user_id: string }
-        Insert: { seen_at?: string; user_id: string }
-        Update: { seen_at?: string; user_id?: string }
+        Row: { push: boolean; seen_at: string; user_id: string }
+        Insert: { push?: boolean; seen_at?: string; user_id: string }
+        Update: { push?: boolean; seen_at?: string; user_id?: string }
         Relationships: []
       }
       activity_log: {
@@ -1407,6 +1413,7 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      schedule_admin_news_push: { Args: { site_url: string }; Returns: number }
       admin_news: {
         Args: { _days?: number }
         Returns: { created_at: string; detail: string; kind: string; ref_id: string; title: string }[]

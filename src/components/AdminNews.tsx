@@ -1,10 +1,39 @@
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { enablePush, pushMessages } from "@/lib/push-client";
+import { setAdminNewsPush } from "@/lib/push.functions";
 import { dayLabel, isNew, NEWS_KINDS, newsCounts, newsKind, type NewsKind } from "@/lib/admin-news";
 import { useAdminNews } from "@/lib/use-admin-news";
 
 /** Dashboard with everything that happened: new members, orders, submitted stories and reports. */
 export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: string) => void }) {
-  const { items, seenAt, isLoading, markSeen } = useAdminNews(uid);
+  const { items, seenAt, isLoading, markSeen, push, refreshSeen } = useAdminNews(uid);
+  const savePush = useServerFn(setAdminNewsPush);
+  const [pushBusy, setPushBusy] = useState(false);
+  async function togglePush(on: boolean) {
+    setPushBusy(true);
+    try {
+      if (on) {
+        // This device must be able to receive pushes first.
+        const r = await enablePush(uid);
+        if (r !== "registered") {
+          toast.error(pushMessages[r]);
+          return;
+        }
+      }
+      await savePush({ data: { on, origin: window.location.origin } });
+      toast.success(
+        on ? "Je krijgt nu een pushmelding bij nieuws 📲" : "Pushmeldingen voor nieuws staan uit",
+      );
+      refreshSeen();
+    } catch {
+      toast.error("Dat lukte niet. Probeer het opnieuw.");
+    } finally {
+      setPushBusy(false);
+    }
+  }
   const [filter, setFilter] = useState<NewsKind | null>(null);
   // Keep showing what was new when you opened Nieuws, then remember that you looked.
   const lastVisit = useRef<string | null | undefined>(undefined);
@@ -31,6 +60,22 @@ export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: st
             : `${fresh} ${fresh === 1 ? "nieuw bericht" : "nieuwe berichten"} sinds je laatste bezoek`}
         </p>
       </div>
+
+      <label className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+        <span className="text-2xl">📲</span>
+        <span className="flex-1">
+          <span className="block text-sm font-semibold">Pushmelding bij nieuws</span>
+          <span className="block text-xs text-muted-foreground">
+            Nieuwe leden, bestellingen, verhalen en meldingen. Hooguit één melding per 5 minuten.
+          </span>
+        </span>
+        <Switch
+          checked={push}
+          disabled={pushBusy}
+          onCheckedChange={togglePush}
+          aria-label="Pushmelding bij nieuws"
+        />
+      </label>
 
       <div>
         <p className="text-xs font-semibold text-muted-foreground">

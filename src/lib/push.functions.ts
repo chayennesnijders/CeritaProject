@@ -222,3 +222,21 @@ export const notifyStoryVoters = createServerFn({ method: "POST" })
     }
     return { sent, users: votes?.length ?? 0 };
   });
+
+// Admin-only: turn push for Nieuws on or off for yourself; turning it on also schedules the 5-minute check
+// on this app's own address.
+export const setAdminNewsPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ on: z.boolean(), origin: z.string().url().startsWith("https://") }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Alleen voor beheerders.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("admin_news_seen").upsert({ user_id: context.userId, push: data.on }, { onConflict: "user_id" });
+    if (error) throw new Error(error.message);
+    if (data.on) {
+      const { error: cronError } = await supabaseAdmin.rpc("schedule_admin_news_push", { site_url: data.origin });
+      if (cronError) throw new Error(cronError.message);
+    }
+    return { on: data.on };
+  });

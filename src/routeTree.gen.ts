@@ -29,6 +29,7 @@ import { Route as AuthenticatedCommunityIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCommunityGroupIdRouteImport } from './routes/_authenticated/community.$groupId'
 import { Route as AuthenticatedOntdekkenIndexRouteImport } from './routes/_authenticated/ontdekken.index'
 import { Route as AuthenticatedOntdekkenArticleIdRouteImport } from './routes/_authenticated/ontdekken.$articleId'
+import { Route as ApiPublicAdminNewsPushRouteImport } from './routes/api/public/admin-news-push'
 import { Route as ApiPublicFreeItemsWeeklyRouteImport } from './routes/api/public/free-items-weekly'
 
 const IndexRoute = IndexRouteImport.update({
@@ -137,6 +138,11 @@ const AuthenticatedOntdekkenArticleIdRoute =
     path: '/ontdekken/$articleId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicAdminNewsPushRoute = ApiPublicAdminNewsPushRouteImport.update({
+  id: '/api/public/admin-news-push',
+  path: '/api/public/admin-news-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicFreeItemsWeeklyRoute =
   ApiPublicFreeItemsWeeklyRouteImport.update({
     id: '/api/public/free-items-weekly',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
+  '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/community/': typeof AuthenticatedCommunityIndexRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
+  '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/berichten': typeof AuthenticatedBerichtenIndexRoute
   '/community': typeof AuthenticatedCommunityIndexRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/_authenticated/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
   '/_authenticated/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
+  '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/_authenticated/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/_authenticated/community/': typeof AuthenticatedCommunityIndexRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/berichten/$id'
     | '/community/$groupId'
     | '/ontdekken/$articleId'
+    | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/berichten/'
     | '/community/'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/berichten/$id'
     | '/community/$groupId'
     | '/ontdekken/$articleId'
+    | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/berichten'
     | '/community'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/_authenticated/berichten/$id'
     | '/_authenticated/community/$groupId'
     | '/_authenticated/ontdekken/$articleId'
+    | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/_authenticated/berichten/'
     | '/_authenticated/community/'
@@ -289,6 +301,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiAuthEmailRoute: typeof ApiAuthEmailRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
+  ApiPublicAdminNewsPushRoute: typeof ApiPublicAdminNewsPushRoute
   ApiPublicFreeItemsWeeklyRoute: typeof ApiPublicFreeItemsWeeklyRoute
 }
 
@@ -434,6 +447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOntdekkenArticleIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/admin-news-push': {
+      id: '/api/public/admin-news-push'
+      path: '/api/public/admin-news-push'
+      fullPath: '/api/public/admin-news-push'
+      preLoaderRoute: typeof ApiPublicAdminNewsPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/free-items-weekly': {
       id: '/api/public/free-items-weekly'
       path: '/api/public/free-items-weekly'
@@ -488,6 +508,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ApiAuthEmailRoute: ApiAuthEmailRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
+  ApiPublicAdminNewsPushRoute: ApiPublicAdminNewsPushRoute,
   ApiPublicFreeItemsWeeklyRoute: ApiPublicFreeItemsWeeklyRoute,
 }
 export const routeTree = rootRouteImport

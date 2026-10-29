@@ -46,3 +46,24 @@ export function dayLabel(iso: string, now: Date = new Date()) {
     month: "long",
   }).format(new Date(iso));
 }
+
+const PLURAL: Record<NewsKind, [string, string]> = {
+  aanmelding: ["nieuw lid", "nieuwe leden"],
+  bestelling: ["bestelling", "bestellingen"],
+  verhaal: ["ingestuurd verhaal", "ingestuurde verhalen"],
+  melding: ["melding", "meldingen"],
+};
+
+/** Push text for an admin about news since the last check; orders only for the owner. */
+export function adminPushMessage(items: Pick<NewsItem, "kind" | "title">[], isOwner: boolean) {
+  const mine = items.filter((i) => i.kind in NEWS_KINDS && (i.kind !== "bestelling" || isOwner));
+  if (mine.length === 0) return null;
+  if (mine.length === 1) {
+    const k = newsKind(mine[0]!.kind);
+    return { title: `${k.emoji} ${k.label}`, body: mine[0]!.title };
+  }
+  const counts = new Map<NewsKind, number>();
+  for (const i of mine) counts.set(i.kind as NewsKind, (counts.get(i.kind as NewsKind) ?? 0) + 1);
+  const parts = [...counts].map(([k, n]) => `${n} ${PLURAL[k][n === 1 ? 0 : 1]}`);
+  return { title: "📰 Nieuws in CeritaProject", body: parts.join(", ") };
+}
