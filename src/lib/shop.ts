@@ -12,7 +12,8 @@ export type ShopProduct = {
   sort: number;
 };
 
-export const SHOP_CATEGORIES = ["fidgets", "journals"] as const;
+// Journals (printbare pdf's) worden niet meer verkocht; het label blijft voor oude bestellingen.
+export const SHOP_CATEGORIES = ["fidgets"] as const;
 export const SHOP_CATEGORY_LABELS: Record<string, string> = {
   fidgets: "Fidgets",
   journals: "Journals",

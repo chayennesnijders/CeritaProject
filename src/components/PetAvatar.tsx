@@ -17,8 +17,9 @@ function Ears({ species, l }: { species: string; l: Look }) {
       return (<><ellipse cx="44" cy="82" rx="16" ry="34" fill={l.ear} transform="rotate(18 44 82)" />
         <ellipse cx="156" cy="82" rx="16" ry="34" fill={l.ear} transform="rotate(-18 156 82)" /></>);
     case "konijn":
-      return (<><ellipse cx="76" cy="26" rx="13" ry="38" fill={l.body} /><ellipse cx="76" cy="28" rx="6" ry="28" fill={l.ear} />
-        <ellipse cx="124" cy="26" rx="13" ry="38" fill={l.body} /><ellipse cx="124" cy="28" rx="6" ry="28" fill={l.ear} /></>);
+      // Ears start at y≈6 so they fit inside the 200×200 drawing (they used to stick out above it and got cut off).
+      return (<><ellipse cx="76" cy="42" rx="13" ry="36" fill={l.body} /><ellipse cx="76" cy="44" rx="6" ry="26" fill={l.ear} />
+        <ellipse cx="124" cy="42" rx="13" ry="36" fill={l.body} /><ellipse cx="124" cy="44" rx="6" ry="26" fill={l.ear} /></>);
     case "draak":
       return (<><path d="M70 50 L78 20 L90 46 Z" fill={l.ear} /><path d="M130 50 L122 20 L110 46 Z" fill={l.ear} />
         <path d="M94 40 L100 22 L106 40 Z" fill={l.ear} /></>);
@@ -51,7 +52,7 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
   return (
     <button type="button" onClick={onTap} aria-label="Aai je diertje" className="relative mx-auto block h-56 w-56">
       <div className={jumping ? "pet-jump" : sleeping ? "pet-sleep" : "pet-bob"}>
-        <svg viewBox="0 0 200 200" className="h-56 w-56 drop-shadow-lg" style={{ transform: `scale(${scale})`, transformOrigin: "50% 100%" }}>
+        <svg viewBox="0 0 200 200" overflow="visible" className="h-56 w-56 drop-shadow-lg" style={{ transform: `scale(${scale})`, transformOrigin: "50% 100%" }}>
           <ellipse cx="100" cy="190" rx="56" ry="7" fill="#000" opacity=".12" />
           <Ears species={species} l={l} />
           {species === "draak" && <path d="M160 160 Q190 150 186 120 Q178 140 156 146 Z" fill={l.body} />}

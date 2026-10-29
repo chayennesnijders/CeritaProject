@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/shop")({
   head: () => ({
     meta: [
       { title: "CeritaShop" },
-      { name: "description", content: "Fidgets en printbare journals: betaal wat je voelt, of geef er een cadeau aan een andere jongere." },
+      { name: "description", content: "Fidgets: betaal wat je voelt, of geef er een cadeau aan een andere jongere." },
       { property: "og:title", content: "CeritaShop" },
       { property: "og:description", content: "Betaal wat je voelt en help een andere jongere aan een gratis exemplaar." },
       { property: "og:type", content: "website" },
@@ -126,7 +126,6 @@ function ShopPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-muted-foreground">Digitale journals: die heb je meteen als pdf, zonder verzendkosten.</p>
           </>
         )}
       </section>

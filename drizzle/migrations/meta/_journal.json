@@ -351,6 +351,13 @@
       "when": 1792600300000,
       "tag": "0049_rotating_daily_challenges",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792600400000,
+      "tag": "0050_hide_journals",
+      "breakpoints": true
     }
   ]
 }
