@@ -6,7 +6,7 @@ import { AppLock } from "@/components/AppLock";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
-import { Home, Users, Compass, MessageCircle, User, PawPrint, ShoppingBag, Shield, UserCog } from "lucide-react";
+import { Home, Users, Compass, MessageCircle, User, PawPrint, ShoppingBag, Shield } from "lucide-react";
 import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,11 +66,6 @@ export function AppShell() {
       <header className="sticky top-0 z-20 flex items-center justify-between rounded-b-3xl bg-ink px-5 py-2 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project"><img src="/cerita-beer.png" alt="Cerita Project" className="size-12 rounded-full bg-[#faf3ea] object-cover" /></Link>
         <div className="flex items-center gap-1">
-          {me?.isAdmin && (
-            <Link to="/leden" data-tour="leden" aria-label="Leden" className="rounded-full p-2 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
-              <UserCog className="size-5" />
-            </Link>
-          )}
           {me?.isAdmin && (
             <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-2 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
               <Shield className="size-5" />

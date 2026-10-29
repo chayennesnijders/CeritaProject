@@ -17,7 +17,6 @@ import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
-import { Route as AuthenticatedLedenRouteImport } from './routes/_authenticated/leden'
 import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticated/profiel'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedVerhaalInsturenRouteImport } from './routes/_authenticated/verhaal-insturen'
@@ -69,11 +68,6 @@ const AuthenticatedDiertjeRoute = AuthenticatedDiertjeRouteImport.update({
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedLedenRoute = AuthenticatedLedenRouteImport.update({
-  id: '/leden',
-  path: '/leden',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProfielRoute = AuthenticatedProfielRouteImport.update({
@@ -158,7 +152,6 @@ export interface FileRoutesByFullPath {
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
-  '/leden': typeof AuthenticatedLedenRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/shop': typeof AuthenticatedShopRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
@@ -181,7 +174,6 @@ export interface FileRoutesByTo {
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
-  '/leden': typeof AuthenticatedLedenRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/shop': typeof AuthenticatedShopRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
@@ -206,7 +198,6 @@ export interface FileRoutesById {
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
-  '/_authenticated/leden': typeof AuthenticatedLedenRoute
   '/_authenticated/profiel': typeof AuthenticatedProfielRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/_authenticated/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
@@ -231,7 +222,6 @@ export interface FileRouteTypes {
     | '/dagboek'
     | '/diertje'
     | '/home'
-    | '/leden'
     | '/profiel'
     | '/shop'
     | '/verhaal-insturen'
@@ -254,7 +244,6 @@ export interface FileRouteTypes {
     | '/dagboek'
     | '/diertje'
     | '/home'
-    | '/leden'
     | '/profiel'
     | '/shop'
     | '/verhaal-insturen'
@@ -278,7 +267,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dagboek'
     | '/_authenticated/diertje'
     | '/_authenticated/home'
-    | '/_authenticated/leden'
     | '/_authenticated/profiel'
     | '/_authenticated/shop'
     | '/_authenticated/verhaal-insturen'
@@ -360,13 +348,6 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/leden': {
-      id: '/_authenticated/leden'
-      path: '/leden'
-      fullPath: '/leden'
-      preLoaderRoute: typeof AuthenticatedLedenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/profiel': {
@@ -468,7 +449,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
-  AuthenticatedLedenRoute: typeof AuthenticatedLedenRoute
   AuthenticatedProfielRoute: typeof AuthenticatedProfielRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
   AuthenticatedVerhaalInsturenRoute: typeof AuthenticatedVerhaalInsturenRoute
@@ -486,7 +466,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
-  AuthenticatedLedenRoute: AuthenticatedLedenRoute,
   AuthenticatedProfielRoute: AuthenticatedProfielRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
   AuthenticatedVerhaalInsturenRoute: AuthenticatedVerhaalInsturenRoute,

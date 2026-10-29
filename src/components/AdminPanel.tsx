@@ -23,11 +23,11 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
-export function AdminPanel({ ledenOnly = false }: { ledenOnly?: boolean }) {
+export function AdminPanel() {
   const { data: me } = useMe();
   const { data: openReportRows } = useQuery(reportsQueryOptions(me?.isAdmin ? me.user.id : undefined));
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>(ledenOnly ? "inbox" : "overzicht");
+  const [tab, setTab] = useState<Tab>("overzicht");
   const [qDate, setQDate] = useState(new Date().toISOString().slice(0, 10));
   const [qTitle, setQTitle] = useState("");
   const [qDesc, setQDesc] = useState("");
@@ -110,17 +110,16 @@ export function AdminPanel({ ledenOnly = false }: { ledenOnly?: boolean }) {
 
   return (
     <div className="space-y-4 pt-2">
-      <h1 className="text-3xl">{ledenOnly ? "Leden" : "Beheer"}</h1>
-      {ledenOnly && <p className="text-sm text-muted-foreground">Zoek een lid om te waarschuwen of een time-out te geven, en bekijk meldingen.</p>}
+      <h1 className="text-3xl">Beheer</h1>
 
-      {!ledenOnly && <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {TABS.map((t) => (
           <Button key={t.id} size="sm" variant={tab === t.id ? "default" : "outline"} className="shrink-0 rounded-full" onClick={() => setTab(t.id)}>
             {t.label}
             {t.id === "inbox" && openReports > 0 && <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 text-xs">{openReports}</span>}
           </Button>
         ))}
-      </div>}
+      </div>
 
       {tab === "overzicht" && (
         <div className="space-y-5">
