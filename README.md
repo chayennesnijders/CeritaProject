@@ -28,10 +28,8 @@ bun run dev            # de app draait op http://localhost:8080
 
 1. Maak een nieuw project op supabase.com.
 2. Zet de sleutels in `.env` (zie `.env.example`).
-3. Bouw de database op met alle migraties:
-   ```sh
-   bunx drizzle-kit migrate
-   ```
+3. Bouw de database op: open [`supabase/database-in-een-keer.sql`](supabase/database-in-een-keer.sql), kopieer alles en plak het in Supabase → **SQL Editor** → **New query** → **Run**. Doe dit maar één keer, op een leeg project.
+   Komt er later een nieuwe migratie bij in `drizzle/migrations`? Plak dan alleen dat nieuwe bestand in de SQL Editor.
 4. **Inloggen met Google:** Supabase → Authentication → Sign In / Providers → Google aanzetten (met een Client ID van Google Cloud).
 5. **Adressen:** Supabase → Authentication → URL Configuration. Zet je site-adres bij *Site URL* en voeg `https://jouw-site.nl/**` en `http://localhost:8080/**` toe bij *Redirect URLs*.
 6. **Wekelijks bericht "gratis Game Clicks":** voer dit één keer uit in de SQL-editor van Supabase:

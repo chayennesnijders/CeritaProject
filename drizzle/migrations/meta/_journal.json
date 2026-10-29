@@ -330,6 +330,13 @@
       "when": 1792600000000,
       "tag": "0046_free_items_weekly_own_url",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1792600100000,
+      "tag": "0047_storage_buckets_diary_audio",
+      "breakpoints": true
     }
   ]
 }
