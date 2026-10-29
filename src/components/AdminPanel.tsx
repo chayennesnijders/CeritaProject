@@ -10,12 +10,15 @@ import { AnnouncementSender } from "@/components/AnnouncementSender";
 import { ArticleComposer } from "@/components/ArticleComposer";
 import { ShopOrdersAdmin } from "@/components/ShopOrdersAdmin";
 import { StorySubmissionsAdmin } from "@/components/StorySubmissionsAdmin";
+import { AdminNews } from "@/components/AdminNews";
+import { useAdminNews } from "@/lib/use-admin-news";
 import { StoryBoardAdmin } from "@/components/StoryBoardAdmin";
 import { AdminWeekly } from "@/components/AdminWeekly";
 import { ReportInbox } from "@/components/ReportInbox";
 import { reportsQueryOptions } from "@/lib/reports";
 
 const TABS = [
+  { id: "nieuws", label: "Nieuws" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
@@ -29,7 +32,8 @@ export function AdminPanel() {
   const { data: me } = useMe();
   const { data: openReportRows } = useQuery(reportsQueryOptions(me?.isAdmin ? me.user.id : undefined));
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("overzicht");
+  const [tab, setTab] = useState<Tab>("nieuws");
+  const news = useAdminNews(me?.isAdmin ? me.user.id : undefined);
   const [qDate, setQDate] = useState(new Date().toISOString().slice(0, 10));
   const [qTitle, setQTitle] = useState("");
   const [qDesc, setQDesc] = useState("");
@@ -118,10 +122,13 @@ export function AdminPanel() {
         {TABS.map((t) => (
           <Button key={t.id} size="sm" variant={tab === t.id ? "default" : "outline"} className="shrink-0 rounded-full" onClick={() => setTab(t.id)}>
             {t.label}
+            {t.id === "nieuws" && news.unread > 0 && <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 text-xs">{news.unread}</span>}
             {t.id === "inbox" && openReports > 0 && <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 text-xs">{openReports}</span>}
           </Button>
         ))}
       </div>
+
+      {tab === "nieuws" && <AdminNews uid={me.user.id} onOpenTab={(t) => setTab(t as Tab)} />}
 
       {tab === "overzicht" && (
         <div className="space-y-5">

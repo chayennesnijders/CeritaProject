@@ -3,7 +3,7 @@ import { ritiImage, type RitiExpression } from "@/lib/riti";
 
 /**
  * Riti, the CeritaProject mascot (drawings from her character sheet).
- * She floats gently, shows the emotion you give her, jumps when tapped and can wave.
+ * She floats gently, shows the emotion you give her, jumps when tapped and can rock to say hello.
  */
 export function Riti({
   size = 160,
@@ -51,14 +51,6 @@ export function Riti({
           />
         </span>
       </span>
-      {wave && (
-        <span
-          aria-hidden
-          className="absolute right-0 top-[30%] text-3xl motion-safe:animate-[riti-wave_1.2s_ease-in-out_infinite]"
-        >
-          👋
-        </span>
-      )}
       {hearts.map((id) => (
         <span
           key={id}

@@ -10,6 +10,8 @@ import { PetAvatar, growthStage, STAGE_LABELS } from "@/components/PetAvatar";
 import { PetGames } from "@/components/PetGames";
 import { DailyTodoPopup } from "@/components/DailyTodoPopup";
 import { PetScene } from "@/components/PetScene";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 
 export const Route = createFileRoute("/_authenticated/diertje")({
@@ -52,6 +54,8 @@ function PetPage() {
   const [activeRef, setActiveRef] = useState("main");
   const [listId, setListId] = useState<string | null>(null);
   const [todoOpen, setTodoOpen] = useState(false);
+  // Explains why caring is still locked when you tap a locked button.
+  const [lockedOpen, setLockedOpen] = useState(false);
   const [adopting, setAdopting] = useState(false);
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null);
   const [ball, setBall] = useState(0);
@@ -258,19 +262,35 @@ function PetPage() {
         {CARE_ACTIONS.map((a) => {
           const done = doneToday.includes(a.id);
           return (
-            <button key={a.id} disabled={done || !canCare}
-              onClick={() => { if (a.id === "spelen") throwBall(); else if (a.id !== "eten") doCare(a.id, a.emoji); }}
+            <button key={a.id} disabled={done} aria-disabled={!canCare}
+              onClick={() => { if (!canCare) { setLockedOpen(true); return; } if (a.id === "spelen") throwBall(); else if (a.id !== "eten") doCare(a.id, a.emoji); }}
               onPointerDown={(e) => { if (a.id === "eten" && !done && canCare) { e.currentTarget.setPointerCapture(e.pointerId); setDrag({ x: e.clientX, y: e.clientY }); } }}
               onPointerMove={(e) => { if (a.id === "eten" && drag) setDrag({ x: e.clientX, y: e.clientY }); }}
               onPointerUp={(e) => { if (a.id === "eten" && drag) dropFood(e.clientX, e.clientY); }}
               style={a.id === "eten" ? { touchAction: "none" } : undefined}
-              className="rounded-3xl bg-card p-4 text-center shadow-soft transition active:scale-95 disabled:opacity-50">
+              className={`rounded-3xl bg-card p-4 text-center shadow-soft transition active:scale-95 disabled:opacity-50 ${canCare ? "" : "opacity-60"}`}>
               <p className="text-2xl">{a.emoji}</p>
               <p className="mt-1 text-xs font-semibold">{done ? "Gedaan ✓" : !canCare ? "🔒 " + a.label : a.id === "eten" ? "Sleep naar diertje" : a.id === "spelen" ? "Gooi balletje" : "Houd diertje vast"}</p>
             </button>
           );
         })}
       </div>
+
+      <AlertDialog open={lockedOpen} onOpenChange={setLockedOpen}>
+        <AlertDialogContent className="rounded-3xl text-center">
+          <AlertDialogHeader>
+            <p className="text-5xl">📝</p>
+            <AlertDialogTitle className="text-center">Eerst een taakje!</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Zet eerst minstens één taak op je to-do lijstje van vandaag. Daarna kun je {active.name} eten geven, ermee spelen en knuffelen. 💕
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button className="w-full rounded-full" onClick={() => { setLockedOpen(false); setTodoOpen(true); }}>Lijstje invullen</Button>
+            <AlertDialogCancel className="mt-0 w-full rounded-full">Later</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {drag && <span className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 text-5xl" style={{ left: drag.x, top: drag.y }}>🍓</span>}
       <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} games={<PetGames uid={uid} petEmoji={speciesEmoji(active.species)} level={level} />} />

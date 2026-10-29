@@ -68,14 +68,9 @@ export function PetLink({ uid }: { uid: string | undefined }) {
       data-tour="diertje"
       aria-label={pet ? `Mijn diertje, level ${levelFor(pet.xp).level}` : "Mijn diertje"}
       className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground"
-      activeProps={{ className: "bg-secondary" }}
+      activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
     >
       <PawPrint className="size-5" />
-      {pet && (
-        <span className="absolute -bottom-0.5 -right-1 rounded-full border-2 border-ink bg-primary px-1 text-[9px] font-bold leading-3 text-primary-foreground">
-          {levelFor(pet.xp).level}
-        </span>
-      )}
     </Link>
   );
 }

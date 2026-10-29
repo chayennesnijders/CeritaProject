@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_news_seen: {
+        Row: { seen_at: string; user_id: string }
+        Insert: { seen_at?: string; user_id: string }
+        Update: { seen_at?: string; user_id?: string }
+        Relationships: []
+      }
       activity_log: {
         Row: {
           action: string
@@ -1401,6 +1407,10 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      admin_news: {
+        Args: { _days?: number }
+        Returns: { created_at: string; detail: string; kind: string; ref_id: string; title: string }[]
+      }
       article_reaction_counts: {
         Args: never
         Returns: { article_id: string; herkenbaar: number; knuffel: number; sterk: number }[]

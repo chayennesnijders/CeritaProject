@@ -11,6 +11,7 @@ import { listenForeground } from "@/lib/push-client";
 import { Home, Users, Compass, MessageCircle, User, ShoppingBag, Shield } from "lucide-react";
 import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
+import { useAdminNews } from "@/lib/use-admin-news";
 import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
@@ -24,6 +25,7 @@ const tabs = [
 export function AppShell() {
   const { data: me } = useMe();
   const unread = useUnreadCounts();
+  const news = useAdminNews(me?.isAdmin ? me.user.id : undefined);
   const navigate = useNavigate();
   // Na inloggen met Google: laten weten dat het gelukt is (er komt geen mail).
   // We kijken naar het inlogmoment zelf, want bij Google kan de app in een ander
@@ -77,13 +79,13 @@ export function AppShell() {
         <div className="flex shrink-0 items-center gap-0.5">
           <StreakChip uid={me?.user.id} />
           {me?.isAdmin && (
-            <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
+            <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary !text-secondary-foreground" }}>
               <Shield className="size-5" />
-              <TabBadge n={unread.reports} />
+              <TabBadge n={unread.reports + news.unread} />
             </Link>
           )}
           <PetLink uid={me?.user.id} />
-          <Link to="/shop" data-tour="shop" aria-label="CeritaShop" className="rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary" }}>
+          <Link to="/shop" data-tour="shop" aria-label="CeritaShop" className="rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary !text-secondary-foreground" }}>
             <ShoppingBag className="size-5" />
           </Link>
         </div>
