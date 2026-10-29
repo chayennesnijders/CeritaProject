@@ -19,7 +19,7 @@ describe("upgrades", () => {
     expect(all).toEqual(["kamer", "geen"]);
   });
   it("bij level 2 komen er dingen bij", () => {
-    expect(unlocksAt(2).map((i) => i.id)).toEqual(["tuin", "strik"]);
+    expect(unlocksAt(2).map((i) => i.id)).toEqual(["tuin", "strik", "memory"]);
   });
 });
 

@@ -1,3 +1,5 @@
+import { PET_GAMES } from "./pet-games";
+
 export const PET_SPECIES = [
   { id: "kat", emoji: "🐱", label: "Kat" },
   { id: "hond", emoji: "🐶", label: "Hond" },
@@ -36,14 +38,49 @@ export function speciesEmoji(id: string) {
 export type Unlockable = { id: string; label: string; emoji: string; level: number };
 
 export const BACKGROUNDS: (Unlockable & { css: string })[] = [
-  { id: "kamer", label: "Kamer", emoji: "🛋️", level: 1, css: "linear-gradient(180deg,#7a4a3a,#4a2c22)" },
-  { id: "tuin", label: "Tuin", emoji: "🌷", level: 2, css: "linear-gradient(180deg,#bfe3f5,#9fd38a)" },
-  { id: "strand", label: "Strand", emoji: "🏖️", level: 3, css: "linear-gradient(180deg,#8fd3f4,#f6dfa8)" },
-  { id: "snoep", label: "Snoepland", emoji: "🍭", level: 4, css: "linear-gradient(180deg,#fbc7d9,#f7e1ef)" },
-  { id: "sterren", label: "Sterrennacht", emoji: "🌙", level: 5, css: "linear-gradient(180deg,#1f2347,#4b3b78)" },
-  { id: "sneeuw", label: "Sneeuw", emoji: "❄️", level: 7, css: "linear-gradient(180deg,#dbeaf5,#ffffff)" },
+  {
+    id: "kamer",
+    label: "Kamer",
+    emoji: "🛋️",
+    level: 1,
+    css: "linear-gradient(180deg,#7a4a3a,#4a2c22)",
+  },
+  {
+    id: "tuin",
+    label: "Tuin",
+    emoji: "🌷",
+    level: 2,
+    css: "linear-gradient(180deg,#bfe3f5,#9fd38a)",
+  },
+  {
+    id: "strand",
+    label: "Strand",
+    emoji: "🏖️",
+    level: 3,
+    css: "linear-gradient(180deg,#8fd3f4,#f6dfa8)",
+  },
+  {
+    id: "snoep",
+    label: "Snoepland",
+    emoji: "🍭",
+    level: 4,
+    css: "linear-gradient(180deg,#fbc7d9,#f7e1ef)",
+  },
+  {
+    id: "sterren",
+    label: "Sterrennacht",
+    emoji: "🌙",
+    level: 5,
+    css: "linear-gradient(180deg,#1f2347,#4b3b78)",
+  },
+  {
+    id: "sneeuw",
+    label: "Sneeuw",
+    emoji: "❄️",
+    level: 7,
+    css: "linear-gradient(180deg,#dbeaf5,#ffffff)",
+  },
 ];
-
 
 export const OUTFITS: Unlockable[] = [
   { id: "geen", label: "Niks", emoji: "🚫", level: 1 },
@@ -58,7 +95,7 @@ export const isUnlocked = (item: Unlockable, level: number) => level >= item.lev
 
 /** Items that became available exactly at this level (for the level-up message). */
 export function unlocksAt(level: number) {
-  return [...BACKGROUNDS, ...OUTFITS].filter((i) => i.level === level);
+  return [...BACKGROUNDS, ...OUTFITS, ...PET_GAMES].filter((i) => i.level === level);
 }
 
 /** Extra pets you may collect: one more every 2 levels (level 3, 5, 7, ...). */
@@ -67,7 +104,12 @@ export const extraPetSlots = (level: number) => Math.max(0, Math.floor((level - 
 /** Pet day starts at 07:00 Amsterdam time: before 07:00 it's still "yesterday". Returns YYYY-MM-DD. */
 export function petDay(now: Date = new Date()): string {
   const shifted = new Date(now.getTime() - 7 * 3600 * 1000);
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" }).format(shifted);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Amsterdam",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(shifted);
 }
 
 /** Care unlocks once the member has filled in at least one task for today. */

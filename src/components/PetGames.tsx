@@ -4,18 +4,39 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
+  BREATH_MS,
+  BREATH_ROUNDS,
+  COLOURS,
+  FEELING_ROUNDS,
   GAME_XP,
   GAMES_WITH_XP_PER_DAY,
   PET_GAMES,
+  THOUGHTS,
+  THOUGHT_ROUNDS,
   bestScores,
+  breathPhase,
+  feelingRound,
   makeMemoryDeck,
   memoryScore,
+  oddRound,
   rewardMessage,
+  shuffle,
+  stroopRound,
   type PetGameId,
 } from "@/lib/pet-games";
 
-/** Game menu + the three minigames. Finishing a game goes through finish_pet_game, which hands out the XP. */
-export function PetGames({ uid, petEmoji }: { uid: string; petEmoji: string }) {
+type Done = (score: number) => void;
+
+/** Game menu: one new game per level. Finishing a game goes through finish_pet_game, which hands out the XP. */
+export function PetGames({
+  uid,
+  petEmoji,
+  level,
+}: {
+  uid: string;
+  petEmoji: string;
+  level: number;
+}) {
   const qc = useQueryClient();
   const [game, setGame] = useState<PetGameId | null>(null);
   const [result, setResult] = useState<{
@@ -24,14 +45,14 @@ export function PetGames({ uid, petEmoji }: { uid: string; petEmoji: string }) {
     xp: number;
     best: boolean;
   } | null>(null);
+  const box = useRef<HTMLDivElement>(null);
   const { data: plays = [] } = useQuery({
     queryKey: ["pet-games", uid],
     queryFn: async () =>
       (await supabase.from("pet_games").select("game, score").eq("user_id", uid)).data ?? [],
   });
   const best = bestScores(plays);
-  const box = useRef<HTMLDivElement>(null);
-  // A started game scrolls into view, so the pet isn't hidden behind the bottom menu.
+  // A started game scrolls into view, so it isn't hidden behind the bottom menu.
   useEffect(() => {
     if (game) box.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [game]);
@@ -45,16 +66,26 @@ export function PetGames({ uid, petEmoji }: { uid: string; petEmoji: string }) {
     qc.invalidateQueries({ queryKey: ["pet", uid] });
   }
 
-  if (game)
+  if (game) {
+    const done: Done = (s) => finish(game, s);
     return (
       <div ref={box} className="scroll-mb-28">
-        {game === "vangen" && <CatchGame petEmoji={petEmoji} onDone={(s) => finish("vangen", s)} />}
-        {game === "memory" && (
-          <MemoryGame petEmoji={petEmoji} onDone={(s) => finish("memory", s)} />
-        )}
-        {game === "ballonnen" && <BalloonGame onDone={(s) => finish("ballonnen", s)} />}
+        {game === "ademen" && <BreathGame petEmoji={petEmoji} onDone={done} />}
+        {game === "memory" && <MemoryGame petEmoji={petEmoji} onDone={done} />}
+        {game === "kleuren" && <StroopGame onDone={done} />}
+        {game === "gevoelens" && <FeelingsGame onDone={done} />}
+        {game === "lichtjes" && <LightsGame onDone={done} />}
+        {game === "gedachten" && <ThoughtsGame onDone={done} />}
+        {game === "zoeken" && <OddGame onDone={done} />}
+        <button
+          onClick={() => setGame(null)}
+          className="mt-3 w-full text-center text-xs text-muted-foreground underline"
+        >
+          Stoppen
+        </button>
       </div>
     );
+  }
 
   return (
     <div className="space-y-2">
@@ -77,37 +108,44 @@ export function PetGames({ uid, petEmoji }: { uid: string; petEmoji: string }) {
           </Button>
         </div>
       )}
-      {PET_GAMES.map((g) => (
-        <button
-          key={g.id}
-          onClick={() => {
-            setResult(null);
-            setGame(g.id);
-          }}
-          className="flex w-full items-center gap-3 rounded-2xl bg-muted p-3 text-left"
-        >
-          <span className="text-3xl">{g.emoji}</span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold">{g.label}</span>
-            <span className="block text-xs text-muted-foreground">{g.text}</span>
-          </span>
-          {best[g.id] !== undefined && (
-            <span className="shrink-0 text-xs font-semibold">🏆 {best[g.id]}</span>
-          )}
-        </button>
-      ))}
+      {PET_GAMES.map((g) => {
+        const open = level >= g.level;
+        return (
+          <button
+            key={g.id}
+            disabled={!open}
+            onClick={() => {
+              setResult(null);
+              setGame(g.id);
+            }}
+            className={`flex w-full items-center gap-3 rounded-2xl bg-muted p-3 text-left ${open ? "" : "opacity-50"}`}
+          >
+            <span className="text-3xl">{open ? g.emoji : "🔒"}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">{g.label}</span>
+              <span className="block text-xs text-muted-foreground">
+                {open ? g.text : `Komt vrij bij level ${g.level}`}
+              </span>
+            </span>
+            {open && best[g.id] !== undefined && (
+              <span className="shrink-0 text-xs font-semibold">🏆 {best[g.id]}</span>
+            )}
+          </button>
+        );
+      })}
       <p className="text-center text-xs text-muted-foreground">
-        De eerste {GAMES_WITH_XP_PER_DAY} spelletjes per dag geven je diertje +{GAME_XP} XP.
+        Elk nieuw level een nieuw spelletje. De eerste {GAMES_WITH_XP_PER_DAY} spelletjes per dag
+        geven je diertje +{GAME_XP} XP.
       </p>
     </div>
   );
 }
 
-function GameHeader({ score, seconds }: { score: number; seconds?: number }) {
+function GameHeader({ left, right }: { left: string; right?: string }) {
   return (
-    <div className="flex justify-between text-sm font-semibold">
-      <span>⭐ {score}</span>
-      {seconds !== undefined && <span>⏱️ {seconds}s</span>}
+    <div className="mb-2 flex justify-between text-sm font-semibold">
+      <span>{left}</span>
+      {right && <span>{right}</span>}
     </div>
   );
 }
@@ -122,132 +160,78 @@ function useCountdown(total: number, onEnd: () => void) {
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
-    if (left <= 0) end.current();
+    if (left === 0) end.current();
   }, [left]);
   return Math.max(0, left);
 }
 
-const TREATS = ["🍓", "🍪", "🦴", "🐟", "🧁", "🍎"];
-type Treat = { id: number; x: number; y: number; emoji: string; speed: number };
-
-/** Catch: drag (or tap the arrows) to move the pet; catch falling treats for 30 seconds. */
-function CatchGame({ petEmoji, onDone }: { petEmoji: string; onDone: (score: number) => void }) {
-  const area = useRef<HTMLDivElement>(null);
-  const [petX, setPetX] = useState(50);
-  const [treats, setTreats] = useState<Treat[]>([]);
-  const [score, setScore] = useState(0);
-  const state = useRef({
-    petX: 50,
-    treats: [] as Treat[],
-    score: 0,
-    nextId: 0,
-    lastSpawn: 0,
-    done: false,
-  });
-  const seconds = useCountdown(30, () => {
-    if (state.current.done) return;
-    state.current.done = true;
-    onDone(state.current.score);
-  });
-
+/** Rustig ademen: hold while the bubble grows (in), let go while it shrinks (out). Score = % of time in rhythm. */
+function BreathGame({ petEmoji, onDone }: { petEmoji: string; onDone: Done }) {
+  const total = BREATH_MS * 2 * BREATH_ROUNDS;
+  const [phase, setPhase] = useState<"klaar" | "in" | "uit">("klaar");
+  const [left, setLeft] = useState(total / 1000);
+  const holding = useRef(false);
+  const tally = useRef({ good: 0, all: 0 });
+  const done = useRef(onDone);
+  done.current = onDone;
   useEffect(() => {
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const s = state.current;
-      const dt = Math.min(50, now - last) / 1000;
-      last = now;
-      const h = area.current?.clientHeight ?? 320;
-      const spawnEvery = Math.max(350, 750 - s.score * 12);
-      if (now - s.lastSpawn > spawnEvery) {
-        s.lastSpawn = now;
-        s.treats.push({
-          id: s.nextId++,
-          x: 8 + Math.random() * 84,
-          y: -30,
-          emoji: TREATS[Math.floor(Math.random() * TREATS.length)]!,
-          speed: 120 + Math.random() * 80 + s.score * 3,
-        });
+    const start = performance.now() + 1500; // a moment to get ready
+    const t = setInterval(() => {
+      const ms = performance.now() - start;
+      if (ms < 0) return;
+      if (ms >= total) {
+        clearInterval(t);
+        const { good, all } = tally.current;
+        done.current(Math.round((good / Math.max(1, all)) * 100));
+        return;
       }
-      const kept: Treat[] = [];
-      for (const t of s.treats) {
-        t.y += t.speed * dt;
-        const atPet = t.y > h - 70 && t.y < h - 20 && Math.abs(t.x - s.petX) < 11;
-        if (atPet) s.score++;
-        else if (t.y < h) kept.push(t);
-      }
-      s.treats = kept;
-      setTreats([...kept]);
-      setScore(s.score);
-      if (!s.done) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  function moveTo(clientX: number) {
-    const r = area.current?.getBoundingClientRect();
-    if (!r) return;
-    const x = Math.min(94, Math.max(6, ((clientX - r.left) / r.width) * 100));
-    state.current.petX = x;
-    setPetX(x);
-  }
-  const nudge = (d: number) => {
-    const x = Math.min(94, Math.max(6, state.current.petX + d));
-    state.current.petX = x;
-    setPetX(x);
+      const p = breathPhase(ms);
+      setPhase(p);
+      setLeft(Math.ceil((total - ms) / 1000));
+      tally.current.all++;
+      if ((p === "in") === holding.current) tally.current.good++;
+    }, 100);
+    return () => clearInterval(t);
+  }, [total]);
+  const hold = (v: boolean) => () => {
+    holding.current = v;
   };
-
   return (
-    <div className="space-y-2">
-      <GameHeader score={score} seconds={seconds} />
-      <div
-        ref={area}
-        onPointerDown={(e) => moveTo(e.clientX)}
-        onPointerMove={(e) => (e.buttons || e.pointerType === "touch") && moveTo(e.clientX)}
-        className="relative h-80 touch-none select-none overflow-hidden rounded-2xl bg-gradient-to-b from-sky-200 to-emerald-100"
-      >
-        {treats.map((t) => (
-          <span
-            key={t.id}
-            className="pointer-events-none absolute text-2xl"
-            style={{ left: `${t.x}%`, top: t.y, transform: "translateX(-50%)" }}
-          >
-            {t.emoji}
-          </span>
-        ))}
-        <span
-          className="pointer-events-none absolute bottom-2 text-5xl transition-[left] duration-75"
-          style={{ left: `${petX}%`, transform: "translateX(-50%)" }}
+    <div className="text-center">
+      <GameHeader
+        left={
+          phase === "klaar" ? "Maak je klaar…" : phase === "in" ? "Adem in… 🌬️" : "Adem uit… 😮‍💨"
+        }
+        right={`⏱️ ${left}s`}
+      />
+      <div className="flex h-72 items-center justify-center rounded-2xl bg-gradient-to-b from-sky-100 to-violet-100">
+        <button
+          onPointerDown={hold(true)}
+          onPointerUp={hold(false)}
+          onPointerLeave={hold(false)}
+          onPointerCancel={hold(false)}
+          onContextMenu={(e) => e.preventDefault()}
+          aria-label="Houd vast tijdens inademen"
+          className="flex size-56 touch-none select-none items-center justify-center rounded-full bg-sky-300/70 text-5xl shadow-[0_0_40px_rgba(125,211,252,.8)] ease-in-out"
+          style={{
+            transform: `scale(${phase === "in" ? 1 : 0.45})`,
+            transitionProperty: "transform",
+            transitionDuration: `${phase === "klaar" ? 600 : BREATH_MS}ms`,
+          }}
         >
           {petEmoji}
-        </span>
+        </button>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          variant="outline"
-          className="rounded-full"
-          onClick={() => nudge(-12)}
-          aria-label="Naar links"
-        >
-          ⬅️
-        </Button>
-        <Button
-          variant="outline"
-          className="rounded-full"
-          onClick={() => nudge(12)}
-          aria-label="Naar rechts"
-        >
-          ➡️
-        </Button>
-      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Houd de bel vast als hij groeit, laat los als hij krimpt.
+      </p>
     </div>
   );
 }
 
 /** Memory: 6 pairs; the score depends on how many turns it took. */
-function MemoryGame({ petEmoji, onDone }: { petEmoji: string; onDone: (score: number) => void }) {
-  const [deck] = useState(() => makeMemoryDeck([petEmoji, "🍓", "🦴", "🎾", "🧶", "🌸"]));
+function MemoryGame({ petEmoji, onDone }: { petEmoji: string; onDone: Done }) {
+  const [deck] = useState(() => makeMemoryDeck([petEmoji, "🧠", "💖", "🌈", "⭐", "🌸"]));
   const [open, setOpen] = useState<number[]>([]);
   const [found, setFound] = useState<Set<number>>(new Set());
   const [turns, setTurns] = useState(0);
@@ -271,15 +255,11 @@ function MemoryGame({ petEmoji, onDone }: { petEmoji: string; onDone: (score: nu
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-sm font-semibold">
-        <span>
-          🔁 {turns} {turns === 1 ? "beurt" : "beurten"}
-        </span>
-        <span>
-          ✅ {found.size / 2}/{pairs}
-        </span>
-      </div>
+    <div>
+      <GameHeader
+        left={`🔁 ${turns} ${turns === 1 ? "beurt" : "beurten"}`}
+        right={`✅ ${found.size / 2}/${pairs}`}
+      />
       <div className="grid grid-cols-4 gap-2">
         {deck.map((emoji, i) => {
           const shown = open.includes(i) || found.has(i);
@@ -288,7 +268,7 @@ function MemoryGame({ petEmoji, onDone }: { petEmoji: string; onDone: (score: nu
               key={i}
               onClick={() => flip(i)}
               aria-label={shown ? emoji : "Kaartje omdraaien"}
-              className={`flex aspect-square items-center justify-center rounded-2xl text-3xl transition-transform ${shown ? "bg-card shadow-soft" : "bg-primary text-primary-foreground active:scale-95"} ${found.has(i) ? "opacity-60" : ""}`}
+              className={`flex aspect-square items-center justify-center rounded-2xl text-3xl transition-all duration-300 ${shown ? "bg-card shadow-soft" : "bg-primary text-primary-foreground active:scale-95"} ${found.has(i) ? "opacity-60" : ""}`}
             >
               {shown ? emoji : "?"}
             </button>
@@ -299,51 +279,289 @@ function MemoryGame({ petEmoji, onDone }: { petEmoji: string; onDone: (score: nu
   );
 }
 
-/** Balloons: tap balloons as they pop up in a 3×3 grid for 20 seconds; a gold star is worth 2. */
-function BalloonGame({ onDone }: { onDone: (score: number) => void }) {
-  const [active, setActive] = useState<{ cell: number; star: boolean; id: number } | null>(null);
-  const [popped, setPopped] = useState<number | null>(null);
+/** Kleur of woord? (Stroop): tap the ink colour, not the word. 30 seconds. */
+function StroopGame({ onDone }: { onDone: Done }) {
+  const [round, setRound] = useState(() => stroopRound());
   const [score, setScore] = useState(0);
+  const [turn, setTurn] = useState(0);
+  const [flash, setFlash] = useState<"goed" | "fout" | null>(null);
   const scoreRef = useRef(0);
-  const done = useRef(false);
-  const seconds = useCountdown(20, () => {
-    if (done.current) return;
-    done.current = true;
-    onDone(scoreRef.current);
-  });
-
-  useEffect(() => {
-    let id = 0;
-    let timer: ReturnType<typeof setTimeout>;
-    const show = () => {
-      setActive({ cell: Math.floor(Math.random() * 9), star: Math.random() < 0.15, id: id++ });
-      timer = setTimeout(show, Math.max(450, 950 - scoreRef.current * 20));
-    };
-    show();
-    return () => clearTimeout(timer);
-  }, []);
-
-  function tap(cell: number) {
-    if (!active || active.cell !== cell) return;
-    scoreRef.current += active.star ? 2 : 1;
-    setScore(scoreRef.current);
-    setPopped(cell);
-    setActive(null);
-    setTimeout(() => setPopped((p) => (p === cell ? null : p)), 250);
+  const seconds = useCountdown(30, () => onDone(scoreRef.current));
+  function answer(id: string) {
+    const ok = id === round.ink;
+    if (ok) {
+      scoreRef.current++;
+      setScore(scoreRef.current);
+    }
+    setFlash(ok ? "goed" : "fout");
+    setTimeout(() => setFlash(null), 250);
+    setRound(stroopRound());
+    setTurn((t) => t + 1);
   }
-
   return (
-    <div className="space-y-2">
-      <GameHeader score={score} seconds={seconds} />
-      <div className="grid grid-cols-3 gap-2">
-        {Array.from({ length: 9 }, (_, cell) => (
+    <div>
+      <GameHeader left={`⭐ ${score}`} right={`⏱️ ${seconds}s`} />
+      <div
+        className={`flex h-40 items-center justify-center rounded-2xl transition-colors duration-200 ${flash === "goed" ? "bg-emerald-100" : flash === "fout" ? "bg-rose-100" : "bg-muted"}`}
+      >
+        <span
+          key={turn}
+          className="animate-in zoom-in-75 text-5xl font-black tracking-wide duration-200"
+          style={{ color: round.css }}
+        >
+          {round.word}
+        </span>
+      </div>
+      <p className="my-2 text-center text-xs text-muted-foreground">
+        In welke kleur staat het woord?
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        {COLOURS.map((c) => (
           <button
-            key={cell}
-            onPointerDown={() => tap(cell)}
-            aria-label="Vakje"
-            className="flex aspect-square select-none items-center justify-center rounded-2xl bg-muted text-4xl"
+            key={c.id}
+            onClick={() => answer(c.id)}
+            className="h-14 rounded-2xl text-sm font-bold text-white shadow-soft active:scale-95"
+            style={{ background: c.css }}
           >
-            {popped === cell ? "💥" : active?.cell === cell ? (active.star ? "⭐" : "🎈") : ""}
+            {c.id}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Gevoelens raden: pick the feeling that goes with the face; a kind tip follows every answer. */
+function FeelingsGame({ onDone }: { onDone: Done }) {
+  const [n, setN] = useState(0);
+  const [round, setRound] = useState(() => feelingRound());
+  const [picked, setPicked] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  function choose(name: string) {
+    if (picked) return;
+    setPicked(name);
+    if (name === round.answer.name) setScore((s) => s + 10);
+  }
+  function next() {
+    if (n + 1 >= FEELING_ROUNDS) {
+      onDone(score);
+      return;
+    }
+    setN(n + 1);
+    setPicked(null);
+    setRound(feelingRound());
+  }
+  return (
+    <div>
+      <GameHeader left={`⭐ ${score}`} right={`${n + 1}/${FEELING_ROUNDS}`} />
+      <div className="flex h-36 items-center justify-center rounded-2xl bg-muted">
+        <span key={n} className="animate-in zoom-in-50 text-7xl duration-300">
+          {round.answer.face}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {round.options.map((o) => {
+          const right = picked && o === round.answer.name;
+          const wrong = picked === o && o !== round.answer.name;
+          return (
+            <button
+              key={o}
+              onClick={() => choose(o)}
+              className={`h-12 rounded-2xl text-sm font-semibold transition-colors ${right ? "bg-emerald-200" : wrong ? "bg-rose-200" : "bg-card shadow-soft"}`}
+            >
+              {o}
+            </button>
+          );
+        })}
+      </div>
+      {picked && (
+        <div className="mt-3 animate-in fade-in rounded-2xl bg-accent p-3 text-center text-sm duration-300">
+          <p className="font-semibold">
+            {picked === round.answer.name
+              ? "Goed zo! 🎉"
+              : `Dit is ${round.answer.name.toLowerCase()}.`}
+          </p>
+          <p className="text-xs">{round.answer.tip}</p>
+          <Button size="sm" className="mt-2 rounded-full" onClick={next}>
+            {n + 1 >= FEELING_ROUNDS ? "Klaar" : "Volgende"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const PADS = [
+  { emoji: "💗", on: "bg-pink-400", off: "bg-pink-200" },
+  { emoji: "💙", on: "bg-sky-400", off: "bg-sky-200" },
+  { emoji: "💚", on: "bg-emerald-400", off: "bg-emerald-200" },
+  { emoji: "💛", on: "bg-amber-300", off: "bg-amber-100" },
+];
+
+/** Volg de lichtjes: watch the sequence, then tap it back. It grows by one each round. Score = longest sequence. */
+function LightsGame({ onDone }: { onDone: Done }) {
+  const [seq, setSeq] = useState<number[]>(() => [Math.floor(Math.random() * 4)]);
+  const [lit, setLit] = useState<number | null>(null);
+  const [showing, setShowing] = useState(true);
+  const [pos, setPos] = useState(0);
+  useEffect(() => {
+    setShowing(true);
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    seq.forEach((pad, i) => {
+      timers.push(setTimeout(() => setLit(pad), 700 + i * 650));
+      timers.push(setTimeout(() => setLit(null), 700 + i * 650 + 420));
+    });
+    timers.push(
+      setTimeout(
+        () => {
+          setShowing(false);
+          setPos(0);
+        },
+        700 + seq.length * 650,
+      ),
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [seq]);
+
+  function tap(pad: number) {
+    if (showing) return;
+    setLit(pad);
+    setTimeout(() => setLit(null), 180);
+    if (pad !== seq[pos]) {
+      onDone(seq.length - 1);
+      return;
+    }
+    if (pos + 1 === seq.length) {
+      if (seq.length >= 20) {
+        onDone(20);
+        return;
+      }
+      setShowing(true);
+      setTimeout(() => setSeq([...seq, Math.floor(Math.random() * 4)]), 400);
+    } else setPos(pos + 1);
+  }
+  return (
+    <div>
+      <GameHeader
+        left={`✨ Lengte ${seq.length}`}
+        right={showing ? "Kijk goed… 👀" : "Jij bent! 👆"}
+      />
+      <div className="grid grid-cols-2 gap-3">
+        {PADS.map((p, i) => (
+          <button
+            key={i}
+            onClick={() => tap(i)}
+            aria-label={`Lichtje ${i + 1}`}
+            className={`flex aspect-square items-center justify-center rounded-3xl text-5xl transition-all duration-150 ${lit === i ? `${p.on} scale-105 shadow-[0_0_30px_rgba(255,255,255,.9)]` : p.off}`}
+          >
+            {p.emoji}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Gedachten sorteren: keep helpful thoughts, let unhelpful ones go and read a kinder way to see them. */
+function ThoughtsGame({ onDone }: { onDone: Done }) {
+  const [list] = useState(() => shuffle(THOUGHTS).slice(0, THOUGHT_ROUNDS));
+  const [n, setN] = useState(0);
+  const [picked, setPicked] = useState<boolean | null>(null);
+  const [score, setScore] = useState(0);
+  const t = list[n]!;
+  function choose(keep: boolean) {
+    if (picked !== null) return;
+    setPicked(keep);
+    if (keep === t.keep) setScore((s) => s + 10);
+  }
+  function next() {
+    if (n + 1 >= list.length) {
+      onDone(score);
+      return;
+    }
+    setN(n + 1);
+    setPicked(null);
+  }
+  return (
+    <div>
+      <GameHeader left={`⭐ ${score}`} right={`${n + 1}/${list.length}`} />
+      <div
+        key={n}
+        className="flex min-h-36 animate-in fade-in slide-in-from-right-8 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-100 to-pink-100 p-5 text-center duration-300"
+      >
+        <p className="font-display text-xl leading-snug text-foreground">💭 "{t.text}"</p>
+      </div>
+      {picked === null ? (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => choose(true)}
+            className="h-14 rounded-2xl bg-emerald-200 text-sm font-bold active:scale-95"
+          >
+            💚 Houden
+          </button>
+          <button
+            onClick={() => choose(false)}
+            className="h-14 rounded-2xl bg-sky-200 text-sm font-bold active:scale-95"
+          >
+            🎈 Loslaten
+          </button>
+        </div>
+      ) : (
+        <div className="mt-3 animate-in fade-in rounded-2xl bg-accent p-3 text-center text-sm duration-300">
+          <p className="font-semibold">
+            {picked === t.keep
+              ? "Goed zo! 🎉"
+              : t.keep
+                ? "Deze mag je houden! 💚"
+                : "Deze mag je loslaten 🎈"}
+          </p>
+          <p className="text-xs">
+            {t.keep
+              ? "Dit is een fijne gedachte. Zeg hem vaker tegen jezelf."
+              : `Probeer eens: "${t.kinder}"`}
+          </p>
+          <Button size="sm" className="mt-2 rounded-full" onClick={next}>
+            {n + 1 >= list.length ? "Klaar" : "Volgende"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Zoek de andere: find the one look-alike that's different; the grid grows. 30 seconds. */
+function OddGame({ onDone }: { onDone: Done }) {
+  const [found, setFound] = useState(0);
+  const foundRef = useRef(0);
+  const [round, setRound] = useState(() => oddRound(0));
+  const [miss, setMiss] = useState<number | null>(null);
+  const seconds = useCountdown(30, () => onDone(foundRef.current));
+  function tap(i: number) {
+    if (i !== round.oddIndex) {
+      setMiss(i);
+      setTimeout(() => setMiss(null), 300);
+      return;
+    }
+    foundRef.current++;
+    setFound(foundRef.current);
+    setRound(oddRound(foundRef.current));
+  }
+  return (
+    <div>
+      <GameHeader left={`🔍 ${found} gevonden`} right={`⏱️ ${seconds}s`} />
+      <div
+        key={found}
+        className="grid animate-in zoom-in-95 gap-1.5 duration-200"
+        style={{ gridTemplateColumns: `repeat(${round.size}, minmax(0, 1fr))` }}
+      >
+        {Array.from({ length: round.size * round.size }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => tap(i)}
+            aria-label={`Plaatje ${i + 1}`}
+            className={`flex aspect-square items-center justify-center rounded-xl ${round.size >= 5 ? "text-2xl" : "text-3xl"} ${miss === i ? "bg-rose-200" : "bg-muted"}`}
+          >
+            {i === round.oddIndex ? round.odd : round.same}
           </button>
         ))}
       </div>

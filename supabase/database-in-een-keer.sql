@@ -1932,3 +1932,11 @@ $$;
 REVOKE ALL ON FUNCTION public.story_board() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.story_board() TO authenticated;
 COMMIT;
+
+-- ===== 0054_brain_games =====
+-- The minigames are now about your brain and feelings (one new game per level).
+-- Old game names stay allowed so earlier scores remain valid.
+ALTER TABLE public.pet_games DROP CONSTRAINT IF EXISTS pet_games_game_check;
+ALTER TABLE public.pet_games ADD CONSTRAINT pet_games_game_check
+  CHECK (game IN ('ademen', 'memory', 'kleuren', 'gevoelens', 'lichtjes', 'gedachten', 'zoeken', 'vangen', 'ballonnen'));
+COMMIT;

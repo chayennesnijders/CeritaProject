@@ -273,7 +273,7 @@ function PetPage() {
       </div>
 
       {drag && <span className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 text-5xl" style={{ left: drag.x, top: drag.y }}>🍓</span>}
-      <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} games={<PetGames uid={uid} petEmoji={speciesEmoji(active.species)} />} />
+      <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} games={<PetGames uid={uid} petEmoji={speciesEmoji(active.species)} level={level} />} />
 
       <div className="rounded-3xl bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between gap-3">
