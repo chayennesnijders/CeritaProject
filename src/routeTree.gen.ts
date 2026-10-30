@@ -24,6 +24,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
 import { Route as AuthenticatedBrievenRouteImport } from './routes/_authenticated/brieven'
 import { Route as AuthenticatedBuddyRouteImport } from './routes/_authenticated/buddy'
+import { Route as AuthenticatedCoachRouteImport } from './routes/_authenticated/coach'
 import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
@@ -129,6 +130,11 @@ const AuthenticatedBrievenRoute = AuthenticatedBrievenRouteImport.update({
 const AuthenticatedBuddyRoute = AuthenticatedBuddyRouteImport.update({
   id: '/buddy',
   path: '/buddy',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCoachRoute = AuthenticatedCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedComplimentenRoute =
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
   '/buddy': typeof AuthenticatedBuddyRoute
+  '/coach': typeof AuthenticatedCoachRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -368,6 +375,7 @@ export interface FileRoutesByTo {
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
   '/buddy': typeof AuthenticatedBuddyRoute
+  '/coach': typeof AuthenticatedCoachRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -418,6 +426,7 @@ export interface FileRoutesById {
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
   '/_authenticated/brieven': typeof AuthenticatedBrievenRoute
   '/_authenticated/buddy': typeof AuthenticatedBuddyRoute
+  '/_authenticated/coach': typeof AuthenticatedCoachRoute
   '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
@@ -468,6 +477,7 @@ export interface FileRouteTypes {
     | '/beheer'
     | '/brieven'
     | '/buddy'
+    | '/coach'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
@@ -516,6 +526,7 @@ export interface FileRouteTypes {
     | '/beheer'
     | '/brieven'
     | '/buddy'
+    | '/coach'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
@@ -565,6 +576,7 @@ export interface FileRouteTypes {
     | '/_authenticated/beheer'
     | '/_authenticated/brieven'
     | '/_authenticated/buddy'
+    | '/_authenticated/coach'
     | '/_authenticated/complimenten'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
@@ -723,6 +735,13 @@ declare module '@tanstack/react-router' {
       path: '/buddy'
       fullPath: '/buddy'
       preLoaderRoute: typeof AuthenticatedBuddyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coach': {
+      id: '/_authenticated/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof AuthenticatedCoachRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/complimenten': {
@@ -957,6 +976,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
   AuthenticatedBrievenRoute: typeof AuthenticatedBrievenRoute
   AuthenticatedBuddyRoute: typeof AuthenticatedBuddyRoute
+  AuthenticatedCoachRoute: typeof AuthenticatedCoachRoute
   AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
@@ -991,6 +1011,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
   AuthenticatedBrievenRoute: AuthenticatedBrievenRoute,
   AuthenticatedBuddyRoute: AuthenticatedBuddyRoute,
+  AuthenticatedCoachRoute: AuthenticatedCoachRoute,
   AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,

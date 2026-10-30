@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      coaches: {
+        Row: {
+          active: boolean
+          added_by: string | null
+          bio: string | null
+          created_at: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          added_by?: string | null
+          bio?: string | null
+          created_at?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          added_by?: string | null
+          bio?: string | null
+          created_at?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           archived: boolean
@@ -187,6 +214,7 @@ export type Database = {
       }
       anon_questions: {
         Row: {
+          coaches_notified: boolean
           age_group: Database["public"]["Enums"]["age_group"]
           answer: string | null
           answer_seen: boolean
@@ -200,6 +228,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          coaches_notified?: boolean
           age_group: Database["public"]["Enums"]["age_group"]
           answer?: string | null
           answer_seen?: boolean
@@ -213,6 +242,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          coaches_notified?: boolean
           age_group?: Database["public"]["Enums"]["age_group"]
           answer?: string | null
           answer_seen?: boolean
@@ -2285,7 +2315,7 @@ export type Database = {
       is_music_url: { Args: { _url: string }; Returns: boolean }
       ask_question: { Args: { _body: string }; Returns: string }
       answer_question: { Args: { _question: string; _answer: string; _publish: boolean }; Returns: undefined }
-      question_wall: { Args: never; Returns: { id: string; body: string; answer: string; answered_at: string }[] }
+      question_wall: { Args: never; Returns: { id: string; body: string; answer: string; answered_at: string; coach: string | null }[] }
       write_letter: { Args: { _body: string; _months: number }; Returns: string }
       my_letters: { Args: never; Returns: { id: string; body: string | null; open_at: string; opened_at: string | null; created_at: string }[] }
       open_letter: { Args: { _letter: string }; Returns: undefined }
@@ -2293,6 +2323,9 @@ export type Database = {
       buddy_suggestions: { Args: never; Returns: { user_id: string; display_name: string; username: string | null; avatar_url: string | null; shared: string[] }[] }
       censor: { Args: { _text: string }; Returns: string }
       theme_showcase: { Args: { _theme: string }; Returns: { id: string; kind: string; body: string | null; image_path: string | null; maker: string | null; created_at: string }[] }
+      is_coach: { Args: { _user: string }; Returns: boolean }
+      add_coach: { Args: { _username: string; _title: string }; Returns: string }
+      coach_questions: { Args: never; Returns: { id: string; body: string; age_group: Database["public"]["Enums"]["age_group"]; status: string; answer: string | null; published: boolean; answered_by_name: string | null; created_at: string }[] }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
       join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
       chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }

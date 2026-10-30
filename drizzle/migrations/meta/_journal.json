@@ -533,6 +533,13 @@
       "when": 1793379600000,
       "tag": "0075_kind_and_cosy",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1793466000000,
+      "tag": "0076_coaches",
+      "breakpoints": true
     }
   ]
 }

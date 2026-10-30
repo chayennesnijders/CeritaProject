@@ -5,7 +5,7 @@ import { BirthdayPopup } from "@/components/BirthdayPopup";
 import { AppLock } from "@/components/AppLock";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { BirthdateGate } from "@/components/BirthdateGate";
-import { InboxBell, PetLink, StreakChip } from "@/components/HeaderStats";
+import { CoachLink, InboxBell, PetLink, StreakChip } from "@/components/HeaderStats";
 import { CareHelpDialog } from "@/components/CareHelpDialog";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
@@ -81,6 +81,7 @@ export function AppShell() {
         <div className="flex shrink-0 items-center gap-0.5">
           <StreakChip uid={me?.user.id} />
           <InboxBell />
+          <CoachLink uid={me?.user.id} />
           {me?.isAdmin && (
             <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary !text-secondary-foreground" }}>
               <Shield className="size-5" />

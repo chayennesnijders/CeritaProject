@@ -84,7 +84,8 @@ function InboxPage() {
   }
 
   const needle = q.trim().toLowerCase().replace(/^@/, "");
-  const matches = needle ? (data?.people ?? []).filter((p) => p.allow_messages && (p.display_name.toLowerCase().includes(needle) || (p.username ?? "").includes(needle))).slice(0, 8) : [];
+  // Only by @username (no browsing through everyone): look for a buddy on the Buddy page.
+  const matches = needle.length >= 2 ? (data?.people ?? []).filter((p) => p.allow_messages && (p.username ?? "").startsWith(needle)).slice(0, 8) : [];
   // Beheerders mogen alles *zien* (voor het overzicht in Beheer), maar de inbox
   // toont alleen je eigen gesprekken — anders lijkt een verzoek van anderen
   // "inkomend" terwijl alleen de ontvanger hem kan accepteren.
@@ -115,11 +116,11 @@ function InboxPage() {
           ))}
         </section>
       )}
-      <Link to="/vrienden" className="flex items-center justify-between rounded-3xl bg-accent p-4 text-sm font-semibold shadow-soft">
-        <span>💛 Vrienden zoeken</span>
-        <span className="text-xs font-normal text-muted-foreground">vind leden van jouw leeftijd →</span>
+      <Link to="/buddy" className="flex items-center justify-between rounded-3xl bg-accent p-4 text-sm font-semibold shadow-soft">
+        <span>🤝 Buddy zoeken</span>
+        <span className="text-xs font-normal text-muted-foreground">iemand die hetzelfde leuk vindt →</span>
       </Link>
-      <Input placeholder="Zoek op naam of @gebruikersnaam…" value={q} onChange={(e) => setQ(e.target.value)} className="rounded-2xl" />
+      <Input placeholder="Ken je iemand? Zoek op @gebruikersnaam…" value={q} onChange={(e) => setQ(e.target.value)} className="rounded-2xl" />
       {matches.map((p) => (
         <button key={p.id} onClick={() => start(p.id)} className="flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left text-sm shadow-soft">
           <UserAvatar path={p.avatar_url} name={p.display_name} userId={p.id} />

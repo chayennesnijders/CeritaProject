@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CoachesAdmin } from "@/components/CoachesAdmin";
 import { ThemeAdmin } from "@/components/ThemeAdmin";
 import { LaunchBanner, LaunchChecklist } from "@/components/LaunchChecklist";
 import { QuestionsAdmin } from "@/components/QuestionsAdmin";
@@ -157,7 +158,12 @@ export function AdminPanel() {
       )}
 
       {tab === "impact" && <ImpactReport />}
-      {tab === "vragen" && <QuestionsAdmin />}
+      {tab === "vragen" && (
+        <div className="space-y-4">
+          <CoachesAdmin />
+          <QuestionsAdmin />
+        </div>
+      )}
       {tab === "agenda" && <EventsAdmin />}
       {tab === "thema" && <ThemeAdmin />}
       {tab === "muziek" && <MusicAdmin />}

@@ -7,21 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
-/** Beheer → Vragen: answer anonymous questions, and choose whether the answer goes on the wall. */
+/**
+ * Answer anonymous questions (coaches on /coach, admins in Beheer → Vragen) and choose whether the
+ * answer goes on the wall. Nobody here sees who asked.
+ */
 export function QuestionsAdmin() {
   const qc = useQueryClient();
   const [show, setShow] = useState<"open" | "klaar">("open");
   const [drafts, setDrafts] = useState<Record<string, { text: string; publish: boolean }>>({});
   const { data: rows = [] } = useQuery({
     queryKey: ["admin-questions"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("anon_questions")
-          .select("id, body, age_group, status, answer, published, created_at")
-          .order("created_at", { ascending: false })
-          .limit(100)
-      ).data ?? [],
+    queryFn: async () => (await supabase.rpc("coach_questions")).data ?? [],
   });
   const list = rows.filter((q) => (show === "open" ? q.status === "nieuw" : q.status !== "nieuw"));
   const draft = (id: string) => drafts[id] ?? { text: "", publish: true };
@@ -116,6 +112,7 @@ export function QuestionsAdmin() {
             <p className="whitespace-pre-wrap rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
               💬 {q.answer}
               <span className="mt-1 block text-[11px] opacity-75">
+                {q.answered_by_name ?? "Beheer"} ·{" "}
                 {q.published ? "Op de vragenmuur" : "Alleen voor de vrager"}
               </span>
             </p>

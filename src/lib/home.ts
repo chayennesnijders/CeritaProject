@@ -19,7 +19,7 @@ export const dutchHour = (now: Date = new Date()) =>
 export type Suggestion = {
   emoji: string;
   label: string;
-  to: "/dagboek" | "/diertje" | "/ontdekken" | "/community" | "/vrienden";
+  to: "/dagboek" | "/diertje" | "/ontdekken" | "/community" | "/buddy";
 };
 
 /** "Hoe voel je je vandaag?": a kind answer and two things that might help. */

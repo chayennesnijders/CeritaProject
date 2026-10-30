@@ -51,7 +51,7 @@ const SHORTCUTS = [
   { to: "/rust", emoji: "🫧", label: "Rustmoment" },
   { to: "/veiligheidsplan", emoji: "🛟", label: "Veiligheidsplan" },
   { to: "/brieven", emoji: "💌", label: "Brief aan jezelf" },
-  { to: "/vragen", emoji: "❓", label: "Anoniem vragen" },
+  { to: "/vragen", emoji: "🧑‍🏫", label: "Vraag een coach" },
   { to: "/buddy", emoji: "🤝", label: "Buddy zoeken" },
   { to: "/agenda", emoji: "🗓️", label: "Agenda" },
   { to: "/doelen", emoji: "🎯", label: "Mijn doelen" },

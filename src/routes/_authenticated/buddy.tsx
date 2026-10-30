@@ -31,6 +31,31 @@ function BuddyPage() {
   const [interests, setInterests] = useState<string[]>([]);
   const [looking, setLooking] = useState(true);
   const [sent, setSent] = useState<Set<string>>(new Set());
+  const [q, setQ] = useState("");
+  const band = me?.profile?.age_group;
+  const { data: found = [] } = useQuery({
+    queryKey: ["buddy-username", q, band],
+    enabled: q.length >= 2 && !!band,
+    queryFn: async () => {
+      const [p, b] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, display_name, username, avatar_url, allow_messages")
+          .neq("id", uid!)
+          .eq("age_group", band!)
+          .ilike("username", `${q}%`)
+          .limit(8),
+        supabase
+          .from("blocks")
+          .select("blocker_id, blocked_id")
+          .or(`blocker_id.eq.${uid},blocked_id.eq.${uid}`),
+      ]);
+      const blocked = new Set(
+        (b.data ?? []).map((x) => (x.blocker_id === uid ? x.blocked_id : x.blocker_id)),
+      );
+      return (p.data ?? []).filter((x) => x.allow_messages && !blocked.has(x.id));
+    },
+  });
 
   const { data: profile } = useQuery({
     queryKey: ["buddy-profile", uid],
@@ -78,7 +103,11 @@ function BuddyPage() {
       .select("id")
       .single();
     if (error) {
-      toast.error("Verzoek sturen lukte niet.");
+      toast.error(
+        error.code === "23505"
+          ? "Jullie hebben al een gesprek of verzoek. Kijk bij Berichten."
+          : "Verzoek sturen lukte niet.",
+      );
       return;
     }
     setSent(new Set(sent).add(other));
@@ -161,12 +190,40 @@ function BuddyPage() {
           ))}
         </section>
       )}
-      <button
-        onClick={() => nav({ to: "/vrienden" })}
-        className="block w-full text-center text-sm text-primary underline"
-      >
-        Of zoek zelf iemand bij Vrienden zoeken
-      </button>
+      <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
+        <p className="font-semibold">🔎 Ken je iemand al?</p>
+        <p className="text-xs text-muted-foreground">
+          Zoek op gebruikersnaam. Je vindt alleen leden van jouw leeftijd.
+        </p>
+        <div className="flex items-center rounded-2xl border border-input bg-background px-3">
+          <span className="text-muted-foreground">@</span>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
+            placeholder="gebruikersnaam"
+            className="h-11 flex-1 bg-transparent px-1 outline-none"
+          />
+        </div>
+        {q.length >= 2 && found.length === 0 && (
+          <p className="text-xs text-muted-foreground">Niemand gevonden met deze gebruikersnaam.</p>
+        )}
+        {found.map((p) => (
+          <div key={p.id} className="flex items-center gap-3 rounded-2xl bg-muted p-3">
+            <UserAvatar path={p.avatar_url} name={p.display_name} userId={p.id} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{p.display_name}</p>
+              <p className="text-xs text-muted-foreground">@{p.username}</p>
+            </div>
+            {sent.has(p.id) ? (
+              <span className="text-xs text-muted-foreground">Verstuurd ✓</span>
+            ) : (
+              <Button size="sm" className="rounded-full" onClick={() => ask(p.id)}>
+                Hoi! 👋
+              </Button>
+            )}
+          </div>
+        ))}
+      </section>
     </div>
   );
 }

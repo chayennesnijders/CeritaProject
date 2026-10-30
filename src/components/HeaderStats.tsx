@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Bell, PawPrint } from "lucide-react";
+import { Bell, GraduationCap, PawPrint } from "lucide-react";
 import { useInbox } from "@/lib/use-inbox";
 import { supabase } from "@/integrations/supabase/client";
 import { challengeDay } from "@/lib/challenges";
@@ -90,6 +90,41 @@ export function InboxBell() {
       {total > 0 && (
         <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
           {total > 9 ? "9+" : total}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+/** 🧑‍🏫 For coaches only: their page with open questions (and how many wait). */
+export function CoachLink({ uid }: { uid: string | undefined }) {
+  const { data: open } = useQuery({
+    queryKey: ["coach-open", uid],
+    enabled: !!uid,
+    refetchInterval: 120_000,
+    queryFn: async () => {
+      const { data: me } = await supabase
+        .from("coaches")
+        .select("active")
+        .eq("user_id", uid!)
+        .maybeSingle();
+      if (!me?.active) return null;
+      const { data } = await supabase.rpc("coach_questions");
+      return (data ?? []).filter((q) => q.status === "nieuw").length;
+    },
+  });
+  if (open == null) return null;
+  return (
+    <Link
+      to="/coach"
+      aria-label={open ? `Coach: ${open} vragen` : "Coach"}
+      className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground"
+      activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
+    >
+      <GraduationCap className="size-5" />
+      {open > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+          {open > 9 ? "9+" : open}
         </span>
       )}
     </Link>

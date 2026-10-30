@@ -11,10 +11,10 @@ import { needsCare, showCareHelp } from "@/lib/care";
 export const Route = createFileRoute("/_authenticated/vragen")({
   head: () => ({
     meta: [
-      { title: "Anoniem vragen — CeritaProject" },
+      { title: "Vraag een coach — CeritaProject" },
       {
         name: "description",
-        content: "Stel anoniem een vraag en lees antwoorden op vragen van anderen.",
+        content: "Stel anoniem een vraag aan een coach en lees antwoorden op vragen van anderen.",
       },
     ],
   }),
@@ -42,11 +42,23 @@ function QuestionsPage() {
       (
         await supabase
           .from("anon_questions")
-          .select("id, body, status, answer, published, answer_seen, created_at")
+          .select("id, body, status, answer, published, answer_seen, answered_by, created_at")
           .eq("user_id", uid!)
           .order("created_at", { ascending: false })
       ).data ?? [],
   });
+  const { data: coaches = [] } = useQuery({
+    queryKey: ["coaches-public"],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("coaches")
+          .select("user_id, title")
+          .eq("active", true)
+          .order("created_at")
+      ).data ?? [],
+  });
+  const coachName = (id: string | null) => coaches.find((c) => c.user_id === id)?.title ?? null;
   const unseen = mine.filter((q) => q.status === "beantwoord" && !q.answer_seen).length;
   // Opening "Mijn vragen" marks new answers as seen.
   useEffect(() => {
@@ -77,11 +89,23 @@ function QuestionsPage() {
   return (
     <div className="space-y-4 pt-2">
       <div>
-        <h1 className="text-3xl">❓ Anoniem vragen</h1>
+        <h1 className="text-3xl">🧑‍🏫 Vraag een coach</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Stel een vraag die je liever niet hardop stelt. De beheerders geven antwoord. Andere leden
-          zien nooit van wie de vraag komt.
+          Stel anoniem een vraag die je liever niet hardop stelt. Een coach van CeritaProject geeft
+          antwoord. Niemand ziet van wie de vraag komt, ook de coach niet.
         </p>
+        {coaches.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {coaches.map((c) => (
+              <span
+                key={c.user_id}
+                className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
+              >
+                🧑‍🏫 {c.title}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
         <Textarea
@@ -97,7 +121,7 @@ function QuestionsPage() {
           onClick={ask}
           className="w-full rounded-full"
         >
-          {busy ? "Even geduld…" : "Vraag anoniem versturen"}
+          {busy ? "Even geduld…" : "Vraag anoniem aan een coach"}
         </Button>
         <p className="text-[11px] text-muted-foreground">
           Mooie vragen met antwoord kunnen anoniem op de vragenmuur komen, zodat anderen er ook iets
@@ -128,6 +152,11 @@ function QuestionsPage() {
               <p className="font-semibold">❓ {q.body}</p>
               <p className="whitespace-pre-wrap rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
                 💬 {q.answer}
+                {q.coach && (
+                  <span className="mt-1 block text-[11px] font-semibold opacity-80">
+                    — {q.coach}
+                  </span>
+                )}
               </p>
             </article>
           ))
@@ -141,6 +170,11 @@ function QuestionsPage() {
             {q.status === "beantwoord" ? (
               <p className="whitespace-pre-wrap rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
                 💬 {q.answer}
+                {coachName(q.answered_by) && (
+                  <span className="mt-1 block text-[11px] font-semibold opacity-80">
+                    — {coachName(q.answered_by)}
+                  </span>
+                )}
                 {q.published && (
                   <span className="mt-1 block text-[11px] opacity-75">
                     Staat anoniem op de vragenmuur.

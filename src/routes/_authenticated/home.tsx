@@ -7,15 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useChallengeDay, useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { ModerationNotice } from "@/components/ModerationNotice";
-import { ContactAdminsButton } from "@/components/ContactAdminsButton";
 import { useMedia } from "@/lib/use-media";
 import { formatDuration, isFresh, mediaKind } from "@/lib/media";
 import { Riti } from "@/components/Riti";
 import { ritiFor } from "@/lib/riti";
 import { CARE_ACTIONS, levelFor, petDay, speciesEmoji } from "@/lib/pet";
-import { useUnreadCounts } from "@/lib/unread";
-import { useNewCompliments } from "@/lib/use-compliments";
-import { newComplimentsText } from "@/lib/compliments";
+import { useInbox } from "@/lib/use-inbox";
 import { useDiscover } from "@/lib/use-discover";
 import { ofKind, readingMinutes, storyOfTheDay } from "@/lib/discover";
 import { useArticleImage } from "@/lib/articles";
@@ -49,9 +46,7 @@ function HomePage() {
   const uid = me?.user.id;
   const day = useChallengeDay();
   const hi = greeting(dutchHour());
-  const unread = useUnreadCounts();
-  const messages = unread.dmTotal + unread.requests;
-  const newCompliments = useNewCompliments(uid);
+  const { items: news, total } = useInbox();
   const { data: theme } = useThemeOfMonth();
   const dateLabel = new Intl.DateTimeFormat("nl-NL", {
     timeZone: "Europe/Amsterdam",
@@ -61,7 +56,7 @@ function HomePage() {
   }).format(new Date());
 
   return (
-    <div className="space-y-5 pt-2">
+    <div className="space-y-6 pt-2">
       <div>
         <p className="text-sm text-muted-foreground first-letter:uppercase">{dateLabel}</p>
         <h1 className="text-3xl text-foreground">
@@ -69,62 +64,86 @@ function HomePage() {
           {p?.display_name ? `, ${p.display_name}` : ""}{" "}
           <span className="inline-block animate-bounce">{hi.emoji}</span>
         </h1>
+        <Affirmation day={day} />
       </div>
       <ModerationNotice />
 
-      {messages > 0 && (
+      {/* Everything new in one line instead of a card per kind; the bell shows the details. */}
+      {total > 0 && (
         <Link
-          to="/berichten"
+          to="/meldingen"
           className="flex items-center gap-3 rounded-3xl bg-primary p-4 text-primary-foreground shadow-soft animate-in fade-in slide-in-from-top-2"
         >
-          <span className="text-2xl">💌</span>
-          <span className="flex-1 text-sm font-semibold">
-            {messages === 1 ? "Je hebt 1 nieuw bericht" : `Je hebt ${messages} nieuwe berichten`}
-          </span>
-          <span>→</span>
-        </Link>
-      )}
-
-      {newCompliments > 0 && (
-        <Link
-          to="/complimenten"
-          className="flex items-center gap-3 rounded-3xl bg-[#fde2e4] p-4 text-[#2a1a14] shadow-soft animate-in fade-in zoom-in-95"
-        >
-          <span className="text-3xl">💐</span>
-          <span className="flex-1">
-            <span className="block font-semibold">{newComplimentsText(newCompliments)}</span>
-            <span className="block text-xs opacity-75">
-              Tik om te kijken wat er op je muur staat
+          <span className="text-2xl">🔔</span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">
+              {total === 1 ? "Er is iets nieuws voor je" : `${total} nieuwe dingen voor je`}
             </span>
+            <span className="block truncate text-xs opacity-85">{news.map((n) => n.emoji).join(" ")}</span>
           </span>
           <span>→</span>
         </Link>
       )}
 
       <MoodCheckIn uid={uid} day={day} name={p?.display_name ?? ""} />
-      {theme && (
-        <Link to="/thema" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
-          <span className="text-3xl">{theme.emoji}</span>
-          <span className="flex-1">
-            <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Thema van de maand
+
+      <section className="space-y-3">
+        <SectionTitle>Vandaag</SectionTitle>
+        <div className="grid grid-cols-2 gap-3">
+          <ChallengeCard uid={uid} />
+          <PetCard uid={uid} />
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <SectionTitle>Om te lezen en luisteren</SectionTitle>
+        <StoryOfTheDay uid={uid} day={day} />
+        {theme && (
+          <Link to="/thema" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+            <span className="text-3xl">{theme.emoji}</span>
+            <span className="flex-1">
+              <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Thema van de maand
+              </span>
+              <span className="block font-semibold">{theme.title}: doe mee!</span>
             </span>
-            <span className="block font-semibold">{theme.title}: doe mee!</span>
-          </span>
-          <span className="text-primary">→</span>
+            <span className="text-primary">→</span>
+          </Link>
+        )}
+        <NewToListen />
+      </section>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Link to="/contact" className="rounded-3xl bg-card p-4 text-center shadow-soft">
+          <span className="block text-2xl">💌</span>
+          <span className="block text-sm font-semibold">Bericht aan beheer</span>
         </Link>
-      )}
+        <Link to="/hulp" className="rounded-3xl bg-card p-4 text-center shadow-soft">
+          <span className="block text-2xl">🆘</span>
+          <span className="block text-sm font-semibold">Hulp nodig?</span>
+        </Link>
+      </div>
       <AutoInstallGuide />
-      <ChallengeCard uid={uid} />
-      <PetCard uid={uid} />
-      <AffirmationCard day={day} />
-      <StoryOfTheDay uid={uid} day={day} />
-      <NewToListen />
-      <ContactAdminsButton uid={uid} />
-      <Link to="/hulp" className="block text-center text-sm font-semibold text-primary underline">
-        🆘 Hulp nodig? Bekijk wie je kunt bellen
-      </Link>
     </div>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{children}</h2>;
+}
+
+/** A kind sentence of the day under the greeting; tap for another one. */
+function Affirmation({ day }: { day: string }) {
+  const [extra, setExtra] = useState(0);
+  return (
+    <button
+      key={extra}
+      onClick={() => setExtra((e) => e + 1)}
+      className="mt-1 text-left text-sm italic text-muted-foreground animate-in fade-in"
+      title="Tik voor een ander zinnetje"
+    >
+      💫 “{affirmationFor(day, extra)}”
+    </button>
   );
 }
 
@@ -268,29 +287,16 @@ function ChallengeCard({ uid }: { uid: string | undefined }) {
   return (
     <Link
       to="/dagboek"
-      className="relative block overflow-hidden rounded-3xl bg-warm p-6 text-blush shadow-soft"
+      className="relative flex flex-col overflow-hidden rounded-3xl bg-warm p-4 text-blush shadow-soft"
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -right-4 -top-4 text-8xl opacity-15"
-      >
+      <span aria-hidden className="pointer-events-none absolute -right-3 -top-3 text-6xl opacity-15">
         ✨
       </span>
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-widest opacity-75">Opdracht van de dag</p>
-        {done && (
-          <span className="rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-            ✅ Gedaan!
-          </span>
-        )}
-      </div>
-      <p className="mt-3 font-display text-2xl leading-snug">
+      <p className="text-[10px] uppercase tracking-widest opacity-75">Opdracht</p>
+      <p className="mt-1 line-clamp-4 flex-1 font-display text-base leading-snug">
         {challenge?.title ?? "Schrijf vandaag in je dagboek."}
       </p>
-      {challenge?.description && <p className="mt-2 text-sm opacity-85">{challenge.description}</p>}
-      <p className="mt-3 text-sm font-semibold underline">
-        {done ? "Bekijk je dagboek →" : "Doe de opdracht →"}
-      </p>
+      <p className="mt-2 text-xs font-semibold">{done ? "✅ Gedaan!" : "Doe mee →"}</p>
     </Link>
   );
 }
@@ -314,67 +320,24 @@ function PetCard({ uid }: { uid: string | undefined }) {
   if (isLoading || !uid) return null;
   if (!pet)
     return (
-      <Link to="/diertje" className="flex items-center gap-4 rounded-3xl bg-accent p-5 shadow-soft">
+      <Link to="/diertje" className="flex flex-col items-center justify-center rounded-3xl bg-accent p-4 text-center shadow-soft">
         <span className="animate-bounce text-4xl">🥚</span>
-        <span className="flex-1">
-          <span className="block font-semibold">Adopteer je eigen diertje!</span>
-          <span className="text-xs text-muted-foreground">Verzorg het en zie het groeien.</span>
-        </span>
-        <span className="text-primary">→</span>
+        <span className="mt-1 text-sm font-semibold">Adopteer een diertje!</span>
       </Link>
     );
   const { level, progress } = levelFor(pet.xp);
   const done = new Set(careToday.map((c) => c.action));
   const left = CARE_ACTIONS.filter((a) => !done.has(a.id));
   return (
-    <Link to="/diertje" className="block rounded-3xl bg-accent p-5 shadow-soft">
-      <div className="flex items-center gap-4">
-        <span className={`text-5xl ${left.length ? "animate-bounce" : ""}`}>
-          {speciesEmoji(pet.species)}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="font-semibold">
-            {pet.name}{" "}
-            <span className="text-xs font-normal text-muted-foreground">· level {level}</span>
-          </p>
-          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-background/70">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${Math.round(progress * 100)}%` }}
-            />
-          </div>
-          <p className="mt-1.5 text-xs">
-            {left.length === 0
-              ? `${pet.name} is superblij vandaag! 💖`
-              : `${pet.name} mist je! Nog te doen: ${left.map((a) => a.emoji).join(" ")}`}
-          </p>
-        </div>
+    <Link to="/diertje" className="flex flex-col rounded-3xl bg-accent p-4 shadow-soft">
+      <span className={`text-4xl ${left.length ? "animate-bounce" : ""}`}>{speciesEmoji(pet.species)}</span>
+      <p className="mt-1 truncate font-semibold">{pet.name}</p>
+      <p className="text-[11px] text-muted-foreground">level {level}</p>
+      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-background/70">
+        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.round(progress * 100)}%` }} />
       </div>
+      <p className="mt-1.5 text-[11px]">{left.length === 0 ? "Superblij! 💖" : `Nog: ${left.map((a) => a.emoji).join(" ")}`}</p>
     </Link>
-  );
-}
-
-/** A kind sentence of the day; tap for another one. */
-function AffirmationCard({ day }: { day: string }) {
-  const [extra, setExtra] = useState(0);
-  return (
-    <section className="rounded-3xl bg-secondary p-5 text-center text-secondary-foreground shadow-soft">
-      <p className="text-xs font-semibold uppercase tracking-widest opacity-75">
-        💫 Positief zinnetje
-      </p>
-      <p
-        key={extra}
-        className="mt-2 font-display text-xl leading-snug animate-in fade-in zoom-in-95"
-      >
-        "{affirmationFor(day, extra)}"
-      </p>
-      <button
-        onClick={() => setExtra((e) => e + 1)}
-        className="mt-3 rounded-full bg-background/80 px-4 py-1.5 text-xs font-semibold text-foreground active:scale-95"
-      >
-        Nog eentje ✨
-      </button>
-    </section>
   );
 }
 

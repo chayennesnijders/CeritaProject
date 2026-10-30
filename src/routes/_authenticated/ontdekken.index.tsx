@@ -95,6 +95,20 @@ function OntdekkenPage() {
         onSelect={() => setF(NO_FILTER)}
       />
 
+      {k.kind === "verhaal" && (
+        <Link
+          to="/verhaal-insturen"
+          className="mt-3 flex items-center gap-3 rounded-3xl border-2 border-primary bg-card p-4 shadow-soft active:scale-[0.99]"
+        >
+          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary text-2xl">✍️</span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Deel jouw verhaal</span>
+            <span className="block text-xs text-muted-foreground">Heb jij iets meegemaakt? Jouw verhaal kan iemand anders helpen.</span>
+          </span>
+          <span className="text-primary">→</span>
+        </Link>
+      )}
+
       <label className="mt-3 flex items-center gap-2 rounded-full bg-card px-4 py-2.5 shadow-soft">
         <Search className="size-4 shrink-0 text-muted-foreground" />
         <input

@@ -3,7 +3,8 @@ import { pushToUser } from "@/lib/push.functions";
 import { eventTime, minutesUntil } from "@/lib/events";
 
 // Called every 15 minutes by the database scheduler: tells members when a letter to themselves may be
-// opened, and reminds them of a meetup they signed up for in the hour before it starts.
+// opened, reminds them of a meetup they signed up for in the hour before it starts, and tells coaches
+// about new questions.
 export const Route = createFileRoute("/api/public/member-reminders")({
   server: {
     handlers: {
@@ -64,6 +65,35 @@ export const Route = createFileRoute("/api/public/member-reminders")({
               tag: `event-${e.id}`,
             });
           }
+        }
+        // New anonymous questions: one push to every active coach (not who asked, not the question).
+        const { data: fresh } = await supabaseAdmin
+          .from("anon_questions")
+          .select("id")
+          .eq("status", "nieuw")
+          .eq("coaches_notified", false);
+        if (fresh?.length) {
+          await supabaseAdmin
+            .from("anon_questions")
+            .update({ coaches_notified: true })
+            .in(
+              "id",
+              fresh.map((q) => q.id),
+            );
+          const { data: coaches } = await supabaseAdmin
+            .from("coaches")
+            .select("user_id")
+            .eq("active", true);
+          for (const c of coaches ?? [])
+            sent += await pushToUser(c.user_id, {
+              title: "🧑‍🏫 Nieuwe vraag voor de coaches",
+              body:
+                fresh.length === 1
+                  ? "Er wacht een anonieme vraag op je antwoord."
+                  : `Er wachten ${fresh.length} anonieme vragen op je antwoord.`,
+              link: "/coach",
+              tag: "coach-vragen",
+            });
         }
         return Response.json({ sent });
       },
