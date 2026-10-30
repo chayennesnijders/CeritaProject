@@ -30,3 +30,16 @@ export const COMPLIMENT_IDS = Object.keys(COMPLIMENTS).map(Number);
 export const WALL_COLORS = ["#fde2e4", "#fff1c1", "#d8f3dc", "#dbeafe", "#ede9fe", "#ffe5d0"];
 export const wallColor = (id: string) =>
   WALL_COLORS[[...id].reduce((a, c) => a + c.charCodeAt(0), 0) % WALL_COLORS.length]!;
+
+/** Remembers (on this device) when you last looked at your wall, so the home page can show what is new. */
+export const complimentsSeenKey = (uid: string) => `cerita-complimenten-gezien-${uid}`;
+
+/** Compliments that arrived after you last opened your wall (all of them if you never did). */
+export const newCompliments = <T extends { created_at: string }>(
+  wall: T[],
+  seenAt: string | null,
+) => wall.filter((c) => !seenAt || c.created_at > seenAt);
+
+/** "Iemand gaf je een compliment!" or "Je kreeg 3 nieuwe complimenten!" */
+export const newComplimentsText = (n: number) =>
+  n === 1 ? "Iemand gaf je een compliment!" : `Je kreeg ${n} nieuwe complimenten!`;

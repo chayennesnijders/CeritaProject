@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BADGES, earnedBadges, type BadgeStats } from "./badges";
 import { BREATH_CYCLE, breathAt } from "./breathing";
-import { COMPLIMENTS, COMPLIMENT_IDS } from "./compliments";
+import { COMPLIMENTS, COMPLIMENT_IDS, newCompliments, newComplimentsText } from "./compliments";
 import { GROUP_CHALLENGE_GOAL, challengeForWeek, mondayOf } from "./group-challenge";
 import { monthGrid, moodCounts, moodStreak } from "./mood-calendar";
 import { pollFormError, tally } from "./polls";
@@ -138,5 +138,15 @@ describe("badges", () => {
       "week-gevoel",
     ]);
     expect(new Set(BADGES.map((b) => b.id)).size).toBe(BADGES.length);
+  });
+});
+
+describe("new compliments", () => {
+  it("counts what arrived after you last looked", () => {
+    const wall = [{ created_at: "2026-10-30T10:00:00Z" }, { created_at: "2026-10-29T10:00:00Z" }];
+    expect(newCompliments(wall, null)).toHaveLength(2);
+    expect(newCompliments(wall, "2026-10-29T12:00:00Z")).toHaveLength(1);
+    expect(newComplimentsText(1)).toBe("Iemand gaf je een compliment!");
+    expect(newComplimentsText(3)).toBe("Je kreeg 3 nieuwe complimenten!");
   });
 });

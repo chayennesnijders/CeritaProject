@@ -4,10 +4,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyCompliment } from "@/lib/push.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/UserAvatar";
 import { COMPLIMENTS, COMPLIMENT_IDS, wallColor } from "@/lib/compliments";
+import { useMarkComplimentsSeen, useMyCompliments } from "@/lib/use-compliments";
 
 export const Route = createFileRoute("/_authenticated/complimenten")({
   validateSearch: (s: Record<string, unknown>): { aan?: string } =>
@@ -30,16 +33,14 @@ function ComplimentsPage() {
   const { data: me } = useMe();
   const uid = me?.user.id;
   const qc = useQueryClient();
+  const notify = useServerFn(notifyCompliment);
   const [tab, setTab] = useState<"muur" | "sturen">(aan ? "sturen" : "muur");
   const [to, setTo] = useState<string | null>(aan ?? null);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const { data: wall = [] } = useQuery({
-    queryKey: ["my-compliments", uid],
-    enabled: !!uid,
-    queryFn: async () => (await supabase.rpc("my_compliments")).data ?? [],
-  });
+  const { data: wall = [] } = useMyCompliments(uid);
+  const seenBefore = useMarkComplimentsSeen(uid, tab === "muur");
   const band = me?.profile?.age_group;
   const { data: people = [] } = useQuery({
     queryKey: ["compliment-people", uid, band],
@@ -80,6 +81,7 @@ function ComplimentsPage() {
       return;
     }
     toast.success(`Je compliment is verstuurd naar ${person?.display_name ?? "de ander"}! 💐`);
+    notify({ data: { to } }).catch(() => {});
     setTo(null);
     qc.invalidateQueries({ queryKey: ["badge-stats"] });
   }
@@ -124,6 +126,11 @@ function ComplimentsPage() {
                   className="break-inside-avoid rounded-3xl p-4 text-center shadow-soft animate-in zoom-in-95"
                   style={{ background: wallColor(c.id), color: "#2a1a14" }}
                 >
+                  {seenBefore !== undefined && (!seenBefore || c.created_at > seenBefore) && (
+                    <span className="mb-1 inline-block rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold">
+                      ✨ Nieuw
+                    </span>
+                  )}
                   <p className="text-3xl">{x?.emoji}</p>
                   <p className="mt-1 text-sm font-semibold">{x?.text}</p>
                   <p className="mt-2 text-[10px] opacity-60">

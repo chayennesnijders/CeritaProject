@@ -443,3 +443,26 @@ export const notifyGameMove = createServerFn({ method: "POST" })
     });
     return { sent };
   });
+
+// Push to someone who just got a compliment. Does not say who sent it; only the sender may trigger it, within a minute.
+export const notifyCompliment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ to: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: sent } = await supabaseAdmin
+      .from("compliments")
+      .select("id")
+      .eq("from_id", context.userId)
+      .eq("to_id", data.to)
+      .gt("created_at", new Date(Date.now() - 60_000).toISOString())
+      .limit(1);
+    if (!sent?.length) return { sent: 0 };
+    const pushed = await pushToUser(data.to, {
+      title: "💐 Je kreeg een compliment!",
+      body: "Iemand vindt jou echt leuk. Kijk op je complimentenmuur.",
+      link: "/complimenten",
+      tag: "compliment",
+    });
+    return { sent: pushed };
+  });

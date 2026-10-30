@@ -12,6 +12,8 @@ import { Riti } from "@/components/Riti";
 import { ritiFor } from "@/lib/riti";
 import { CARE_ACTIONS, levelFor, petDay, speciesEmoji } from "@/lib/pet";
 import { useUnreadCounts } from "@/lib/unread";
+import { useNewCompliments } from "@/lib/use-compliments";
+import { newComplimentsText } from "@/lib/compliments";
 import { useDiscover } from "@/lib/use-discover";
 import { ofKind, readingMinutes, storyOfTheDay } from "@/lib/discover";
 import { useArticleImage } from "@/lib/articles";
@@ -47,6 +49,7 @@ function HomePage() {
   const hi = greeting(dutchHour());
   const unread = useUnreadCounts();
   const messages = unread.dmTotal + unread.requests;
+  const newCompliments = useNewCompliments(uid);
   const dateLabel = new Intl.DateTimeFormat("nl-NL", {
     timeZone: "Europe/Amsterdam",
     weekday: "long",
@@ -74,6 +77,20 @@ function HomePage() {
           <span className="text-2xl">💌</span>
           <span className="flex-1 text-sm font-semibold">
             {messages === 1 ? "Je hebt 1 nieuw bericht" : `Je hebt ${messages} nieuwe berichten`}
+          </span>
+          <span>→</span>
+        </Link>
+      )}
+
+      {newCompliments > 0 && (
+        <Link
+          to="/complimenten"
+          className="flex items-center gap-3 rounded-3xl bg-[#fde2e4] p-4 text-[#2a1a14] shadow-soft animate-in fade-in zoom-in-95"
+        >
+          <span className="text-3xl">💐</span>
+          <span className="flex-1">
+            <span className="block font-semibold">{newComplimentsText(newCompliments)}</span>
+            <span className="block text-xs opacity-75">Tik om te kijken wat er op je muur staat</span>
           </span>
           <span>→</span>
         </Link>
