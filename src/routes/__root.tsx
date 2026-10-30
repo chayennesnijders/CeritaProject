@@ -28,19 +28,41 @@ function NotFoundComponent() {
   );
 }
 
+/** After a new version goes live, an open app can still ask for old files: then reloading once fixes it. */
+const isStaleVersion = (e: unknown) =>
+  /dynamically imported module|Importing a module script failed|Loading chunk|error loading dynamically/i.test(
+    e instanceof Error ? e.message : String(e),
+  );
+
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+  useEffect(() => {
+    if (!isStaleVersion(error)) return;
+    try {
+      if (sessionStorage.getItem("cerita-reloaded")) return;
+      sessionStorage.setItem("cerita-reloaded", "1");
+    } catch {
+      return;
+    }
+    window.location.reload();
+  }, [error]);
+  const message = error instanceof Error ? error.message : String(error);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold text-foreground">Er ging iets mis</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Probeer het opnieuw. Blijft het gebeuren? Maak een screenshot van dit scherm.</p>
         <button
           onClick={() => { router.invalidate(); reset(); }}
           className="mt-6 rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground"
         >
           Opnieuw proberen
         </button>
+        <button onClick={() => window.location.reload()} className="mt-3 block w-full text-sm text-primary underline">
+          Pagina herladen
+        </button>
+        <p className="mt-6 break-words font-mono text-[11px] text-muted-foreground">{message.slice(0, 300)}</p>
       </div>
     </div>
   );
