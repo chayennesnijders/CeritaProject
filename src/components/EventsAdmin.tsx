@@ -20,6 +20,7 @@ import {
 
 type Band = "junior" | "senior" | "adult";
 const BANDS: Band[] = ["junior", "senior", "adult"];
+const DURATIONS = [30, 45, 60, 90, 120];
 
 /** Beheer → Agenda: plan online meetups for one age band, see how many signed up. */
 export function EventsAdmin() {
@@ -114,23 +115,33 @@ export function EventsAdmin() {
           placeholder="Wat gaan jullie doen? (mag leeg)"
           className="rounded-2xl"
         />
-        <div className="grid grid-cols-2 gap-2">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold">🗓️ Wanneer?</span>
+          {/* Full width with its own label: on iPhone this field has no placeholder and is wider than it looks. */}
           <Input
             type="datetime-local"
             value={f.starts}
             min={toLocalInput(new Date().toISOString())}
             onChange={(e) => setF({ ...f, starts: e.target.value })}
-            className="rounded-2xl"
+            className="block h-12 w-full min-w-0 appearance-none rounded-2xl"
           />
-          <Input
-            type="number"
-            min={10}
-            max={240}
-            value={f.minutes}
-            onChange={(e) => setF({ ...f, minutes: Number(e.target.value) || 60 })}
-            className="rounded-2xl"
-            aria-label="Minuten"
-          />
+        </label>
+        <div className="space-y-1.5">
+          <p className="text-sm font-semibold">⏱️ Hoe lang?</p>
+          <div className="grid grid-cols-5 gap-1.5">
+            {DURATIONS.map((m) => (
+              <Button
+                key={m}
+                type="button"
+                size="sm"
+                variant={f.minutes === m ? "default" : "outline"}
+                className="rounded-full px-0"
+                onClick={() => setF({ ...f, minutes: m })}
+              >
+                {m < 60 ? `${m} min` : `${String(m / 60).replace(".", ",")} uur`}
+              </Button>
+            ))}
+          </div>
         </div>
         <Input
           value={f.link}
