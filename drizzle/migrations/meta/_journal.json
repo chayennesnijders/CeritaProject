@@ -498,6 +498,13 @@
       "when": 1792947600000,
       "tag": "0070_member_groups",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1793034000000,
+      "tag": "0071_fun_features",
+      "breakpoints": true
     }
   ]
 }

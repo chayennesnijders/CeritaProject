@@ -126,6 +126,15 @@ function FriendsPage() {
                 </p>
                 {p.bio && <p className="truncate text-xs text-muted-foreground">{p.bio}</p>}
               </div>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="shrink-0 rounded-full text-lg"
+                aria-label={`Compliment sturen aan ${p.display_name}`}
+                onClick={() => nav({ to: "/complimenten", search: { aan: p.id } })}
+              >
+                💐
+              </Button>
               {accepted ? (
                 <Button
                   size="sm"

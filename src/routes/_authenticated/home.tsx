@@ -108,6 +108,13 @@ function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string;
   }, [key]);
   function pick(id: MoodId | null) {
     setMood(id);
+    // Also saved privately for your mood calendar (only you can read it).
+    if (uid) {
+      const q = id
+        ? supabase.from("mood_entries").upsert({ user_id: uid, day, mood: id })
+        : supabase.from("mood_entries").delete().eq("user_id", uid).eq("day", day);
+      void q.then(() => undefined);
+    }
     try {
       if (key && id) localStorage.setItem(key, id);
       else if (key) localStorage.removeItem(key);
@@ -172,6 +179,14 @@ function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string;
                 <span className="text-primary">→</span>
               </Link>
             ))}
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Link to="/rust" className="rounded-2xl bg-secondary p-3 text-center text-xs font-semibold text-secondary-foreground">
+              🫧 Rustmoment met Riti
+            </Link>
+            <Link to="/stemming" className="rounded-2xl bg-secondary p-3 text-center text-xs font-semibold text-secondary-foreground">
+              📅 Mijn stemmingskalender
+            </Link>
           </div>
           {needsHelpLine(m.id) && (
             <p className="mt-3 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">

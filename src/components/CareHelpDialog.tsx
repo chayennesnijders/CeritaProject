@@ -34,6 +34,11 @@ export function CareHelpDialog() {
               Meer hulp bekijken
             </Link>
           </Button>
+          <Button asChild variant="secondary" className="rounded-full">
+            <Link to="/rust" onClick={() => setOpen(false)}>
+              🫧 Even rustig ademen met Riti
+            </Link>
+          </Button>
           <Button variant="outline" className="rounded-full" onClick={() => setOpen(false)}>
             Sluiten
           </Button>

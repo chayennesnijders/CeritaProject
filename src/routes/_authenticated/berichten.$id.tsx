@@ -23,6 +23,9 @@ import { GamePicker } from "@/components/chat-games/GamePicker";
 import { GameScreen } from "@/components/chat-games/GameScreen";
 import type { ChatGameId } from "@/lib/chat-games";
 import { startChatGame, useChatGamesLive } from "@/lib/use-chat-games";
+import { Reactable, useReactions } from "@/components/chat-extras/reactions";
+import { StickerPicker, StickerView } from "@/components/chat-extras/stickers";
+import { stickerBody, type StickerId } from "@/lib/stickers";
 
 export const Route = createFileRoute("/_authenticated/berichten/$id")({
   // ?spel=… opens a game straight away (from a "jouw beurt" push).
@@ -92,6 +95,8 @@ function ChatPage() {
     return () => clearTimeout(t);
   }, [uid, id, data?.status, data?.msgs.length, data?.muted, data?.archived, qc]);
 
+  const { map: reactionMap, react } = useReactions({ kind: "dm", ids: (data?.msgs ?? []).map((m) => m.id), channel: id });
+
   if (data === null) return <p className="pt-6 text-sm text-muted-foreground">Dit gesprek is niet beschikbaar.</p>;
   if (data && data.status !== "accepted")
     return <p className="pt-6 text-sm text-muted-foreground">{data.status === "pending" ? "Dit chatverzoek is nog niet geaccepteerd." : "Dit verzoek is afgewezen."}</p>;
@@ -116,6 +121,13 @@ function ChatPage() {
       if (attachment) await supabase.storage.from("chat-files").remove([attachment.attachment_path]);
       toast.error(e instanceof Error ? e.message : "Bericht kon niet worden verstuurd.");
     } finally { setSending(false); }
+  }
+  async function sendSticker(sticker: StickerId) {
+    if (!uid) return;
+    const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: stickerBody(sticker), sticker }).select("id").single();
+    if (error) { toast.error("Sticker sturen lukte niet."); return; }
+    refresh();
+    if (sent) notify({ data: { messageId: sent.id } }).catch(() => {});
   }
   async function playGame(game: ChatGameId) {
     try {
@@ -189,8 +201,11 @@ function ChatPage() {
           const mine = m.sender_id === uid;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-soft"}`}>
-                {m.game_id
+              <Reactable className="max-w-[80%]" reactions={reactionMap.get(m.id) ?? []} uid={uid} mine={mine} enabled={!data?.blocked} onReact={(e) => uid && react(m.id, e, uid)}>
+              <div className={`max-w-full rounded-2xl px-3 py-2 text-sm ${m.sticker ? "bg-transparent" : mine ? "bg-primary text-primary-foreground" : "bg-card shadow-soft"}`}>
+                {m.sticker
+                  ? <StickerView id={m.sticker} />
+                  : m.game_id
                   ? <GameCard gameId={m.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(m.game_id)} />
                   : <p className="whitespace-pre-wrap">{m.body}</p>}
                 {m.audio_path && <ChatAudio path={m.audio_path} />}
@@ -204,6 +219,7 @@ function ChatPage() {
                   {!mine && <button aria-label="Melden" onClick={() => report(m.id, m.body)}><Flag className="size-3" /></button>}
                 </div>
               </div>
+              </Reactable>
             </div>
           );
         })}
@@ -213,6 +229,7 @@ function ChatPage() {
       <div className="flex flex-wrap items-center gap-2">
         <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending || !!data?.blocked || !data} />
         <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending || !!data?.blocked || !data} onRecordingChange={setRecording} />
+        <StickerPicker onPick={sendSticker} disabled={sending || !!data?.blocked || !data} />
         <GamePicker onPick={playGame} disabled={sending || !!data?.blocked || !data} />
       </div>
       <Button disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>

@@ -1,4 +1,5 @@
 import { AppLockSettings } from "@/components/AppLock";
+import { MyBadges } from "@/components/MyBadges";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -109,6 +110,7 @@ function ProfilePage() {
           {p.birthdate && <p className="mt-1 text-xs text-muted-foreground">Alleen een beheerder kan dit wijzigen.</p>}
         </div>
       </div>
+      <MyBadges uid={p.id} />
       <AppLockSettings />
       <div className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
         <h2 className="text-lg">Uiterlijk</h2>

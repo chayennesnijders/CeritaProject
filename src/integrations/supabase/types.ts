@@ -14,6 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
+      message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string | null
+          post_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id?: string | null
+          post_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string | null
+          post_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      polls: {
+        Row: {
+          created_at: string
+          created_by: string
+          group_id: string
+          id: string
+          options: string[]
+          question: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          group_id: string
+          id?: string
+          options: string[]
+          question: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          group_id?: string
+          id?: string
+          options?: string[]
+          question?: string
+        }
+        Relationships: []
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          option: number
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          option: number
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          option?: number
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mood_entries: {
+        Row: {
+          created_at: string
+          day: string
+          mood: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          mood: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          mood?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      compliments: {
+        Row: {
+          compliment: number
+          created_at: string
+          from_id: string
+          id: string
+          to_id: string
+        }
+        Insert: {
+          compliment: number
+          created_at?: string
+          from_id: string
+          id?: string
+          to_id: string
+        }
+        Update: {
+          compliment?: number
+          created_at?: string
+          from_id?: string
+          id?: string
+          to_id?: string
+        }
+        Relationships: []
+      }
+      group_challenge_checkins: {
+        Row: {
+          day: string
+          group_id: string
+          user_id: string
+        }
+        Insert: {
+          day?: string
+          group_id: string
+          user_id: string
+        }
+        Update: {
+          day?: string
+          group_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      group_challenge_claims: {
+        Row: {
+          group_id: string
+          user_id: string
+          week: string
+        }
+        Insert: {
+          group_id: string
+          user_id: string
+          week: string
+        }
+        Update: {
+          group_id?: string
+          user_id?: string
+          week?: string
+        }
+        Relationships: []
+      }
       chat_games: {
         Row: {
           conversation_id: string | null
@@ -536,6 +692,7 @@ export type Database = {
       }
       direct_messages: {
         Row: {
+          sticker: string | null
           attachment_name: string | null
           attachment_path: string | null
           attachment_type: string | null
@@ -548,6 +705,7 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          sticker?: string | null
           attachment_name?: string | null
           attachment_path?: string | null
           attachment_type?: string | null
@@ -560,6 +718,7 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          sticker?: string | null
           attachment_name?: string | null
           attachment_path?: string | null
           attachment_type?: string | null
@@ -1122,6 +1281,8 @@ export type Database = {
       }
       posts: {
         Row: {
+          sticker: string | null
+          poll_id: string | null
           attachment_name: string | null
           attachment_path: string | null
           attachment_type: string | null
@@ -1137,6 +1298,8 @@ export type Database = {
           reply_to: string | null
         }
         Insert: {
+          sticker?: string | null
+          poll_id?: string | null
           attachment_name?: string | null
           attachment_path?: string | null
           attachment_type?: string | null
@@ -1152,6 +1315,8 @@ export type Database = {
           reply_to?: string | null
         }
         Update: {
+          sticker?: string | null
+          poll_id?: string | null
           attachment_name?: string | null
           attachment_path?: string | null
           attachment_type?: string | null
@@ -1700,6 +1865,13 @@ export type Database = {
       create_group: { Args: { _name: string; _description: string; _emoji: string }; Returns: string }
       update_my_group: { Args: { _group: string; _name: string; _description: string; _emoji: string }; Returns: undefined }
       close_my_group: { Args: { _group: string }; Returns: undefined }
+      can_see_dm: { Args: { _message: string }; Returns: boolean }
+      create_poll: { Args: { _group: string; _question: string; _options: string[] }; Returns: string }
+      send_compliment: { Args: { _to: string; _compliment: number }; Returns: undefined }
+      my_compliments: { Args: never; Returns: { id: string; compliment: number; created_at: string }[] }
+      checkin_group_challenge: { Args: { _group: string }; Returns: undefined }
+      claim_group_challenge: { Args: { _group: string }; Returns: number }
+      my_badge_stats: { Args: never; Returns: Json }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
       join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
       chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }

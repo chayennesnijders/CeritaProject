@@ -25,6 +25,11 @@ import { GamePicker } from "@/components/chat-games/GamePicker";
 import { GameScreen } from "@/components/chat-games/GameScreen";
 import type { ChatGameId } from "@/lib/chat-games";
 import { startChatGame, useChatGamesLive } from "@/lib/use-chat-games";
+import { Reactable, useReactions } from "@/components/chat-extras/reactions";
+import { StickerPicker, StickerView } from "@/components/chat-extras/stickers";
+import { PollCard, PollComposer, usePollsLive } from "@/components/chat-extras/polls";
+import { GroupChallenge } from "@/components/chat-extras/GroupChallenge";
+import { stickerBody, type StickerId } from "@/lib/stickers";
 
 export const Route = createFileRoute("/_authenticated/community/$groupId")({
   // ?spel=… opens a game straight away (from a "jouw beurt" push).
@@ -73,6 +78,7 @@ function GroupPage() {
   const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
   useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
   useChatGamesLive({ groupId });
+  usePollsLive(groupId);
 
   const { data } = useQuery({
     queryKey: ["group", groupId, uid],
@@ -125,6 +131,8 @@ function GroupPage() {
     return () => clearTimeout(t);
   }, [uid, groupId, data?.isMember, data?.posts?.length, qc]);
 
+  const { map: reactionMap, react } = useReactions({ kind: "post", ids: (data?.posts ?? []).map((p) => p.id).reverse(), channel: groupId });
+
   if (data && !data.group) return <p className="pt-6 text-sm text-muted-foreground">Deze groep is niet beschikbaar voor jou.</p>;
 
   async function toggleJoin() {
@@ -169,6 +177,12 @@ function GroupPage() {
     setEditing(false); qc.invalidateQueries({ queryKey: ["groups"] });
     toast.success("De groep is opgeheven.");
     goTo({ to: "/community" });
+  }
+  async function sendSticker(sticker: StickerId) {
+    if (!uid) return;
+    const { error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: stickerBody(sticker), sticker });
+    if (error) { toast.error("Sticker sturen lukte niet."); return; }
+    refresh();
   }
   async function playGame(game: ChatGameId) {
     try {
@@ -244,7 +258,8 @@ function GroupPage() {
       <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
         {data?.group && me?.isAdmin && <GroupMembersAdmin groupId={groupId} ageGroup={data.group.age_group} />}
         {data?.group && data?.isMember && !me?.isAdmin && <GroupMembersAdmin groupId={groupId} ageGroup={data.group.age_group} mode="member" />}
-        {data?.isMember && posts.length > 0 && <p className="text-center text-[11px] text-muted-foreground">Swipe een bericht naar rechts om te reageren</p>}
+        {data?.group && <GroupChallenge groupId={groupId} uid={uid} isMember={!!data.isMember} />}
+        {data?.isMember && posts.length > 0 && <p className="text-center text-[11px] text-muted-foreground">Swipe naar rechts om te antwoorden · houd ingedrukt voor een emoji</p>}
         {withDayDividers(posts, (p) => p.created_at).map((row) => {
           if (row.kind === "day") return <ChatDayDivider key={row.key} label={row.label} />;
           const p = row.item;
@@ -252,7 +267,8 @@ function GroupPage() {
           const quoted = p.reply_to ? posts.find((x) => x.id === p.reply_to) ?? null : null;
           return (
             <SwipeRow key={p.id} enabled={!!data?.isMember} onReply={() => setReplyTo({ id: p.id, name: p.author?.display_name ?? "Lid", body: p.body })} mine={mine}>
-              <article className={`max-w-[85%] rounded-2xl p-3 shadow-soft ${mine ? "bg-accent" : "bg-card"}`}>
+              <Reactable className="max-w-[85%]" reactions={reactionMap.get(p.id) ?? []} uid={uid} mine={mine} enabled={!!data?.isMember && !p.is_hidden} onReact={(e) => uid && react(p.id, e, uid)}>
+              <article className={`max-w-full rounded-2xl p-3 shadow-soft ${mine ? "bg-accent" : "bg-card"}`}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="truncate text-sm font-semibold" style={{ color: colorFor(p.author_id) }}>{mine ? "Jij" : p.author?.display_name ?? "Lid"}{admins?.has(p.author_id) && <Shield aria-label="Beheerder" className="ml-1 inline size-3.5 text-foreground" fill="currentColor" />}</p>
                   <div className="flex shrink-0 gap-1">
@@ -269,7 +285,7 @@ function GroupPage() {
                 )}
                 {p.reply_to && !quoted && <p className="mt-1 text-xs italic text-muted-foreground">Reactie op een verwijderd bericht</p>}
                 {p.is_hidden && <p className="text-xs text-destructive">Verborgen door moderatie</p>}
-                {p.game_id && !p.is_hidden ? <GameCard gameId={p.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(p.game_id)} /> : <p className="mt-1 whitespace-pre-wrap text-sm">
+                {p.sticker && !p.is_hidden ? <StickerView id={p.sticker} /> : p.poll_id && !p.is_hidden ? <PollCard pollId={p.poll_id} uid={uid} canVote={!!data?.isMember} /> : p.game_id && !p.is_hidden ? <GameCard gameId={p.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(p.game_id)} /> : <p className="mt-1 whitespace-pre-wrap text-sm">
                   {splitMentions(p.body).map((part, i) =>
                     part.mention ? (
                       <span key={i} className="rounded-md bg-primary/15 px-1 font-semibold text-primary">{part.text}</span>
@@ -286,6 +302,7 @@ function GroupPage() {
                   {mine && <ReadMark readers={readersOf(p.created_at)} />}
                 </p>
               </article>
+              </Reactable>
             </SwipeRow>
           );
         })}
@@ -298,7 +315,7 @@ function GroupPage() {
       )}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
-      {data?.isMember && <ChatComposer onGame={playGame} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}
+      {data?.isMember && <ChatComposer onGame={playGame} onSticker={sendSticker} groupId={groupId} onPoll={refresh} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}
     </div>
   );
 
@@ -319,8 +336,11 @@ function ReadMark({ readers }: { readers: number }) {
   return <Check className="size-3.5" aria-label="Verstuurd" />;
 }
 
-function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame }: {
+function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, onSticker, groupId, onPoll }: {
   onGame: (game: ChatGameId) => Promise<void>;
+  onSticker: (sticker: StickerId) => Promise<void>;
+  groupId: string;
+  onPoll: () => void;
   replyTo: { id: string; name: string; body: string } | null;
   onCancelReply: () => void;
   onSend: (text: string, audio: File | null, file: File | null) => Promise<boolean>;
@@ -403,6 +423,8 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame }
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending} />
           <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending} onRecordingChange={setRecording} />
+          <StickerPicker onPick={onSticker} disabled={sending} />
+          <PollComposer groupId={groupId} onCreated={onPoll} disabled={sending} />
           <GamePicker onPick={onGame} disabled={sending} inGroup />
         </div>
       </div>

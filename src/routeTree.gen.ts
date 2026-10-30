@@ -21,12 +21,15 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
+import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticated/profiel'
+import { Route as AuthenticatedRustRouteImport } from './routes/_authenticated/rust'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
+import { Route as AuthenticatedStemmingRouteImport } from './routes/_authenticated/stemming'
 import { Route as AuthenticatedVerhaalInsturenRouteImport } from './routes/_authenticated/verhaal-insturen'
 import { Route as AuthenticatedVriendenRouteImport } from './routes/_authenticated/vrienden'
 import { Route as ApiAuthEmailRouteImport } from './routes/api/auth-email'
@@ -101,6 +104,12 @@ const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
   path: '/beheer',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedComplimentenRoute =
+  AuthenticatedComplimentenRouteImport.update({
+    id: '/complimenten',
+    path: '/complimenten',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedContactRoute = AuthenticatedContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -126,9 +135,19 @@ const AuthenticatedProfielRoute = AuthenticatedProfielRouteImport.update({
   path: '/profiel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRustRoute = AuthenticatedRustRouteImport.update({
+  id: '/rust',
+  path: '/rust',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedShopRoute = AuthenticatedShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStemmingRoute = AuthenticatedStemmingRouteImport.update({
+  id: '/stemming',
+  path: '/stemming',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedVerhaalInsturenRoute =
@@ -224,12 +243,15 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/profiel': typeof AuthenticatedProfielRoute
+  '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
+  '/stemming': typeof AuthenticatedStemmingRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
@@ -257,12 +279,15 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/profiel': typeof AuthenticatedProfielRoute
+  '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
+  '/stemming': typeof AuthenticatedStemmingRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
@@ -292,12 +317,15 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
+  '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/profiel': typeof AuthenticatedProfielRoute
+  '/_authenticated/rust': typeof AuthenticatedRustRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
+  '/_authenticated/stemming': typeof AuthenticatedStemmingRoute
   '/_authenticated/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/_authenticated/vrienden': typeof AuthenticatedVriendenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
@@ -327,12 +355,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/beheer'
+    | '/complimenten'
     | '/contact'
     | '/dagboek'
     | '/diertje'
     | '/home'
     | '/profiel'
+    | '/rust'
     | '/shop'
+    | '/stemming'
     | '/verhaal-insturen'
     | '/vrienden'
     | '/api/auth-email'
@@ -360,12 +391,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/beheer'
+    | '/complimenten'
     | '/contact'
     | '/dagboek'
     | '/diertje'
     | '/home'
     | '/profiel'
+    | '/rust'
     | '/shop'
+    | '/stemming'
     | '/verhaal-insturen'
     | '/vrienden'
     | '/api/auth-email'
@@ -394,12 +428,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/_authenticated/beheer'
+    | '/_authenticated/complimenten'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
     | '/_authenticated/diertje'
     | '/_authenticated/home'
     | '/_authenticated/profiel'
+    | '/_authenticated/rust'
     | '/_authenticated/shop'
+    | '/_authenticated/stemming'
     | '/_authenticated/verhaal-insturen'
     | '/_authenticated/vrienden'
     | '/api/auth-email'
@@ -520,6 +557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBeheerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/complimenten': {
+      id: '/_authenticated/complimenten'
+      path: '/complimenten'
+      fullPath: '/complimenten'
+      preLoaderRoute: typeof AuthenticatedComplimentenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/contact': {
       id: '/_authenticated/contact'
       path: '/contact'
@@ -555,11 +599,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfielRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rust': {
+      id: '/_authenticated/rust'
+      path: '/rust'
+      fullPath: '/rust'
+      preLoaderRoute: typeof AuthenticatedRustRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/shop': {
       id: '/_authenticated/shop'
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof AuthenticatedShopRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/stemming': {
+      id: '/_authenticated/stemming'
+      path: '/stemming'
+      fullPath: '/stemming'
+      preLoaderRoute: typeof AuthenticatedStemmingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/verhaal-insturen': {
@@ -665,12 +723,15 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
+  AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedProfielRoute: typeof AuthenticatedProfielRoute
+  AuthenticatedRustRoute: typeof AuthenticatedRustRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
+  AuthenticatedStemmingRoute: typeof AuthenticatedStemmingRoute
   AuthenticatedVerhaalInsturenRoute: typeof AuthenticatedVerhaalInsturenRoute
   AuthenticatedVriendenRoute: typeof AuthenticatedVriendenRoute
   AuthenticatedBerichtenIdRoute: typeof AuthenticatedBerichtenIdRoute
@@ -685,12 +746,15 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
+  AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedProfielRoute: AuthenticatedProfielRoute,
+  AuthenticatedRustRoute: AuthenticatedRustRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
+  AuthenticatedStemmingRoute: AuthenticatedStemmingRoute,
   AuthenticatedVerhaalInsturenRoute: AuthenticatedVerhaalInsturenRoute,
   AuthenticatedVriendenRoute: AuthenticatedVriendenRoute,
   AuthenticatedBerichtenIdRoute: AuthenticatedBerichtenIdRoute,
