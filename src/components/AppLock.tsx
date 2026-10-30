@@ -47,7 +47,8 @@ export function AppLock({ children }: { children: ReactNode }) {
 }
 
 /** Instelling op het profiel: code kiezen of slot eraf halen. */
-export function AppLockSettings() {
+/** `bare`: without its own card and title (inside the profile settings). */
+export function AppLockSettings({ bare = false }: { bare?: boolean }) {
   const [has, setHas] = useState(false);
   const [newPin, setNewPin] = useState("");
   useEffect(() => setHas(!!localStorage.getItem(PIN_KEY)), []);
@@ -57,8 +58,8 @@ export function AppLockSettings() {
     window.dispatchEvent(new Event("cerita-pin-changed"));
   };
   return (
-    <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
-      <h2 className="text-lg">🔒 Slot op de app</h2>
+    <section className={bare ? "space-y-3" : "space-y-3 rounded-3xl bg-card p-5 shadow-soft"}>
+      {!bare && <h2 className="text-lg">🔒 Slot op de app</h2>}
       {has ? (
         <div className="flex items-center justify-between gap-3 text-sm">
           <span>De app opent met jouw code op dit apparaat.</span>
