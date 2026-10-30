@@ -8,4 +8,6 @@ export type BoardProps<S> = {
   myTurn: boolean;
   busy: boolean;
   onMove: (r: MoveResult<S>) => void;
+  /** Game id plus move number: the same for both players, used for dice. */
+  seed?: string;
 };

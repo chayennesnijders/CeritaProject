@@ -1,5 +1,6 @@
 import { c4Start } from "./connect4";
 import { dartsStart } from "./darts";
+import { ludoStart } from "./ludo";
 import { poolStart } from "./pool";
 import { tttStart } from "./tictactoe";
 
@@ -22,6 +23,12 @@ export const CHAT_GAMES = {
     name: "Vier op een rij",
     how: "Krijg als eerste vier op een rij: recht, schuin of omhoog.",
     start: c4Start,
+  },
+  mensergerjeniet: {
+    emoji: "🎲",
+    name: "Mens erger je niet",
+    how: "Gooi 6 om een pion op het bord te zetten. Kom je op de ander? Die moet terug! Wie het eerst alle 4 pionnen binnen heeft, wint.",
+    start: ludoStart,
   },
   boterkaaseieren: {
     emoji: "❌",

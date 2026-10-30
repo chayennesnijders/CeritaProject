@@ -18,6 +18,7 @@ import { notifyGameMove } from "@/lib/push.functions";
 import { useChatGame } from "@/lib/use-chat-games";
 import { ConnectFourBoard } from "./ConnectFourBoard";
 import { DartsBoard } from "./DartsBoard";
+import { LudoBoard } from "./LudoBoard";
 import { PoolTable } from "./PoolTable";
 import { TicTacToeBoard } from "./TicTacToeBoard";
 
@@ -202,7 +203,7 @@ function renderBoard(
   game: ChatGameRow,
   p: { me: 0 | 1 | null; myTurn: boolean; busy: boolean; onMove: (r: MoveResult<unknown>) => void },
 ) {
-  const props = { ...p, state: game.state as never };
+  const props = { ...p, state: game.state as never, seed: `${game.id}:${game.moves}` };
   switch (game.game) {
     case "pool":
       return <PoolTable key={game.moves} {...props} />;
@@ -210,6 +211,8 @@ function renderBoard(
       return <DartsBoard {...props} />;
     case "vieropeenrij":
       return <ConnectFourBoard {...props} />;
+    case "mensergerjeniet":
+      return <LudoBoard {...props} />;
     case "boterkaaseieren":
       return <TicTacToeBoard {...props} />;
     default:

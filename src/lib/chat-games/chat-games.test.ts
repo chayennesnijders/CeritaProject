@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { c4Move, c4Start } from "./connect4";
+import { ludoMovable, ludoMove, ludoRoll, ludoStart } from "./ludo";
 import { dartAim, dartScore, dartsMove, dartsStart } from "./darts";
 import { CHAT_GAMES, chatGame, gameCardLine, gamePushText, playerIndex } from "./index";
 import { poolMove, poolStart, simulate } from "./pool";
@@ -121,7 +122,7 @@ describe("pool", () => {
 
 describe("game list", () => {
   it("knows every game and nothing else", () => {
-    expect(Object.keys(CHAT_GAMES)).toHaveLength(4);
+    expect(Object.keys(CHAT_GAMES)).toHaveLength(5);
     expect(chatGame("pool")?.name).toBe("Pool");
     expect(chatGame("schaak")).toBeNull();
   });
@@ -168,5 +169,56 @@ describe("game card", () => {
       gameCardLine({ ...playing, status: "klaar", turn: null, winner: "a" }, "a", nameOf),
     ).toContain("Jij hebt gewonnen");
     expect(gameCardLine({ ...base, status: "klaar" }, "a", nameOf)).toBe("Gestopt");
+  });
+});
+
+describe("mens erger je niet", () => {
+  it("needs a 6 to come out and then rolls again", () => {
+    const s = ludoStart();
+    expect(ludoMovable(s, 0, 4)).toEqual([]);
+    const r = ludoMove(s, 0, 6, 0)!;
+    expect(r.state.pos[0][0]).toBe(0);
+    expect(r.next).toBe("same");
+  });
+  it("gives three tries for a 6 with nothing on the board", () => {
+    let s = ludoStart();
+    let r = ludoMove(s, 0, 3, null)!;
+    expect(r.next).toBe("same");
+    s = ludoMove(r.state, 0, 2, null)!.state;
+    r = ludoMove(s, 0, 1, null)!;
+    expect(r.next).toBe("other");
+    expect(r.state.tries).toBe(0);
+  });
+  it("sends the other pawn home when you land on it", () => {
+    const s: ReturnType<typeof ludoStart> = {
+      pos: [
+        [18, -1, -1, -1],
+        [0, -1, -1, -1],
+      ],
+      tries: 0,
+    };
+    // Player 1's square 0 is track square 20; player 0 at 18 + 2 = 20.
+    const r = ludoMove(s, 0, 2, 0)!;
+    expect(r.state.pos[1][0]).toBe(-1);
+    expect(r.next).toBe("other");
+  });
+  it("needs the exact number to finish and wins with all four in", () => {
+    const s: ReturnType<typeof ludoStart> = {
+      pos: [
+        [41, 42, 43, 37],
+        [-1, -1, -1, -1],
+      ],
+      tries: 0,
+    };
+    expect(ludoMovable(s, 0, 6)).toEqual([]);
+    expect(ludoMovable(s, 0, 4)).toEqual([]); // 41 is taken by your own pawn
+    const r = ludoMove(s, 0, 3, 3)!;
+    expect(r.finished).toBe(true);
+    expect(r.winner).toBe(0);
+  });
+  it("rolls the same die for the same turn", () => {
+    expect(ludoRoll("g:3")).toBe(ludoRoll("g:3"));
+    const rolls = new Set(Array.from({ length: 200 }, (_, i) => ludoRoll(`g:${i}`)));
+    expect([...rolls].sort()).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });
