@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { DrawingPad } from "@/components/DrawingPad";
+import { isDrawingChallenge } from "@/lib/drawing";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -36,6 +38,7 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [drawing, setDrawing] = useState(false);
   const [audio, setAudio] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -108,6 +111,11 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
           <p className="text-xs uppercase tracking-widest opacity-75">Opdracht van de dag</p>
           <p className="mt-2 font-display text-xl">{challenge.title}</p>
           {challenge.description && <p className="mt-1 text-sm opacity-85">{challenge.description}</p>}
+          {isDrawingChallenge(challenge.title) && (
+            <button onClick={() => setDrawing(true)} className="mt-3 rounded-full bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-soft active:scale-95">
+              🎨 Teken hier
+            </button>
+          )}
         </section>
       )}
 
@@ -128,10 +136,32 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
             <button className="text-xs underline" onClick={() => setAudio(null)}>Weg</button>
           </div>
         )}
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-muted-foreground/40 px-4 py-2.5 text-sm text-muted-foreground">
-          <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
-          {photo ? `📷 ${photo.name}` : "📷 Foto toevoegen (optioneel)"}
-        </label>
+        {photo ? (
+          <PhotoPreview file={photo} onRemove={() => setPhoto(null)} onDrawMore={photo.name === "tekening.png" ? () => setDrawing(true) : undefined} />
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setDrawing(true)}
+              className={`flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold ${challenge && isDrawingChallenge(challenge.title) ? "bg-primary text-primary-foreground" : "border border-dashed border-muted-foreground/40 text-muted-foreground"}`}
+            >
+              🎨 Tekenen
+            </button>
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-muted-foreground/40 px-4 py-2.5 text-sm text-muted-foreground">
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+              📷 Foto
+            </label>
+          </div>
+        )}
+        <DrawingPad
+          open={drawing}
+          title={challenge && isDrawingChallenge(challenge.title) ? challenge.title : undefined}
+          start={photo?.name === "tekening.png" ? photo : null}
+          onClose={() => setDrawing(false)}
+          onDone={(file) => {
+            setPhoto(file);
+            setDrawing(false);
+          }}
+        />
         <div className="flex gap-2">
           {challenge && (
             <Button disabled={busy || (!text.trim() && !photo && !audio)} onClick={() => save(challenge.id)} className="flex-1 rounded-full">
@@ -265,5 +295,29 @@ function DiaryEntry({ entry, onDelete }: {
         <p className="pt-1 text-right text-[11px] text-muted-foreground">{date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</p>
       </div>
     </article>
+  );
+}
+
+/** Small preview of the photo or drawing that will be saved, with "remove" and for drawings "draw more". */
+function PhotoPreview({ file, onRemove, onDrawMore }: { file: File; onRemove: () => void; onDrawMore?: (() => void) | undefined }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const u = URL.createObjectURL(file);
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [file]);
+  return (
+    <div className="flex items-center gap-3 rounded-2xl bg-muted p-2">
+      {url && <img src={url} alt="" className="size-16 rounded-xl bg-white object-cover" />}
+      <span className="min-w-0 flex-1 truncate text-sm">{file.name === "tekening.png" ? "🎨 Jouw tekening" : `📷 ${file.name}`}</span>
+      {onDrawMore && (
+        <button className="text-xs font-semibold text-primary underline" onClick={onDrawMore}>
+          Verder tekenen
+        </button>
+      )}
+      <button className="text-xs underline" onClick={onRemove}>
+        Weg
+      </button>
+    </div>
   );
 }
