@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
         const until = new Date().toISOString();
         await supabaseAdmin.from("admin_push_state").upsert({ id: 1, last_run: until });
 
-        const [members, orders, stories, reports, messages, care, contact, returns] =
+        const [members, orders, stories, reports, messages, care, contact, returns, groups] =
           await Promise.all([
             supabaseAdmin
               .from("profiles")
@@ -69,6 +69,12 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
               .select("id")
               .gt("created_at", since)
               .lte("created_at", until),
+            supabaseAdmin
+              .from("groups")
+              .select("name, emoji")
+              .not("created_by", "is", null)
+              .gt("created_at", since)
+              .lte("created_at", until),
           ]);
         const items = [
           ...(members.data ?? []).map((m) => ({ kind: "aanmelding", title: m.display_name })),
@@ -86,6 +92,7 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
             kind: "retour",
             title: "Iemand wil iets terugsturen",
           })),
+          ...(groups.data ?? []).map((g) => ({ kind: "groep", title: `${g.emoji} ${g.name}` })),
         ];
         if (items.length === 0) return Response.json({ sent: 0 });
 

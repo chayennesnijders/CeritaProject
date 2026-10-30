@@ -491,6 +491,13 @@
       "when": 1792861200000,
       "tag": "0069_chat_game_chess_draughts",
       "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1792947600000,
+      "tag": "0070_member_groups",
+      "breakpoints": true
     }
   ]
 }

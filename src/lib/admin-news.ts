@@ -10,6 +10,7 @@ export type NewsItem = {
 /** What each kind of news looks like, and which Beheer tab handles it. */
 export const NEWS_KINDS = {
   aanmelding: { emoji: "🎉", label: "Nieuw lid", tab: "groepen" },
+  groep: { emoji: "👥", label: "Nieuwe groep van een lid", tab: "groepen" },
   bestelling: { emoji: "🛍️", label: "Nieuwe bestelling", tab: "overzicht" },
   retour: { emoji: "↩️", label: "Retour aangevraagd", tab: "overzicht" },
   verhaal: { emoji: "✍️", label: "Verhaal ingestuurd", tab: "verhalen" },
@@ -53,6 +54,7 @@ export function dayLabel(iso: string, now: Date = new Date()) {
 
 const PLURAL: Record<NewsKind, [string, string]> = {
   aanmelding: ["nieuw lid", "nieuwe leden"],
+  groep: ["nieuwe groep", "nieuwe groepen"],
   bestelling: ["bestelling", "bestellingen"],
   retour: ["retour", "retouren"],
   verhaal: ["ingestuurd verhaal", "ingestuurde verhalen"],

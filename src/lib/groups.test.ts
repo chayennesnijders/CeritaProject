@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { otherBandGroups, visibleGroups } from "./groups";
+import { groupFormError, otherBandGroups, visibleGroups } from "./groups";
 
 // De groepen zoals ze nu in de database staan.
 const GROUPS = [
@@ -104,5 +104,14 @@ describe("splitMentions", () => {
       { text: "@chay", mention: true },
       { text: "!", mention: false },
     ]);
+  });
+});
+
+describe("eigen groep maken", () => {
+  it("checks the name and description like the database does", () => {
+    expect(groupFormError("ab", "")).toContain("minstens 3");
+    expect(groupFormError("x".repeat(41), "")).toContain("maximaal 40");
+    expect(groupFormError("Gamers", "y".repeat(141))).toContain("140");
+    expect(groupFormError("  Gamers  ", "Samen gamen")).toBeNull();
   });
 });

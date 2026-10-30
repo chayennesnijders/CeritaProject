@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMe, bandLabel } from "@/lib/auth";
 import { groupsByBand, otherBandGroups, visibleGroups } from "@/lib/groups";
 import { useUnreadCounts } from "@/lib/unread";
+import { GroupForm } from "@/components/GroupForm";
 
 export const Route = createFileRoute("/_authenticated/community/")({
   head: () => ({ meta: [{ title: "Community — CeritaProject" }, { name: "description", content: "Ontmoet je eigen leeftijdsgroep in de CeritaProject-community." }, { property: "og:title", content: "Community — CeritaProject" }, { property: "og:description", content: "Ontmoet je eigen leeftijdsgroep in de CeritaProject-community." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
@@ -19,6 +20,8 @@ function CommunityPage() {
   const uid = me?.user.id;
   const qc = useQueryClient();
   const [showArchived, setShowArchived] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const navigate = useNavigate();
   const [showAllBands, setShowAllBandsRaw] = useState(() => {
     try { return localStorage.getItem("cerita-show-all-bands") === "1"; } catch { return false; }
   });
@@ -60,6 +63,15 @@ function CommunityPage() {
     qc.invalidateQueries({ queryKey: ["groups", uid] });
   }
 
+  async function createGroup(v: { name: string; description: string; emoji: string }) {
+    const { data: id, error } = await supabase.rpc("create_group", { _name: v.name, _description: v.description, _emoji: v.emoji });
+    if (error || !id) { toast.error(error?.message ?? "Groep maken lukte niet."); return; }
+    setCreating(false);
+    toast.success("Je groep is gemaakt! 🎉 Nodig anderen uit via de groep.");
+    qc.invalidateQueries({ queryKey: ["groups", uid] });
+    navigate({ to: "/community/$groupId", params: { groupId: id } });
+  }
+
   async function setPref(groupId: string, patch: { muted?: boolean; archived?: boolean }) {
     const cur = data?.prefs[groupId];
     const { error } = await supabase.from("group_prefs").upsert({
@@ -82,7 +94,7 @@ function CommunityPage() {
       <Link to="/community/$groupId" params={{ groupId: g.id }} className="flex flex-1 items-center gap-4">
         <span className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-2xl">{g.emoji}</span>
         <div className="flex-1">
-          <p className="font-semibold">{g.name}{data?.prefs[g.id]?.muted && <span className="ml-1 text-xs">🔕</span>}{me?.isAdmin && <span className="ml-2 text-xs text-muted-foreground">({g.age_group})</span>}</p>
+          <p className="font-semibold">{g.name}{g.created_by === uid && <span className="ml-1 rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-semibold text-secondary-foreground">jouw groep</span>}{data?.prefs[g.id]?.muted && <span className="ml-1 text-xs">🔕</span>}{me?.isAdmin && <span className="ml-2 text-xs text-muted-foreground">({g.age_group})</span>}</p>
           <p className="text-xs text-muted-foreground">{g.description}</p>
         </div>
         <span className="flex items-center gap-2 text-xs text-muted-foreground">{(g.group_members as unknown as { count: number }[])?.[0]?.count ?? 0} leden{unread.groups[g.id] ? <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-accent-foreground">{unread.groups[g.id]}</span> : null}</span>
@@ -121,6 +133,17 @@ function CommunityPage() {
           })}
         </div>
       )}
+      {me?.profile?.birthdate && (
+        <button onClick={() => setCreating(true)}
+          className="mt-4 flex w-full items-center gap-3 rounded-3xl border-2 border-dashed border-primary/40 p-4 text-left active:scale-[0.99]">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-primary text-2xl text-primary-foreground">➕</span>
+          <span>
+            <span className="block font-semibold">Maak je eigen groep</span>
+            <span className="block text-xs text-muted-foreground">Over iets waar jij van houdt, voor leden van jouw leeftijd</span>
+          </span>
+        </button>
+      )}
+      <GroupForm open={creating} onOpenChange={setCreating} onSubmit={createGroup} />
       <div className="mt-5 space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">Laden…</p>}
         {showAllBands && (

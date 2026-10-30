@@ -746,6 +746,7 @@ export type Database = {
         Row: {
           age_group: Database["public"]["Enums"]["age_group"]
           created_at: string
+          created_by: string | null
           description: string | null
           emoji: string | null
           id: string
@@ -755,6 +756,7 @@ export type Database = {
         Insert: {
           age_group: Database["public"]["Enums"]["age_group"]
           created_at?: string
+          created_by?: string | null
           description?: string | null
           emoji?: string | null
           id?: string
@@ -764,6 +766,7 @@ export type Database = {
         Update: {
           age_group?: Database["public"]["Enums"]["age_group"]
           created_at?: string
+          created_by?: string | null
           description?: string | null
           emoji?: string | null
           id?: string
@@ -1694,6 +1697,9 @@ export type Database = {
       can_access_group: { Args: { _group: string }; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_open_media: { Args: { _path: string }; Returns: boolean }
+      create_group: { Args: { _name: string; _description: string; _emoji: string }; Returns: string }
+      update_my_group: { Args: { _group: string; _name: string; _description: string; _emoji: string }; Returns: undefined }
+      close_my_group: { Args: { _group: string }; Returns: undefined }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
       join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
       chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }

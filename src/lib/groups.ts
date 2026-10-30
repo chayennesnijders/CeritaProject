@@ -53,3 +53,17 @@ export function splitMentions(body: string): { text: string; mention: boolean }[
   if (last < body.length) parts.push({ text: body.slice(last), mention: false });
   return parts;
 }
+
+/** Emojis a member can pick for a group they make. */
+export const GROUP_EMOJIS = ["💬", "🎮", "🎨", "🎵", "📚", "⚽", "🐶", "🌱", "🍕", "🎬", "✨", "💜"] as const;
+/** The same limits as the create_group function in the database. */
+export const MAX_OWN_GROUPS = 3;
+
+/** What is wrong with a new group's name or description, or null when it is fine. */
+export function groupFormError(name: string, description: string) {
+  const n = name.trim();
+  if (n.length < 3) return "Kies een naam van minstens 3 tekens.";
+  if (n.length > 40) return "De naam mag maximaal 40 tekens zijn.";
+  if (description.trim().length > 140) return "De omschrijving mag maximaal 140 tekens zijn.";
+  return null;
+}

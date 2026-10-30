@@ -1,10 +1,11 @@
 import { Shield } from "lucide-react";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useAdminIds } from "@/components/UserAvatar";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { GroupMembersAdmin } from "@/components/GroupMembersAdmin";
+import { GroupForm } from "@/components/GroupForm";
 import { toast } from "sonner";
 import { ArrowLeft, Check, CheckCheck, Flag, Reply, Send, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +68,8 @@ function GroupPage() {
   const inset = useKeyboardInset();
   const { spel } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const goTo = useNavigate();
+  const [editing, setEditing] = useState(false);
   const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
   useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
   useChatGamesLive({ groupId });
@@ -154,6 +157,19 @@ function GroupPage() {
       return false;
     }
   }
+  async function saveGroup(v: { name: string; description: string; emoji: string }) {
+    const { error } = await supabase.rpc("update_my_group", { _group: groupId, _name: v.name, _description: v.description, _emoji: v.emoji });
+    if (error) { toast.error(error.message); return; }
+    setEditing(false); refresh(); qc.invalidateQueries({ queryKey: ["groups"] });
+    toast.success("Opgeslagen");
+  }
+  async function closeGroup() {
+    const { error } = await supabase.rpc("close_my_group", { _group: groupId });
+    if (error) { toast.error(error.message); return; }
+    setEditing(false); qc.invalidateQueries({ queryKey: ["groups"] });
+    toast.success("De groep is opgeheven.");
+    goTo({ to: "/community" });
+  }
   async function playGame(game: ChatGameId) {
     try {
       const { game_id } = await startChatGame(game, { groupId });
@@ -213,6 +229,10 @@ function GroupPage() {
           <h1 className="truncate text-base leading-tight">{data?.group?.name ?? "Groep"}</h1>
           <p className="truncate text-[11px] opacity-70">{data?.group?.description}</p>
         </div>
+        {data?.group && data.group.created_by === uid && (
+          <button onClick={() => setEditing(true)} aria-label="Groep aanpassen"
+            className="grid size-9 shrink-0 place-items-center rounded-full bg-foreground/15 active:scale-95">⚙️</button>
+        )}
         {data?.group && (
           <Button onClick={toggleJoin} variant="secondary" className="shrink-0 rounded-full px-3 py-1 text-xs">
             {data.isMember ? "Verlaten" : "Lid worden"}
@@ -272,6 +292,10 @@ function GroupPage() {
         {data && data.posts.length === 0 && <p className="pt-6 text-center text-sm text-muted-foreground">Nog geen berichten. Wees de eerste!</p>}
         <div ref={bottomRef} />
       </div>
+      {data?.group && data.group.created_by === uid && (
+        <GroupForm open={editing} onOpenChange={setEditing} onSubmit={saveGroup} onCloseGroup={closeGroup}
+          initial={{ name: data.group.name, description: data.group.description ?? "", emoji: data.group.emoji ?? "💬" }} />
+      )}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
       {data?.isMember && <ChatComposer onGame={playGame} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}
