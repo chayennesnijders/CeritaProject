@@ -6,6 +6,7 @@ import {
   ludoMovable,
   ludoMove,
   ludoRoll,
+  ludoTarget,
   type LudoState,
 } from "@/lib/chat-games/ludo";
 import type { BoardProps } from "./types";
@@ -84,6 +85,7 @@ const BASE: [number, number][][] = [
 ];
 const COLOR = ["#e53935", "#f5c518"];
 const LIGHT = ["#f6c3c1", "#fbe9a6"];
+const HILITE = "#ff4fa3";
 const FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
 function cell(player: 0 | 1, p: number, pawn: number): [number, number] {
@@ -196,6 +198,28 @@ export function LudoBoard({ state, me, myTurn, busy, onMove, seed = "" }: BoardP
             />
           )),
         )}
+        {/* Where each pawn you may move would land. */}
+        {me !== null &&
+          roll &&
+          movable.map((i) => {
+            const to = ludoTarget(state, me, i, roll);
+            if (to === null) return null;
+            const [c, r] = cell(me, to, i);
+            return (
+              <circle
+                key={`t${i}`}
+                cx={c + 0.5}
+                cy={r + 0.5}
+                r={0.36}
+                fill="none"
+                stroke={HILITE}
+                strokeWidth={0.1}
+                strokeDasharray="0.15 0.1"
+                onClick={() => pick(i)}
+                style={{ cursor: "pointer" }}
+              />
+            );
+          })}
         {([0, 1] as const).map((p) =>
           state.pos[p].map((pos, i) => {
             const [c, r] = cell(p, pos, i);
@@ -206,27 +230,54 @@ export function LudoBoard({ state, me, myTurn, busy, onMove, seed = "" }: BoardP
                 onClick={() => p === me && pick(i)}
                 style={{ cursor: can ? "pointer" : "default" }}
               >
+                {/* A pawn you may move: a glowing pink ring and a little hop (SVG animation works on every phone). */}
                 {can && (
                   <circle
                     cx={c + 0.5}
                     cy={r + 0.5}
-                    r={0.48}
-                    fill="none"
-                    stroke="#2a1a14"
-                    strokeWidth={0.08}
-                    className="animate-pulse"
-                  />
+                    r={0.45}
+                    fill={HILITE}
+                    opacity={0.35}
+                    stroke={HILITE}
+                    strokeWidth={0.1}
+                  >
+                    <animate
+                      attributeName="r"
+                      values="0.4;0.55;0.4"
+                      dur="0.9s"
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0.6;0.15;0.6"
+                      dur="0.9s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
                 )}
                 <circle cx={c + 0.5} cy={r + 0.55} r={0.3} fill="#0003" />
-                <circle
-                  cx={c + 0.5}
-                  cy={r + 0.45}
-                  r={0.3}
-                  fill={COLOR[p]}
-                  stroke="#2a1a14"
-                  strokeWidth={0.05}
-                />
-                <circle cx={c + 0.42} cy={r + 0.37} r={0.08} fill="#fff8" />
+                <g>
+                  {can && (
+                    <animateTransform
+                      attributeName="transform"
+                      type="translate"
+                      values="0 0;0 -0.2;0 0"
+                      dur="0.9s"
+                      repeatCount="indefinite"
+                    />
+                  )}
+                  <circle
+                    cx={c + 0.5}
+                    cy={r + 0.45}
+                    r={0.3}
+                    fill={COLOR[p]}
+                    stroke={can ? HILITE : "#2a1a14"}
+                    strokeWidth={can ? 0.09 : 0.05}
+                  />
+                  <circle cx={c + 0.42} cy={r + 0.37} r={0.08} fill="#fff8" />
+                </g>
+                {/* Bigger invisible tap area so the pawn is easy to hit on a phone. */}
+                <circle cx={c + 0.5} cy={r + 0.5} r={0.55} fill="transparent" />
               </g>
             );
           }),
@@ -252,7 +303,9 @@ export function LudoBoard({ state, me, myTurn, busy, onMove, seed = "" }: BoardP
             <p className="text-sm font-semibold">
               Je gooide {roll}!{" "}
               {movable.length
-                ? "Tik op een pion die knippert."
+                ? movable.length === 1
+                  ? "Tik op de pion die springt (de stippellijn laat zien waar hij komt)."
+                  : "Tik op een van de pionnen die springen."
                 : roll === 6
                   ? "Geen zet mogelijk, je mag nog een keer."
                   : "Geen zet mogelijk."}
