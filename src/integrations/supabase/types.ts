@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_games: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          created_by: string
+          game: string
+          group_id: string | null
+          id: string
+          moves: number
+          players: string[]
+          state: Json
+          status: string
+          turn: string | null
+          updated_at: string
+          winner: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          created_by: string
+          game: string
+          group_id?: string | null
+          id?: string
+          moves?: number
+          players: string[]
+          state?: Json
+          status?: string
+          turn?: string | null
+          updated_at?: string
+          winner?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string
+          game?: string
+          group_id?: string | null
+          id?: string
+          moves?: number
+          players?: string[]
+          state?: Json
+          status?: string
+          turn?: string | null
+          updated_at?: string
+          winner?: string | null
+        }
+        Relationships: []
+      }
       admin_push_state: {
         Row: { id: number; last_run: string }
         Insert: { id?: number; last_run?: string }
@@ -495,6 +543,7 @@ export type Database = {
           body: string
           conversation_id: string
           created_at: string
+          game_id: string | null
           id: string
           sender_id: string
         }
@@ -506,6 +555,7 @@ export type Database = {
           body: string
           conversation_id: string
           created_at?: string
+          game_id?: string | null
           id?: string
           sender_id: string
         }
@@ -517,6 +567,7 @@ export type Database = {
           body?: string
           conversation_id?: string
           created_at?: string
+          game_id?: string | null
           id?: string
           sender_id?: string
         }
@@ -1075,6 +1126,7 @@ export type Database = {
           author_id: string
           body: string
           created_at: string
+          game_id: string | null
           group_id: string
           id: string
           is_hidden: boolean
@@ -1089,6 +1141,7 @@ export type Database = {
           author_id: string
           body: string
           created_at?: string
+          game_id?: string | null
           group_id: string
           id?: string
           is_hidden?: boolean
@@ -1103,6 +1156,7 @@ export type Database = {
           author_id?: string
           body?: string
           created_at?: string
+          game_id?: string | null
           group_id?: string
           id?: string
           is_hidden?: boolean
@@ -1640,6 +1694,11 @@ export type Database = {
       can_access_group: { Args: { _group: string }; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_open_media: { Args: { _path: string }; Returns: boolean }
+      start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
+      join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
+      chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
+      stop_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
+      can_play_in: { Args: { _group: string | null; _conv: string | null }; Returns: boolean }
       request_return: { Args: { _order: string; _reason: string; _email: string }; Returns: string }
       set_return_status: { Args: { _return: string; _status: string; _note?: string }; Returns: string }
       impact_stats: { Args: never; Returns: Json }

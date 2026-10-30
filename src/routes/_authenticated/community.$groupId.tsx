@@ -19,8 +19,15 @@ import { ChatAttachment, ChatAttachmentPicker } from "@/components/ChatAttachmen
 import { attachmentLabel, uploadChatFile } from "@/lib/chat-files";
 import { ChatDayDivider } from "@/components/ChatDayDivider";
 import { isToday, shortDay, withDayDividers } from "@/lib/chat-dates";
+import { GameCard } from "@/components/chat-games/GameCard";
+import { GamePicker } from "@/components/chat-games/GamePicker";
+import { GameScreen } from "@/components/chat-games/GameScreen";
+import type { ChatGameId } from "@/lib/chat-games";
+import { startChatGame, useChatGamesLive } from "@/lib/use-chat-games";
 
 export const Route = createFileRoute("/_authenticated/community/$groupId")({
+  // ?spel=… opens a game straight away (from a "jouw beurt" push).
+  validateSearch: (s: Record<string, unknown>): { spel?: string } => (typeof s["spel"] === "string" ? { spel: s["spel"] } : {}),
   head: () => ({ meta: [{ title: "Groep — CeritaProject" }, { name: "description", content: "Praat mee in je communitygroep op CeritaProject." }, { property: "og:title", content: "Groep — CeritaProject" }, { property: "og:description", content: "Praat mee in je communitygroep op CeritaProject." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: GroupPage,
 });
@@ -58,6 +65,11 @@ function GroupPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   // Het toetsenbord van de telefoon schuift het berichtenveld omhoog; het gesprek blijft erboven staan.
   const inset = useKeyboardInset();
+  const { spel } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
+  useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
+  useChatGamesLive({ groupId });
 
   const { data } = useQuery({
     queryKey: ["group", groupId, uid],
@@ -142,6 +154,20 @@ function GroupPage() {
       return false;
     }
   }
+  async function playGame(game: ChatGameId) {
+    try {
+      const { game_id } = await startChatGame(game, { groupId });
+      refresh();
+      setOpenGame(game_id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Spelletje starten lukte niet.");
+    }
+  }
+  function closeGame() {
+    setOpenGame(null);
+    if (spel) navigate({ search: {}, replace: true });
+  }
+  const nameOf = (pid: string) => (pid === uid ? "Jij" : data?.members.find((m) => m.user_id === pid)?.display_name ?? "Lid");
   async function report(postId: string) {
     const reason = prompt("Waarom meld je dit bericht?");
     if (!reason) return;
@@ -223,7 +249,7 @@ function GroupPage() {
                 )}
                 {p.reply_to && !quoted && <p className="mt-1 text-xs italic text-muted-foreground">Reactie op een verwijderd bericht</p>}
                 {p.is_hidden && <p className="text-xs text-destructive">Verborgen door moderatie</p>}
-                <p className="mt-1 whitespace-pre-wrap text-sm">
+                {p.game_id && !p.is_hidden ? <GameCard gameId={p.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(p.game_id)} /> : <p className="mt-1 whitespace-pre-wrap text-sm">
                   {splitMentions(p.body).map((part, i) =>
                     part.mention ? (
                       <span key={i} className="rounded-md bg-primary/15 px-1 font-semibold text-primary">{part.text}</span>
@@ -231,7 +257,7 @@ function GroupPage() {
                       <span key={i}>{part.text}</span>
                     ),
                   )}
-                </p>
+                </p>}
                 {p.audio_path && !p.is_hidden && <ChatAudio path={p.audio_path} />}
                 {p.attachment_path && !p.is_hidden && <ChatAttachment path={p.attachment_path} name={p.attachment_name} type={p.attachment_type} />}
                 <p className="mt-1 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
@@ -246,8 +272,9 @@ function GroupPage() {
         {data && data.posts.length === 0 && <p className="pt-6 text-center text-sm text-muted-foreground">Nog geen berichten. Wees de eerste!</p>}
         <div ref={bottomRef} />
       </div>
+      {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
-      {data?.isMember && <ChatComposer replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}
+      {data?.isMember && <ChatComposer onGame={playGame} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}
     </div>
   );
 
@@ -268,7 +295,8 @@ function ReadMark({ readers }: { readers: number }) {
   return <Check className="size-3.5" aria-label="Verstuurd" />;
 }
 
-function ChatComposer({ replyTo, onCancelReply, onSend, inset, members }: {
+function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame }: {
+  onGame: (game: ChatGameId) => Promise<void>;
   replyTo: { id: string; name: string; body: string } | null;
   onCancelReply: () => void;
   onSend: (text: string, audio: File | null, file: File | null) => Promise<boolean>;
@@ -351,6 +379,7 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members }: {
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending} />
           <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending} onRecordingChange={setRecording} />
+          <GamePicker onPick={onGame} disabled={sending} inGroup />
         </div>
       </div>
     </div>

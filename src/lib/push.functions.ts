@@ -383,7 +383,11 @@ export const notifyReturnUpdate = createServerFn({ method: "POST" })
     const { data: isOwner } = await context.supabase.rpc("is_owner", { _user_id: context.userId });
     if (!isOwner) return { sent: 0 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: ret } = await supabaseAdmin.from("shop_returns").select("user_id, status").eq("id", data.returnId).maybeSingle();
+    const { data: ret } = await supabaseAdmin
+      .from("shop_returns")
+      .select("user_id, status")
+      .eq("id", data.returnId)
+      .maybeSingle();
     if (!ret) return { sent: 0 };
     const { returnStatus } = await import("@/lib/returns");
     const sent = await pushToUser(ret.user_id, {
@@ -391,6 +395,51 @@ export const notifyReturnUpdate = createServerFn({ method: "POST" })
       body: returnStatus(ret.status).member,
       link: "/shop",
       tag: `retour-${data.returnId}`,
+    });
+    return { sent };
+  });
+
+// Push to the other player of a chat game after a move: "jouw beurt" or the result. Only a player may trigger it.
+export const notifyGameMove = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ gameId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: game } = await context.supabase
+      .from("chat_games")
+      .select("id, game, group_id, conversation_id, players, turn, status, winner")
+      .eq("id", data.gameId)
+      .maybeSingle();
+    if (!game || !game.players.includes(context.userId)) return { sent: 0 };
+    const recipient = game.players.find((p) => p !== context.userId);
+    if (!recipient || (game.status !== "klaar" && game.turn !== recipient)) return { sent: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: pref } = game.group_id
+      ? await supabaseAdmin
+          .from("group_prefs")
+          .select("muted")
+          .eq("user_id", recipient)
+          .eq("group_id", game.group_id)
+          .maybeSingle()
+      : await supabaseAdmin
+          .from("conversation_prefs")
+          .select("muted")
+          .eq("user_id", recipient)
+          .eq("conversation_id", game.conversation_id!)
+          .maybeSingle();
+    if (pref?.muted) return { sent: 0 };
+    const { gamePushText } = await import("@/lib/chat-games");
+    const text = gamePushText(game.game, {
+      name: await senderName(context.userId),
+      status: game.status,
+      youWon: game.winner === recipient,
+      draw: game.status === "klaar" && !game.winner,
+    });
+    const sent = await pushToUser(recipient, {
+      ...text,
+      link: game.group_id
+        ? `/community/${game.group_id}?spel=${game.id}`
+        : `/berichten/${game.conversation_id}?spel=${game.id}`,
+      tag: `game-${game.id}`,
     });
     return { sent };
   });

@@ -18,8 +18,15 @@ import { ChatAttachment, ChatAttachmentPicker } from "@/components/ChatAttachmen
 import { attachmentLabel, uploadChatFile } from "@/lib/chat-files";
 import { ChatDayDivider } from "@/components/ChatDayDivider";
 import { isToday, shortDay, withDayDividers } from "@/lib/chat-dates";
+import { GameCard } from "@/components/chat-games/GameCard";
+import { GamePicker } from "@/components/chat-games/GamePicker";
+import { GameScreen } from "@/components/chat-games/GameScreen";
+import type { ChatGameId } from "@/lib/chat-games";
+import { startChatGame, useChatGamesLive } from "@/lib/use-chat-games";
 
 export const Route = createFileRoute("/_authenticated/berichten/$id")({
+  // ?spel=… opens a game straight away (from a "jouw beurt" push).
+  validateSearch: (s: Record<string, unknown>): { spel?: string } => (typeof s["spel"] === "string" ? { spel: s["spel"] } : {}),
   head: () => ({ meta: [{ title: "Gesprek — CeritaProject" }, { name: "description", content: "Je privégesprek op CeritaProject." }, { property: "og:title", content: "Gesprek — CeritaProject" }, { property: "og:description", content: "Je privégesprek op CeritaProject." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: ChatPage,
 });
@@ -37,6 +44,11 @@ function ChatPage() {
   const [recording, setRecording] = useState(false);
   const { startCall } = useCall();
   const key = ["chat", id, uid];
+  const { spel } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
+  useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
+  useChatGamesLive({ convId: id });
 
   const { data } = useQuery({
     queryKey: key,
@@ -105,6 +117,21 @@ function ChatPage() {
       toast.error(e instanceof Error ? e.message : "Bericht kon niet worden verstuurd.");
     } finally { setSending(false); }
   }
+  async function playGame(game: ChatGameId) {
+    try {
+      const { game_id, message_id } = await startChatGame(game, { convId: id });
+      refresh();
+      setOpenGame(game_id);
+      notify({ data: { messageId: message_id } }).catch(() => {});
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Spelletje starten lukte niet.");
+    }
+  }
+  function closeGame() {
+    setOpenGame(null);
+    if (spel) navigate({ search: {}, replace: true });
+  }
+  const nameOf = (pid: string) => (pid === uid ? "Jij" : pid === data?.other ? data.name : "Lid");
   async function setPref(patch: { muted?: boolean; archived?: boolean }) {
     if (!data) return;
     const { error } = await supabase.from("conversation_prefs").upsert({
@@ -163,7 +190,9 @@ function ChatPage() {
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-soft"}`}>
-                <p className="whitespace-pre-wrap">{m.body}</p>
+                {m.game_id
+                  ? <GameCard gameId={m.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(m.game_id)} />
+                  : <p className="whitespace-pre-wrap">{m.body}</p>}
                 {m.audio_path && <ChatAudio path={m.audio_path} />}
                 {m.attachment_path && <ChatAttachment path={m.attachment_path} name={m.attachment_name} type={m.attachment_type} />}
                 <div className="mt-1 flex items-center gap-2 text-[10px] opacity-70">
@@ -184,8 +213,10 @@ function ChatPage() {
       <div className="flex flex-wrap items-center gap-2">
         <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending || !!data?.blocked || !data} />
         <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending || !!data?.blocked || !data} onRecordingChange={setRecording} />
+        <GamePicker onPick={playGame} disabled={sending || !!data?.blocked || !data} />
       </div>
       <Button disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>
+      {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
     </div>
   );
 }

@@ -5,3 +5,4 @@
 - Open report badges and inboxes share one user-keyed query; private request counts are explicitly participant-scoped. Why: moderation visibility must not create phantom personal notifications.
 - Chat voice memos use the shared WAV recorder, private chat-audio storage and message-linked access policies; never transcribe recordings automatically. Why: recipients can listen without exposing recordings or requiring intelligible speech.
 - Confirm list deletion inside the app and check the deleted row before updating the selection. Why: native browser confirmations may be unavailable in embedded previews.
+- Chat games are rows in chat_games linked from a chat message; only the RPCs start, join, move and stop them, and chat_game_move accepts a move only from the player whose turn it is at the expected move count. Game rules live in pure tested modules under src/lib/chat-games. Why: both players' screens must agree on the game, and nobody can play out of turn.
