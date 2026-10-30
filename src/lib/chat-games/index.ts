@@ -14,7 +14,7 @@ export const CHAT_GAMES = {
   darten: {
     emoji: "🎯",
     name: "Darten",
-    how: "3 rondes van 3 pijlen. Wie de meeste punten gooit, wint.",
+    how: "Trek de pijl naar beneden, mik en laat los. 3 rondes van 3 pijlen: de meeste punten wint.",
     start: dartsStart,
   },
   vieropeenrij: {

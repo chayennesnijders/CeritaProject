@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { c4Move, c4Start } from "./connect4";
-import { dartScore, dartsMove, dartsStart } from "./darts";
+import { dartAim, dartScore, dartsMove, dartsStart } from "./darts";
 import { CHAT_GAMES, chatGame, gameCardLine, gamePushText, playerIndex } from "./index";
 import { poolMove, poolStart, simulate } from "./pool";
 import { tttMove, tttStart } from "./tictactoe";
@@ -77,6 +77,17 @@ describe("darten", () => {
     expect(r!.finished).toBe(true);
     expect(r!.winner).toBe(0);
     expect(dartsMove(s, 0, [bull, bull, bull])).toBeNull();
+  });
+});
+
+describe("darten richten", () => {
+  it("lands in the middle when you pull straight back far enough", () => {
+    const a = dartAim({ x: 0, y: 0.8 });
+    expect(dartScore(a.x, a.y).score).toBe(50);
+  });
+  it("misses below the board without pulling, and aims the other way when pulling sideways", () => {
+    expect(dartScore(dartAim({ x: 0, y: 0 }).x, dartAim({ x: 0, y: 0 }).y).score).toBe(0);
+    expect(dartAim({ x: -0.3, y: 0.8 }).x).toBeGreaterThan(0);
   });
 });
 

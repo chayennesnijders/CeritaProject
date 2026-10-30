@@ -53,3 +53,22 @@ export function dartsMove(
     winner: finished ? (a === b ? null : a > b ? 0 : 1) : null,
   };
 }
+
+/** Where the dart starts, below the board (same units as the board: 1 = edge of the double ring). */
+export const DART_START = { x: 0, y: 1.6 };
+const AIM_GAIN = 2;
+
+/**
+ * Throw like a slingshot: pull the dart back (down) and let go. `pull` is how far you dragged the finger
+ * (finger now minus finger start). Pulling straight down by about 0.8 lands in the bull's-eye;
+ * pulling sideways aims the other way. `wobble` (two numbers between -1 and 1) adds a little shake.
+ */
+export function dartAim(pull: { x: number; y: number }, wobble: [number, number] = [0, 0]) {
+  const power = Math.min(Math.hypot(pull.x, pull.y), 1.2);
+  const shake = 0.03 + power * 0.05;
+  return {
+    x: DART_START.x - pull.x * AIM_GAIN * 0.6 + wobble[0] * shake,
+    y: DART_START.y - pull.y * AIM_GAIN + wobble[1] * shake,
+    power: power / 1.2,
+  };
+}
