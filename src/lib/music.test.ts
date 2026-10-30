@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { cleanIsbn, coverUrl, ratingLabel, SHELF } from "./books";
 import { embedUrl, isMusicUrl, musicService, playerHeight, songTipError } from "./music";
 
 const sql = readFileSync("drizzle/migrations/0072_music_books.sql", "utf8");
@@ -44,21 +43,5 @@ describe("music links", () => {
     expect(songTipError("", "x", "")).toContain("titel");
     expect(songTipError("Happy", "Pharrell", "https://example.com")).toContain("Spotify");
     expect(songTipError("Happy", "Pharrell", "")).toBeNull();
-  });
-});
-
-describe("books", () => {
-  it("knows the shelf states of the database", () => {
-    for (const s of SHELF) expect(sql).toContain(`'${s.id}'`);
-  });
-  it("cleans ISBNs and builds covers", () => {
-    expect(cleanIsbn("978-90-451-1234-5")).toBe("9789045112345");
-    expect(cleanIsbn("12345")).toBeNull();
-    expect(coverUrl("9789045112345")).toContain("covers.openlibrary.org/b/isbn/9789045112345");
-    expect(coverUrl(null)).toBeNull();
-  });
-  it("shows the average rating Dutch style", () => {
-    expect(ratingLabel(4.5, 12)).toBe("4,5 ★ (12)");
-    expect(ratingLabel(null, 0)).toBeNull();
   });
 });

@@ -3317,4 +3317,10 @@ SELECT * FROM (VALUES
   ('Turtles All the Way Down', 'John Green', 'Aza leeft met angst en dwanggedachten en probeert ondertussen een mysterie op te lossen. Een eerlijk verhaal over hoe het voelt om vast te zitten in je hoofd.', 'Angst', 16)
 ) AS v(title, author, description, theme, min_age)
 WHERE NOT EXISTS (SELECT 1 FROM public.books);
+
+-- ===== 0073_remove_books =====
+-- Books are taken out of the app again (music stays).
+DROP FUNCTION IF EXISTS public.book_ratings();
+DROP TABLE IF EXISTS public.book_shelf;
+DROP TABLE IF EXISTS public.books;
 COMMIT;

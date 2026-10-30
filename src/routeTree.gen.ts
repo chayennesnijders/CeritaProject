@@ -21,7 +21,6 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
-import { Route as AuthenticatedBoekenRouteImport } from './routes/_authenticated/boeken'
 import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
@@ -104,11 +103,6 @@ const VoorwaardenRoute = VoorwaardenRouteImport.update({
 const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
   id: '/beheer',
   path: '/beheer',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedBoekenRoute = AuthenticatedBoekenRouteImport.update({
-  id: '/boeken',
-  path: '/boeken',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedComplimentenRoute =
@@ -255,7 +249,6 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
-  '/boeken': typeof AuthenticatedBoekenRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -293,7 +286,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
-  '/boeken': typeof AuthenticatedBoekenRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -333,7 +325,6 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
-  '/_authenticated/boeken': typeof AuthenticatedBoekenRoute
   '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
@@ -373,7 +364,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/beheer'
-    | '/boeken'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
@@ -411,7 +401,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/beheer'
-    | '/boeken'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
@@ -450,7 +439,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/_authenticated/beheer'
-    | '/_authenticated/boeken'
     | '/_authenticated/complimenten'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
@@ -579,13 +567,6 @@ declare module '@tanstack/react-router' {
       path: '/beheer'
       fullPath: '/beheer'
       preLoaderRoute: typeof AuthenticatedBeheerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/boeken': {
-      id: '/_authenticated/boeken'
-      path: '/boeken'
-      fullPath: '/boeken'
-      preLoaderRoute: typeof AuthenticatedBoekenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/complimenten': {
@@ -761,7 +742,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
-  AuthenticatedBoekenRoute: typeof AuthenticatedBoekenRoute
   AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
@@ -786,7 +766,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
-  AuthenticatedBoekenRoute: AuthenticatedBoekenRoute,
   AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,

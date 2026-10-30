@@ -125,7 +125,6 @@ export const PRIVACY: LegalPage = {
         "Resend: e-mails om je account te bevestigen of je wachtwoord te herstellen.",
         "OpenAI (Verenigde Staten): spraak omzetten naar tekst in je dagboek, alleen als jij daarop tikt, en beheerders helpen om een melding snel te begrijpen. OpenAI gebruikt deze gegevens niet om zijn eigen AI te trainen.",
         "Spotify, YouTube en Apple Music: de muziekspelers bij Ontdekken → Muziek. Die laden pas als jij op Luisteren tikt; die dienst kan dan cookies plaatsen. YouTube gebruiken we in de privacyvriendelijke stand.",
-        "Open Library: plaatjes van boekkaften bij Ontdekken → Boeken.",
       ],
     },
     {

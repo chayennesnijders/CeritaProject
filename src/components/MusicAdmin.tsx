@@ -15,27 +15,22 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { isMusicUrl } from "@/lib/music";
-import { cleanIsbn } from "@/lib/books";
 
 const emptyPlaylist = { title: "", emoji: "🎵", description: "", url: "", min_age: 12, sort: 0 };
-const emptyBook = { title: "", author: "", description: "", theme: "", isbn: "", min_age: 12 };
-type Pending = { kind: "playlist" | "book" | "tip"; id: string; name: string } | null;
+type Pending = { kind: "playlist" | "tip"; id: string; name: string } | null;
 
-/** Beheer → Muziek & boeken: playlists, book tips and the members' song tips. */
-export function MusicBooksAdmin() {
+/** Beheer → Muziek: playlists and the members' song tips. */
+export function MusicAdmin() {
   const qc = useQueryClient();
   const [pl, setPl] = useState(emptyPlaylist);
   const [plEdit, setPlEdit] = useState<string | null>(null);
-  const [bk, setBk] = useState(emptyBook);
-  const [bkEdit, setBkEdit] = useState<string | null>(null);
   const [pending, setPending] = useState<Pending>(null);
 
   const { data } = useQuery({
-    queryKey: ["admin-music-books"],
+    queryKey: ["admin-music"],
     queryFn: async () => {
-      const [p, b, t] = await Promise.all([
+      const [p, t] = await Promise.all([
         supabase.from("playlists").select("*").order("sort").order("created_at"),
-        supabase.from("books").select("*").order("title"),
         supabase
           .from("song_tips")
           .select(
@@ -44,13 +39,12 @@ export function MusicBooksAdmin() {
           .order("created_at", { ascending: false })
           .limit(50),
       ]);
-      return { playlists: p.data ?? [], books: b.data ?? [], tips: t.data ?? [] };
+      return { playlists: p.data ?? [], tips: t.data ?? [] };
     },
   });
   const refresh = () => {
-    qc.invalidateQueries({ queryKey: ["admin-music-books"] });
+    qc.invalidateQueries({ queryKey: ["admin-music"] });
     qc.invalidateQueries({ queryKey: ["playlists"] });
-    qc.invalidateQueries({ queryKey: ["books"] });
     qc.invalidateQueries({ queryKey: ["song-tips"] });
   };
 
@@ -77,32 +71,6 @@ export function MusicBooksAdmin() {
     setPlEdit(null);
     refresh();
   }
-  async function saveBook() {
-    const isbn = bk.isbn.trim() ? cleanIsbn(bk.isbn) : null;
-    if (bk.isbn.trim() && !isbn) {
-      toast.error("Dat ISBN klopt niet (10 of 13 cijfers).");
-      return;
-    }
-    const row = {
-      title: bk.title.trim(),
-      author: bk.author.trim(),
-      description: bk.description.trim() || null,
-      theme: bk.theme.trim() || null,
-      isbn,
-      min_age: bk.min_age,
-    };
-    const { error } = bkEdit
-      ? await supabase.from("books").update(row).eq("id", bkEdit)
-      : await supabase.from("books").insert(row);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Boek opgeslagen");
-    setBk(emptyBook);
-    setBkEdit(null);
-    refresh();
-  }
   async function hideTip(id: string, hidden: boolean) {
     const { error } = await supabase.from("song_tips").update({ hidden }).eq("id", id);
     toast[error ? "error" : "success"](
@@ -112,8 +80,7 @@ export function MusicBooksAdmin() {
   }
   async function confirmDelete() {
     if (!pending) return;
-    const table =
-      pending.kind === "playlist" ? "playlists" : pending.kind === "book" ? "books" : "song_tips";
+    const table = pending.kind === "playlist" ? "playlists" : "song_tips";
     const { data: gone, error } = await supabase
       .from(table)
       .delete()
@@ -126,7 +93,6 @@ export function MusicBooksAdmin() {
     }
     toast.success("Weggehaald");
     if (pending.id === plEdit) setPlEdit(null);
-    if (pending.id === bkEdit) setBkEdit(null);
     refresh();
   }
   const ageButtons = (value: number, set: (v: number) => void) => (
@@ -246,106 +212,6 @@ export function MusicBooksAdmin() {
             </div>
           ))}
         </div>
-      </section>
-
-      <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
-        <h2 className="text-lg">📚 {bkEdit ? "Boek aanpassen" : "Boek toevoegen"}</h2>
-        <Input
-          value={bk.title}
-          maxLength={120}
-          onChange={(e) => setBk({ ...bk, title: e.target.value })}
-          placeholder="Titel"
-          className="rounded-2xl"
-        />
-        <Input
-          value={bk.author}
-          maxLength={120}
-          onChange={(e) => setBk({ ...bk, author: e.target.value })}
-          placeholder="Schrijver"
-          className="rounded-2xl"
-        />
-        <Textarea
-          value={bk.description}
-          maxLength={600}
-          onChange={(e) => setBk({ ...bk, description: e.target.value })}
-          placeholder="Waar gaat het over?"
-          className="rounded-2xl"
-        />
-        <div className="grid grid-cols-2 gap-2">
-          <Input
-            value={bk.theme}
-            maxLength={40}
-            onChange={(e) => setBk({ ...bk, theme: e.target.value })}
-            placeholder="Thema, bijv. Angst"
-            className="rounded-2xl"
-          />
-          <Input
-            value={bk.isbn}
-            onChange={(e) => setBk({ ...bk, isbn: e.target.value })}
-            placeholder="ISBN (voor de kaft)"
-            className="rounded-2xl"
-            inputMode="numeric"
-          />
-        </div>
-        {ageButtons(bk.min_age, (v) => setBk({ ...bk, min_age: v }))}
-        <div className="flex gap-2">
-          {bkEdit && (
-            <Button
-              variant="outline"
-              className="flex-1 rounded-full"
-              onClick={() => {
-                setBk(emptyBook);
-                setBkEdit(null);
-              }}
-            >
-              Annuleren
-            </Button>
-          )}
-          <Button
-            disabled={!bk.title.trim() || !bk.author.trim()}
-            className="flex-1 rounded-full"
-            onClick={saveBook}
-          >
-            Opslaan
-          </Button>
-        </div>
-        <div className="space-y-2 pt-2">
-          {data?.books.map((b) => (
-            <div key={b.id} className="flex items-center gap-2 rounded-2xl bg-muted p-2 text-sm">
-              <span className="min-w-0 flex-1 truncate">
-                {b.title}{" "}
-                <span className="text-xs text-muted-foreground">
-                  · {b.author} ({b.min_age}+)
-                </span>
-              </span>
-              <button
-                className="text-xs text-primary underline"
-                onClick={() => {
-                  setBkEdit(b.id);
-                  setBk({
-                    title: b.title,
-                    author: b.author,
-                    description: b.description ?? "",
-                    theme: b.theme ?? "",
-                    isbn: b.isbn ?? "",
-                    min_age: b.min_age,
-                  });
-                }}
-              >
-                Aanpassen
-              </button>
-              <button
-                className="text-xs text-destructive underline"
-                onClick={() => setPending({ kind: "book", id: b.id, name: b.title })}
-              >
-                Weg
-              </button>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Boektips van leden komen binnen bij Berichten.
-        </p>
       </section>
 
       <section className="space-y-2 rounded-3xl bg-card p-5 shadow-soft">

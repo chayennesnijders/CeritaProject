@@ -47,63 +47,6 @@ export type Database = {
         }
         Relationships: []
       }
-      books: {
-        Row: {
-          author: string
-          created_at: string
-          description: string | null
-          id: string
-          isbn: string | null
-          min_age: number
-          theme: string | null
-          title: string
-        }
-        Insert: {
-          author: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          isbn?: string | null
-          min_age?: number
-          theme?: string | null
-          title: string
-        }
-        Update: {
-          author?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          isbn?: string | null
-          min_age?: number
-          theme?: string | null
-          title?: string
-        }
-        Relationships: []
-      }
-      book_shelf: {
-        Row: {
-          book_id: string
-          rating: number | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          book_id: string
-          rating?: number | null
-          status: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          book_id?: string
-          rating?: number | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       song_tips: {
         Row: {
           age_group: Database["public"]["Enums"]["age_group"]
@@ -2011,7 +1954,6 @@ export type Database = {
       claim_group_challenge: { Args: { _group: string }; Returns: number }
       my_badge_stats: { Args: never; Returns: Json }
       add_song_tip: { Args: { _title: string; _artist: string; _url: string }; Returns: string }
-      book_ratings: { Args: never; Returns: { book_id: string; average: number | null; ratings: number; readers: number }[] }
       can_see_song_tip: { Args: { _tip: string }; Returns: boolean }
       is_music_url: { Args: { _url: string }; Returns: boolean }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }

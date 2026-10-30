@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 
-type Tab = "verhaal" | "artikel" | "luisteren" | "muziek" | "boeken";
+type Tab = "verhaal" | "artikel" | "luisteren" | "muziek";
 
-/** Tabs at the top of Ontdekken: stories, articles, things to listen to or watch, music and books. */
+/** Tabs at the top of Ontdekken: stories, articles, things to listen to or watch and music. */
 export function DiscoverTabs({
   active,
   counts,
@@ -51,9 +51,6 @@ export function DiscoverTabs({
       </Link>
       <Link to="/muziek" onClick={onSelect} data-tab="muziek" className={cls("muziek")}>
         🎵 Muziek
-      </Link>
-      <Link to="/boeken" onClick={onSelect} data-tab="boeken" className={cls("boeken")}>
-        📚 Boeken
       </Link>
     </div>
   );

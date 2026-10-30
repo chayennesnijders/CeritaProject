@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MusicBooksAdmin } from "@/components/MusicBooksAdmin";
+import { MusicAdmin } from "@/components/MusicAdmin";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +31,7 @@ const TABS = [
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
   { id: "luisteren", label: "Podcasts" },
-  { id: "muziekboeken", label: "Muziek & boeken" },
+  { id: "muziek", label: "Muziek" },
   { id: "groepen", label: "Groepen" },
   { id: "logboek", label: "Logboek" },
 ] as const;
@@ -147,7 +147,7 @@ export function AdminPanel() {
       )}
 
       {tab === "impact" && <ImpactReport />}
-      {tab === "muziekboeken" && <MusicBooksAdmin />}
+      {tab === "muziek" && <MusicAdmin />}
 
       {tab === "luisteren" && <MediaAdmin />}
 
