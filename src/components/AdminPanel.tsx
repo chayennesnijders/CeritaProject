@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { LaunchBanner, LaunchChecklist } from "@/components/LaunchChecklist";
 import { QuestionsAdmin } from "@/components/QuestionsAdmin";
 import { EventsAdmin } from "@/components/EventsAdmin";
 import { MusicAdmin } from "@/components/MusicAdmin";
@@ -27,6 +28,7 @@ import { reportsQueryOptions } from "@/lib/reports";
 
 const TABS = [
   { id: "nieuws", label: "Nieuws" },
+  { id: "livegang", label: "🚀 Livegang" },
   { id: "berichten", label: "Berichten" },
   { id: "vragen", label: "Vragen" },
   { id: "agenda", label: "Agenda" },
@@ -141,6 +143,8 @@ export function AdminPanel() {
         ))}
       </div>
 
+      {tab === "nieuws" && <LaunchBanner onOpen={() => setTab("livegang")} />}
+      {tab === "livegang" && <LaunchChecklist />}
       {tab === "nieuws" && <AdminNews uid={me.user.id} onOpenTab={(t) => setTab(t as Tab)} />}
 
       {tab === "berichten" && (

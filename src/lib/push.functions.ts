@@ -476,3 +476,67 @@ export const notifyCompliment = createServerFn({ method: "POST" })
     });
     return { sent: pushed };
   });
+
+// Admin only: what is set up for going live. Only yes/no and counts, never the keys themselves.
+export const getLaunchChecks = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Alleen voor beheerders.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { fcmServiceAccount } = await import("@/lib/fcm.server");
+    const env = (k: string) => !!process.env[k]?.trim();
+    const exists = async (table: string, column = "*") => {
+      const { error } = await supabaseAdmin
+        .from(table as "groups")
+        .select(column)
+        .limit(1);
+      return !error;
+    };
+    const count = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
+    const [chat, groupsBy, compliments, playlists, books, questions] = await Promise.all([
+      exists("chat_games"),
+      exists("groups", "created_by"),
+      exists("compliments"),
+      exists("playlists"),
+      exists("books"),
+      exists("anon_questions"),
+    ]);
+    let fcm = false;
+    try {
+      fcm = !!fcmServiceAccount();
+    } catch {
+      fcm = false;
+    }
+    return {
+      serviceRole: env("SUPABASE_SERVICE_ROLE_KEY"),
+      firebaseServer: fcm,
+      resend: env("RESEND_API_KEY") && env("EMAIL_FROM"),
+      emailHook: env("SEND_EMAIL_HOOK_SECRET"),
+      stripeLive: (process.env["STRIPE_SECRET_KEY"] ?? "").startsWith("sk_live_"),
+      openai: env("OPENAI_API_KEY"),
+      updates: {
+        "18-21": chat && groupsBy,
+        "22": compliments,
+        "23-24": playlists && !books,
+        "25": questions,
+      },
+      playlists: playlists
+        ? await count(supabaseAdmin.from("playlists").select("id", { count: "exact", head: true }))
+        : 0,
+      articles: await count(
+        supabaseAdmin.from("articles").select("id", { count: "exact", head: true }),
+      ),
+      upcomingEvents: questions
+        ? await count(
+            supabaseAdmin
+              .from("events")
+              .select("id", { count: "exact", head: true })
+              .gt("starts_at", new Date().toISOString()),
+          )
+        : 0,
+    };
+  });
