@@ -20,8 +20,6 @@ export type LegalPage = {
 
 export const ORG = {
   name: "CeritaProject",
-  /** The registered business CeritaProject belongs to for now. */
-  company: "Chayshop",
   /** Fill in to show it; leave empty to leave it out. */
   kvk: "",
   email: "ceritaproject@outlook.com",
@@ -67,7 +65,7 @@ export const PRIVACY: LegalPage = {
     {
       title: "Wie zijn wij?",
       text: [
-        `${ORG.name} is een initiatief van ${ORG.company}${kvk}. Wij zijn verantwoordelijk voor je gegevens.`,
+        `${ORG.name}${kvk} is verantwoordelijk voor je gegevens.`,
         `We hebben geen bezoekadres: we zijn er online. Vragen over je privacy? Mail naar ${ORG.email}, gebruik het contactformulier onderaan deze pagina, of stuur in de app een bericht aan de beheerders.`,
       ],
     },
@@ -364,7 +362,7 @@ export const ORGANISATIONS: LegalPage = {
     {
       title: "Contact",
       text: [
-        `${ORG.name}, een initiatief van ${ORG.company}${kvk}. Mail ons op ${ORG.email}, of stuur een bericht via het formulier hieronder.`,
+        `${ORG.name}${kvk}. Mail ons op ${ORG.email}, of stuur een bericht via het formulier hieronder.`,
       ],
     },
   ],
