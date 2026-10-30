@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { PawPrint } from "lucide-react";
+import { Bell, PawPrint } from "lucide-react";
+import { useInbox } from "@/lib/use-inbox";
 import { supabase } from "@/integrations/supabase/client";
 import { challengeDay } from "@/lib/challenges";
 import { levelFor } from "@/lib/pet";
@@ -71,6 +72,26 @@ export function PetLink({ uid }: { uid: string | undefined }) {
       activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
     >
       <PawPrint className="size-5" />
+    </Link>
+  );
+}
+
+/** 🔔 Bell with everything that wants your attention (Meldingen page). */
+export function InboxBell() {
+  const { total } = useInbox();
+  return (
+    <Link
+      to="/meldingen"
+      aria-label={total ? `Meldingen: ${total} nieuw` : "Meldingen"}
+      className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground"
+      activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
+    >
+      <Bell className="size-5" />
+      {total > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+          {total > 9 ? "9+" : total}
+        </span>
+      )}
     </Link>
   );
 }

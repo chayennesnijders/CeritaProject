@@ -1,4 +1,5 @@
 import { AppLockSettings } from "@/components/AppLock";
+import { InstallGuide } from "@/components/InstallGuide";
 import { QuietHours, TextSizePicker } from "@/components/ComfortSettings";
 import { MyBadges, useBadges } from "@/components/MyBadges";
 import { SettingsSection } from "@/components/SettingsSection";
@@ -53,6 +54,10 @@ const SHORTCUTS = [
   { to: "/vragen", emoji: "❓", label: "Anoniem vragen" },
   { to: "/buddy", emoji: "🤝", label: "Buddy zoeken" },
   { to: "/agenda", emoji: "🗓️", label: "Agenda" },
+  { to: "/doelen", emoji: "🎯", label: "Mijn doelen" },
+  { to: "/dankbaar", emoji: "🫙", label: "Dankbaar potje" },
+  { to: "/thema", emoji: "✨", label: "Thema" },
+  { to: "/meldingen", emoji: "🔔", label: "Meldingen" },
 ] as const;
 
 function ProfilePage() {
@@ -66,6 +71,7 @@ function ProfilePage() {
   const [username, setUsername] = useState("");
   const [theme, setThemeState] = useState<Theme>("light");
   const [open, setOpen] = useState<string | null>(null);
+  const [installOpen, setInstallOpen] = useState(false);
   const { earned } = useBadges(p?.id ?? "");
 
   useEffect(() => setThemeState(getTheme()), []);
@@ -320,6 +326,14 @@ function ProfilePage() {
               Pushmeldingen aanzetten
             </Button>
           </div>
+          <Button
+            variant="ghost"
+            className="w-full rounded-full text-sm"
+            onClick={() => setInstallOpen(true)}
+          >
+            📲 Hoe zet ik de app op mijn beginscherm?
+          </Button>
+          <InstallGuide open={installOpen} onOpenChange={setInstallOpen} />
           <QuietHours
             uid={p.id}
             quietStart={p.quiet_start ?? null}

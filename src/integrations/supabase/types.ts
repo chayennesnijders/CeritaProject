@@ -14,6 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
+      goals: {
+        Row: {
+          archived: boolean
+          created_at: string
+          emoji: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          emoji?: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          emoji?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      goal_checks: {
+        Row: {
+          day: string
+          goal_id: string
+        }
+        Insert: {
+          day: string
+          goal_id: string
+        }
+        Update: {
+          day?: string
+          goal_id?: string
+        }
+        Relationships: []
+      }
+      gratitude_notes: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          month: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          month: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          month?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      theme_entries: {
+        Row: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          body: string | null
+          created_at: string
+          id: string
+          image_path: string | null
+          kind: string
+          show_name: boolean
+          status: string
+          theme_id: string
+          user_id: string
+        }
+        Insert: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string | null
+          kind: string
+          show_name?: boolean
+          status?: string
+          theme_id: string
+          user_id: string
+        }
+        Update: {
+          age_group?: Database["public"]["Enums"]["age_group"]
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string | null
+          kind?: string
+          show_name?: boolean
+          status?: string
+          theme_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mean_word_flags: {
+        Row: {
+          count: number
+          created_at: string
+          day: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          count: number
+          created_at?: string
+          day?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          day?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       safety_plans: {
         Row: {
           plan: Json
@@ -2138,6 +2291,8 @@ export type Database = {
       open_letter: { Args: { _letter: string }; Returns: undefined }
       event_counts: { Args: never; Returns: { event_id: string; going: number }[] }
       buddy_suggestions: { Args: never; Returns: { user_id: string; display_name: string; username: string | null; avatar_url: string | null; shared: string[] }[] }
+      censor: { Args: { _text: string }; Returns: string }
+      theme_showcase: { Args: { _theme: string }; Returns: { id: string; kind: string; body: string | null; image_path: string | null; maker: string | null; created_at: string }[] }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
       join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
       chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }

@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useThemeOfMonth } from "@/lib/use-theme-month";
+import { AutoInstallGuide } from "@/components/InstallGuide";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,6 +52,7 @@ function HomePage() {
   const unread = useUnreadCounts();
   const messages = unread.dmTotal + unread.requests;
   const newCompliments = useNewCompliments(uid);
+  const { data: theme } = useThemeOfMonth();
   const dateLabel = new Intl.DateTimeFormat("nl-NL", {
     timeZone: "Europe/Amsterdam",
     weekday: "long",
@@ -90,13 +93,28 @@ function HomePage() {
           <span className="text-3xl">💐</span>
           <span className="flex-1">
             <span className="block font-semibold">{newComplimentsText(newCompliments)}</span>
-            <span className="block text-xs opacity-75">Tik om te kijken wat er op je muur staat</span>
+            <span className="block text-xs opacity-75">
+              Tik om te kijken wat er op je muur staat
+            </span>
           </span>
           <span>→</span>
         </Link>
       )}
 
       <MoodCheckIn uid={uid} day={day} name={p?.display_name ?? ""} />
+      {theme && (
+        <Link to="/thema" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+          <span className="text-3xl">{theme.emoji}</span>
+          <span className="flex-1">
+            <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Thema van de maand
+            </span>
+            <span className="block font-semibold">{theme.title}: doe mee!</span>
+          </span>
+          <span className="text-primary">→</span>
+        </Link>
+      )}
+      <AutoInstallGuide />
       <ChallengeCard uid={uid} />
       <PetCard uid={uid} />
       <AffirmationCard day={day} />
@@ -198,10 +216,16 @@ function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string;
             ))}
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            <Link to="/rust" className="rounded-2xl bg-secondary p-3 text-center text-xs font-semibold text-secondary-foreground">
+            <Link
+              to="/rust"
+              className="rounded-2xl bg-secondary p-3 text-center text-xs font-semibold text-secondary-foreground"
+            >
               🫧 Rustmoment met Riti
             </Link>
-            <Link to="/stemming" className="rounded-2xl bg-secondary p-3 text-center text-xs font-semibold text-secondary-foreground">
+            <Link
+              to="/stemming"
+              className="rounded-2xl bg-secondary p-3 text-center text-xs font-semibold text-secondary-foreground"
+            >
               📅 Mijn stemmingskalender
             </Link>
           </div>

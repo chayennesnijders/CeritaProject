@@ -1,4 +1,5 @@
 import { Shield } from "lucide-react";
+import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useAdminIds } from "@/components/UserAvatar";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -71,6 +72,7 @@ function GroupPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   // Het toetsenbord van de telefoon schuift het berichtenveld omhoog; het gesprek blijft erboven staan.
   const inset = useKeyboardInset();
+  const { confirmKind, dialog: kindDialog } = useKindCheck();
   const { spel } = Route.useSearch();
   const navigate = Route.useNavigate();
   const goTo = useNavigate();
@@ -144,6 +146,7 @@ function GroupPage() {
   }
   async function post(text: string, audio: File | null, file: File | null) {
     if (!uid) return false;
+    if (!(await confirmKind(text))) return false;
     let path: string | null = null;
     let attachment: Awaited<ReturnType<typeof uploadChatFile>> | null = null;
     try {
@@ -313,6 +316,7 @@ function GroupPage() {
         <GroupForm open={editing} onOpenChange={setEditing} onSubmit={saveGroup} onCloseGroup={closeGroup}
           initial={{ name: data.group.name, description: data.group.description ?? "", emoji: data.group.emoji ?? "💬" }} />
       )}
+      {kindDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
       {data?.isMember && <ChatComposer onGame={playGame} onSticker={sendSticker} groupId={groupId} onPoll={refresh} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}

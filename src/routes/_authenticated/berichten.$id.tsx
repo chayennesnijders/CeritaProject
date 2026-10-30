@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -46,6 +47,7 @@ function ChatPage() {
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const { startCall } = useCall();
+  const { confirmKind, dialog: kindDialog } = useKindCheck();
   const key = ["chat", id, uid];
   const { spel } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -104,6 +106,7 @@ function ChatPage() {
 
   async function send() {
     if (!uid || sending || recording || (!body.trim() && !audio && !file)) return;
+    if (!(await confirmKind(body))) return;
     setSending(true);
     let path: string | null = null;
     let attachment: Awaited<ReturnType<typeof uploadChatFile>> | null = null;
@@ -233,6 +236,7 @@ function ChatPage() {
         <GamePicker onPick={playGame} disabled={sending || !!data?.blocked || !data} />
       </div>
       <Button disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>
+      {kindDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
     </div>
   );

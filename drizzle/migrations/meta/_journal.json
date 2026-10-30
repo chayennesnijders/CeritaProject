@@ -526,6 +526,13 @@
       "when": 1793293200000,
       "tag": "0074_support_features",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1793379600000,
+      "tag": "0075_kind_and_cosy",
+      "breakpoints": true
     }
   ]
 }

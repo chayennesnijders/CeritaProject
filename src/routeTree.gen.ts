@@ -27,17 +27,22 @@ import { Route as AuthenticatedBuddyRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
+import { Route as AuthenticatedDankbaarRouteImport } from './routes/_authenticated/dankbaar'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
+import { Route as AuthenticatedDoelenRouteImport } from './routes/_authenticated/doelen'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedMeldingenRouteImport } from './routes/_authenticated/meldingen'
 import { Route as AuthenticatedMuziekRouteImport } from './routes/_authenticated/muziek'
 import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticated/profiel'
 import { Route as AuthenticatedRustRouteImport } from './routes/_authenticated/rust'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedStemmingRouteImport } from './routes/_authenticated/stemming'
+import { Route as AuthenticatedThemaRouteImport } from './routes/_authenticated/thema'
 import { Route as AuthenticatedVeiligheidsplanRouteImport } from './routes/_authenticated/veiligheidsplan'
 import { Route as AuthenticatedVerhaalInsturenRouteImport } from './routes/_authenticated/verhaal-insturen'
 import { Route as AuthenticatedVragenRouteImport } from './routes/_authenticated/vragen'
 import { Route as AuthenticatedVriendenRouteImport } from './routes/_authenticated/vrienden'
+import { Route as AuthenticatedZoekenRouteImport } from './routes/_authenticated/zoeken'
 import { Route as ApiAuthEmailRouteImport } from './routes/api/auth-email'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as AuthenticatedBerichtenIndexRouteImport } from './routes/_authenticated/berichten.index'
@@ -142,14 +147,29 @@ const AuthenticatedDagboekRoute = AuthenticatedDagboekRouteImport.update({
   path: '/dagboek',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDankbaarRoute = AuthenticatedDankbaarRouteImport.update({
+  id: '/dankbaar',
+  path: '/dankbaar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDiertjeRoute = AuthenticatedDiertjeRouteImport.update({
   id: '/diertje',
   path: '/diertje',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDoelenRoute = AuthenticatedDoelenRouteImport.update({
+  id: '/doelen',
+  path: '/doelen',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeldingenRoute = AuthenticatedMeldingenRouteImport.update({
+  id: '/meldingen',
+  path: '/meldingen',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMuziekRoute = AuthenticatedMuziekRouteImport.update({
@@ -177,6 +197,11 @@ const AuthenticatedStemmingRoute = AuthenticatedStemmingRouteImport.update({
   path: '/stemming',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedThemaRoute = AuthenticatedThemaRouteImport.update({
+  id: '/thema',
+  path: '/thema',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVeiligheidsplanRoute =
   AuthenticatedVeiligheidsplanRouteImport.update({
     id: '/veiligheidsplan',
@@ -197,6 +222,11 @@ const AuthenticatedVragenRoute = AuthenticatedVragenRouteImport.update({
 const AuthenticatedVriendenRoute = AuthenticatedVriendenRouteImport.update({
   id: '/vrienden',
   path: '/vrienden',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedZoekenRoute = AuthenticatedZoekenRouteImport.update({
+  id: '/zoeken',
+  path: '/zoeken',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiAuthEmailRoute = ApiAuthEmailRouteImport.update({
@@ -293,17 +323,22 @@ export interface FileRoutesByFullPath {
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
+  '/dankbaar': typeof AuthenticatedDankbaarRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
+  '/doelen': typeof AuthenticatedDoelenRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/meldingen': typeof AuthenticatedMeldingenRoute
   '/muziek': typeof AuthenticatedMuziekRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
   '/stemming': typeof AuthenticatedStemmingRoute
+  '/thema': typeof AuthenticatedThemaRoute
   '/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/vragen': typeof AuthenticatedVragenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
+  '/zoeken': typeof AuthenticatedZoekenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
@@ -336,17 +371,22 @@ export interface FileRoutesByTo {
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
+  '/dankbaar': typeof AuthenticatedDankbaarRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
+  '/doelen': typeof AuthenticatedDoelenRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/meldingen': typeof AuthenticatedMeldingenRoute
   '/muziek': typeof AuthenticatedMuziekRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
   '/stemming': typeof AuthenticatedStemmingRoute
+  '/thema': typeof AuthenticatedThemaRoute
   '/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/vragen': typeof AuthenticatedVragenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
+  '/zoeken': typeof AuthenticatedZoekenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
@@ -381,17 +421,22 @@ export interface FileRoutesById {
   '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
+  '/_authenticated/dankbaar': typeof AuthenticatedDankbaarRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
+  '/_authenticated/doelen': typeof AuthenticatedDoelenRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/meldingen': typeof AuthenticatedMeldingenRoute
   '/_authenticated/muziek': typeof AuthenticatedMuziekRoute
   '/_authenticated/profiel': typeof AuthenticatedProfielRoute
   '/_authenticated/rust': typeof AuthenticatedRustRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/_authenticated/stemming': typeof AuthenticatedStemmingRoute
+  '/_authenticated/thema': typeof AuthenticatedThemaRoute
   '/_authenticated/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/_authenticated/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
   '/_authenticated/vragen': typeof AuthenticatedVragenRoute
   '/_authenticated/vrienden': typeof AuthenticatedVriendenRoute
+  '/_authenticated/zoeken': typeof AuthenticatedZoekenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/_authenticated/berichten/$id': typeof AuthenticatedBerichtenIdRoute
@@ -426,17 +471,22 @@ export interface FileRouteTypes {
     | '/complimenten'
     | '/contact'
     | '/dagboek'
+    | '/dankbaar'
     | '/diertje'
+    | '/doelen'
     | '/home'
+    | '/meldingen'
     | '/muziek'
     | '/profiel'
     | '/rust'
     | '/shop'
     | '/stemming'
+    | '/thema'
     | '/veiligheidsplan'
     | '/verhaal-insturen'
     | '/vragen'
     | '/vrienden'
+    | '/zoeken'
     | '/api/auth-email'
     | '/api/transcribe'
     | '/berichten/$id'
@@ -469,17 +519,22 @@ export interface FileRouteTypes {
     | '/complimenten'
     | '/contact'
     | '/dagboek'
+    | '/dankbaar'
     | '/diertje'
+    | '/doelen'
     | '/home'
+    | '/meldingen'
     | '/muziek'
     | '/profiel'
     | '/rust'
     | '/shop'
     | '/stemming'
+    | '/thema'
     | '/veiligheidsplan'
     | '/verhaal-insturen'
     | '/vragen'
     | '/vrienden'
+    | '/zoeken'
     | '/api/auth-email'
     | '/api/transcribe'
     | '/berichten/$id'
@@ -513,17 +568,22 @@ export interface FileRouteTypes {
     | '/_authenticated/complimenten'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
+    | '/_authenticated/dankbaar'
     | '/_authenticated/diertje'
+    | '/_authenticated/doelen'
     | '/_authenticated/home'
+    | '/_authenticated/meldingen'
     | '/_authenticated/muziek'
     | '/_authenticated/profiel'
     | '/_authenticated/rust'
     | '/_authenticated/shop'
     | '/_authenticated/stemming'
+    | '/_authenticated/thema'
     | '/_authenticated/veiligheidsplan'
     | '/_authenticated/verhaal-insturen'
     | '/_authenticated/vragen'
     | '/_authenticated/vrienden'
+    | '/_authenticated/zoeken'
     | '/api/auth-email'
     | '/api/transcribe'
     | '/_authenticated/berichten/$id'
@@ -686,6 +746,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDagboekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dankbaar': {
+      id: '/_authenticated/dankbaar'
+      path: '/dankbaar'
+      fullPath: '/dankbaar'
+      preLoaderRoute: typeof AuthenticatedDankbaarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/diertje': {
       id: '/_authenticated/diertje'
       path: '/diertje'
@@ -693,11 +760,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDiertjeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/doelen': {
+      id: '/_authenticated/doelen'
+      path: '/doelen'
+      fullPath: '/doelen'
+      preLoaderRoute: typeof AuthenticatedDoelenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meldingen': {
+      id: '/_authenticated/meldingen'
+      path: '/meldingen'
+      fullPath: '/meldingen'
+      preLoaderRoute: typeof AuthenticatedMeldingenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/muziek': {
@@ -735,6 +816,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStemmingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/thema': {
+      id: '/_authenticated/thema'
+      path: '/thema'
+      fullPath: '/thema'
+      preLoaderRoute: typeof AuthenticatedThemaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/veiligheidsplan': {
       id: '/_authenticated/veiligheidsplan'
       path: '/veiligheidsplan'
@@ -761,6 +849,13 @@ declare module '@tanstack/react-router' {
       path: '/vrienden'
       fullPath: '/vrienden'
       preLoaderRoute: typeof AuthenticatedVriendenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/zoeken': {
+      id: '/_authenticated/zoeken'
+      path: '/zoeken'
+      fullPath: '/zoeken'
+      preLoaderRoute: typeof AuthenticatedZoekenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/auth-email': {
@@ -865,17 +960,22 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
+  AuthenticatedDankbaarRoute: typeof AuthenticatedDankbaarRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
+  AuthenticatedDoelenRoute: typeof AuthenticatedDoelenRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedMeldingenRoute: typeof AuthenticatedMeldingenRoute
   AuthenticatedMuziekRoute: typeof AuthenticatedMuziekRoute
   AuthenticatedProfielRoute: typeof AuthenticatedProfielRoute
   AuthenticatedRustRoute: typeof AuthenticatedRustRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
   AuthenticatedStemmingRoute: typeof AuthenticatedStemmingRoute
+  AuthenticatedThemaRoute: typeof AuthenticatedThemaRoute
   AuthenticatedVeiligheidsplanRoute: typeof AuthenticatedVeiligheidsplanRoute
   AuthenticatedVerhaalInsturenRoute: typeof AuthenticatedVerhaalInsturenRoute
   AuthenticatedVragenRoute: typeof AuthenticatedVragenRoute
   AuthenticatedVriendenRoute: typeof AuthenticatedVriendenRoute
+  AuthenticatedZoekenRoute: typeof AuthenticatedZoekenRoute
   AuthenticatedBerichtenIdRoute: typeof AuthenticatedBerichtenIdRoute
   AuthenticatedCommunityGroupIdRoute: typeof AuthenticatedCommunityGroupIdRoute
   AuthenticatedLuisterenMediaIdRoute: typeof AuthenticatedLuisterenMediaIdRoute
@@ -894,17 +994,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
+  AuthenticatedDankbaarRoute: AuthenticatedDankbaarRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
+  AuthenticatedDoelenRoute: AuthenticatedDoelenRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedMeldingenRoute: AuthenticatedMeldingenRoute,
   AuthenticatedMuziekRoute: AuthenticatedMuziekRoute,
   AuthenticatedProfielRoute: AuthenticatedProfielRoute,
   AuthenticatedRustRoute: AuthenticatedRustRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
   AuthenticatedStemmingRoute: AuthenticatedStemmingRoute,
+  AuthenticatedThemaRoute: AuthenticatedThemaRoute,
   AuthenticatedVeiligheidsplanRoute: AuthenticatedVeiligheidsplanRoute,
   AuthenticatedVerhaalInsturenRoute: AuthenticatedVerhaalInsturenRoute,
   AuthenticatedVragenRoute: AuthenticatedVragenRoute,
   AuthenticatedVriendenRoute: AuthenticatedVriendenRoute,
+  AuthenticatedZoekenRoute: AuthenticatedZoekenRoute,
   AuthenticatedBerichtenIdRoute: AuthenticatedBerichtenIdRoute,
   AuthenticatedCommunityGroupIdRoute: AuthenticatedCommunityGroupIdRoute,
   AuthenticatedLuisterenMediaIdRoute: AuthenticatedLuisterenMediaIdRoute,

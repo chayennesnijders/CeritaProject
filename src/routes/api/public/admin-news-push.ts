@@ -38,6 +38,8 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
           returns,
           groups,
           questions,
+          mean,
+          entries,
         ] = await Promise.all([
           supabaseAdmin
             .from("profiles")
@@ -90,6 +92,16 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
             .select("id")
             .gt("created_at", since)
             .lte("created_at", until),
+          supabaseAdmin
+            .from("mean_word_flags")
+            .select("id")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("theme_entries")
+            .select("id")
+            .gt("created_at", since)
+            .lte("created_at", until),
         ]);
         const items = [
           ...(members.data ?? []).map((m) => ({ kind: "aanmelding", title: m.display_name })),
@@ -112,6 +124,14 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
           ...(questions.data ?? []).map(() => ({
             kind: "vraag",
             title: "Iemand stelde een anonieme vraag",
+          })),
+          ...(mean.data ?? []).map(() => ({
+            kind: "gemeen",
+            title: "Iemand gebruikt vaak gemene woorden",
+          })),
+          ...(entries.data ?? []).map(() => ({
+            kind: "inzending",
+            title: "Nieuwe inzending voor het thema",
           })),
         ];
         if (items.length === 0) return Response.json({ sent: 0 });

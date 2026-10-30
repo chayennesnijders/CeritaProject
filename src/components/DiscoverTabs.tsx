@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 
 type Tab = "verhaal" | "artikel" | "luisteren" | "muziek";
 
@@ -24,34 +25,43 @@ export function DiscoverTabs({
   }, [active]);
   const n = (t: Tab) => (counts?.[t] != null ? ` ${counts[t]}` : "");
   return (
-    <div
-      ref={bar}
-      className="mt-4 flex gap-1 overflow-x-auto rounded-full bg-card p-1 shadow-soft [scrollbar-width:none]"
-    >
+    <div className="mt-4 flex items-center gap-2">
       <Link
-        to="/ontdekken"
-        search={{}}
-        onClick={onSelect}
-        data-tab="verhaal"
-        className={cls("verhaal")}
+        to="/zoeken"
+        aria-label="Zoeken"
+        className="grid size-11 shrink-0 place-items-center rounded-full bg-card shadow-soft"
       >
-        📖 Verhalen{n("verhaal")}
+        <Search className="size-5" />
       </Link>
-      <Link
-        to="/ontdekken"
-        search={{ soort: "artikelen" }}
-        onClick={onSelect}
-        data-tab="artikel"
-        className={cls("artikel")}
+      <div
+        ref={bar}
+        className="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-full bg-card p-1 shadow-soft [scrollbar-width:none]"
       >
-        📰 Artikelen{n("artikel")}
-      </Link>
-      <Link to="/luisteren" onClick={onSelect} data-tab="luisteren" className={cls("luisteren")}>
-        🎧 Luisteren{n("luisteren")}
-      </Link>
-      <Link to="/muziek" onClick={onSelect} data-tab="muziek" className={cls("muziek")}>
-        🎵 Muziek
-      </Link>
+        <Link
+          to="/ontdekken"
+          search={{}}
+          onClick={onSelect}
+          data-tab="verhaal"
+          className={cls("verhaal")}
+        >
+          📖 Verhalen{n("verhaal")}
+        </Link>
+        <Link
+          to="/ontdekken"
+          search={{ soort: "artikelen" }}
+          onClick={onSelect}
+          data-tab="artikel"
+          className={cls("artikel")}
+        >
+          📰 Artikelen{n("artikel")}
+        </Link>
+        <Link to="/luisteren" onClick={onSelect} data-tab="luisteren" className={cls("luisteren")}>
+          🎧 Luisteren{n("luisteren")}
+        </Link>
+        <Link to="/muziek" onClick={onSelect} data-tab="muziek" className={cls("muziek")}>
+          🎵 Muziek
+        </Link>
+      </div>
     </div>
   );
 }
