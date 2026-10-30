@@ -1175,6 +1175,39 @@ export type Database = {
         }
         Relationships: []
       }
+      public_messages: {
+        Row: {
+          body: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          organisation: string | null
+          sender_type: string
+          status: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          organisation?: string | null
+          sender_type?: string
+          status?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          organisation?: string | null
+          sender_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
       push_tokens: {
         Row: {
           created_at: string

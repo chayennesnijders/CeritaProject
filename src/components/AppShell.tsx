@@ -70,9 +70,9 @@ export function AppShell() {
       <BirthdayPopup />
       <CareHelpDialog />
       <WelcomeTour />
-      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink px-4 py-2 text-ink-foreground">
+      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-5 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
-          <img src="/cerita-beer.png" alt="" className="size-12 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
+          <img src="/cerita-beer.png" alt="" className="size-11 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
           <span className="min-w-0 leading-tight">
             <span className="block truncate font-display text-base">CeritaProject</span>
             <span className="block truncate text-[10px] opacity-70">Jouw verhaal mag er zijn</span>

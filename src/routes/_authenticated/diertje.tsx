@@ -216,10 +216,10 @@ function PetPage() {
           <button onClick={() => setAdopting(false)} className="mt-2 w-full text-sm text-muted-foreground">Annuleren</button>
         </div>
       )}
-      <div ref={stageRef} className="relative min-h-[330px] touch-none select-none overflow-hidden rounded-3xl p-6 text-center shadow-soft" style={{ background: bg.css }}>
+      <div ref={stageRef} className="relative min-h-[330px] touch-pan-y select-none overflow-hidden rounded-3xl p-6 text-center shadow-soft" style={{ background: bg.css }}>
         <PetScene id={bg.id} />
 
-        <div onPointerDown={startHug} onPointerUp={endHug} onPointerLeave={endHug}>
+        <div onPointerDown={startHug} onPointerUp={endHug} onPointerLeave={endHug} onPointerCancel={endHug}>
           <PetAvatar outfit={active.outfit} species={active.species} mood={mood} jumping={jumping} onTap={() => burst("💕")} level={level} />
         </div>
         {ball > 0 && <span key={ball} className="pet-ball pointer-events-none absolute bottom-24 left-0 text-4xl">🎾</span>}

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactOnsRouteImport } from './routes/contact-ons'
 import { Route as HuisregelsRouteImport } from './routes/huisregels'
 import { Route as HulpRouteImport } from './routes/hulp'
 import { Route as OrganisatiesRouteImport } from './routes/organisaties'
@@ -53,6 +54,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactOnsRoute = ContactOnsRouteImport.update({
+  id: '/contact-ons',
+  path: '/contact-ons',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HuisregelsRoute = HuisregelsRouteImport.update({
@@ -209,6 +215,7 @@ const ApiPublicFreeItemsWeeklyRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
   '/organisaties': typeof OrganisatiesRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
   '/organisaties': typeof OrganisatiesRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
   '/organisaties': typeof OrganisatiesRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/contact-ons'
     | '/huisregels'
     | '/hulp'
     | '/organisaties'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/contact-ons'
     | '/huisregels'
     | '/hulp'
     | '/organisaties'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/contact-ons'
     | '/huisregels'
     | '/hulp'
     | '/organisaties'
@@ -408,6 +420,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContactOnsRoute: typeof ContactOnsRoute
   HuisregelsRoute: typeof HuisregelsRoute
   HulpRoute: typeof HulpRoute
   OrganisatiesRoute: typeof OrganisatiesRoute
@@ -442,6 +455,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact-ons': {
+      id: '/contact-ons'
+      path: '/contact-ons'
+      fullPath: '/contact-ons'
+      preLoaderRoute: typeof ContactOnsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/huisregels': {
@@ -690,6 +710,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContactOnsRoute: ContactOnsRoute,
   HuisregelsRoute: HuisregelsRoute,
   HulpRoute: HulpRoute,
   OrganisatiesRoute: OrganisatiesRoute,

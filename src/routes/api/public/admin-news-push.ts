@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
         const until = new Date().toISOString();
         await supabaseAdmin.from("admin_push_state").upsert({ id: 1, last_run: until });
 
-        const [members, orders, stories, reports, messages, care] = await Promise.all([
+        const [members, orders, stories, reports, messages, care, contact] = await Promise.all([
           supabaseAdmin
             .from("profiles")
             .select("display_name")
@@ -58,6 +58,11 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
             .select("id")
             .gt("created_at", since)
             .lte("created_at", until),
+          supabaseAdmin
+            .from("public_messages")
+            .select("name")
+            .gt("created_at", since)
+            .lte("created_at", until),
         ]);
         const items = [
           ...(members.data ?? []).map((m) => ({ kind: "aanmelding", title: m.display_name })),
@@ -70,6 +75,7 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
           ...(messages.data ?? []).map((m) => ({ kind: "bericht", title: m.body.slice(0, 100) })),
           // No text of care signals in a push: it can show up on a locked screen.
           ...(care.data ?? []).map(() => ({ kind: "zorg", title: "Zorgsignaal" })),
+          ...(contact.data ?? []).map((c) => ({ kind: "contact", title: `Vraag van ${c.name}` })),
         ];
         if (items.length === 0) return Response.json({ sent: 0 });
 

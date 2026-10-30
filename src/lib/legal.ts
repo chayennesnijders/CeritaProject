@@ -14,14 +14,19 @@ export type LegalPage = {
   intro: string;
   draft?: boolean;
   sections: LegalSection[];
+  /** Shows a button to the contact form at the bottom, with this sender type selected. */
+  contact?: "ouder" | "organisatie" | "jongere" | "anders";
 };
 
 export const ORG = {
-  name: "[naam van je stichting of bedrijf]",
-  address: "[adres]",
-  kvk: "[KvK-nummer]",
-  email: "[e-mailadres voor privacyvragen]",
+  name: "CeritaProject",
+  /** The registered business CeritaProject belongs to for now. */
+  company: "Chayshop",
+  /** Fill in to show it; leave empty to leave it out. */
+  kvk: "",
+  email: "ceritaproject@outlook.com",
 };
+const kvk = ORG.kvk ? ` (KvK ${ORG.kvk})` : "";
 
 export const HELP_LINES = [
   { name: "112", what: "Direct gevaar of een noodgeval", phone: "112", href: "tel:112" },
@@ -55,14 +60,15 @@ export const PRIVACY: LegalPage = {
   title: "Privacyverklaring",
   emoji: "🔒",
   draft: true,
+  contact: "anders",
   intro:
     "Hier lees je welke gegevens CeritaProject over jou bewaart, waarom, wie ze kan zien en wat jouw rechten zijn. We verkopen je gegevens nooit en er staan geen advertenties in de app.",
   sections: [
     {
       title: "Wie zijn wij?",
       text: [
-        `CeritaProject wordt gemaakt door ${ORG.name}, ${ORG.address}, KvK ${ORG.kvk}. Wij zijn verantwoordelijk voor je gegevens.`,
-        `Vragen over je privacy? Mail naar ${ORG.email}, of stuur in de app een bericht aan de beheerders.`,
+        `${ORG.name} is een initiatief van ${ORG.company}${kvk}. Wij zijn verantwoordelijk voor je gegevens.`,
+        `We hebben geen bezoekadres: we zijn er online. Vragen over je privacy? Mail naar ${ORG.email}, gebruik het contactformulier onderaan deze pagina, of stuur in de app een bericht aan de beheerders.`,
       ],
     },
     {
@@ -114,7 +120,7 @@ export const PRIVACY: LegalPage = {
         "Voor de app werken we samen met deze bedrijven. Zij mogen je gegevens alleen gebruiken om de app te laten werken:",
       ],
       bullets: [
-        "Supabase: de database en de opslag van foto's en bestanden ([regio, bijvoorbeeld Frankfurt in Duitsland]).",
+        "Supabase: de database en de opslag van foto's en bestanden.",
         "Vercel: de website en de server van de app.",
         "Stripe: betalingen in de shop.",
         "Google Firebase: pushmeldingen op je telefoon.",
@@ -127,7 +133,7 @@ export const PRIVACY: LegalPage = {
       bullets: [
         "Zolang je een account hebt.",
         "Verwijder je je account (Profiel → Account verwijderen), dan wissen we je account en wat je hebt gedeeld meteen. Alleen bestelgegevens bewaren we 7 jaar, omdat de wet dat zegt.",
-        "Back-ups worden na [aantal] dagen automatisch gewist.",
+        "Back-ups worden na 7 dagen automatisch gewist.",
       ],
     },
     {
@@ -216,6 +222,7 @@ export const TERMS: LegalPage = {
   title: "Gebruiksvoorwaarden",
   emoji: "📄",
   draft: true,
+  contact: "anders",
   intro: "Dit zijn de afspraken als je CeritaProject gebruikt.",
   sections: [
     {
@@ -270,6 +277,7 @@ export const TERMS: LegalPage = {
 export const PARENTS: LegalPage = {
   title: "Voor ouders en verzorgers",
   emoji: "👨‍👩‍👧",
+  contact: "ouder",
   intro:
     "Uw kind wil CeritaProject gebruiken. Hier leest u wat de app is, hoe we jongeren veilig houden en wat er met hun gegevens gebeurt.",
   sections: [
@@ -299,8 +307,8 @@ export const PARENTS: LegalPage = {
     {
       title: "Toestemming",
       text: [
-        "Is uw kind jonger dan 16? Dan vragen we bij het aanmelden of u ervan weet en het goed vindt. Heeft u vragen, wilt u dat we het account verwijderen of wilt u meer weten? Neem dan contact met ons op.",
-        `Contact: ${ORG.email}`,
+        "Is uw kind jonger dan 16? Dan vragen we bij het aanmelden of u ervan weet en het goed vindt. Heeft u vragen, wilt u dat we het account verwijderen of wilt u meer weten? Stuur ons dan een bericht met het formulier onderaan deze pagina.",
+        `Mailen kan ook: ${ORG.email}`,
       ],
     },
     {
@@ -317,6 +325,7 @@ export const PARENTS: LegalPage = {
 export const ORGANISATIONS: LegalPage = {
   title: "Voor organisaties",
   emoji: "🤝",
+  contact: "organisatie",
   intro:
     "Werkt u met jongeren, bijvoorbeeld als school, gemeente, jongerenwerk of hulpverlening? CeritaProject werkt graag met u samen.",
   sections: [
@@ -354,7 +363,9 @@ export const ORGANISATIONS: LegalPage = {
     },
     {
       title: "Contact",
-      text: [`${ORG.name} · KvK ${ORG.kvk} · ${ORG.email}`],
+      text: [
+        `${ORG.name}, een initiatief van ${ORG.company}${kvk}. Mail ons op ${ORG.email}, of stuur een bericht via het formulier hieronder.`,
+      ],
     },
   ],
 };

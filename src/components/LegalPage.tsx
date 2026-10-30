@@ -21,8 +21,8 @@ export function LegalPage({ page }: { page: Page }) {
       <p className="mt-3 leading-relaxed text-muted-foreground">{page.intro}</p>
       {page.draft && me?.isAdmin && (
         <p className="mt-4 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
-          🛠️ Alleen beheerders zien dit: dit is een concept. Vul de delen tussen [haken] in
-          (src/lib/legal.ts) en laat de tekst nakijken door iemand met verstand van privacyrecht.
+          🛠️ Alleen beheerders zien dit: dit is een concept. Laat de tekst nakijken door iemand met
+          verstand van privacyrecht.
         </p>
       )}
       <div className="mt-6 space-y-4">
@@ -49,6 +49,20 @@ export function LegalPage({ page }: { page: Page }) {
           </section>
         ))}
       </div>
+      {page.contact && (
+        <Link
+          to="/contact-ons"
+          search={{ soort: page.contact }}
+          className="mt-6 flex items-center gap-3 rounded-3xl border-2 border-primary bg-card p-4 shadow-soft"
+        >
+          <span className="text-3xl">💌</span>
+          <span className="flex-1">
+            <span className="block font-semibold">Een vraag? Stuur ons een bericht</span>
+            <span className="block text-xs text-muted-foreground">We antwoorden per e-mail.</span>
+          </span>
+          <span className="text-primary">→</span>
+        </Link>
+      )}
       <LegalLinks className="mt-8" />
     </div>
   );

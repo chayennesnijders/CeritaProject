@@ -13,6 +13,7 @@ export const NEWS_KINDS = {
   bestelling: { emoji: "🛍️", label: "Nieuwe bestelling", tab: "overzicht" },
   verhaal: { emoji: "✍️", label: "Verhaal ingestuurd", tab: "verhalen" },
   bericht: { emoji: "💌", label: "Bericht van een lid", tab: "berichten" },
+  contact: { emoji: "📬", label: "Contactformulier", tab: "berichten" },
   melding: { emoji: "🚩", label: "Melding", tab: "inbox" },
   zorg: { emoji: "🆘", label: "Zorgsignaal", tab: "inbox" },
 } as const;
@@ -54,6 +55,7 @@ const PLURAL: Record<NewsKind, [string, string]> = {
   bestelling: ["bestelling", "bestellingen"],
   verhaal: ["ingestuurd verhaal", "ingestuurde verhalen"],
   bericht: ["bericht", "berichten"],
+  contact: ["vraag via het contactformulier", "vragen via het contactformulier"],
   melding: ["melding", "meldingen"],
   zorg: ["zorgsignaal", "zorgsignalen"],
 };

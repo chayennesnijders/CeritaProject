@@ -15,6 +15,7 @@ import { ImpactReport } from "@/components/ImpactReport";
 import { SafetyAlerts } from "@/components/SafetyAlerts";
 import { MediaAdmin } from "@/components/MediaAdmin";
 import { AdminMessages } from "@/components/AdminMessages";
+import { PublicMessagesAdmin } from "@/components/PublicMessagesAdmin";
 import { useAdminNews } from "@/lib/use-admin-news";
 import { AdminWeekly } from "@/components/AdminWeekly";
 import { ReportInbox } from "@/components/ReportInbox";
@@ -135,7 +136,12 @@ export function AdminPanel() {
 
       {tab === "nieuws" && <AdminNews uid={me.user.id} onOpenTab={(t) => setTab(t as Tab)} />}
 
-      {tab === "berichten" && <AdminMessages />}
+      {tab === "berichten" && (
+        <div className="space-y-6">
+          <AdminMessages />
+          <PublicMessagesAdmin />
+        </div>
+      )}
 
       {tab === "impact" && <ImpactReport />}
 
