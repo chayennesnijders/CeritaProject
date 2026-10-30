@@ -124,3 +124,42 @@ export const getDownloadUrl = createServerFn({ method: "POST" })
 
 // SHIPPING_CENTS blijft geëxporteerd voor bestaande imports.
 export { SHIPPING_CENTS };
+
+/** Owner only: pay a return back via Stripe (the whole order amount) and take back the pet points it gave. */
+export const refundReturn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ returnId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
+    const { data: isOwner } = await context.supabase.rpc("is_owner", { _user_id: context.userId });
+    if (!isOwner) return { ok: false, error: "Alleen de eigenaar kan terugbetalen." };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: ret } = await supabaseAdmin.from("shop_returns").select("*").eq("id", data.returnId).maybeSingle();
+    if (!ret) return { ok: false, error: "Retour niet gevonden." };
+    if (ret.status === "terugbetaald") return { ok: true };
+    const { data: order } = await supabaseAdmin.from("shop_orders").select("*").eq("id", ret.order_id).maybeSingle();
+    if (!order?.stripe_session_id) return { ok: false, error: "Bij deze bestelling hoort geen betaling." };
+    try {
+      const { stripeEnvironmentFor } = await import("@/lib/returns");
+      const stripe = createStripeClient(stripeEnvironmentFor(order.stripe_session_id));
+      const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id);
+      const intent = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+      if (!intent) return { ok: false, error: "De betaling is niet gevonden bij Stripe." };
+      await stripe.refunds.create(
+        { payment_intent: intent, metadata: { returnId: ret.id } },
+        { idempotencyKey: `refund-${ret.id}` },
+      );
+    } catch (e) {
+      return { ok: false, error: getStripeErrorMessage(e) };
+    }
+    await supabaseAdmin
+      .from("shop_returns")
+      .update({ status: "terugbetaald", refund_cents: order.amount_cents, updated_at: new Date().toISOString() })
+      .eq("id", ret.id);
+    if (order.points > 0) {
+      const { data: pet } = await supabaseAdmin.from("pets").select("xp").eq("user_id", order.user_id).maybeSingle();
+      if (pet) await supabaseAdmin.from("pets").update({ xp: Math.max(0, pet.xp - order.points) }).eq("user_id", order.user_id);
+    }
+    const { pushToUser } = await import("@/lib/push.functions");
+    await pushToUser(order.user_id, { title: "💸 Je geld is teruggestort", body: `Je retour van ${order.product} is terugbetaald.`, link: "/shop", tag: `retour-${ret.id}` });
+    return { ok: true };
+  });

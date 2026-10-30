@@ -11,6 +11,7 @@ import { ArticleComposer } from "@/components/ArticleComposer";
 import { ShopOrdersAdmin } from "@/components/ShopOrdersAdmin";
 import { StorySubmissionsAdmin } from "@/components/StorySubmissionsAdmin";
 import { AdminNews } from "@/components/AdminNews";
+import { ReturnsAdmin } from "@/components/ReturnsAdmin";
 import { ImpactReport } from "@/components/ImpactReport";
 import { SafetyAlerts } from "@/components/SafetyAlerts";
 import { MediaAdmin } from "@/components/MediaAdmin";
@@ -150,6 +151,7 @@ export function AdminPanel() {
       {tab === "overzicht" && (
         <div className="space-y-5">
           <AdminWeekly />
+          {me.isOwner && <ReturnsAdmin />}
           {me.isOwner && <ShopOrdersAdmin />}
           <AnnouncementSender />
         </div>

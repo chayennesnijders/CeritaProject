@@ -1330,6 +1330,45 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_returns: {
+        Row: {
+          contact_email: string
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          reason: string
+          refund_cents: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          reason?: string
+          refund_cents?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          reason?: string
+          refund_cents?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       shop_orders: {
         Row: {
           amount_cents: number
@@ -1601,6 +1640,8 @@ export type Database = {
       can_access_group: { Args: { _group: string }; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_open_media: { Args: { _path: string }; Returns: boolean }
+      request_return: { Args: { _order: string; _reason: string; _email: string }; Returns: string }
+      set_return_status: { Args: { _return: string; _status: string; _note?: string }; Returns: string }
       impact_stats: { Args: never; Returns: Json }
       needs_care: { Args: { _text: string }; Returns: boolean }
       can_message: { Args: { _other: string }; Returns: boolean }

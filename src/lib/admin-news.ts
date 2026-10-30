@@ -11,6 +11,7 @@ export type NewsItem = {
 export const NEWS_KINDS = {
   aanmelding: { emoji: "🎉", label: "Nieuw lid", tab: "groepen" },
   bestelling: { emoji: "🛍️", label: "Nieuwe bestelling", tab: "overzicht" },
+  retour: { emoji: "↩️", label: "Retour aangevraagd", tab: "overzicht" },
   verhaal: { emoji: "✍️", label: "Verhaal ingestuurd", tab: "verhalen" },
   bericht: { emoji: "💌", label: "Bericht van een lid", tab: "berichten" },
   contact: { emoji: "📬", label: "Contactformulier", tab: "berichten" },
@@ -53,6 +54,7 @@ export function dayLabel(iso: string, now: Date = new Date()) {
 const PLURAL: Record<NewsKind, [string, string]> = {
   aanmelding: ["nieuw lid", "nieuwe leden"],
   bestelling: ["bestelling", "bestellingen"],
+  retour: ["retour", "retouren"],
   verhaal: ["ingestuurd verhaal", "ingestuurde verhalen"],
   bericht: ["bericht", "berichten"],
   contact: ["vraag via het contactformulier", "vragen via het contactformulier"],
@@ -62,7 +64,7 @@ const PLURAL: Record<NewsKind, [string, string]> = {
 
 /** Push text for an admin about news since the last check; orders only for the owner. */
 export function adminPushMessage(items: Pick<NewsItem, "kind" | "title">[], isOwner: boolean) {
-  const mine = items.filter((i) => i.kind in NEWS_KINDS && (i.kind !== "bestelling" || isOwner));
+  const mine = items.filter((i) => i.kind in NEWS_KINDS && ((i.kind !== "bestelling" && i.kind !== "retour") || isOwner));
   if (mine.length === 0) return null;
   // Care signals come first and get their own urgent title.
   const care = mine.filter((i) => i.kind === "zorg").length;

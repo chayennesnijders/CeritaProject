@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ReturnRequest } from "@/components/ReturnRequest";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -169,6 +170,7 @@ function ShopPage() {
                 }}><Download className="size-4" /> Download pdf</Button>
               )}
               {o.tracking_code && <p className="mt-1 text-xs text-muted-foreground">Track&trace: <b>{o.tracking_code}</b> — volg je pakket op dhl.nl</p>}
+              {!isDigital && <ReturnRequest order={o} />}
             </div>
             );
           })}

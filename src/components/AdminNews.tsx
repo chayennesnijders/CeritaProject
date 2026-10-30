@@ -83,7 +83,7 @@ export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: st
         </p>
         <div className="mt-2 grid grid-cols-2 gap-2">
           {(Object.keys(NEWS_KINDS) as NewsKind[])
-            .filter((k) => k !== "bestelling" || items.some((i) => i.kind === "bestelling"))
+            .filter((k) => k === "aanmelding" || k === "verhaal" || items.some((i) => i.kind === k))
             .map((k) => (
               <button
                 key={k}

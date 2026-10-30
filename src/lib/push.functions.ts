@@ -374,3 +374,23 @@ export const answerAdminMessage = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// Owner only: tell the member that their return moved on (address mailed, package received, refused).
+export const notifyReturnUpdate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ returnId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isOwner } = await context.supabase.rpc("is_owner", { _user_id: context.userId });
+    if (!isOwner) return { sent: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: ret } = await supabaseAdmin.from("shop_returns").select("user_id, status").eq("id", data.returnId).maybeSingle();
+    if (!ret) return { sent: 0 };
+    const { returnStatus } = await import("@/lib/returns");
+    const sent = await pushToUser(ret.user_id, {
+      title: `📦 Je retour: ${returnStatus(ret.status).label.toLowerCase()}`,
+      body: returnStatus(ret.status).member,
+      link: "/shop",
+      tag: `retour-${data.returnId}`,
+    });
+    return { sent };
+  });

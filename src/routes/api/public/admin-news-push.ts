@@ -27,43 +27,49 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
         const until = new Date().toISOString();
         await supabaseAdmin.from("admin_push_state").upsert({ id: 1, last_run: until });
 
-        const [members, orders, stories, reports, messages, care, contact] = await Promise.all([
-          supabaseAdmin
-            .from("profiles")
-            .select("display_name")
-            .gt("created_at", since)
-            .lte("created_at", until),
-          supabaseAdmin
-            .from("shop_orders")
-            .select("product, ship_name")
-            .gt("created_at", since)
-            .lte("created_at", until),
-          supabaseAdmin
-            .from("story_submissions")
-            .select("title")
-            .gt("created_at", since)
-            .lte("created_at", until),
-          supabaseAdmin
-            .from("reports")
-            .select("reason")
-            .gt("created_at", since)
-            .lte("created_at", until),
-          supabaseAdmin
-            .from("admin_messages")
-            .select("body")
-            .gt("created_at", since)
-            .lte("created_at", until),
-          supabaseAdmin
-            .from("safety_alerts")
-            .select("id")
-            .gt("created_at", since)
-            .lte("created_at", until),
-          supabaseAdmin
-            .from("public_messages")
-            .select("name")
-            .gt("created_at", since)
-            .lte("created_at", until),
-        ]);
+        const [members, orders, stories, reports, messages, care, contact, returns] =
+          await Promise.all([
+            supabaseAdmin
+              .from("profiles")
+              .select("display_name")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("shop_orders")
+              .select("product, ship_name")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("story_submissions")
+              .select("title")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("reports")
+              .select("reason")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("admin_messages")
+              .select("body")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("safety_alerts")
+              .select("id")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("public_messages")
+              .select("name")
+              .gt("created_at", since)
+              .lte("created_at", until),
+            supabaseAdmin
+              .from("shop_returns")
+              .select("id")
+              .gt("created_at", since)
+              .lte("created_at", until),
+          ]);
         const items = [
           ...(members.data ?? []).map((m) => ({ kind: "aanmelding", title: m.display_name })),
           ...(orders.data ?? []).map((o) => ({
@@ -76,6 +82,10 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
           // No text of care signals in a push: it can show up on a locked screen.
           ...(care.data ?? []).map(() => ({ kind: "zorg", title: "Zorgsignaal" })),
           ...(contact.data ?? []).map((c) => ({ kind: "contact", title: `Vraag van ${c.name}` })),
+          ...(returns.data ?? []).map(() => ({
+            kind: "retour",
+            title: "Iemand wil iets terugsturen",
+          })),
         ];
         if (items.length === 0) return Response.json({ sent: 0 });
 

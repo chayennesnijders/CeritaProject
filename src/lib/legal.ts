@@ -251,7 +251,9 @@ export const TERMS: LegalPage = {
       bullets: [
         "Prijzen staan in de shop, inclusief btw.",
         "Betalen gaat veilig via Stripe.",
-        "Fysieke producten mag je binnen 14 dagen na ontvangst terugsturen, zonder reden.",
+        "Fysieke producten mag je binnen 14 dagen na ontvangst terugsturen, zonder reden. Dat vraag je aan in de app: Shop → Mijn bestellingen → Retourneren. We mailen je dan het retouradres.",
+        "Stuur het product ongebruikt en in de originele verpakking terug. De verzendkosten voor het terugsturen betaal je zelf.",
+        "Je krijgt het hele bedrag terug, binnen 14 dagen nadat we het pakketje hebben ontvangen. De punten voor je diertje die je met die bestelling kreeg, gaan er dan weer af.",
         `Klopt er iets niet met je bestelling? Mail naar ${ORG.email}.`,
       ],
     },
