@@ -14,5 +14,7 @@ describe("chat files", () => {
     expect(attachmentLabel("video/mp4")).toBe("🎬 Filmpje");
     expect(attachmentLabel("application/pdf")).toBe("📎 Bestand");
     expect(attachmentLabel(null)).toBe("📎 Bestand");
+    expect(attachmentLabel("image/png", "tekening.png")).toBe("🎨 Tekening");
+    expect(attachmentLabel("image/png", "vakantie.png")).toBe("📷 Foto");
   });
 });

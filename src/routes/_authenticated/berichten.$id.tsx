@@ -105,7 +105,7 @@ function ChatPage() {
     try {
       if (audio) path = await uploadChatAudio(audio, uid, "dm", id);
       if (file) attachment = await uploadChatFile(file, uid, "dm", id);
-      const fallback = attachment ? attachmentLabel(attachment.attachment_type) : "🎙️ Spraakmemo";
+      const fallback = attachment ? attachmentLabel(attachment.attachment_type, attachment.attachment_name) : "🎙️ Spraakmemo";
       const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || fallback, audio_path: path, ...attachment }).select("id").single();
       if (error) throw error;
       if (needsCare(body)) showCareHelp();

@@ -12,8 +12,13 @@ export function attachmentKind(type: string | null | undefined): ChatAttachmentK
   return "file";
 }
 
+/** A drawing made in the chat is sent as a PNG with this name. */
+export const DRAWING_FILE_NAME = "tekening.png";
+export const isDrawing = (name: string | null | undefined) => name === DRAWING_FILE_NAME;
+
 /** Text shown (and used in pushes) when a message has only an attachment. */
-export function attachmentLabel(type: string | null | undefined) {
+export function attachmentLabel(type: string | null | undefined, name?: string | null) {
+  if (isDrawing(name)) return "🎨 Tekening";
   const kind = attachmentKind(type);
   return kind === "image" ? "📷 Foto" : kind === "video" ? "🎬 Filmpje" : "📎 Bestand";
 }

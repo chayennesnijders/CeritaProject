@@ -139,7 +139,7 @@ function GroupPage() {
     if (audio) path = await uploadChatAudio(audio, uid, "group", groupId);
     if (file) attachment = await uploadChatFile(file, uid, "group", groupId);
     const mentions = parseMentions(text, data?.members ?? []);
-    const fallback = attachment ? attachmentLabel(attachment.attachment_type) : "🎙️ Spraakmemo";
+    const fallback = attachment ? attachmentLabel(attachment.attachment_type, attachment.attachment_name) : "🎙️ Spraakmemo";
     const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions }).select("id").single();
     if (error) throw error;
     if (needsCare(text)) showCareHelp();

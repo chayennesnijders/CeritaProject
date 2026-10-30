@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, FileText, Paperclip, X } from "lucide-react";
+import { Camera, FileText, Paintbrush, Paperclip, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useSignedImage } from "@/lib/articles";
-import { attachmentKind, CHAT_FILE_ACCEPT, CHAT_FILE_MAX_BYTES } from "@/lib/chat-files";
+import { DrawingPad } from "@/components/DrawingPad";
+import {
+  attachmentKind,
+  CHAT_FILE_ACCEPT,
+  CHAT_FILE_MAX_BYTES,
+  DRAWING_FILE_NAME,
+  isDrawing,
+} from "@/lib/chat-files";
 
 /** A photo, video or file inside a chat message (loaded through a short-lived signed link). */
 export function ChatAttachment({
@@ -67,6 +74,7 @@ export function ChatAttachmentPicker({
   const cameraRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [drawing, setDrawing] = useState(false);
   useEffect(() => {
     if (!file || !file.type.startsWith("image/")) {
       setPreview(null);
@@ -121,14 +129,40 @@ export function ChatAttachmentPicker({
       >
         <Paperclip className="size-4" />
       </Button>
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
+        disabled={disabled}
+        onClick={() => setDrawing(true)}
+        aria-label="Tekening maken"
+        title="Tekening maken"
+      >
+        <Paintbrush className="size-4" />
+      </Button>
+      <DrawingPad
+        open={drawing}
+        title="🎨 Teken iets voor in de chat"
+        start={file && isDrawing(file.name) ? file : null}
+        onClose={() => setDrawing(false)}
+        onDone={(f) => {
+          setDrawing(false);
+          onChange(new File([f], DRAWING_FILE_NAME, { type: "image/png" }));
+        }}
+      />
       {file && (
         <div className="flex min-w-0 items-center gap-2 rounded-xl bg-muted px-2 py-1 text-xs">
           {preview ? (
-            <img src={preview} alt="" className="size-8 rounded-lg object-cover" />
+            <img
+              src={preview}
+              alt=""
+              onClick={() => isDrawing(file.name) && !disabled && setDrawing(true)}
+              className="size-8 rounded-lg object-cover"
+            />
           ) : (
             <FileText className="size-4 shrink-0" />
           )}
-          <span className="truncate">{file.name}</span>
+          <span className="truncate">{isDrawing(file.name) ? "🎨 Tekening" : file.name}</span>
           <button
             type="button"
             disabled={disabled}
