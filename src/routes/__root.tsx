@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TEXT_SIZE_BOOT } from "@/lib/text-size";
 import {
   Outlet,
   Link,
@@ -87,6 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       // Thema uit de opslag van dit apparaat toepassen vóór de eerste verfbeurt
       { children: "try{var t=localStorage.getItem('cerita-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}" },
+      { children: TEXT_SIZE_BOOT },
     ],
   }),
   shellComponent: RootShell,

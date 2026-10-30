@@ -1,4 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QuestionsAdmin } from "@/components/QuestionsAdmin";
+import { EventsAdmin } from "@/components/EventsAdmin";
 import { MusicAdmin } from "@/components/MusicAdmin";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +28,8 @@ import { reportsQueryOptions } from "@/lib/reports";
 const TABS = [
   { id: "nieuws", label: "Nieuws" },
   { id: "berichten", label: "Berichten" },
+  { id: "vragen", label: "Vragen" },
+  { id: "agenda", label: "Agenda" },
   { id: "impact", label: "Impact" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
@@ -147,6 +151,8 @@ export function AdminPanel() {
       )}
 
       {tab === "impact" && <ImpactReport />}
+      {tab === "vragen" && <QuestionsAdmin />}
+      {tab === "agenda" && <EventsAdmin />}
       {tab === "muziek" && <MusicAdmin />}
 
       {tab === "luisteren" && <MediaAdmin />}

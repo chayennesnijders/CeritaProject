@@ -2,14 +2,24 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type Push = { title: string; body: string; link: string; tag: string };
+type Push = { title: string; body: string; link: string; tag: string; urgent?: boolean };
 
 // Sends one push to every registered device of a user. Removes stale tokens.
+// Skipped during the member's quiet hours, unless it is urgent (care signals for admins).
 export async function pushToUser(userId: string, msg: Push) {
   const { fcmServiceAccount, sendFcm } = await import("@/lib/fcm.server");
   const sa = fcmServiceAccount();
   if (!sa) return 0;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  if (!msg.urgent) {
+    const { data: prefs } = await supabaseAdmin
+      .from("profiles")
+      .select("quiet_start, quiet_end")
+      .eq("id", userId)
+      .maybeSingle();
+    const { dutchHourNow, inQuietHours } = await import("@/lib/quiet-hours");
+    if (inQuietHours(dutchHourNow(), prefs?.quiet_start, prefs?.quiet_end)) return 0;
+  }
   const { data: tokens } = await supabaseAdmin
     .from("push_tokens")
     .select("token")

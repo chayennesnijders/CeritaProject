@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { DrawingPad } from "@/components/DrawingPad";
 import { isDrawingChallenge } from "@/lib/drawing";
 import { needsCare, showCareHelp } from "@/lib/care";
@@ -105,6 +105,14 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
         <h1 className="text-3xl">Mijn dagboek</h1>
         <span className="text-xs text-muted-foreground">🔒 Alleen voor jou</span>
       </div>
+      <Link to="/brieven" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+        <span className="text-2xl">💌</span>
+        <span className="flex-1">
+          <span className="block text-sm font-semibold">Brief aan jezelf</span>
+          <span className="block text-xs text-muted-foreground">Schrijf iets dat je pas over een paar maanden mag lezen</span>
+        </span>
+        <span className="text-primary">→</span>
+      </Link>
 
       {challenge && (
         <section className="rounded-3xl bg-warm p-5 text-blush shadow-soft">

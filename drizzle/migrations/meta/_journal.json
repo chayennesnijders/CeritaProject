@@ -519,6 +519,13 @@
       "when": 1793206800000,
       "tag": "0073_remove_books",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1793293200000,
+      "tag": "0074_support_features",
+      "breakpoints": true
     }
   ]
 }

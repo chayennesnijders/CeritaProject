@@ -20,7 +20,10 @@ import { Route as OudersRouteImport } from './routes/ouders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
+import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
+import { Route as AuthenticatedBrievenRouteImport } from './routes/_authenticated/brieven'
+import { Route as AuthenticatedBuddyRouteImport } from './routes/_authenticated/buddy'
 import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
@@ -31,7 +34,9 @@ import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRustRouteImport } from './routes/_authenticated/rust'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedStemmingRouteImport } from './routes/_authenticated/stemming'
+import { Route as AuthenticatedVeiligheidsplanRouteImport } from './routes/_authenticated/veiligheidsplan'
 import { Route as AuthenticatedVerhaalInsturenRouteImport } from './routes/_authenticated/verhaal-insturen'
+import { Route as AuthenticatedVragenRouteImport } from './routes/_authenticated/vragen'
 import { Route as AuthenticatedVriendenRouteImport } from './routes/_authenticated/vrienden'
 import { Route as ApiAuthEmailRouteImport } from './routes/api/auth-email'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
@@ -45,6 +50,7 @@ import { Route as AuthenticatedOntdekkenIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedOntdekkenArticleIdRouteImport } from './routes/_authenticated/ontdekken.$articleId'
 import { Route as ApiPublicAdminNewsPushRouteImport } from './routes/api/public/admin-news-push'
 import { Route as ApiPublicFreeItemsWeeklyRouteImport } from './routes/api/public/free-items-weekly'
+import { Route as ApiPublicMemberRemindersRouteImport } from './routes/api/public/member-reminders'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,9 +106,24 @@ const VoorwaardenRoute = VoorwaardenRouteImport.update({
   path: '/voorwaarden',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
   id: '/beheer',
   path: '/beheer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBrievenRoute = AuthenticatedBrievenRouteImport.update({
+  id: '/brieven',
+  path: '/brieven',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBuddyRoute = AuthenticatedBuddyRouteImport.update({
+  id: '/buddy',
+  path: '/buddy',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedComplimentenRoute =
@@ -156,12 +177,23 @@ const AuthenticatedStemmingRoute = AuthenticatedStemmingRouteImport.update({
   path: '/stemming',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVeiligheidsplanRoute =
+  AuthenticatedVeiligheidsplanRouteImport.update({
+    id: '/veiligheidsplan',
+    path: '/veiligheidsplan',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedVerhaalInsturenRoute =
   AuthenticatedVerhaalInsturenRouteImport.update({
     id: '/verhaal-insturen',
     path: '/verhaal-insturen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVragenRoute = AuthenticatedVragenRouteImport.update({
+  id: '/vragen',
+  path: '/vragen',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVriendenRoute = AuthenticatedVriendenRouteImport.update({
   id: '/vrienden',
   path: '/vrienden',
@@ -236,6 +268,12 @@ const ApiPublicFreeItemsWeeklyRoute =
     path: '/api/public/free-items-weekly',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMemberRemindersRoute =
+  ApiPublicMemberRemindersRouteImport.update({
+    id: '/api/public/member-reminders',
+    path: '/api/public/member-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -248,7 +286,10 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/brieven': typeof AuthenticatedBrievenRoute
+  '/buddy': typeof AuthenticatedBuddyRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -259,7 +300,9 @@ export interface FileRoutesByFullPath {
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
   '/stemming': typeof AuthenticatedStemmingRoute
+  '/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
+  '/vragen': typeof AuthenticatedVragenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -269,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
+  '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
   '/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/community/': typeof AuthenticatedCommunityIndexRoute
   '/luisteren/': typeof AuthenticatedLuisterenIndexRoute
@@ -285,7 +329,10 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/brieven': typeof AuthenticatedBrievenRoute
+  '/buddy': typeof AuthenticatedBuddyRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
@@ -296,7 +343,9 @@ export interface FileRoutesByTo {
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
   '/stemming': typeof AuthenticatedStemmingRoute
+  '/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
+  '/vragen': typeof AuthenticatedVragenRoute
   '/vrienden': typeof AuthenticatedVriendenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -306,6 +355,7 @@ export interface FileRoutesByTo {
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
+  '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
   '/berichten': typeof AuthenticatedBerichtenIndexRoute
   '/community': typeof AuthenticatedCommunityIndexRoute
   '/luisteren': typeof AuthenticatedLuisterenIndexRoute
@@ -324,7 +374,10 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
+  '/_authenticated/brieven': typeof AuthenticatedBrievenRoute
+  '/_authenticated/buddy': typeof AuthenticatedBuddyRoute
   '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
@@ -335,7 +388,9 @@ export interface FileRoutesById {
   '/_authenticated/rust': typeof AuthenticatedRustRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/_authenticated/stemming': typeof AuthenticatedStemmingRoute
+  '/_authenticated/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/_authenticated/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
+  '/_authenticated/vragen': typeof AuthenticatedVragenRoute
   '/_authenticated/vrienden': typeof AuthenticatedVriendenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -345,6 +400,7 @@ export interface FileRoutesById {
   '/_authenticated/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
+  '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
   '/_authenticated/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/_authenticated/community/': typeof AuthenticatedCommunityIndexRoute
   '/_authenticated/luisteren/': typeof AuthenticatedLuisterenIndexRoute
@@ -363,7 +419,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/agenda'
     | '/beheer'
+    | '/brieven'
+    | '/buddy'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
@@ -374,7 +433,9 @@ export interface FileRouteTypes {
     | '/rust'
     | '/shop'
     | '/stemming'
+    | '/veiligheidsplan'
     | '/verhaal-insturen'
+    | '/vragen'
     | '/vrienden'
     | '/api/auth-email'
     | '/api/transcribe'
@@ -384,6 +445,7 @@ export interface FileRouteTypes {
     | '/ontdekken/$articleId'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
+    | '/api/public/member-reminders'
     | '/berichten/'
     | '/community/'
     | '/luisteren/'
@@ -400,7 +462,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/agenda'
     | '/beheer'
+    | '/brieven'
+    | '/buddy'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
@@ -411,7 +476,9 @@ export interface FileRouteTypes {
     | '/rust'
     | '/shop'
     | '/stemming'
+    | '/veiligheidsplan'
     | '/verhaal-insturen'
+    | '/vragen'
     | '/vrienden'
     | '/api/auth-email'
     | '/api/transcribe'
@@ -421,6 +488,7 @@ export interface FileRouteTypes {
     | '/ontdekken/$articleId'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
+    | '/api/public/member-reminders'
     | '/berichten'
     | '/community'
     | '/luisteren'
@@ -438,7 +506,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/_authenticated/agenda'
     | '/_authenticated/beheer'
+    | '/_authenticated/brieven'
+    | '/_authenticated/buddy'
     | '/_authenticated/complimenten'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
@@ -449,7 +520,9 @@ export interface FileRouteTypes {
     | '/_authenticated/rust'
     | '/_authenticated/shop'
     | '/_authenticated/stemming'
+    | '/_authenticated/veiligheidsplan'
     | '/_authenticated/verhaal-insturen'
+    | '/_authenticated/vragen'
     | '/_authenticated/vrienden'
     | '/api/auth-email'
     | '/api/transcribe'
@@ -459,6 +532,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ontdekken/$articleId'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
+    | '/api/public/member-reminders'
     | '/_authenticated/berichten/'
     | '/_authenticated/community/'
     | '/_authenticated/luisteren/'
@@ -481,6 +555,7 @@ export interface RootRouteChildren {
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiPublicAdminNewsPushRoute: typeof ApiPublicAdminNewsPushRoute
   ApiPublicFreeItemsWeeklyRoute: typeof ApiPublicFreeItemsWeeklyRoute
+  ApiPublicMemberRemindersRoute: typeof ApiPublicMemberRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -562,11 +637,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VoorwaardenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/agenda': {
+      id: '/_authenticated/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/beheer': {
       id: '/_authenticated/beheer'
       path: '/beheer'
       fullPath: '/beheer'
       preLoaderRoute: typeof AuthenticatedBeheerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/brieven': {
+      id: '/_authenticated/brieven'
+      path: '/brieven'
+      fullPath: '/brieven'
+      preLoaderRoute: typeof AuthenticatedBrievenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/buddy': {
+      id: '/_authenticated/buddy'
+      path: '/buddy'
+      fullPath: '/buddy'
+      preLoaderRoute: typeof AuthenticatedBuddyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/complimenten': {
@@ -639,11 +735,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStemmingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/veiligheidsplan': {
+      id: '/_authenticated/veiligheidsplan'
+      path: '/veiligheidsplan'
+      fullPath: '/veiligheidsplan'
+      preLoaderRoute: typeof AuthenticatedVeiligheidsplanRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/verhaal-insturen': {
       id: '/_authenticated/verhaal-insturen'
       path: '/verhaal-insturen'
       fullPath: '/verhaal-insturen'
       preLoaderRoute: typeof AuthenticatedVerhaalInsturenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vragen': {
+      id: '/_authenticated/vragen'
+      path: '/vragen'
+      fullPath: '/vragen'
+      preLoaderRoute: typeof AuthenticatedVragenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/vrienden': {
@@ -737,11 +847,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFreeItemsWeeklyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/member-reminders': {
+      id: '/api/public/member-reminders'
+      path: '/api/public/member-reminders'
+      fullPath: '/api/public/member-reminders'
+      preLoaderRoute: typeof ApiPublicMemberRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
+  AuthenticatedBrievenRoute: typeof AuthenticatedBrievenRoute
+  AuthenticatedBuddyRoute: typeof AuthenticatedBuddyRoute
   AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
@@ -752,7 +872,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRustRoute: typeof AuthenticatedRustRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
   AuthenticatedStemmingRoute: typeof AuthenticatedStemmingRoute
+  AuthenticatedVeiligheidsplanRoute: typeof AuthenticatedVeiligheidsplanRoute
   AuthenticatedVerhaalInsturenRoute: typeof AuthenticatedVerhaalInsturenRoute
+  AuthenticatedVragenRoute: typeof AuthenticatedVragenRoute
   AuthenticatedVriendenRoute: typeof AuthenticatedVriendenRoute
   AuthenticatedBerichtenIdRoute: typeof AuthenticatedBerichtenIdRoute
   AuthenticatedCommunityGroupIdRoute: typeof AuthenticatedCommunityGroupIdRoute
@@ -765,7 +887,10 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
+  AuthenticatedBrievenRoute: AuthenticatedBrievenRoute,
+  AuthenticatedBuddyRoute: AuthenticatedBuddyRoute,
   AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
@@ -776,7 +901,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRustRoute: AuthenticatedRustRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
   AuthenticatedStemmingRoute: AuthenticatedStemmingRoute,
+  AuthenticatedVeiligheidsplanRoute: AuthenticatedVeiligheidsplanRoute,
   AuthenticatedVerhaalInsturenRoute: AuthenticatedVerhaalInsturenRoute,
+  AuthenticatedVragenRoute: AuthenticatedVragenRoute,
   AuthenticatedVriendenRoute: AuthenticatedVriendenRoute,
   AuthenticatedBerichtenIdRoute: AuthenticatedBerichtenIdRoute,
   AuthenticatedCommunityGroupIdRoute: AuthenticatedCommunityGroupIdRoute,
@@ -807,6 +934,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiPublicAdminNewsPushRoute: ApiPublicAdminNewsPushRoute,
   ApiPublicFreeItemsWeeklyRoute: ApiPublicFreeItemsWeeklyRoute,
+  ApiPublicMemberRemindersRoute: ApiPublicMemberRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

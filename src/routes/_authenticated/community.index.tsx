@@ -143,6 +143,18 @@ function CommunityPage() {
           </span>
         </button>
       )}
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Link to="/vragen" className="rounded-3xl bg-card p-3 shadow-soft">
+          <span className="block text-2xl">❓</span>
+          <span className="block text-sm font-semibold">Anoniem vragen</span>
+          <span className="block text-[11px] text-muted-foreground">Stel een vraag zonder je naam</span>
+        </Link>
+        <Link to="/agenda" className="rounded-3xl bg-card p-3 shadow-soft">
+          <span className="block text-2xl">📅</span>
+          <span className="block text-sm font-semibold">Agenda</span>
+          <span className="block text-[11px] text-muted-foreground">Online meetups om mee te doen</span>
+        </Link>
+      </div>
       <GroupForm open={creating} onOpenChange={setCreating} onSubmit={createGroup} />
       <div className="mt-5 space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">Laden…</p>}

@@ -60,6 +60,9 @@ export function MyBadges({ uid }: { uid: string }) {
         <Link to="/rust" className="rounded-2xl bg-muted p-2">
           🫧 Rustmoment
         </Link>
+        <Link to="/veiligheidsplan" className="rounded-2xl bg-muted p-2">🛟 Veiligheidsplan</Link>
+        <Link to="/brieven" className="rounded-2xl bg-muted p-2">💌 Brief aan jezelf</Link>
+        <Link to="/vragen" className="rounded-2xl bg-muted p-2">❓ Anoniem vragen</Link>
       </div>
     </section>
   );

@@ -99,6 +99,14 @@ function FriendsPage() {
           Hier zie je leden van {bandLabel(band!)} jaar — jouw eigen groep. Stuur een chatverzoek om kennis te maken.
         </p>
       </div>
+      <button onClick={() => nav({ to: "/buddy" })} className="flex w-full items-center gap-3 rounded-3xl bg-secondary p-4 text-left text-secondary-foreground shadow-soft">
+        <span className="text-2xl">🤝</span>
+        <span className="flex-1">
+          <span className="block text-sm font-semibold">Buddy zoeken</span>
+          <span className="block text-xs">Vind iemand die dezelfde dingen leuk vindt als jij</span>
+        </span>
+        <span>→</span>
+      </button>
       <Input
         placeholder="Zoek op naam of @gebruikersnaam…"
         value={q}

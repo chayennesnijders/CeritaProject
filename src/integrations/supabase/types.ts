@@ -14,6 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
+      safety_plans: {
+        Row: {
+          plan: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          plan?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          plan?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      anon_questions: {
+        Row: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          answer: string | null
+          answer_seen: boolean
+          answered_at: string | null
+          answered_by: string | null
+          body: string
+          created_at: string
+          id: string
+          published: boolean
+          status: string
+          user_id: string
+        }
+        Insert: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          answer?: string | null
+          answer_seen?: boolean
+          answered_at?: string | null
+          answered_by?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          status?: string
+          user_id: string
+        }
+        Update: {
+          age_group?: Database["public"]["Enums"]["age_group"]
+          answer?: string | null
+          answer_seen?: boolean
+          answered_at?: string | null
+          answered_by?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          link: string | null
+          minutes: number
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          link?: string | null
+          minutes?: number
+          starts_at: string
+          title: string
+        }
+        Update: {
+          age_group?: Database["public"]["Enums"]["age_group"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          link?: string | null
+          minutes?: number
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          reminded: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          reminded?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          reminded?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      buddy_profiles: {
+        Row: {
+          interests: string[]
+          looking: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          interests?: string[]
+          looking?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          interests?: string[]
+          looking?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      future_letters: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          notified: boolean
+          open_at: string
+          opened_at: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          notified?: boolean
+          open_at: string
+          opened_at?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          notified?: boolean
+          open_at?: string
+          opened_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       playlists: {
         Row: {
           created_at: string
@@ -1438,6 +1606,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          quiet_end: number | null
+          quiet_start: number | null
           age_group: Database["public"]["Enums"]["age_group"]
           allow_calls: boolean
           allow_messages: boolean
@@ -1451,6 +1621,8 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          quiet_end?: number | null
+          quiet_start?: number | null
           age_group?: Database["public"]["Enums"]["age_group"]
           allow_calls?: boolean
           allow_messages?: boolean
@@ -1464,6 +1636,8 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          quiet_end?: number | null
+          quiet_start?: number | null
           age_group?: Database["public"]["Enums"]["age_group"]
           allow_calls?: boolean
           allow_messages?: boolean
@@ -1956,6 +2130,14 @@ export type Database = {
       add_song_tip: { Args: { _title: string; _artist: string; _url: string }; Returns: string }
       can_see_song_tip: { Args: { _tip: string }; Returns: boolean }
       is_music_url: { Args: { _url: string }; Returns: boolean }
+      ask_question: { Args: { _body: string }; Returns: string }
+      answer_question: { Args: { _question: string; _answer: string; _publish: boolean }; Returns: undefined }
+      question_wall: { Args: never; Returns: { id: string; body: string; answer: string; answered_at: string }[] }
+      write_letter: { Args: { _body: string; _months: number }; Returns: string }
+      my_letters: { Args: never; Returns: { id: string; body: string | null; open_at: string; opened_at: string | null; created_at: string }[] }
+      open_letter: { Args: { _letter: string }; Returns: undefined }
+      event_counts: { Args: never; Returns: { event_id: string; going: number }[] }
+      buddy_suggestions: { Args: never; Returns: { user_id: string; display_name: string; username: string | null; avatar_url: string | null; shared: string[] }[] }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
       join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
       chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }

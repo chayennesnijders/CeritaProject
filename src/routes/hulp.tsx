@@ -42,6 +42,14 @@ function HelpPage() {
       <div className="mt-4">
         <HelpLines />
       </div>
+      <Link to="/veiligheidsplan" className="mt-4 flex items-center gap-3 rounded-3xl bg-secondary p-4 text-secondary-foreground shadow-soft">
+        <span className="text-2xl">🛟</span>
+        <span className="flex-1">
+          <span className="block text-sm font-semibold">Mijn veiligheidsplan</span>
+          <span className="block text-xs">Jouw eigen plan voor als het even niet goed gaat (alleen voor leden, privé)</span>
+        </span>
+        <span>→</span>
+      </Link>
 
       <section className="mt-6 rounded-3xl bg-card p-5 shadow-soft">
         <h2 className="text-lg">Even rustig worden 🌿</h2>

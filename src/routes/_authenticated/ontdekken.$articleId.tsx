@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ReadAloud } from "@/components/ReadAloud";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
@@ -68,10 +69,13 @@ function ArticlePage() {
       <h1 className="mt-1 text-3xl">{article.title}</h1>
       <div className="mt-2 flex items-center justify-between gap-2">
         <p className="text-xs text-muted-foreground">{new Date(article.created_at).toLocaleDateString("nl-NL")} · ⏱️ {readingMinutes(article.body)} min lezen</p>
+        <div className="flex shrink-0 items-center gap-2">
+        <ReadAloud text={`${article.title}. ${article.body}`} />
         <button onClick={() => actions.toggleSave(article.id, saved.has(article.id))} aria-pressed={saved.has(article.id)}
           className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${saved.has(article.id) ? "bg-primary text-primary-foreground" : "bg-card shadow-soft"}`}>
           {saved.has(article.id) ? "⭐ Bewaard" : "☆ Bewaren"}
         </button>
+        </div>
       </div>
       {k.kind === "verhaal" && SENSITIVE.has(article.category) && (
         <div className="mt-4 rounded-2xl bg-secondary p-4 text-sm text-secondary-foreground">

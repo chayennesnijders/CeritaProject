@@ -27,55 +27,70 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
         const until = new Date().toISOString();
         await supabaseAdmin.from("admin_push_state").upsert({ id: 1, last_run: until });
 
-        const [members, orders, stories, reports, messages, care, contact, returns, groups] =
-          await Promise.all([
-            supabaseAdmin
-              .from("profiles")
-              .select("display_name")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("shop_orders")
-              .select("product, ship_name")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("story_submissions")
-              .select("title")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("reports")
-              .select("reason")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("admin_messages")
-              .select("body")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("safety_alerts")
-              .select("id")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("public_messages")
-              .select("name")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("shop_returns")
-              .select("id")
-              .gt("created_at", since)
-              .lte("created_at", until),
-            supabaseAdmin
-              .from("groups")
-              .select("name, emoji")
-              .not("created_by", "is", null)
-              .gt("created_at", since)
-              .lte("created_at", until),
-          ]);
+        const [
+          members,
+          orders,
+          stories,
+          reports,
+          messages,
+          care,
+          contact,
+          returns,
+          groups,
+          questions,
+        ] = await Promise.all([
+          supabaseAdmin
+            .from("profiles")
+            .select("display_name")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("shop_orders")
+            .select("product, ship_name")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("story_submissions")
+            .select("title")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("reports")
+            .select("reason")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("admin_messages")
+            .select("body")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("safety_alerts")
+            .select("id")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("public_messages")
+            .select("name")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("shop_returns")
+            .select("id")
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("groups")
+            .select("name, emoji")
+            .not("created_by", "is", null)
+            .gt("created_at", since)
+            .lte("created_at", until),
+          supabaseAdmin
+            .from("anon_questions")
+            .select("id")
+            .gt("created_at", since)
+            .lte("created_at", until),
+        ]);
         const items = [
           ...(members.data ?? []).map((m) => ({ kind: "aanmelding", title: m.display_name })),
           ...(orders.data ?? []).map((o) => ({
@@ -93,6 +108,11 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
             title: "Iemand wil iets terugsturen",
           })),
           ...(groups.data ?? []).map((g) => ({ kind: "groep", title: `${g.emoji} ${g.name}` })),
+          // The question itself stays out of the push: it can show on a locked screen.
+          ...(questions.data ?? []).map(() => ({
+            kind: "vraag",
+            title: "Iemand stelde een anonieme vraag",
+          })),
         ];
         if (items.length === 0) return Response.json({ sent: 0 });
 
@@ -111,7 +131,13 @@ export const Route = createFileRoute("/api/public/admin-news-push")({
           if (!admins.has(user_id)) continue;
           const msg = adminPushMessage(items, owners.has(user_id));
           if (msg)
-            sent += await pushToUser(user_id, { ...msg, link: "/beheer", tag: `nieuws-${until}` });
+            sent += await pushToUser(user_id, {
+              ...msg,
+              link: "/beheer",
+              tag: `nieuws-${until}`,
+              // Care signals reach admins even in their quiet hours.
+              urgent: items.some((i) => i.kind === "zorg"),
+            });
         }
         return Response.json({ sent });
       },

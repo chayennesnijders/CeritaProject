@@ -1,4 +1,5 @@
 import { AppLockSettings } from "@/components/AppLock";
+import { ComfortSettings } from "@/components/ComfortSettings";
 import { MyBadges } from "@/components/MyBadges";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -111,6 +112,7 @@ function ProfilePage() {
         </div>
       </div>
       <MyBadges uid={p.id} />
+      <ComfortSettings uid={p.id} quietStart={p.quiet_start ?? null} quietEnd={p.quiet_end ?? null} />
       <AppLockSettings />
       <div className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
         <h2 className="text-lg">Uiterlijk</h2>
