@@ -1,7 +1,7 @@
-import { Shield } from "lucide-react";
+import { GraduationCap, Shield } from "lucide-react";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
-import { useAdminIds } from "@/components/UserAvatar";
+import { useAdminIds, useCoachIds } from "@/components/UserAvatar";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -60,6 +60,7 @@ function useKeyboardInset() {
 
 function GroupPage() {
   const { data: admins } = useAdminIds();
+  const { data: coaches } = useCoachIds();
   const { groupId } = Route.useParams();
   const { data: me } = useMe();
   const qc = useQueryClient();
@@ -271,9 +272,9 @@ function GroupPage() {
           return (
             <SwipeRow key={p.id} enabled={!!data?.isMember} onReply={() => setReplyTo({ id: p.id, name: p.author?.display_name ?? "Lid", body: p.body })} mine={mine}>
               <Reactable className="max-w-[85%]" reactions={reactionMap.get(p.id) ?? []} uid={uid} mine={mine} enabled={!!data?.isMember && !p.is_hidden} onReact={(e) => uid && react(p.id, e, uid)}>
-              <article className={`max-w-full rounded-2xl p-3 shadow-soft ${mine ? "bg-accent" : "bg-card"}`}>
+              <article className={`max-w-full rounded-2xl p-3 ${p.sticker && !p.is_hidden ? "bg-transparent" : `shadow-soft ${mine ? "bg-accent" : "bg-card"}`}`}>
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-sm font-semibold" style={{ color: colorFor(p.author_id) }}>{mine ? "Jij" : p.author?.display_name ?? "Lid"}{admins?.has(p.author_id) && <Shield aria-label="Beheerder" className="ml-1 inline size-3.5 text-foreground" fill="currentColor" />}</p>
+                  <p className="truncate text-sm font-semibold" style={{ color: colorFor(p.author_id) }}>{mine ? "Jij" : p.author?.display_name ?? "Lid"}{admins?.has(p.author_id) && <Shield aria-label="Beheerder" className="ml-1 inline size-3.5 text-foreground" fill="currentColor" />}{coaches?.has(p.author_id) && <GraduationCap aria-label="Coach" className="ml-1 inline size-3.5 text-primary" />}</p>
                   <div className="flex shrink-0 gap-1">
                     {data?.isMember && <button aria-label="Reageren" onClick={() => setReplyTo({ id: p.id, name: p.author?.display_name ?? "Lid", body: p.body })} className="p-1 text-muted-foreground"><Reply className="size-4" /></button>}
                     {(mine || me?.isAdmin) && <button aria-label="Verwijderen" onClick={() => remove(p.id)} className="p-1 text-muted-foreground"><Trash2 className="size-4" /></button>}

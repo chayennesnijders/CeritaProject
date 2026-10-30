@@ -113,6 +113,14 @@ function HomePage() {
         <NewToListen />
       </section>
 
+      <Link to="/vragen" className="flex items-center gap-3 rounded-3xl border-2 border-primary bg-card p-4 shadow-soft">
+        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary text-2xl">🎓</span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">Praat met een coach</span>
+          <span className="block text-xs text-muted-foreground">Je kunt altijd terecht bij een coach met ervaring.</span>
+        </span>
+        <span className="text-primary">→</span>
+      </Link>
       <div className="grid grid-cols-2 gap-3">
         <Link to="/contact" className="rounded-3xl bg-card p-4 text-center shadow-soft">
           <span className="block text-2xl">💌</span>

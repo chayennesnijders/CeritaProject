@@ -31,7 +31,7 @@ export function useUnreadCounts(): UnreadCounts {
   const { data: me } = useMe();
   const uid = me?.user.id;
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
-  const withCommunity = !!uid && band !== "no_community" && band !== "too_young";
+  const withCommunity = !!uid && ((band !== "no_community" && band !== "too_young") || !!me?.isCoach);
   const { data: reports } = useQuery(reportsQueryOptions(me?.isAdmin ? uid : undefined));
 
   const { data } = useQuery({

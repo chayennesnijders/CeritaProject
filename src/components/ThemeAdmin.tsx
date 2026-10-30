@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { bandLabel } from "@/lib/auth";
 import { useSignedImage } from "@/lib/articles";
 import { challengeDay } from "@/lib/challenges";
-import { monthOf } from "@/lib/goals";
+import { monthOf } from "@/lib/use-theme-month";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

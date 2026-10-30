@@ -6,30 +6,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ritiImage, type RitiExpression } from "@/lib/riti";
+import { ritiImage } from "@/lib/riti";
 import { STICKERS, stickerById, type StickerId } from "@/lib/stickers";
 
-/**
- * Riti in a round sticker frame. The Riti pictures are cut off straight at the bottom, so the bottom
- * of the picture fades out and the circle hides the rest.
- */
-function StickerFace({ expression, size }: { expression: RitiExpression; size: number }) {
+/** The whole Riti with the sticker's emoji in a little circle at the top right. */
+function StickerFace({ badge, size }: { badge: string; size: number }) {
   return (
-    <span
-      className="relative block shrink-0 overflow-hidden rounded-full border-4 border-[#f7c6d0] bg-white shadow-soft"
-      style={{ width: size, height: size }}
-    >
+    <span className="relative block shrink-0" style={{ width: size, height: size }}>
       <img
-        src={ritiImage(expression)}
+        src={ritiImage("neutraal")}
         alt=""
-        className="absolute left-1/2 top-[7%] max-w-none -translate-x-1/2"
-        style={{
-          width: size * 0.74,
-          // The picture ends in a straight line at the bottom: let it fade out softly instead.
-          maskImage: "linear-gradient(to bottom, black 78%, transparent 97%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 78%, transparent 97%)",
-        }}
+        className="h-full w-full object-contain drop-shadow-md"
       />
+      <span
+        className="absolute -right-1 top-0 grid place-items-center rounded-full bg-white shadow-soft"
+        style={{ width: size * 0.38, height: size * 0.38, fontSize: size * 0.22 }}
+      >
+        {badge}
+      </span>
     </span>
   );
 }
@@ -41,7 +35,7 @@ export function StickerView({ id }: { id: string }) {
   return (
     <div className="flex flex-col items-center">
       <span role="img" aria-label={`Riti: ${s.text}`}>
-        <StickerFace expression={s.expression} size={112} />
+        <StickerFace badge={s.badge} size={120} />
       </span>
       <span className="relative -mt-3 rounded-full bg-card px-3 py-0.5 text-sm font-bold text-foreground shadow-soft">
         {s.text}
@@ -85,7 +79,7 @@ export function StickerPicker({
                 }}
                 className="flex flex-col items-center rounded-2xl bg-muted p-1.5 active:scale-95"
               >
-                <StickerFace expression={s.expression} size={60} />
+                <StickerFace badge={s.badge} size={60} />
                 <span className="text-[10px] font-bold leading-tight">{s.text}</span>
               </button>
             ))}

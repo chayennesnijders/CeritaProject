@@ -1,16 +1,17 @@
-import type { RitiExpression } from "@/lib/riti";
-
-/** Riti stickers for the chats: an expression of Riti plus a short text. */
+/**
+ * Riti stickers for the chats: the whole Riti (the emotion drawings are cut off at the edges) with
+ * an emoji that says what the sticker means, and a short text.
+ */
 export const STICKERS = [
-  { id: "hoi", expression: "blij", text: "Hoi!" },
-  { id: "knuffel", expression: "troostend", text: "Knuffel!" },
-  { id: "trots", expression: "trots", text: "Trots op je!" },
-  { id: "denken", expression: "denkend", text: "Hmm…" },
-  { id: "dankje", expression: "blij", text: "Dankjewel!" },
-  { id: "sterkte", expression: "troostend", text: "Sterkte" },
-  { id: "toppie", expression: "trots", text: "Toppie!" },
-  { id: "welterusten", expression: "neutraal", text: "Welterusten" },
-] as const satisfies readonly { id: string; expression: RitiExpression; text: string }[];
+  { id: "hoi", badge: "👋", text: "Hoi!" },
+  { id: "knuffel", badge: "🤗", text: "Knuffel!" },
+  { id: "trots", badge: "⭐", text: "Trots op je!" },
+  { id: "denken", badge: "💭", text: "Hmm…" },
+  { id: "dankje", badge: "💖", text: "Dankjewel!" },
+  { id: "sterkte", badge: "💪", text: "Sterkte" },
+  { id: "toppie", badge: "👍", text: "Toppie!" },
+  { id: "welterusten", badge: "🌙", text: "Welterusten" },
+] as const;
 export type StickerId = (typeof STICKERS)[number]["id"];
 export const stickerById = (id: string | null | undefined) =>
   STICKERS.find((s) => s.id === id) ?? null;

@@ -30,7 +30,7 @@ function InboxPage() {
 
   const { data } = useQuery({
     queryKey: ["inbox", uid],
-    enabled: !!uid && band !== "no_community",
+    enabled: !!uid && (band !== "no_community" || !!me?.isCoach),
     queryFn: async () => {
       const [c, p, pr] = await Promise.all([
         supabase.from("conversations").select("*").order("last_message_at", { ascending: false }),
@@ -45,7 +45,7 @@ function InboxPage() {
     },
   });
 
-  if (band === "no_community")
+  if (band === "no_community" && !me?.isCoach)
     return (
       <div className="pt-2">
         <h1 className="text-3xl">Berichten</h1>

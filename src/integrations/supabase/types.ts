@@ -41,48 +41,6 @@ export type Database = {
         }
         Relationships: []
       }
-      goals: {
-        Row: {
-          archived: boolean
-          created_at: string
-          emoji: string
-          id: string
-          title: string
-          user_id: string
-        }
-        Insert: {
-          archived?: boolean
-          created_at?: string
-          emoji?: string
-          id?: string
-          title: string
-          user_id: string
-        }
-        Update: {
-          archived?: boolean
-          created_at?: string
-          emoji?: string
-          id?: string
-          title?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      goal_checks: {
-        Row: {
-          day: string
-          goal_id: string
-        }
-        Insert: {
-          day: string
-          goal_id: string
-        }
-        Update: {
-          day?: string
-          goal_id?: string
-        }
-        Relationships: []
-      }
       gratitude_notes: {
         Row: {
           body: string

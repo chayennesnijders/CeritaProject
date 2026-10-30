@@ -2,10 +2,11 @@ import { useState } from "react";
 import { ritiImage, type RitiExpression } from "@/lib/riti";
 
 // The emotion drawings were cut from a character sheet and end in straight edges (bottom and sides).
-// A soft oval fade hides those edges on light and dark backgrounds alike.
+// A soft oval fade hides those edges on light and dark backgrounds alike. The pictures are about 3:4,
+// so in their square box the oval is narrower than it is high.
 const SOFT_EDGE = {
-  maskImage: "radial-gradient(ellipse 50% 50% at 50% 46%, black 66%, transparent 98%)",
-  WebkitMaskImage: "radial-gradient(ellipse 50% 50% at 50% 46%, black 66%, transparent 98%)",
+  maskImage: "radial-gradient(ellipse 38% 50% at 50% 46%, black 66%, transparent 98%)",
+  WebkitMaskImage: "radial-gradient(ellipse 38% 50% at 50% 46%, black 66%, transparent 98%)",
 } as const;
 
 /**
@@ -55,7 +56,7 @@ export function Riti({
             alt=""
             draggable={false}
             style={shown === "neutraal" ? undefined : SOFT_EDGE}
-            className={`mx-auto h-full w-auto max-w-full object-contain drop-shadow-[0_8px_10px_rgba(120,60,60,0.18)] ${jump ? "animate-[riti-jump_0.7s_ease-out]" : "animate-in fade-in zoom-in-90 duration-300"}`}
+            className={`h-full w-full object-contain drop-shadow-[0_8px_10px_rgba(120,60,60,0.18)] ${jump ? "animate-[riti-jump_0.7s_ease-out]" : "animate-in fade-in zoom-in-90 duration-300"}`}
           />
         </span>
       </span>

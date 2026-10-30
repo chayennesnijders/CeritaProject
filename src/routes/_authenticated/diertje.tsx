@@ -54,6 +54,7 @@ function PetPage() {
   const [activeRef, setActiveRef] = useState("main");
   const [listId, setListId] = useState<string | null>(null);
   const [todoOpen, setTodoOpen] = useState(false);
+  const [panel, setPanel] = useState<PanelId>("taken");
   // Explains why caring is still locked when you tap a locked button.
   const [lockedOpen, setLockedOpen] = useState(false);
   const [adopting, setAdopting] = useState(false);
@@ -219,7 +220,8 @@ function PetPage() {
       <div ref={stageRef} className="relative min-h-[330px] touch-pan-y select-none overflow-hidden rounded-3xl p-6 text-center shadow-soft" style={{ background: bg.css }}>
         <PetScene id={bg.id} />
 
-        <div onPointerDown={startHug} onPointerUp={endHug} onPointerLeave={endHug} onPointerCancel={endHug}>
+        {/* relative z-10: the scene (clouds, fence) is absolutely positioned and would otherwise cover the ears. */}
+        <div className="relative z-10" onPointerDown={startHug} onPointerUp={endHug} onPointerLeave={endHug} onPointerCancel={endHug}>
           <PetAvatar outfit={active.outfit} species={active.species} mood={mood} jumping={jumping} onTap={() => burst("💕")} level={level} />
         </div>
         {ball > 0 && <span key={ball} className="pet-ball pointer-events-none absolute bottom-24 left-0 text-4xl">🎾</span>}
@@ -227,7 +229,7 @@ function PetPage() {
           <span key={f.id} className={`${f.cls} pointer-events-none absolute left-1/2 text-4xl`} style={{ bottom: f.cls === "pet-eat" ? 90 : 200, marginLeft: -18 }}>{f.emoji}</span>
         ))}
         {/* Naamkaartje: dikke zwarte letters op crème, zodat de naam altijd goed leesbaar is */}
-        <div className="relative mt-1 flex justify-center">
+        <div className="relative z-10 mt-1 flex justify-center">
           <div className="inline-block rounded-2xl border-2 border-border bg-card px-5 py-2 text-card-foreground shadow-soft">
             <p className="font-display text-2xl font-extrabold leading-tight">{active.name}</p>
             <p className="mt-0.5 text-sm font-semibold">{moodFor(happiness)}</p>
@@ -293,8 +295,19 @@ function PetPage() {
       </AlertDialog>
 
       {drag && <span className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 text-5xl" style={{ left: drag.x, top: drag.y }}>🍓</span>}
-      <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} games={<PetGames uid={uid} petEmoji={speciesEmoji(active.species)} level={level} />} />
-
+      {/* One panel at a time instead of everything under each other. */}
+      <div className="grid grid-cols-4 gap-1 rounded-full bg-card p-1 shadow-soft">
+        {PANELS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setPanel(t.id)}
+            className={`rounded-full px-1 py-2 text-[12px] font-semibold ${panel === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {panel === "taken" && (
       <div className="rounded-3xl bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -312,7 +325,16 @@ function PetPage() {
         </div>
         <p className="mt-3 text-xs text-muted-foreground">Elke ochtend om 7:00 begint een nieuw lijstje en komt het popupje vanzelf tevoorschijn. Taken van gisteren die niet af zijn, zijn gewoon weg — zonder straf.</p>
       </div>
-
+      )}
+      {panel === "aankleden" && <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} />}
+      {panel === "spelletjes" && (
+        <div className="rounded-3xl bg-card p-5 shadow-soft">
+          <p className="font-semibold">Spelletjes</p>
+          <p className="mb-3 text-xs text-muted-foreground">Speel samen met {active.name}.</p>
+          <PetGames uid={uid} petEmoji={speciesEmoji(active.species)} level={level} />
+        </div>
+      )}
+      {panel === "kalender" && (
       <div className="rounded-3xl bg-card p-5 shadow-soft">
         <p className="font-semibold">{now.toLocaleDateString("nl-NL", { month: "long", year: "numeric" })}</p>
         <p className="text-xs text-muted-foreground">Een dag overslaan is helemaal oké — je diertje wacht gewoon op je.</p>
@@ -331,6 +353,7 @@ function PetPage() {
         </div>
         <p className="mt-3 text-sm">{careDays.size} {careDays.size === 1 ? "dag" : "dagen"} verzorgd deze maand</p>
       </div>
+      )}
 
       <DailyTodoPopup
         open={todoOpen}
@@ -353,6 +376,14 @@ function PetPage() {
     </div>
   );
 }
+
+const PANELS = [
+  { id: "taken", label: "✅ Taken" },
+  { id: "aankleden", label: "👕 Kleding" },
+  { id: "spelletjes", label: "🎮 Spellen" },
+  { id: "kalender", label: "📅 Kalender" },
+] as const;
+type PanelId = (typeof PANELS)[number]["id"];
 
 function Adopt({ uid, onDone, companion = false }: { uid: string; onDone: () => void; companion?: boolean }) {
   const [species, setSpecies] = useState<string>("kat");
@@ -400,25 +431,24 @@ function useLevelUpToast(level: number | null) {
   }, [level]);
 }
 
-function Wardrobe({ level, pet, onChoose, games }: {
+function Wardrobe({ level, pet, onChoose }: {
   level: number;
   pet: { background: string; outfit: string };
   onChoose: (field: "background" | "outfit", id: string) => void;
-  games: React.ReactNode;
 }) {
-  const [tab, setTab] = useState<"background" | "outfit" | "games">("outfit");
+  const [tab, setTab] = useState<"background" | "outfit">("outfit");
   const lists: Record<"background" | "outfit", Unlockable[]> = { background: BACKGROUNDS, outfit: OUTFITS };
-  const tabs = [["outfit", "👕 Kleding"], ["background", "🖼️ Achtergrond"], ["games", "🎮 Spelletjes"]] as const;
+  const tabs = [["outfit", "👕 Kleding"], ["background", "🖼️ Achtergrond"]] as const;
   return (
     <div className="rounded-3xl bg-card p-5 shadow-soft">
-      <p className="font-semibold">{tab === "games" ? "Spelletjes" : "Aankleden"}</p>
-      <p className="text-xs text-muted-foreground">{tab === "games" ? "Speel samen met je diertje." : "Bij elk nieuw level komen er dingetjes bij."}</p>
+      <p className="font-semibold">Aankleden</p>
+      <p className="text-xs text-muted-foreground">Bij elk nieuw level komen er dingetjes bij.</p>
       <div className="mt-3 flex gap-2">
         {tabs.map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`rounded-full px-3 py-1 text-xs font-semibold ${tab === id ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{label}</button>
         ))}
       </div>
-      {tab === "games" ? <div className="mt-3">{games}</div> : <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-3 grid grid-cols-3 gap-2">
         {lists[tab].map((item) => {
           const open = isUnlocked(item, level);
           const active = pet[tab] === item.id;
@@ -430,7 +460,7 @@ function Wardrobe({ level, pet, onChoose, games }: {
             </button>
           );
         })}
-      </div>}
+      </div>
     </div>
   );
 }

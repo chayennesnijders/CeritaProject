@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { challengeDay } from "@/lib/challenges";
-import { monthOf } from "@/lib/goals";
+
+/** First day of the month (YYYY-MM-01) for a day. */
+export const monthOf = (day: string) => `${day.slice(0, 7)}-01`;
 
 /** This month's theme, or null when admins have not set one. */
 export function useThemeOfMonth() {

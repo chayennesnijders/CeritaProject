@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Shield } from "lucide-react";
+import { GraduationCap, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSignedImage } from "@/lib/articles";
 
@@ -15,23 +15,63 @@ export function useAdminIds() {
   });
 }
 
+/** All active coaches, so they can get their own symbol (🎓) next to their name and photo. */
+export function useCoachIds() {
+  return useQuery({
+    queryKey: ["coach-ids"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase.from("coaches").select("user_id").eq("active", true);
+      return new Set<string>((data ?? []).map((c) => c.user_id));
+    },
+  });
+}
+
 /** Profielfoto van een lid; valt terug op de eerste letter. Beheerders krijgen een schildje. */
-export function UserAvatar({ path, name, size = "size-10", userId }: { path?: string | null | undefined; name: string; size?: string; userId?: string | null | undefined }) {
+export function UserAvatar({
+  path,
+  name,
+  size = "size-10",
+  userId,
+}: {
+  path?: string | null | undefined;
+  name: string;
+  size?: string;
+  userId?: string | null | undefined;
+}) {
   const { data: url } = useSignedImage("avatars", path);
   const { data: admins } = useAdminIds();
+  const { data: coaches } = useCoachIds();
   const isAdmin = !!userId && !!admins?.has(userId);
+  const isCoach = !!userId && !!coaches?.has(userId);
   const pic = url ? (
     <img src={url} alt={name} className={`${size} shrink-0 rounded-full object-cover`} />
   ) : (
-    <div className={`${size} flex shrink-0 items-center justify-center rounded-full bg-secondary font-display text-secondary-foreground`}>
+    <div
+      className={`${size} flex shrink-0 items-center justify-center rounded-full bg-secondary font-display text-secondary-foreground`}
+    >
       {name.slice(0, 1)}
     </div>
   );
   return (
-    <div className="relative shrink-0" title={isAdmin ? `${name} is beheerder` : undefined}>
+    <div
+      className="relative shrink-0"
+      title={isAdmin ? `${name} is beheerder` : isCoach ? `${name} is coach` : undefined}
+    >
       {pic}
+      {isCoach && !isAdmin && (
+        <span
+          aria-label="Coach"
+          className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground"
+        >
+          <GraduationCap className="size-3" />
+        </span>
+      )}
       {isAdmin && (
-        <span aria-label="Beheerder" className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-card bg-ink text-secondary">
+        <span
+          aria-label="Beheerder"
+          className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-card bg-ink text-secondary"
+        >
           <Shield className="size-3" fill="currentColor" />
         </span>
       )}

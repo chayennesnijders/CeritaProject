@@ -1,26 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { goalStreak, lastWeek } from "./goals";
 import { promptFor, shakeJar } from "./gratitude";
 import { platformOf, shouldShowInstall } from "./install";
 import { inboxItems, inboxTotal } from "./inbox";
 import { matches, searchTerm } from "./search";
-
-describe("goals", () => {
-  it("counts the streak and shows the last week", () => {
-    expect(goalStreak(["2026-10-29", "2026-10-30"], "2026-10-30")).toBe(2);
-    expect(goalStreak(["2026-10-28", "2026-10-29"], "2026-10-30")).toBe(2);
-    expect(goalStreak([], "2026-10-30")).toBe(0);
-    expect(lastWeek("2026-10-30")).toEqual([
-      "2026-10-24",
-      "2026-10-25",
-      "2026-10-26",
-      "2026-10-27",
-      "2026-10-28",
-      "2026-10-29",
-      "2026-10-30",
-    ]);
-  });
-});
 
 describe("gratitude jar", () => {
   it("never gives the same note twice in a row", () => {

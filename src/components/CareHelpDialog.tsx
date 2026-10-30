@@ -35,6 +35,11 @@ export function CareHelpDialog() {
             </Link>
           </Button>
           <Button asChild variant="secondary" className="rounded-full">
+            <Link to="/vragen" onClick={() => setOpen(false)}>
+              🎓 Praat met een coach
+            </Link>
+          </Button>
+          <Button asChild variant="secondary" className="rounded-full">
             <Link to="/veiligheidsplan" onClick={() => setOpen(false)}>
               🛟 Mijn veiligheidsplan
             </Link>

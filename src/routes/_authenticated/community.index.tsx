@@ -145,9 +145,9 @@ function CommunityPage() {
       )}
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Link to="/vragen" className="rounded-3xl bg-card p-3 shadow-soft">
-          <span className="block text-2xl">🧑‍🏫</span>
-          <span className="block text-sm font-semibold">Vraag een coach</span>
-          <span className="block text-[11px] text-muted-foreground">Anoniem, een coach geeft antwoord</span>
+          <span className="block text-2xl">🎓</span>
+          <span className="block text-sm font-semibold">Coaches</span>
+          <span className="block text-[11px] text-muted-foreground">Chat of stel anoniem een vraag</span>
         </Link>
         <Link to="/agenda" className="rounded-3xl bg-card p-3 shadow-soft">
           <span className="block text-2xl">📅</span>

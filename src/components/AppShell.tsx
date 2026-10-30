@@ -61,7 +61,13 @@ export function AppShell() {
   }, [navigate]);
   // Leden vanaf 28 zien de community niet meer; de rest van de app blijft beschikbaar.
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
-  const visibleTabs = tabs.filter((t) => band !== "no_community" || (t.to !== "/community" && t.to !== "/berichten"));
+  // 28+ has no community; coaches of any age keep Berichten for their chats with members.
+  const visibleTabs = tabs.filter((t) => {
+    if (band !== "no_community") return true;
+    if (t.to === "/community") return false;
+    if (t.to === "/berichten") return !!me?.isCoach;
+    return true;
+  });
   return (
     <AppLock>
     <BirthdateGate>

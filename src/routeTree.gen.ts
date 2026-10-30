@@ -30,7 +30,6 @@ import { Route as AuthenticatedContactRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
 import { Route as AuthenticatedDankbaarRouteImport } from './routes/_authenticated/dankbaar'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
-import { Route as AuthenticatedDoelenRouteImport } from './routes/_authenticated/doelen'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMeldingenRouteImport } from './routes/_authenticated/meldingen'
 import { Route as AuthenticatedMuziekRouteImport } from './routes/_authenticated/muziek'
@@ -161,11 +160,6 @@ const AuthenticatedDankbaarRoute = AuthenticatedDankbaarRouteImport.update({
 const AuthenticatedDiertjeRoute = AuthenticatedDiertjeRouteImport.update({
   id: '/diertje',
   path: '/diertje',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDoelenRoute = AuthenticatedDoelenRouteImport.update({
-  id: '/doelen',
-  path: '/doelen',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
@@ -332,7 +326,6 @@ export interface FileRoutesByFullPath {
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/dankbaar': typeof AuthenticatedDankbaarRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
-  '/doelen': typeof AuthenticatedDoelenRoute
   '/home': typeof AuthenticatedHomeRoute
   '/meldingen': typeof AuthenticatedMeldingenRoute
   '/muziek': typeof AuthenticatedMuziekRoute
@@ -381,7 +374,6 @@ export interface FileRoutesByTo {
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/dankbaar': typeof AuthenticatedDankbaarRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
-  '/doelen': typeof AuthenticatedDoelenRoute
   '/home': typeof AuthenticatedHomeRoute
   '/meldingen': typeof AuthenticatedMeldingenRoute
   '/muziek': typeof AuthenticatedMuziekRoute
@@ -432,7 +424,6 @@ export interface FileRoutesById {
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
   '/_authenticated/dankbaar': typeof AuthenticatedDankbaarRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
-  '/_authenticated/doelen': typeof AuthenticatedDoelenRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/meldingen': typeof AuthenticatedMeldingenRoute
   '/_authenticated/muziek': typeof AuthenticatedMuziekRoute
@@ -483,7 +474,6 @@ export interface FileRouteTypes {
     | '/dagboek'
     | '/dankbaar'
     | '/diertje'
-    | '/doelen'
     | '/home'
     | '/meldingen'
     | '/muziek'
@@ -532,7 +522,6 @@ export interface FileRouteTypes {
     | '/dagboek'
     | '/dankbaar'
     | '/diertje'
-    | '/doelen'
     | '/home'
     | '/meldingen'
     | '/muziek'
@@ -582,7 +571,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dagboek'
     | '/_authenticated/dankbaar'
     | '/_authenticated/diertje'
-    | '/_authenticated/doelen'
     | '/_authenticated/home'
     | '/_authenticated/meldingen'
     | '/_authenticated/muziek'
@@ -777,13 +765,6 @@ declare module '@tanstack/react-router' {
       path: '/diertje'
       fullPath: '/diertje'
       preLoaderRoute: typeof AuthenticatedDiertjeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/doelen': {
-      id: '/_authenticated/doelen'
-      path: '/doelen'
-      fullPath: '/doelen'
-      preLoaderRoute: typeof AuthenticatedDoelenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/home': {
@@ -982,7 +963,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
   AuthenticatedDankbaarRoute: typeof AuthenticatedDankbaarRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
-  AuthenticatedDoelenRoute: typeof AuthenticatedDoelenRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedMeldingenRoute: typeof AuthenticatedMeldingenRoute
   AuthenticatedMuziekRoute: typeof AuthenticatedMuziekRoute
@@ -1017,7 +997,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
   AuthenticatedDankbaarRoute: AuthenticatedDankbaarRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
-  AuthenticatedDoelenRoute: AuthenticatedDoelenRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedMeldingenRoute: AuthenticatedMeldingenRoute,
   AuthenticatedMuziekRoute: AuthenticatedMuziekRoute,

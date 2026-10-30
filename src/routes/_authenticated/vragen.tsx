@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { TalkToCoach } from "@/components/TalkToCoach";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -11,7 +12,7 @@ import { needsCare, showCareHelp } from "@/lib/care";
 export const Route = createFileRoute("/_authenticated/vragen")({
   head: () => ({
     meta: [
-      { title: "Vraag een coach — CeritaProject" },
+      { title: "Coaches — CeritaProject" },
       {
         name: "description",
         content: "Stel anoniem een vraag aan een coach en lees antwoorden op vragen van anderen.",
@@ -89,10 +90,10 @@ function QuestionsPage() {
   return (
     <div className="space-y-4 pt-2">
       <div>
-        <h1 className="text-3xl">🧑‍🏫 Vraag een coach</h1>
+        <h1 className="text-3xl">🎓 Coaches</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Stel anoniem een vraag die je liever niet hardop stelt. Een coach van CeritaProject geeft
-          antwoord. Niemand ziet van wie de vraag komt, ook de coach niet.
+          Je kunt altijd terecht bij een coach. Chat met een coach, of stel hieronder anoniem een
+          vraag: dan ziet niemand van wie hij komt, ook de coach niet.
         </p>
         {coaches.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -101,12 +102,14 @@ function QuestionsPage() {
                 key={c.user_id}
                 className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
               >
-                🧑‍🏫 {c.title}
+                🎓 {c.title}
               </span>
             ))}
           </div>
         )}
       </div>
+      <TalkToCoach />
+      <p className="pt-1 font-semibold">❓ Of stel anoniem een vraag</p>
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
         <Textarea
           value={body}
