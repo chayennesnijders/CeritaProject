@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { c4Move, c4Start } from "./connect4";
+import { chessMove, chessMoves, chessStart, type ChessState } from "./chess";
+import { damMove, damMoves, damStart, type DamState } from "./draughts";
 import { ludoMovable, ludoMove, ludoRoll, ludoStart } from "./ludo";
 import { dartAim, dartScore, dartsMove, dartsStart } from "./darts";
 import { CHAT_GAMES, chatGame, gameCardLine, gamePushText, playerIndex } from "./index";
@@ -122,7 +124,7 @@ describe("pool", () => {
 
 describe("game list", () => {
   it("knows every game and nothing else", () => {
-    expect(Object.keys(CHAT_GAMES)).toHaveLength(5);
+    expect(Object.keys(CHAT_GAMES)).toHaveLength(7);
     expect(chatGame("pool")?.name).toBe("Pool");
     expect(chatGame("schaak")).toBeNull();
   });
@@ -220,5 +222,110 @@ describe("mens erger je niet", () => {
     expect(ludoRoll("g:3")).toBe(ludoRoll("g:3"));
     const rolls = new Set(Array.from({ length: 200 }, (_, i) => ludoRoll(`g:${i}`)));
     expect([...rolls].sort()).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+});
+
+const sq = (name: string) => (8 - Number(name[1])) * 8 + (name.charCodeAt(0) - 97);
+const play = (s: ChessState, moves: string[]) => {
+  let r: ReturnType<typeof chessMove> = null;
+  moves.forEach((m, i) => {
+    r = chessMove(s, (i % 2) as 0 | 1, {
+      from: sq(m.slice(0, 2)),
+      to: sq(m.slice(2, 4)),
+      ...(m[4] ? { promo: m[4] } : {}),
+    });
+    if (!r) throw new Error(`illegal ${m}`);
+    s = r.state;
+  });
+  return r!;
+};
+
+describe("schaken", () => {
+  it("has 20 opening moves and refuses illegal ones", () => {
+    const s = chessStart();
+    expect(chessMoves(s, 0)).toHaveLength(20);
+    expect(chessMove(s, 0, { from: sq("e2"), to: sq("e5") })).toBeNull();
+    expect(chessMove(s, 0, { from: sq("e7"), to: sq("e5") })).toBeNull();
+  });
+  it("finds fool's mate", () => {
+    const r = play(chessStart(), ["f2f3", "e7e5", "g2g4", "d8h4"]);
+    expect(r.finished).toBe(true);
+    expect(r.winner).toBe(1);
+    expect(r.state.check).toBe(true);
+  });
+  it("castles, captures en passant and promotes", () => {
+    let r = play(chessStart(), ["e2e4", "a7a6", "g1f3", "a6a5", "f1c4", "a5a4", "e1g1"]);
+    expect(r.state.board[sq("g1")]).toBe("K");
+    expect(r.state.board[sq("f1")]).toBe("R");
+    r = play(chessStart(), ["e2e4", "a7a6", "e4e5", "d7d5", "e5d6"]);
+    expect(r.state.board[sq("d5")]).toBe("");
+    expect(r.state.board[sq("d6")]).toBe("P");
+    const s: ChessState = { board: Array(64).fill(""), castling: "", ep: -1, half: 0 };
+    s.board[sq("a7")] = "P";
+    s.board[sq("e1")] = "K";
+    s.board[sq("h8")] = "k";
+    r = chessMove(s, 0, { from: sq("a7"), to: sq("a8"), promo: "n" })!;
+    expect(r.state.board[sq("a8")]).toBe("N");
+  });
+  it("calls stalemate a draw", () => {
+    const s: ChessState = { board: Array(64).fill(""), castling: "", ep: -1, half: 0 };
+    s.board[sq("a8")] = "k";
+    s.board[sq("c6")] = "K";
+    s.board[sq("b5")] = "Q";
+    const r = chessMove(s, 0, { from: sq("b5"), to: sq("b6") })!;
+    expect(r.finished).toBe(true);
+    expect(r.winner).toBeNull();
+  });
+  it("does not let you walk into check", () => {
+    const s: ChessState = { board: Array(64).fill(""), castling: "", ep: -1, half: 0 };
+    s.board[sq("e1")] = "K";
+    s.board[sq("d8")] = "r";
+    s.board[sq("h8")] = "k";
+    expect(chessMove(s, 0, { from: sq("e1"), to: sq("d1") })).toBeNull();
+    expect(chessMove(s, 0, { from: sq("e1"), to: sq("f1") })).not.toBeNull();
+  });
+});
+
+describe("dammen", () => {
+  it("starts with 20 pieces each and 9 opening moves", () => {
+    const s = damStart();
+    expect(s.board.filter((p) => p === "w")).toHaveLength(20);
+    expect(s.board.filter((p) => p === "b")).toHaveLength(20);
+    expect(damMoves(s, 0)).toHaveLength(9);
+  });
+  it("forces the capture that takes the most pieces, also backwards", () => {
+    const s: DamState = { board: Array(100).fill(""), quiet: 0 };
+    s.board[56] = "w"; // row 5, column 6
+    s.board[65] = "b"; // behind it: a backward capture of one piece
+    s.board[45] = "b"; // in front: capture to 34…
+    s.board[23] = "b"; // …and from there 23 as well, ending on 12
+    s.board[9] = "b";
+    const moves = damMoves(s, 0);
+    expect(moves.length).toBeGreaterThan(0);
+    expect(moves.every((m) => m.captured.length === 2)).toBe(true);
+    expect(damMove(s, 0, 56, 74)).toBeNull();
+    const r = damMove(s, 0, 56, 12)!;
+    expect(r.state.board[45]).toBe("");
+    expect(r.state.board[23]).toBe("");
+    expect(r.state.board[12]).toBe("w");
+  });
+  it("crowns a man that ends on the far row, and kings fly", () => {
+    const s: DamState = { board: Array(100).fill(""), quiet: 0 };
+    s.board[12] = "w";
+    s.board[98] = "b";
+    const r = damMove(s, 0, 12, 1)!;
+    expect(r.state.board[1]).toBe("W");
+    const k: DamState = { board: Array(100).fill(""), quiet: 0 };
+    k.board[90] = "W";
+    k.board[5] = "b";
+    expect(damMoves(k, 0).some((m) => m.path[1] === 9)).toBe(true);
+  });
+  it("wins when the other side cannot move", () => {
+    const s: DamState = { board: Array(100).fill(""), quiet: 0 };
+    s.board[56] = "w";
+    s.board[45] = "b";
+    const r = damMove(s, 0, 56, 34)!;
+    expect(r.finished).toBe(true);
+    expect(r.winner).toBe(0);
   });
 });

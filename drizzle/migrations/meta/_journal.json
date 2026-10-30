@@ -484,6 +484,13 @@
       "when": 1792774800000,
       "tag": "0068_chat_game_ludo",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1792861200000,
+      "tag": "0069_chat_game_chess_draughts",
+      "breakpoints": true
     }
   ]
 }

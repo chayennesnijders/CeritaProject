@@ -1,5 +1,7 @@
 import { c4Start } from "./connect4";
+import { chessStart } from "./chess";
 import { dartsStart } from "./darts";
+import { damStart } from "./draughts";
 import { ludoStart } from "./ludo";
 import { poolStart } from "./pool";
 import { tttStart } from "./tictactoe";
@@ -29,6 +31,18 @@ export const CHAT_GAMES = {
     name: "Mens erger je niet",
     how: "Gooi 6 om een pion op het bord te zetten. Kom je op de ander? Die moet terug! Wie het eerst alle 4 pionnen binnen heeft, wint.",
     start: ludoStart,
+  },
+  schaken: {
+    emoji: "♟️",
+    name: "Schaken",
+    how: "Tik op een stuk en dan op waar het heen moet. Zet de koning van de ander schaakmat om te winnen.",
+    start: chessStart,
+  },
+  dammen: {
+    emoji: "⚫",
+    name: "Dammen",
+    how: "Schuif schuin vooruit. Slaan is verplicht, ook achteruit, en je moet de meeste stukken slaan. Op de overkant word je een dam.",
+    start: damStart,
   },
   boterkaaseieren: {
     emoji: "❌",

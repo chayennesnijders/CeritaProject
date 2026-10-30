@@ -17,7 +17,9 @@ import type { Json } from "@/integrations/supabase/types";
 import { notifyGameMove } from "@/lib/push.functions";
 import { useChatGame } from "@/lib/use-chat-games";
 import { ConnectFourBoard } from "./ConnectFourBoard";
+import { ChessBoard } from "./ChessBoard";
 import { DartsBoard } from "./DartsBoard";
+import { DraughtsBoard } from "./DraughtsBoard";
 import { LudoBoard } from "./LudoBoard";
 import { PoolTable } from "./PoolTable";
 import { TicTacToeBoard } from "./TicTacToeBoard";
@@ -211,6 +213,10 @@ function renderBoard(
       return <DartsBoard {...props} />;
     case "vieropeenrij":
       return <ConnectFourBoard {...props} />;
+    case "schaken":
+      return <ChessBoard {...props} />;
+    case "dammen":
+      return <DraughtsBoard {...props} />;
     case "mensergerjeniet":
       return <LudoBoard {...props} />;
     case "boterkaaseieren":
