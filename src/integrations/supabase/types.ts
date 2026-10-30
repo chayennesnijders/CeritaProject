@@ -14,6 +14,144 @@ export type Database = {
   }
   public: {
     Tables: {
+      playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          min_age: number
+          sort: number
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          min_age?: number
+          sort?: number
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          min_age?: number
+          sort?: number
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      books: {
+        Row: {
+          author: string
+          created_at: string
+          description: string | null
+          id: string
+          isbn: string | null
+          min_age: number
+          theme: string | null
+          title: string
+        }
+        Insert: {
+          author: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          isbn?: string | null
+          min_age?: number
+          theme?: string | null
+          title: string
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          isbn?: string | null
+          min_age?: number
+          theme?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      book_shelf: {
+        Row: {
+          book_id: string
+          rating: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          rating?: number | null
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          rating?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      song_tips: {
+        Row: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          artist: string
+          created_at: string
+          hidden: boolean
+          id: string
+          title: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          age_group: Database["public"]["Enums"]["age_group"]
+          artist: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          title: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          age_group?: Database["public"]["Enums"]["age_group"]
+          artist?: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          title?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      song_tip_likes: {
+        Row: {
+          tip_id: string
+          user_id: string
+        }
+        Insert: {
+          tip_id: string
+          user_id: string
+        }
+        Update: {
+          tip_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -1872,6 +2010,10 @@ export type Database = {
       checkin_group_challenge: { Args: { _group: string }; Returns: undefined }
       claim_group_challenge: { Args: { _group: string }; Returns: number }
       my_badge_stats: { Args: never; Returns: Json }
+      add_song_tip: { Args: { _title: string; _artist: string; _url: string }; Returns: string }
+      book_ratings: { Args: never; Returns: { book_id: string; average: number | null; ratings: number; readers: number }[] }
+      can_see_song_tip: { Args: { _tip: string }; Returns: boolean }
+      is_music_url: { Args: { _url: string }; Returns: boolean }
       start_chat_game: { Args: { _game: string; _group: string | null; _conv: string | null; _state: Json; _body: string }; Returns: Json }
       join_chat_game: { Args: { _game: string }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }
       chat_game_move: { Args: { _game: string; _moves: number; _state: Json; _again: boolean; _finished: boolean; _winner: number | null }; Returns: { conversation_id: string | null; created_at: string; created_by: string; game: string; group_id: string | null; id: string; moves: number; players: string[]; state: Json; status: string; turn: string | null; updated_at: string; winner: string | null } }

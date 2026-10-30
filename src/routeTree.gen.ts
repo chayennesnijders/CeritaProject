@@ -21,11 +21,13 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
+import { Route as AuthenticatedBoekenRouteImport } from './routes/_authenticated/boeken'
 import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedMuziekRouteImport } from './routes/_authenticated/muziek'
 import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticated/profiel'
 import { Route as AuthenticatedRustRouteImport } from './routes/_authenticated/rust'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
@@ -104,6 +106,11 @@ const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
   path: '/beheer',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBoekenRoute = AuthenticatedBoekenRouteImport.update({
+  id: '/boeken',
+  path: '/boeken',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedComplimentenRoute =
   AuthenticatedComplimentenRouteImport.update({
     id: '/complimenten',
@@ -128,6 +135,11 @@ const AuthenticatedDiertjeRoute = AuthenticatedDiertjeRouteImport.update({
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMuziekRoute = AuthenticatedMuziekRouteImport.update({
+  id: '/muziek',
+  path: '/muziek',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProfielRoute = AuthenticatedProfielRouteImport.update({
@@ -243,11 +255,13 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/boeken': typeof AuthenticatedBoekenRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/muziek': typeof AuthenticatedMuziekRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
@@ -279,11 +293,13 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/beheer': typeof AuthenticatedBeheerRoute
+  '/boeken': typeof AuthenticatedBoekenRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/muziek': typeof AuthenticatedMuziekRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
@@ -317,11 +333,13 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
+  '/_authenticated/boeken': typeof AuthenticatedBoekenRoute
   '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/muziek': typeof AuthenticatedMuziekRoute
   '/_authenticated/profiel': typeof AuthenticatedProfielRoute
   '/_authenticated/rust': typeof AuthenticatedRustRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
@@ -355,11 +373,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/beheer'
+    | '/boeken'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
     | '/diertje'
     | '/home'
+    | '/muziek'
     | '/profiel'
     | '/rust'
     | '/shop'
@@ -391,11 +411,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/beheer'
+    | '/boeken'
     | '/complimenten'
     | '/contact'
     | '/dagboek'
     | '/diertje'
     | '/home'
+    | '/muziek'
     | '/profiel'
     | '/rust'
     | '/shop'
@@ -428,11 +450,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/voorwaarden'
     | '/_authenticated/beheer'
+    | '/_authenticated/boeken'
     | '/_authenticated/complimenten'
     | '/_authenticated/contact'
     | '/_authenticated/dagboek'
     | '/_authenticated/diertje'
     | '/_authenticated/home'
+    | '/_authenticated/muziek'
     | '/_authenticated/profiel'
     | '/_authenticated/rust'
     | '/_authenticated/shop'
@@ -557,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBeheerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/boeken': {
+      id: '/_authenticated/boeken'
+      path: '/boeken'
+      fullPath: '/boeken'
+      preLoaderRoute: typeof AuthenticatedBoekenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/complimenten': {
       id: '/_authenticated/complimenten'
       path: '/complimenten'
@@ -590,6 +621,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/muziek': {
+      id: '/_authenticated/muziek'
+      path: '/muziek'
+      fullPath: '/muziek'
+      preLoaderRoute: typeof AuthenticatedMuziekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/profiel': {
@@ -723,11 +761,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
+  AuthenticatedBoekenRoute: typeof AuthenticatedBoekenRoute
   AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedMuziekRoute: typeof AuthenticatedMuziekRoute
   AuthenticatedProfielRoute: typeof AuthenticatedProfielRoute
   AuthenticatedRustRoute: typeof AuthenticatedRustRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
@@ -746,11 +786,13 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
+  AuthenticatedBoekenRoute: AuthenticatedBoekenRoute,
   AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedMuziekRoute: AuthenticatedMuziekRoute,
   AuthenticatedProfielRoute: AuthenticatedProfielRoute,
   AuthenticatedRustRoute: AuthenticatedRustRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
