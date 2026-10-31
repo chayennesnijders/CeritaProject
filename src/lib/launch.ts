@@ -14,6 +14,12 @@ export type ServerChecks = {
   firebaseServer: boolean;
   /** Names of push settings that are missing or wrong (never values). */
   pushProblems?: string[];
+  where?: {
+    env: string | null;
+    project: string | null;
+    branch: string | null;
+    firebaseNames: string[];
+  };
   resend: boolean;
   emailHook: boolean;
   stripeLive: boolean;
@@ -41,6 +47,15 @@ export const DB_UPDATES = [
   { id: "25", label: "Update 25 (veiligheidsplan, vragen, agenda)" },
 ] as const;
 
+/** "The app runs in Vercel project X (Production) and sees these Firebase names: …" */
+function whereText(w: ServerChecks["where"]) {
+  if (!w) return "";
+  const env =
+    w.env === "production" ? "Production" : w.env === "preview" ? "Preview" : (w.env ?? "?");
+  const names = w.firebaseNames.length ? w.firebaseNames.join(", ") : "geen enkele";
+  return ` De app draait in Vercel-project ${w.project ?? "?"} (omgeving: ${env}${w.branch ? `, branch ${w.branch}` : ""}) en ziet deze Firebase-namen: ${names}. Staan je sleutels in een ander project of alleen bij een andere omgeving? Zet ze dan hier.`;
+}
+
 export function launchChecks(s: ServerChecks, c: ClientChecks): LaunchCheck[] {
   return [
     {
@@ -66,7 +81,7 @@ export function launchChecks(s: ServerChecks, c: ClientChecks): LaunchCheck[] {
       ok: s.firebaseServer && c.firebaseClient,
       required: true,
       how: s.pushProblems?.length
-        ? `Dit klopt nog niet in Vercel: ${s.pushProblems.join("; ")}.`
+        ? `Dit klopt nog niet in Vercel: ${s.pushProblems.join("; ")}.${whereText(s.where)}`
         : "Zet de 4 VITE_FIREBASE_-sleutels en FIREBASE_SERVICE_ACCOUNT in Vercel en doe een Redeploy.",
     },
     {

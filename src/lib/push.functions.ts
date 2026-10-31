@@ -523,6 +523,17 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
       firebaseServer: fcm,
       firebaseClient: (await import("@/lib/firebase-config")).resolveFirebaseConfig(process.env).config !== null,
       pushProblems: (await import("@/lib/firebase-config")).pushProblems(process.env),
+      // Where this app runs, and which Firebase-like names it can see (names only, never values),
+      // so settings saved in another Vercel project or environment are easy to spot.
+      where: {
+        env: process.env["VERCEL_ENV"] ?? null,
+        project: process.env["VERCEL_PROJECT_PRODUCTION_URL"] ?? process.env["VERCEL_URL"] ?? null,
+        branch: process.env["VERCEL_GIT_COMMIT_REF"] ?? null,
+        firebaseNames: Object.keys(process.env)
+          .filter((k) => /fire|vapid/i.test(k))
+          .map((k) => JSON.stringify(k))
+          .sort(),
+      },
       resend: env("RESEND_API_KEY") && env("EMAIL_FROM"),
       emailHook: env("SEND_EMAIL_HOOK_SECRET"),
       stripeLive: (process.env["STRIPE_SECRET_KEY"] ?? "").startsWith("sk_live_"),
