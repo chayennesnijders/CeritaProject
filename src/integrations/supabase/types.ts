@@ -2244,6 +2244,12 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      staff_list: {
+        Args: never
+        Returns: { user_id: string; display_name: string; username: string | null; roles: string[] }[]
+      }
+      set_moderator: { Args: { _username: string; _on: boolean }; Returns: string }
       answer_admin_message: { Args: { _message: string; _reply?: string }; Returns: string }
       mark_admin_replies_seen: { Args: never; Returns: undefined }
       schedule_admin_news_push: { Args: { site_url: string }; Returns: number }

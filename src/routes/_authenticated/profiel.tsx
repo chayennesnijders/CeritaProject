@@ -181,7 +181,7 @@ function ProfilePage() {
           {p.username && <p className="text-sm text-muted-foreground">@{p.username}</p>}
           <p className="text-xs text-muted-foreground">
             {p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
-            {me?.isAdmin && " · Beheerder"}
+            {me?.isAdmin ? " · Beheerder" : me?.isModerator ? " · Moderator" : ""}
           </p>
         </div>
         <button

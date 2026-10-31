@@ -15,7 +15,7 @@ export function ReportInbox({ onWarn, onTimeout }: { onWarn: (id: string) => voi
   const [replyId, setReplyId] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  const { data, isPending, error, refetch } = useQuery(reportsQueryOptions(me?.isAdmin ? me.user.id : undefined, closed));
+  const { data, isPending, error, refetch } = useQuery(reportsQueryOptions(me?.isStaff ? me.user.id : undefined, closed));
   async function act(reportId: string, action: "answer" | "reject" | "hide") {
     const parsed = reportActionSchema.safeParse({ reportId, action, response: replyId === reportId ? text : "" });
     if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Controleer je antwoord"); return; }

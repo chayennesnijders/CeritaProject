@@ -32,7 +32,7 @@ export function useUnreadCounts(): UnreadCounts {
   const uid = me?.user.id;
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
   const withCommunity = !!uid && ((band !== "no_community" && band !== "too_young") || !!me?.isCoach);
-  const { data: reports } = useQuery(reportsQueryOptions(me?.isAdmin ? uid : undefined));
+  const { data: reports } = useQuery(reportsQueryOptions(me?.isStaff ? uid : undefined));
 
   const { data } = useQuery({
     queryKey: ["unread", uid, me?.isAdmin, withCommunity],
@@ -71,5 +71,5 @@ export function useUnreadCounts(): UnreadCounts {
       return out;
     },
   });
-  return { ...(data ?? empty), reports: me?.isAdmin ? reports?.length ?? 0 : 0 };
+  return { ...(data ?? empty), reports: me?.isStaff ? reports?.length ?? 0 : 0 };
 }

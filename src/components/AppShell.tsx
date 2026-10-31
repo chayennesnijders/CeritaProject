@@ -90,7 +90,7 @@ export function AppShell() {
           <InboxBell />
           <PetLink uid={me?.user.id} />
           <ShopLink />
-          <WorkMenu uid={me?.user.id} isAdmin={!!me?.isAdmin} adminCount={unread.reports + news.unread} />
+          <WorkMenu uid={me?.user.id} isAdmin={!!me?.isStaff} adminCount={unread.reports + (me?.isAdmin ? news.unread : 0)} />
         </div>
       </header>
       <main className="flex-1 px-5 pb-28">

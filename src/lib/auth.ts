@@ -17,6 +17,9 @@ export function useMe() {
         profile,
         isAdmin: !!roles?.some((r) => r.role === "admin"),
         isOwner: !!roles?.some((r) => r.role === "owner"),
+        // Moderators help with the Inbox and member messages only (Beheer → Inbox / Berichten).
+        isModerator: !!roles?.some((r) => r.role === "moderator"),
+        isStaff: !!roles?.some((r) => ["admin", "owner", "moderator"].includes(r.role)),
         // Coaches may chat with every age band, also when they are older than 27.
         isCoach: !!coach?.active,
       };

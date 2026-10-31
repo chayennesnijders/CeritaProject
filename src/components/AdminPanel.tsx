@@ -28,6 +28,8 @@ import { useAdminNews } from "@/lib/use-admin-news";
 import { AdminWeekly } from "@/components/AdminWeekly";
 import { ReportInbox } from "@/components/ReportInbox";
 import { reportsQueryOptions } from "@/lib/reports";
+import { MODERATOR_TABS, canSeeAdminTab, seesPublicMessages } from "@/lib/staff";
+import { StaffAdmin } from "@/components/StaffAdmin";
 
 const TABS = [
   { id: "nieuws", label: "Nieuws" },
@@ -44,14 +46,15 @@ const TABS = [
   { id: "muziek", label: "Muziek" },
   { id: "groepen", label: "Groepen" },
   { id: "logboek", label: "Logboek" },
+  { id: "team", label: "👥 Team" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
 export function AdminPanel() {
   const { data: me } = useMe();
-  const { data: openReportRows } = useQuery(reportsQueryOptions(me?.isAdmin ? me.user.id : undefined));
+  const { data: openReportRows } = useQuery(reportsQueryOptions(me?.isStaff ? me.user.id : undefined));
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("nieuws");
+  const [chosen, setTab] = useState<Tab>("nieuws");
   const news = useAdminNews(me?.isAdmin ? me.user.id : undefined);
   const [qDate, setQDate] = useState(new Date().toISOString().slice(0, 10));
   const [qTitle, setQTitle] = useState("");
@@ -65,7 +68,7 @@ export function AdminPanel() {
 
   const { data } = useQuery({
     queryKey: ["admin"],
-    enabled: !!me?.isAdmin,
+    enabled: !!me?.isStaff,
     queryFn: async () => {
       const [r, g, l, c, w, t, p] = await Promise.all([
         supabase.from("reports").select("*, post:posts(id, body, is_hidden, author_id), message:direct_messages(id, body, sender_id)").eq("status", "open").order("created_at", { ascending: false }),
@@ -97,7 +100,13 @@ export function AdminPanel() {
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin"] });
 
-  if (!me?.isAdmin) return <p className="pt-6 text-sm text-muted-foreground">Alleen voor beheerders.</p>;
+  if (!me?.isStaff) return <p className="pt-6 text-sm text-muted-foreground">Alleen voor beheerders.</p>;
+  // Moderators only get Inbox and Berichten; the owner also gets Team.
+  const roles = { isAdmin: me.isAdmin, isOwner: me.isOwner, isModerator: me.isModerator };
+  const visibleTabs = me.isAdmin
+    ? TABS.filter((t) => canSeeAdminTab(t.id, roles))
+    : MODERATOR_TABS.map((id) => TABS.find((t) => t.id === id)!);
+  const tab: Tab = canSeeAdminTab(chosen, roles) ? chosen : (visibleTabs[0]?.id ?? "inbox");
 
   async function saveChallenge() {
     const { error } = await supabase.from("daily_challenges").upsert({ challenge_date: qDate, title: qTitle, description: qDesc || null }, { onConflict: "challenge_date" });
@@ -110,7 +119,7 @@ export function AdminPanel() {
     setGName(""); setGDesc(""); refresh();
   }
   async function warnMember(memberId: string, message?: string) {
-    if (!me?.isAdmin) return;
+    if (!me?.isStaff) return;
     const text = (message ?? warnText).trim();
     if (!text) { toast.error("Schrijf eerst een waarschuwing"); return; }
     const { error } = await supabase.from("member_warnings").insert({ member_id: memberId, admin_id: me.user.id, message: text });
@@ -118,7 +127,7 @@ export function AdminPanel() {
     if (!error) { setWarnText(""); setWarnTarget(null); refresh(); }
   }
   async function timeoutMember(memberId: string, hours: number) {
-    if (!me?.isAdmin) return;
+    if (!me?.isStaff) return;
     const label = hours < 24 ? `${hours} uur` : `${hours / 24} dagen`;
     const until = new Date(Date.now() + hours * 3600_000).toISOString();
     const { error } = await supabase.from("member_timeouts").insert({ member_id: memberId, admin_id: me.user.id, until });
@@ -135,10 +144,15 @@ export function AdminPanel() {
 
   return (
     <div className="space-y-4 pt-2">
-      <h1 className="text-3xl">Beheer</h1>
+      <h1 className="text-3xl">{me.isAdmin ? "Beheer" : "Moderatie"}</h1>
+      {!me.isAdmin && (
+        <p className="text-sm text-muted-foreground">
+          Je bent moderator 🛡️ Je helpt met meldingen, zorgsignalen en berichten van leden.
+        </p>
+      )}
 
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {TABS.map((t) => (
+        {visibleTabs.map((t) => (
           <Button key={t.id} size="sm" variant={tab === t.id ? "default" : "outline"} className="shrink-0 rounded-full" onClick={() => setTab(t.id)}>
             {t.label}
             {t.id === "nieuws" && news.unread > 0 && <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 text-xs">{news.unread}</span>}
@@ -154,7 +168,7 @@ export function AdminPanel() {
       {tab === "berichten" && (
         <div className="space-y-6">
           <AdminMessages />
-          <PublicMessagesAdmin />
+          {seesPublicMessages(roles) && <PublicMessagesAdmin />}
         </div>
       )}
 
@@ -247,7 +261,7 @@ export function AdminPanel() {
           </section>
 
           <AiReportHelper />
-          <section className="rounded-3xl bg-card p-5 shadow-soft">
+          {me.isAdmin && <section className="rounded-3xl bg-card p-5 shadow-soft">
             <h2 className="text-lg">Chat-overzicht ({data?.convs.length ?? 0})</h2>
             <p className="mt-1 text-xs text-muted-foreground">Wie met wie chatted en wanneer. De berichten zelf blijven privé.</p>
             <div className="mt-3 space-y-3">
@@ -261,9 +275,11 @@ export function AdminPanel() {
               ))}
               {data?.convs.length === 0 && <p className="text-sm text-muted-foreground">Nog geen gesprekken.</p>}
             </div>
-          </section>
+          </section>}
         </div>
       )}
+
+      {tab === "team" && <StaffAdmin />}
 
       {tab === "verhalen" && (
         <div className="space-y-5">
