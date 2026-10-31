@@ -156,5 +156,5 @@ Kies als categorie **Sociaal / Communicatie**. Beantwoord de vragen eerlijk. Dit
 4. Alle punten hierboven invullen (*Store-vermelding*, *Inhoud van de app*)
 5. **Testen → Interne test** → `.aab` uploaden → jezelf als tester toevoegen
 6. In Play Console bij **Instellingen → App-ondertekening** de **SHA-256-vingerafdruk** kopiëren → in Vercel zetten als `ANDROID_SHA256_FINGERPRINTS` → Redeploy
-7. **Gesloten test** met minstens **12 testers, 14 dagen**
-8. Daarna: **Productie** aanvragen → de app staat voor iedereen in de Play Store 🎉
+7. Zelf (en met een paar mensen) testen via de interne test. Met een **organisatie-account** is de verplichte gesloten test met 12 testers en 14 dagen **niet nodig**.
+8. Daarna: **Productie** → **Nieuwe release** → Google controleert de app (meestal een paar dagen) → de app staat voor iedereen in de Play Store 🎉
