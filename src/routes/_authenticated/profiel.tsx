@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { enablePush, pushMessages } from "@/lib/push-client";
+import { enablePush, pushMessage } from "@/lib/push-client";
 import { UserAvatar } from "@/components/UserAvatar";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ContactAdminsButton } from "@/components/ContactAdminsButton";
@@ -320,7 +320,7 @@ function ProfilePage() {
               onClick={async () => {
                 try {
                   const r = await enablePush(p.id);
-                  (r === "registered" ? toast.success : toast)(pushMessages[r]);
+                  (r === "registered" ? toast.success : toast)(pushMessage(r));
                 } catch {
                   toast.error("Meldingen aanzetten lukte niet.");
                 }

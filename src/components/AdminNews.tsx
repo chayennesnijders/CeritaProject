@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { enablePush, pushMessages } from "@/lib/push-client";
+import { enablePush, pushMessage } from "@/lib/push-client";
 import { setAdminNewsPush } from "@/lib/push.functions";
 import { dayLabel, isNew, NEWS_KINDS, newsCounts, newsKind, type NewsKind } from "@/lib/admin-news";
 import { useAdminNews } from "@/lib/use-admin-news";
@@ -19,7 +19,7 @@ export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: st
         // This device must be able to receive pushes first.
         const r = await enablePush(uid);
         if (r !== "registered") {
-          toast.error(pushMessages[r]);
+          toast.error(pushMessage(r));
           return;
         }
       }

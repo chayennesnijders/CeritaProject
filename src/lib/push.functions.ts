@@ -2,6 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// The public Firebase web settings, read at runtime (they are not secret), plus the names of any
+// that are missing or look wrong. Lets push work without depending on a rebuild in Vercel.
+export const getFirebaseWebConfig = createServerFn({ method: "GET" }).handler(async () => {
+  const { resolveFirebaseConfig } = await import("@/lib/firebase-config");
+  return resolveFirebaseConfig(process.env);
+});
+
 type Push = { title: string; body: string; link: string; tag: string; urgent?: boolean };
 
 // Sends one push to every registered device of a user. Removes stale tokens.
@@ -514,6 +521,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
     return {
       serviceRole: env("SUPABASE_SERVICE_ROLE_KEY"),
       firebaseServer: fcm,
+      firebaseClient: (await import("@/lib/firebase-config")).resolveFirebaseConfig(process.env).config !== null,
       resend: env("RESEND_API_KEY") && env("EMAIL_FROM"),
       emailHook: env("SEND_EMAIL_HOOK_SECRET"),
       stripeLive: (process.env["STRIPE_SECRET_KEY"] ?? "").startsWith("sk_live_"),

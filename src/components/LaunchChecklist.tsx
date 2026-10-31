@@ -16,12 +16,15 @@ export function useLaunchChecks() {
   });
   const checks = data
     ? launchChecks(data, {
-        firebaseClient: [
-          "VITE_FIREBASE_API_KEY",
-          "VITE_FIREBASE_PROJECT_ID",
-          "VITE_FIREBASE_APP_ID",
-          "VITE_FIREBASE_VAPID_KEY",
-        ].every((k) => !!env[k]),
+        // The app also reads these at runtime from the server, so either place is enough.
+        firebaseClient:
+          !!data.firebaseClient ||
+          [
+            "VITE_FIREBASE_API_KEY",
+            "VITE_FIREBASE_PROJECT_ID",
+            "VITE_FIREBASE_APP_ID",
+            "VITE_FIREBASE_VAPID_KEY",
+          ].every((k) => !!env[k]),
         stripeLiveClient: (env["VITE_STRIPE_PUBLISHABLE_KEY"] ?? "").startsWith("pk_live_"),
         host: typeof window === "undefined" ? "" : window.location.host,
         kvk: !!ORG.kvk,
