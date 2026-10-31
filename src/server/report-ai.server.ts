@@ -1,7 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
-const SYSTEM = `Je helpt beheerders van CeritaProject, een veilige Nederlandstalige app voor jongeren (12–27 jaar), met het afhandelen van meldingen.
+const SYSTEM = `Je helpt beheerders van CeritaProject, een veilige Nederlandstalige app voor jongeren (13–27 jaar), met het afhandelen van meldingen.
 Geef in het Nederlands:
 SAMENVATTING: 1–3 zinnen, neutraal.
 ERNST: laag, middel of hoog (met korte reden).

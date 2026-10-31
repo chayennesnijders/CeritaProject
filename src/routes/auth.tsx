@@ -92,7 +92,7 @@ function AuthPage() {
       }
       if (mode === "up") {
         const g = ageGroupFor(new Date(birthdate));
-        if (g === "too_young") { toast.error("Je moet minimaal 12 jaar zijn."); return; }
+        if (g === "too_young") { toast.error("Je moet minimaal 13 jaar zijn."); return; }
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: window.location.origin + "/home", data: { display_name: name, birthdate } },

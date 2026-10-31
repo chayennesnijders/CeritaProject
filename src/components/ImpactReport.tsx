@@ -28,7 +28,7 @@ export function ImpactReport() {
     );
   const c = stats.cijfers;
   const bands = [
-    ["12–15", c["band_12_15"]],
+    ["13–15", c["band_12_15"]],
     ["16–25", c["band_16_25"]],
     ["26–27", c["band_26_27"]],
   ] as const;

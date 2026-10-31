@@ -4,12 +4,12 @@ Een DPIA (Data Protection Impact Assessment) is een risico-check voor privacy. B
 De Autoriteit Persoonsgegevens heeft een uitleg en een model: zoek op "DPIA Autoriteit Persoonsgegevens". Dit concept helpt je op weg; laat het afmaken en nakijken.
 
 ## 1. Wat doet de app?
-Jongeren van 12–27 jaar delen verhalen, lezen verhalen van leeftijdsgenoten, chatten in groepen per leeftijdsgroep en privé, houden een privé dagboek bij, verzorgen een virtueel diertje, luisteren podcasts en kunnen producten bestellen.
+Jongeren van 13–27 jaar delen verhalen, lezen verhalen van leeftijdsgenoten, chatten in groepen per leeftijdsgroep en privé, houden een privé dagboek bij, verzorgen een virtueel diertje, luisteren podcasts en kunnen producten bestellen.
 
 ## 2. Welke gegevens?
 - Gewone gegevens: e-mail, naam, gebruikersnaam, foto, geboortedatum, adres bij bestellingen.
 - Bijzondere gegevens: wat jongeren schrijven over gevoelens en mentale gezondheid (gezondheidsgegevens).
-- Gegevens van kinderen: leden vanaf 12 jaar.
+- Gegevens van kinderen: leden vanaf 13 jaar.
 
 ## 3. Doelen en grondslagen
 | Doel | Grondslag |

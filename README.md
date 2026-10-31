@@ -1,6 +1,6 @@
 # CeritaProject
 
-Een veilige app voor jongeren van 12 tot 27 jaar. Je kunt er verhalen delen, chatten, groepen maken, een diertje verzorgen en dingen kopen in de shop.
+Een veilige app voor jongeren van 13 tot 27 jaar. Je kunt er verhalen delen, chatten, groepen maken, een diertje verzorgen en dingen kopen in de shop.
 
 Gebouwd met TanStack Start, React, Tailwind CSS en Supabase.
 

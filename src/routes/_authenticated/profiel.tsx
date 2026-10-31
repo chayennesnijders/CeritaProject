@@ -90,7 +90,7 @@ function ProfilePage() {
     if (!p.birthdate && birthdate) {
       const g = ageGroupFor(new Date(birthdate));
       if (g === "too_young") {
-        toast.error("Je moet minimaal 12 jaar zijn.");
+        toast.error("Je moet minimaal 13 jaar zijn.");
         return;
       }
     }

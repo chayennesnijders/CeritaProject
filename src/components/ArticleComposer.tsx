@@ -214,9 +214,9 @@ export function ArticleComposer() {
               <button
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.min_age >= 16 ? "bg-primary text-primary-foreground" : "bg-muted"}`}
                 onClick={() => setAge(a.id, a.min_age >= 16 ? 12 : 16)}
-                title="Tik om te wisselen tussen iedereen (12+) en 16+"
+                title="Tik om te wisselen tussen iedereen (13+) en 16+"
               >
-                {a.min_age >= 16 ? "16+" : "12+"}
+                {a.min_age >= 16 ? "16+" : "13+"}
               </button>
               <button
                 className="text-xs text-primary underline"
@@ -235,7 +235,7 @@ export function ArticleComposer() {
         ))}
       </div>
       <p className="text-xs text-muted-foreground">
-        📖 = verhaal, 📰 = artikel. 12+ = iedereen, 16+ = alleen leden van 16 jaar en ouder. Tik op
+        📖 = verhaal, 📰 = artikel. 13+ = iedereen, 16+ = alleen leden van 16 jaar en ouder. Tik op
         een labeltje om te wisselen.
       </p>
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>

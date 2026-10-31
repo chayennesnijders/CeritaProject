@@ -61,7 +61,7 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
         <>
           <h1 className="text-2xl">Nog even geduld 💛</h1>
           <p className="text-sm text-muted-foreground">
-            CeritaProject is voor jongeren vanaf 12 jaar. Kom terug als je 12 bent!
+            CeritaProject is voor jongeren vanaf 13 jaar. Kom terug als je 13 bent!
           </p>
           <Button variant="outline" className="rounded-full" onClick={() => setTooYoung(false)}>
             Datum verbeteren

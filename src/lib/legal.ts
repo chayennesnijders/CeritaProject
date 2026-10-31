@@ -1,11 +1,11 @@
 /**
  * Texts of the public pages: privacy statement, house rules, terms, parents, help and organisations.
- * Written in simple Dutch for members from 12 years old. Parts in [brackets] are for the owner to fill in;
+ * Written in simple Dutch for members from 13 years old. Parts in [brackets] are for the owner to fill in;
  * the legal texts are drafts that still need a check by someone who knows privacy law.
  */
 
 /** Change this when the privacy statement or the terms change: every member is then asked to agree again. */
-export const LEGAL_VERSION = "2026-10-30";
+export const LEGAL_VERSION = "2026-10-31";
 
 export type LegalSection = { title: string; text?: string[]; bullets?: string[] };
 export type LegalPage = {
@@ -74,7 +74,7 @@ export const PRIVACY: LegalPage = {
       bullets: [
         "Je account: je e-mailadres en je wachtwoord (versleuteld, ook wij kunnen het niet lezen). Log je in met Google, dan krijgen we je naam en e-mailadres van Google.",
         "Je profiel: je naam, gebruikersnaam, profielfoto en wat je over jezelf schrijft.",
-        "Je geboortedatum: daarmee kom je in de goede leeftijdsgroep (12–15, 16–25 of 26–27) en zie je alleen verhalen die bij je leeftijd passen. Andere leden zien je geboortedatum niet.",
+        "Je geboortedatum: daarmee kom je in de goede leeftijdsgroep (13–15, 16–25 of 26–27) en zie je alleen verhalen die bij je leeftijd passen. Andere leden zien je geboortedatum niet.",
         "Wat je deelt: berichten en reacties in groepen, privéberichten, foto's, bestanden en spraakberichten.",
         "Je dagboek: tekst, foto's en spraakberichten. Je dagboek is alleen voor jou.",
         "Je diertje, je to-do lijstjes en je dagopdrachten.",
@@ -269,7 +269,7 @@ export const TERMS: LegalPage = {
     {
       title: "Wie mag meedoen?",
       bullets: [
-        "Jongeren van 12 tot en met 27 jaar.",
+        "Jongeren van 13 tot en met 27 jaar.",
         "Ben je jonger dan 16? Dan moet je ouder of verzorger het goed vinden.",
         "Je vult je echte geboortedatum in en hebt maar één account.",
       ],
@@ -327,13 +327,13 @@ export const PARENTS: LegalPage = {
     {
       title: "Wat is CeritaProject?",
       text: [
-        "CeritaProject is een app voor jongeren van 12 tot 27 jaar. Jongeren lezen echte verhalen van leeftijdsgenoten, delen wat ze meemaken en steunen elkaar. Er is een privé dagboek, een virtueel huisdiertje met dagelijkse taakjes en er zijn podcasts en artikelen over mentale gezondheid.",
+        "CeritaProject is een app voor jongeren van 13 tot 27 jaar. Jongeren lezen echte verhalen van leeftijdsgenoten, delen wat ze meemaken en steunen elkaar. Er is een privé dagboek, een virtueel huisdiertje met dagelijkse taakjes en er zijn podcasts en artikelen over mentale gezondheid.",
       ],
     },
     {
       title: "Hoe houden we jongeren veilig?",
       bullets: [
-        "Leeftijdsgroepen: jongeren van 12–15 zien alleen leeftijdsgenoten. Ze komen niet in contact met volwassen leden.",
+        "Leeftijdsgroepen: jongeren van 13–15 zien alleen leeftijdsgenoten. Ze komen niet in contact met volwassen leden.",
         "Verhalen over heel zware onderwerpen zijn pas te zien vanaf 16 jaar.",
         "Privéchatten kan alleen na een verzoek dat de ander accepteert, en je kunt iemand blokkeren.",
         "Beheerders lezen meldingen en kunnen berichten verbergen, waarschuwen of iemand uit de app halen.",
@@ -375,13 +375,13 @@ export const ORGANISATIONS: LegalPage = {
     {
       title: "Wat is CeritaProject?",
       text: [
-        "Een veilige app waarin jongeren van 12 tot 27 jaar hun verhaal delen, verhalen van leeftijdsgenoten lezen en elkaar steunen. Met een privé dagboek, dagelijkse kleine opdrachten, een virtueel huisdiertje dat helpt met structuur, breinspelletjes, artikelen, podcasts en interviews.",
+        "Een veilige app waarin jongeren van 13 tot 27 jaar hun verhaal delen, verhalen van leeftijdsgenoten lezen en elkaar steunen. Met een privé dagboek, dagelijkse kleine opdrachten, een virtueel huisdiertje dat helpt met structuur, breinspelletjes, artikelen, podcasts en interviews.",
       ],
     },
     {
       title: "Veiligheid voorop",
       bullets: [
-        "Aparte leeftijdsgroepen (12–15, 16–25, 26–27): jonge leden komen niet in contact met volwassenen.",
+        "Aparte leeftijdsgroepen (13–15, 16–25, 26–27): jonge leden komen niet in contact met volwassenen.",
         "Zware verhalen alleen vanaf 16 jaar.",
         "Moderatie door beheerders, met meldknop, waarschuwingen en time-outs.",
         "Zorgsignalen: woorden over zelfmoord of zelfbeschadiging worden direct zichtbaar voor een beheerder, en de jongere krijgt hulpnummers te zien.",

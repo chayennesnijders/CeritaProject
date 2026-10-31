@@ -319,7 +319,7 @@ export function MediaAdmin() {
                     className="font-semibold underline"
                     onClick={() => update(m.id, { min_age: m.min_age >= 16 ? 12 : 16 })}
                   >
-                    {m.min_age >= 16 ? "16+" : "12+"} (wissel)
+                    {m.min_age >= 16 ? "16+" : "13+"} (wissel)
                   </button>
                   <button
                     className="font-semibold text-destructive underline"

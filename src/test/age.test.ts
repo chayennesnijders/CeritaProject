@@ -4,7 +4,8 @@ import { ageGroupFor } from "@/lib/auth";
 const today = new Date(2026, 9, 15);
 describe("leeftijdsomgevingen", () => {
   it("11 jaar is te jong", () => expect(ageGroupFor(new Date(2015, 0, 1), today)).toBe("too_young"));
-  it("12 jaar is junior", () => expect(ageGroupFor(new Date(2014, 0, 1), today)).toBe("junior"));
+  it("12 jaar is te jong", () => expect(ageGroupFor(new Date(2014, 0, 1), today)).toBe("too_young"));
+  it("13 jaar is junior", () => expect(ageGroupFor(new Date(2013, 0, 1), today)).toBe("junior"));
   it("15 jaar is junior", () => expect(ageGroupFor(new Date(2011, 0, 1), today)).toBe("junior"));
   it("16 jaar is senior", () => expect(ageGroupFor(new Date(2010, 0, 1), today)).toBe("senior"));
   it("25 jaar is senior", () => expect(ageGroupFor(new Date(2001, 0, 1), today)).toBe("senior"));

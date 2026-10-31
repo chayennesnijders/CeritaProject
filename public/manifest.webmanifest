@@ -1,8 +1,8 @@
 {
   "id": "/",
   "name": "CeritaProject",
-  "short_name": "Cerita",
-  "description": "Een veilige plek om verhalen te delen, te lezen, contact te maken en te groeien. Voor jongeren.",
+  "short_name": "CeritaProject",
+  "description": "Een veilige plek om verhalen te delen, te lezen, contact te maken en te groeien. Voor jongeren van 13 tot 27.",
   "lang": "nl",
   "start_url": "/home",
   "scope": "/",

@@ -33,7 +33,7 @@ export function impactSummary(s: ImpactStats, date = new Date(s.gemaakt_op)) {
     "",
     ...IMPACT_ROWS.map(([k, , label]) => `• ${label}: ${showCount(c[k])}`),
     "",
-    `Leeftijdsgroepen: 12–15 jaar ${showCount(c["band_12_15"])}, 16–25 jaar ${showCount(c["band_16_25"])}, 26–27 jaar ${showCount(c["band_26_27"])}`,
+    `Leeftijdsgroepen: 13–15 jaar ${showCount(c["band_12_15"])}, 16–25 jaar ${showCount(c["band_16_25"])}, 26–27 jaar ${showCount(c["band_26_27"])}`,
   ];
   if (s.onderwerpen.length) {
     lines.push("", "Meest gelezen onderwerpen (90 dagen):");

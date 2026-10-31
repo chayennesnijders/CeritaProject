@@ -27,16 +27,16 @@ export function useMe() {
   });
 }
 
-/** 12–15 = junior, 16–25 = senior, 26–27 = adult (elk een eigen community), 28+ = app zonder community, <12 niet toegestaan */
+/** 13–15 = junior, 16–25 = senior, 26–27 = adult (elk een eigen community), 28+ = app zonder community, <13 niet toegestaan */
 export function ageGroupFor(birthdate: Date, today = new Date()): "junior" | "senior" | "adult" | "no_community" | "too_young" {
   let age = today.getFullYear() - birthdate.getFullYear();
   const m = today.getMonth() - birthdate.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) age--;
-  if (age < 12) return "too_young";
+  if (age < 13) return "too_young";
   if (age <= 15) return "junior";
   if (age <= 25) return "senior";
   if (age <= 27) return "adult";
   return "no_community";
 }
 
-export const bandLabel = (g: string) => (g === "junior" ? "12–15" : g === "senior" ? "16–25" : "26–27");
+export const bandLabel = (g: string) => (g === "junior" ? "13–15" : g === "senior" ? "16–25" : "26–27");
