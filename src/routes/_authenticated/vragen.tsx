@@ -15,27 +15,21 @@ export const Route = createFileRoute("/_authenticated/vragen")({
       { title: "Coaches — CeritaProject" },
       {
         name: "description",
-        content: "Stel anoniem een vraag aan een coach en lees antwoorden op vragen van anderen.",
+        content: "Chat met een coach of stel anoniem een vraag.",
       },
     ],
   }),
   component: QuestionsPage,
 });
 
-/** Ask the admins anything anonymously; answered questions can go on the wall of your age band. */
+/** Chat with a coach, or ask one anything anonymously; only the asker sees the answer. */
 function QuestionsPage() {
   const { data: me } = useMe();
   const uid = me?.user.id;
   const qc = useQueryClient();
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"muur" | "mijn">("muur");
 
-  const { data: wall = [] } = useQuery({
-    queryKey: ["question-wall", uid],
-    enabled: !!uid,
-    queryFn: async () => (await supabase.rpc("question_wall")).data ?? [],
-  });
   const { data: mine = [] } = useQuery({
     queryKey: ["my-questions", uid],
     enabled: !!uid,
@@ -63,14 +57,14 @@ function QuestionsPage() {
   const unseen = mine.filter((q) => q.status === "beantwoord" && !q.answer_seen).length;
   // Opening "Mijn vragen" marks new answers as seen.
   useEffect(() => {
-    if (tab !== "mijn" || !uid || !unseen) return;
+    if (!uid || !unseen) return;
     void supabase
       .from("anon_questions")
       .update({ answer_seen: true })
       .eq("user_id", uid)
       .eq("answer_seen", false)
       .then(() => qc.invalidateQueries({ queryKey: ["my-questions", uid] }));
-  }, [tab, uid, unseen, qc]);
+  }, [uid, unseen, qc]);
 
   async function ask() {
     setBusy(true);
@@ -83,7 +77,6 @@ function QuestionsPage() {
     if (needsCare(body)) showCareHelp();
     toast.success("Je vraag is verstuurd. Je krijgt antwoord bij 'Mijn vragen'.");
     setBody("");
-    setTab("mijn");
     qc.invalidateQueries({ queryKey: ["my-questions", uid] });
   }
 
@@ -95,18 +88,6 @@ function QuestionsPage() {
           Je kunt altijd terecht bij een coach. Chat met een coach, of stel hieronder anoniem een
           vraag: dan ziet niemand van wie hij komt, ook de coach niet.
         </p>
-        {coaches.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {coaches.map((c) => (
-              <span
-                key={c.user_id}
-                className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
-              >
-                🎓 {c.title}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
       <TalkToCoach />
       <p className="pt-1 font-semibold">❓ Of stel anoniem een vraag</p>
@@ -127,44 +108,14 @@ function QuestionsPage() {
           {busy ? "Even geduld…" : "Vraag anoniem aan een coach"}
         </Button>
         <p className="text-[11px] text-muted-foreground">
-          Mooie vragen met antwoord kunnen anoniem op de vragenmuur komen, zodat anderen er ook iets
-          aan hebben. Heb je nu meteen hulp nodig? Bel 113 (0800-0113) of de Kindertelefoon
-          (0800-0432).
+          Alleen jij ziet het antwoord. Heb je nu meteen hulp nodig? Bel 113 (0800-0113) of de
+          Kindertelefoon (0800-0432).
         </p>
       </section>
-      <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
-        <button
-          onClick={() => setTab("muur")}
-          className={`rounded-full py-2 text-sm font-semibold ${tab === "muur" ? "bg-card shadow-soft" : ""}`}
-        >
-          Vragenmuur ({wall.length})
-        </button>
-        <button
-          onClick={() => setTab("mijn")}
-          className={`rounded-full py-2 text-sm font-semibold ${tab === "mijn" ? "bg-card shadow-soft" : ""}`}
-        >
-          Mijn vragen {unseen ? `🔴 ${unseen}` : `(${mine.length})`}
-        </button>
-      </div>
-      {tab === "muur" ? (
-        wall.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nog geen vragen op de muur.</p>
-        ) : (
-          wall.map((q) => (
-            <article key={q.id} className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
-              <p className="font-semibold">❓ {q.body}</p>
-              <p className="whitespace-pre-wrap rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
-                💬 {q.answer}
-                {q.coach && (
-                  <span className="mt-1 block text-[11px] font-semibold opacity-80">
-                    — {q.coach}
-                  </span>
-                )}
-              </p>
-            </article>
-          ))
-        )
-      ) : mine.length === 0 ? (
+      <p className="pt-1 font-semibold">
+        Mijn vragen {unseen ? `· 🔴 ${unseen} nieuw antwoord` : ""}
+      </p>
+      {mine.length === 0 ? (
         <p className="text-sm text-muted-foreground">Je hebt nog geen vragen gesteld.</p>
       ) : (
         mine.map((q) => (
@@ -176,11 +127,6 @@ function QuestionsPage() {
                 {coachName(q.answered_by) && (
                   <span className="mt-1 block text-[11px] font-semibold opacity-80">
                     — {coachName(q.answered_by)}
-                  </span>
-                )}
-                {q.published && (
-                  <span className="mt-1 block text-[11px] opacity-75">
-                    Staat anoniem op de vragenmuur.
                   </span>
                 )}
               </p>

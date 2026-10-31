@@ -4,42 +4,36 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { bandLabel } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 /**
- * Answer anonymous questions (coaches on /coach, admins in Beheer → Vragen) and choose whether the
- * answer goes on the wall. Nobody here sees who asked.
+ * Answer anonymous questions (coaches on /coach, admins in Beheer → Vragen). Only the asker sees the
+ * answer, and nobody here sees who asked.
  */
 export function QuestionsAdmin() {
   const qc = useQueryClient();
   const [show, setShow] = useState<"open" | "klaar">("open");
-  const [drafts, setDrafts] = useState<Record<string, { text: string; publish: boolean }>>({});
+  const [drafts, setDrafts] = useState<Record<string, { text: string }>>({});
   const { data: rows = [] } = useQuery({
     queryKey: ["admin-questions"],
     queryFn: async () => (await supabase.rpc("coach_questions")).data ?? [],
   });
   const list = rows.filter((q) => (show === "open" ? q.status === "nieuw" : q.status !== "nieuw"));
-  const draft = (id: string) => drafts[id] ?? { text: "", publish: true };
+  const draft = (id: string) => drafts[id] ?? { text: "" };
 
   async function answer(id: string, decline = false) {
     const d = draft(id);
     const { error } = await supabase.rpc("answer_question", {
       _question: id,
       _answer: decline ? "" : d.text,
-      _publish: d.publish,
+      // There is no question wall any more: answers are only for the one who asked.
+      _publish: false,
     });
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success(
-      decline
-        ? "Niet beantwoord"
-        : d.publish
-          ? "Beantwoord en op de muur gezet"
-          : "Beantwoord (alleen voor de vrager)",
-    );
+    toast.success(decline ? "Niet beantwoord" : "Beantwoord 💛");
     qc.invalidateQueries({ queryKey: ["admin-questions"] });
   }
 
@@ -82,15 +76,9 @@ export function QuestionsAdmin() {
                 placeholder="Jouw antwoord…"
                 className="rounded-2xl"
               />
-              <label className="flex items-center justify-between gap-2 text-sm">
-                <span>Anoniem op de vragenmuur ({bandLabel(q.age_group)})</span>
-                <Switch
-                  checked={draft(q.id).publish}
-                  onCheckedChange={(v) =>
-                    setDrafts({ ...drafts, [q.id]: { ...draft(q.id), publish: v } })
-                  }
-                />
-              </label>
+              <p className="text-[11px] text-muted-foreground">
+                Alleen de vrager ziet je antwoord.
+              </p>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -112,8 +100,7 @@ export function QuestionsAdmin() {
             <p className="whitespace-pre-wrap rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
               💬 {q.answer}
               <span className="mt-1 block text-[11px] opacity-75">
-                {q.answered_by_name ?? "Beheer"} ·{" "}
-                {q.published ? "Op de vragenmuur" : "Alleen voor de vrager"}
+                {q.answered_by_name ?? "Beheer"}
               </span>
             </p>
           ) : (

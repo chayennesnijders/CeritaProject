@@ -33,9 +33,7 @@ export function TalkToCoach() {
       const convWith = new Map(
         (conv.data ?? []).map((x) => [x.user_a === uid ? x.user_b : x.user_a, x]),
       );
-      return (c.data ?? [])
-        .filter((x) => x.user_id !== uid)
-        .map((x) => ({ ...x, conv: convWith.get(x.user_id) }));
+      return (c.data ?? []).map((x) => ({ ...x, conv: convWith.get(x.user_id) }));
     },
   });
 
@@ -59,7 +57,13 @@ export function TalkToCoach() {
     toast.success("Verstuurd! Zodra de coach accepteert, kunnen jullie chatten. 💛");
   }
 
-  if (!data?.length) return null;
+  if (!data) return null;
+  if (!data.length)
+    return (
+      <section className="rounded-3xl bg-card p-4 text-sm text-muted-foreground shadow-soft">
+        🎓 Binnenkort kun je hier chatten met een coach.
+      </section>
+    );
   return (
     <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
       <p className="flex items-center gap-2 font-semibold">
@@ -80,9 +84,15 @@ export function TalkToCoach() {
             <p className="truncate font-semibold">{c.title}</p>
             {c.bio && <p className="line-clamp-2 text-xs text-muted-foreground">{c.bio}</p>}
           </div>
-          <Button size="sm" className="shrink-0 rounded-full" onClick={() => chat(c.user_id)}>
-            {c.conv?.status === "accepted" ? "Chat" : c.conv ? "Verstuurd" : "Chat 💬"}
-          </Button>
+          {c.user_id === uid ? (
+            <span className="shrink-0 rounded-full bg-background px-3 py-1 text-xs font-semibold">
+              Dit ben jij
+            </span>
+          ) : (
+            <Button size="sm" className="shrink-0 rounded-full" onClick={() => chat(c.user_id)}>
+              {c.conv?.status === "accepted" ? "Chat" : c.conv ? "Verstuurd" : "Chat 💬"}
+            </Button>
+          )}
         </div>
       ))}
     </section>
