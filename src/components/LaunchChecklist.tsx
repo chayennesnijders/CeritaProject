@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getLaunchChecks } from "@/lib/push.functions";
+import { OutsidePhotos } from "@/components/OutsidePhotos";
 import { ORG } from "@/lib/legal";
 import { launchChecks, launchStatus, type LaunchCheck } from "@/lib/launch";
 
@@ -119,6 +120,7 @@ export function LaunchChecklist() {
             ))}
         </section>
       ))}
+      <OutsidePhotos />
       <p className="text-center text-xs text-muted-foreground">
         ✅ klaar · ❌ nodig voor livegang · ⚪ mag later · 📝 zelf afvinken in je hoofd 😉
       </p>
