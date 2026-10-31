@@ -568,6 +568,13 @@
       "when": 1793811600000,
       "tag": "0080_minimum_age_13",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1793898000000,
+      "tag": "0081_waitlist",
+      "breakpoints": true
     }
   ]
 }

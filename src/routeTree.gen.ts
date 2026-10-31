@@ -21,6 +21,7 @@ import { Route as OudersRouteImport } from './routes/ouders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
+import { Route as WachtlijstRouteImport } from './routes/wachtlijst'
 import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
@@ -116,6 +117,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const VoorwaardenRoute = VoorwaardenRouteImport.update({
   id: '/voorwaarden',
   path: '/voorwaarden',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WachtlijstRoute = WachtlijstRouteImport.update({
+  id: '/wachtlijst',
+  path: '/wachtlijst',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotwellKnownAssetlinksDotjsonRoute =
@@ -330,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/beheer': typeof AuthenticatedBeheerRoute
@@ -380,6 +387,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/beheer': typeof AuthenticatedBeheerRoute
@@ -432,6 +440,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
@@ -484,6 +493,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/wachtlijst'
     | '/.well-known/assetlinks.json'
     | '/agenda'
     | '/beheer'
@@ -534,6 +544,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/wachtlijst'
     | '/.well-known/assetlinks.json'
     | '/agenda'
     | '/beheer'
@@ -585,6 +596,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/wachtlijst'
     | '/.well-known/assetlinks.json'
     | '/_authenticated/agenda'
     | '/_authenticated/beheer'
@@ -637,6 +649,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   VoorwaardenRoute: typeof VoorwaardenRoute
+  WachtlijstRoute: typeof WachtlijstRoute
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   ApiAuthEmailRoute: typeof ApiAuthEmailRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
@@ -729,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/voorwaarden'
       fullPath: '/voorwaarden'
       preLoaderRoute: typeof VoorwaardenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wachtlijst': {
+      id: '/wachtlijst'
+      path: '/wachtlijst'
+      fullPath: '/wachtlijst'
+      preLoaderRoute: typeof WachtlijstRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/assetlinks.json': {
@@ -1077,6 +1097,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   VoorwaardenRoute: VoorwaardenRoute,
+  WachtlijstRoute: WachtlijstRoute,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   ApiAuthEmailRoute: ApiAuthEmailRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,

@@ -30,6 +30,7 @@ import { ReportInbox } from "@/components/ReportInbox";
 import { reportsQueryOptions } from "@/lib/reports";
 import { MODERATOR_TABS, canSeeAdminTab, seesPublicMessages } from "@/lib/staff";
 import { StaffAdmin } from "@/components/StaffAdmin";
+import { WaitlistAdmin } from "@/components/WaitlistAdmin";
 
 const TABS = [
   { id: "nieuws", label: "Nieuws" },
@@ -187,6 +188,7 @@ export function AdminPanel() {
 
       {tab === "overzicht" && (
         <div className="space-y-5">
+          <WaitlistAdmin />
           <AdminWeekly />
           {me.isOwner && <ReturnsAdmin />}
           {me.isOwner && <ShopOrdersAdmin />}

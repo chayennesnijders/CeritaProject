@@ -136,6 +136,13 @@ export const PRIVACY: LegalPage = {
       ],
     },
     {
+      title: "De wachtlijst",
+      text: [
+        "Zet je je op de wachtlijst (app.ceritaproject.nl/wachtlijst)? Dan bewaren we je e-mailadres, je leeftijd en wat voor telefoon je hebt. We gebruiken dat alleen om je één keer te mailen wanneer je de app kunt downloaden. Daarna halen we je van de lijst. Ben je jonger dan 16? Dan vragen we of je ouder of verzorger het goed vindt.",
+        `Wil je eerder van de lijst af? Mail naar ${ORG.email}.`,
+      ],
+    },
+    {
       title: "Ben je jonger dan 16?",
       text: [
         "Dan moet je ouder of verzorger het goed vinden dat je CeritaProject gebruikt. Daarom vragen we je dat bij het aanmelden. Op de pagina 'Voor ouders' lezen je ouders wat CeritaProject is.",

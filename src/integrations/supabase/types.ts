@@ -1826,6 +1826,39 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          age: number
+          created_at: string
+          email: string
+          id: string
+          mailed_at: string | null
+          parent_ok: boolean
+          source: string | null
+          store: string
+        }
+        Insert: {
+          age: number
+          created_at?: string
+          email: string
+          id?: string
+          mailed_at?: string | null
+          parent_ok?: boolean
+          source?: string | null
+          store: string
+        }
+        Update: {
+          age?: number
+          created_at?: string
+          email?: string
+          id?: string
+          mailed_at?: string | null
+          parent_ok?: boolean
+          source?: string | null
+          store?: string
+        }
+        Relationships: []
+      }
       push_tokens: {
         Row: {
           created_at: string
@@ -2244,6 +2277,11 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      join_waitlist: {
+        Args: { _email: string; _age: number; _store: string; _parent_ok: boolean; _source?: string }
+        Returns: boolean
+      }
+      waitlist_count: { Args: never; Returns: number }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       staff_list: {
         Args: never
