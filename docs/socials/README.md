@@ -11,7 +11,7 @@ Een **herkenningsaccount**: jongeren lezen iets en denken *"dit ben ík"*. Ze vo
 1. **Hook**: een korte, herkenbare zin. Die moet mensen laten stoppen met scrollen.
 2. t/m 5. **Herkenning**: 4 slides met één gedachte per slide.
 6. **Afsluiter**: iets liefs, of een vraag ("tag iemand", "welke zou jij toevoegen?").
-7. **Flyer**: *"er komt een app aan 💗 … wil je op de wachtlijst?"*
+7. **Flyer**: *"er komt een app aan 💗 … zet je op de wachtlijst"*, met het adres app.ceritaproject.nl/wachtlijst
 
 **Stijl:**
 - **Eén kleur per slideshow**: roze, bruin of crème. Wissel steeds af, zodat je profiel er als een mooi rijtje uitziet.
@@ -74,28 +74,29 @@ Houd het bijschrift kort. Zet altijd **3 tot 5 hashtags** eronder: niet meer, an
 
 ## 4. Wachtlijst: zo werkt het
 
-**De flyer zegt:** *"wil je op de wachtlijst? reageer met 'app' of stuur ons een berichtje"*
+**De wachtlijst-pagina:** https://app.ceritaproject.nl/wachtlijst
+- Jongeren vullen hun **e-mailadres**, **leeftijd** en **telefoon** in (Android, iPhone of weet ik niet).
+- Onder de 16 vinken ze aan dat hun ouder het goed vindt. Onder de 13 kunnen ze zich niet aanmelden.
+- Na het aanmelden krijgen ze een knop **"Deel met een vriend(in)"**. Zo groeit de lijst vanzelf.
+- Vanaf 25 aanmeldingen staat er *"Al … jongeren staan op de wachtlijst"*. Dat werkt goed als sociaal bewijs.
 
-**Wat doe je met de reacties?**
-1. Reageer op elke **'app'** met iets liefs: *"je staat erop! 🤍 we laten het je weten zodra de app klaar is"*
-2. Houd bij wie er op de wachtlijst staat. Zie het advies hieronder.
+**In je TikTok-bio** zet je deze link: **app.ceritaproject.nl/wachtlijst?bron=tiktok**
+Zo zie je in Beheer hoeveel aanmeldingen er via TikTok binnenkomen. Kun je nog geen link in je bio zetten? Dan staat het adres ook gewoon op de flyer.
 
-> ⚠️ **Belangrijk advies over je telefoonnummer**
->
-> - **TikTok zet berichtjes uit voor iedereen onder de 16.** Een groot deel van je doelgroep (13–15) kan jou dus niet eens een DM sturen.
-> - **Je eigen nummer** delen met minderjarigen die je niet kent, is voor jou en voor hen niet zo veilig. Je krijgt dan ook veel berichten op je privételefoon.
-> - Een telefoonnummer is een persoonsgegeven. Voor jongeren onder de 16 zegt de privacywet (AVG) dat je voor zoiets **toestemming van een ouder** nodig hebt.
->
-> **Mijn advies:** gebruik een **wachtlijst-pagina** in je bio, bijvoorbeeld *app.ceritaproject.nl/wachtlijst*. Mensen vullen daar hun e-mailadres en leeftijd in, en onder de 16 vraagt de pagina om een akkoord van een ouder. Als de app klaar is, mail je iedereen in één keer. Ik kan die pagina voor je bouwen.
->
-> Wil je toch WhatsApp gebruiken? Neem dan een **apart nummer met WhatsApp Business**, niet je privénummer. Stuur iedereen tegelijk een bericht via een **verzendlijst**, en ga geen één-op-één-gesprekken aan met minderjarigen.
+**Reageert iemand 'app'?** Antwoord met iets als: *"yes! 💗 zet je op de wachtlijst via de link in onze bio, dan laten we het je als eerste weten"*
 
----
+**Als de app er is:**
+1. Ga naar **Beheer** → **Overzicht** → **📝 Wachtlijst**.
+2. Tik op **🤖 Kopieer Android**. Alle e-mailadressen staan dan in je klembord.
+3. Maak een mail en plak de adressen in **BCC** (niet in "Aan"), zodat niemand elkaars adres ziet.
+4. Tik daarna op **gemaild**.
+5. Later, als de iPhone-versie er is, doe je hetzelfde met **🍎 Kopieer iPhone**.
+6. Haal daarna de gemailde adressen van de lijst (knop onderaan). Dat beloven we in de privacyverklaring.
 
 ## 5. Groeien: tips
 
 - **Reageer op elke reactie** in het eerste uur na het posten. TikTok laat de post dan aan meer mensen zien.
-- **Pin een reactie** onder elke post: *"er komt een app aan 💗 link in bio voor de wachtlijst"*
+- **Pin een reactie** onder elke post: *"er komt een app aan 💗 zet je op de wachtlijst via de link in bio (app.ceritaproject.nl/wachtlijst)"*
 - **Hergebruik wat werkt:** heeft een post veel views? Maak er een "deel 2" van.
 - **Kijk na 2 weken** in TikTok Studio → Analyses welke onderwerpen en welke kleur het beste doen. Doe daar meer van.
 - **Vraag om bewaren en delen** ("bewaar dit", "stuur dit naar..."). Dat telt zwaarder dan likes.
