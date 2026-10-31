@@ -10,6 +10,9 @@ export const Route = createFileRoute("/api/public/free-items-weekly")({
         const given = request.headers.get("x-cron-token") ?? "";
         const { data: tok } = await supabaseAdmin.from("cron_tokens").select("token").eq("name", "free_items_weekly").maybeSingle();
         if (!tok || given.length !== tok.token.length || given !== tok.token) return new Response("Unauthorized", { status: 401 });
+        // No "free items in the shop" push while the shop is still closed for members.
+        const { SHOP_OPEN } = await import("@/lib/shop-status");
+        if (!SHOP_OPEN) return Response.json({ sent: 0, closed: true });
         const { data: free } = await supabaseAdmin.rpc("free_items_available");
         const n = free ?? 0;
         if (n < 1) return Response.json({ sent: 0 });

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
+import { SHOP_OPEN } from "@/lib/shop-status";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/auth";
 import { Riti } from "@/components/Riti";
@@ -13,7 +14,7 @@ const STEPS: Step[] = [
   { target: "berichten", emoji: "💬", title: "Berichten", text: "Hier zijn je privéchats en kun je vrienden zoeken." },
   { target: "profiel", emoji: "👤", title: "Profiel", text: "Hier: je foto, gebruikersnaam, dagboek en licht/donker scherm." },
   { target: "diertje", emoji: "🐾", title: "Je diertje", text: "Dit pootje: vul elke ochtend je to-do lijstje in en verzorg je diertje. Overslaan is nooit erg!" },
-  { target: "shop", emoji: "🛍️", title: "CeritaShop", text: "Dit tasje: de shop. Betaal wat je voelt." },
+  { target: "shop", emoji: "🛍️", title: "CeritaShop", text: SHOP_OPEN ? "Dit tasje: de shop. Betaal wat je voelt." : "Dit tasje: de CeritaShop. Die komt binnenkort!" },
   { emoji: "🛡️", title: "Beheerders", text: "Zie je een schildje bij een profielfoto? Dat is een beheerder. Bij hen kun je altijd terecht. Veel plezier!" },
 ];
 

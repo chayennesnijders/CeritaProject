@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Bell, GraduationCap, PawPrint, Shield, ShoppingBag } from "lucide-react";
 import { useInbox } from "@/lib/use-inbox";
+import { useMe } from "@/lib/auth";
+import { canEnterShop } from "@/lib/shop-status";
 import { supabase } from "@/integrations/supabase/client";
 import { challengeDay } from "@/lib/challenges";
 import { levelFor } from "@/lib/pet";
@@ -107,8 +109,31 @@ export function InboxBell() {
   );
 }
 
-/** Shop bag to the CeritaShop. */
+/** Shop bag to the CeritaShop; while the shop is closed members get a "binnenkort" note instead. */
 export function ShopLink() {
+  const { data: me } = useMe();
+  if (!canEnterShop(me))
+    return (
+      <Popover>
+        <PopoverTrigger
+          data-tour="shop"
+          aria-label="CeritaShop (binnenkort)"
+          className={headerButton}
+        >
+          <ShoppingBag className="size-5" />
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1 text-[8px] font-bold leading-3 text-primary-foreground ring-2 ring-ink">
+            SOON
+          </span>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-64 rounded-3xl text-sm">
+          <p className="font-semibold">🛍️ De CeritaShop komt binnenkort!</p>
+          <p className="mt-1 text-muted-foreground">
+            Hier kun je straks fidgets en andere leuke dingen kopen, en een cadeautje geven aan een
+            andere jongere. We laten het je weten zodra de shop open is.
+          </p>
+        </PopoverContent>
+      </Popover>
+    );
   return (
     <Link
       to="/shop"

@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMe } from "@/lib/auth";
+import { SHOP_OPEN, canEnterShop } from "@/lib/shop-status";
 import { ReturnRequest } from "@/components/ReturnRequest";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -31,8 +33,36 @@ export const Route = createFileRoute("/_authenticated/shop")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ShopPage,
+  component: ShopGate,
 });
+
+/** While the shop is closed, members see "binnenkort" here (also via an old link); admins get the shop. */
+function ShopGate() {
+  const { data: me, isLoading } = useMe();
+  if (isLoading) return null;
+  if (!canEnterShop(me))
+    return (
+      <div className="flex flex-col items-center gap-3 pt-16 text-center">
+        <p className="text-6xl">🛍️</p>
+        <h1 className="text-3xl">CeritaShop</h1>
+        <p className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">Binnenkort</p>
+        <p className="max-w-xs text-sm text-muted-foreground">
+          Hier kun je straks fidgets en andere leuke dingen kopen, en een cadeautje geven aan een andere jongere.
+          We laten het je weten zodra de shop open is. 💛
+        </p>
+      </div>
+    );
+  return (
+    <>
+      {!SHOP_OPEN && (
+        <p className="mt-2 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
+          👀 Alleen jij als beheerder ziet de shop. Leden zien nog "binnenkort".
+        </p>
+      )}
+      <ShopPage />
+    </>
+  );
+}
 
 const PHOTOS: Record<string, string[]> = { game_clicks: [img1, img2, img3] };
 
