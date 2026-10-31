@@ -70,7 +70,7 @@ Elke map is één post, met de slides op volgorde (01, 02, 03, …). De laatste 
 
 **20:30 · 10 · wij zijn nog steeds op zoek naar échte verhalen van jongeren❤️**
 > **Verhalen gezocht❤️**
-> Jouw ervaring kan iemand anders laten zien dat hij of zij niet alleen is. Anoniem delen mag altijd. Reageer met 🤍 als jij je verhaal wilt delen.
+> Jouw verhaal komt in de CeritaProject-app, waar andere jongeren het kunnen lezen. Zo laat jij iemand zien dat hij of zij niet alleen is. Anoniem delen mag altijd. Reageer met 🤍 als jij je verhaal wilt delen.
 > #verhalengezocht #jouwverhaal #mentalehealth #herkenbaar #fyp
 
 ### Vrijdag 6 november
