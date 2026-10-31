@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ageGroupFor } from "@/lib/auth";
+import { readOAuthReturn } from "@/lib/oauth-return";
+
+// The address as it was when the page opened (before anything can tidy it up), so tokens or an
+// error that Google/Supabase sent back are never lost.
+const openedAt = typeof window === "undefined" ? "" : window.location.href;
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -38,6 +43,29 @@ function AuthPage() {
   useEffect(() => {
     let done = false;
     const go = () => { if (!done) { done = true; nav({ to: "/home" }); } };
+    const back = readOAuthReturn(openedAt || window.location.href);
+    const clean = () => window.history.replaceState(null, "", window.location.pathname);
+    if (back.kind === "error") {
+      toast.error(back.message, { duration: 15000 });
+      clean();
+    } else if (back.kind === "tokens") {
+      void supabase.auth
+        .setSession({ access_token: back.accessToken, refresh_token: back.refreshToken })
+        .then(({ data, error }) => {
+          clean();
+          if (error) toast.error(`Inloggen lukte niet: ${error.message}`, { duration: 15000 });
+          else if (data.session) go();
+        });
+    } else if (back.kind === "code") {
+      void supabase.auth.exchangeCodeForSession(back.code).then(async ({ data, error }) => {
+        clean();
+        if (data.session) return go();
+        // Supabase may already have used the code itself: then there is a session and all is well.
+        const { data: now } = await supabase.auth.getSession();
+        if (now.session) go();
+        else if (error) toast.error(`Inloggen lukte niet: ${error.message}`, { duration: 15000 });
+      });
+    }
     supabase.auth.getSession().then(({ data }) => { if (data.session) go(); });
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) go();
