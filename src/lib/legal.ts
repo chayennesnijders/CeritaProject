@@ -267,6 +267,10 @@ export const TERMS: LegalPage = {
   intro: "Dit zijn de afspraken als je CeritaProject gebruikt.",
   sections: [
     {
+      title: "Wie zijn wij?",
+      text: [`De app wordt gemaakt door ${ORG.name}${kvk}. Je bereikt ons via ${ORG.email}.`],
+    },
+    {
       title: "Wie mag meedoen?",
       bullets: [
         "Jongeren van 13 tot en met 27 jaar.",
