@@ -1,12 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Bell, GraduationCap, PawPrint } from "lucide-react";
+import { Bell, GraduationCap, PawPrint, Shield, ShoppingBag } from "lucide-react";
 import { useInbox } from "@/lib/use-inbox";
 import { supabase } from "@/integrations/supabase/client";
 import { challengeDay } from "@/lib/challenges";
 import { levelFor } from "@/lib/pet";
 import { shiftDay, streakDays } from "@/lib/streak";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+/** One look for every round button in the pink top bar, so the row reads as one calm group. */
+export const headerButton =
+  "relative grid size-9 shrink-0 place-items-center rounded-full bg-ink-foreground/10 text-ink-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground";
+const headerActive = { className: "!bg-secondary !text-secondary-foreground" };
+
+/** Small count on a header button. */
+function HeaderBadge({ n }: { n: number }) {
+  if (n <= 0) return null;
+  return (
+    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground ring-2 ring-ink">
+      {n > 9 ? "9+" : n}
+    </span>
+  );
+}
 
 /** 🔥 Days in a row you did something: cared for your pet or wrote in your diary. */
 export function StreakChip({ uid }: { uid: string | undefined }) {
@@ -35,7 +50,7 @@ export function StreakChip({ uid }: { uid: string | undefined }) {
     <Popover>
       <PopoverTrigger
         aria-label={`${streak} dagen op rij`}
-        className="flex items-center gap-0.5 rounded-full bg-secondary/20 mr-0.5 px-2 py-1 text-sm font-bold text-ink-foreground"
+        className="flex h-9 shrink-0 items-center gap-0.5 rounded-full bg-ink-foreground/10 px-2.5 text-sm font-bold text-ink-foreground"
       >
         <span className={streak > 0 ? "motion-safe:animate-pulse" : "grayscale"}>🔥</span>
         {streak}
@@ -68,8 +83,8 @@ export function PetLink({ uid }: { uid: string | undefined }) {
       to="/diertje"
       data-tour="diertje"
       aria-label={pet ? `Mijn diertje, level ${levelFor(pet.xp).level}` : "Mijn diertje"}
-      className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground"
-      activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
+      className={headerButton}
+      activeProps={headerActive}
     >
       <PawPrint className="size-5" />
     </Link>
@@ -83,22 +98,33 @@ export function InboxBell() {
     <Link
       to="/meldingen"
       aria-label={total ? `Meldingen: ${total} nieuw` : "Meldingen"}
-      className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground"
-      activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
+      className={headerButton}
+      activeProps={headerActive}
     >
       <Bell className="size-5" />
-      {total > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-          {total > 9 ? "9+" : total}
-        </span>
-      )}
+      <HeaderBadge n={total} />
     </Link>
   );
 }
 
-/** 🧑‍🏫 For coaches only: their page with open questions (and how many wait). */
-export function CoachLink({ uid }: { uid: string | undefined }) {
-  const { data: open } = useQuery({
+/** Shop bag to the CeritaShop. */
+export function ShopLink() {
+  return (
+    <Link
+      to="/shop"
+      data-tour="shop"
+      aria-label="CeritaShop"
+      className={headerButton}
+      activeProps={headerActive}
+    >
+      <ShoppingBag className="size-5" />
+    </Link>
+  );
+}
+
+/** For coaches only: how many anonymous questions wait (null when you are not an active coach). */
+function useCoachOpen(uid: string | undefined) {
+  const { data } = useQuery({
     queryKey: ["coach-open", uid],
     enabled: !!uid,
     refetchInterval: 120_000,
@@ -113,20 +139,61 @@ export function CoachLink({ uid }: { uid: string | undefined }) {
       return (data ?? []).filter((q) => q.status === "nieuw").length;
     },
   });
-  if (open == null) return null;
+  return data ?? null;
+}
+
+/**
+ * Admins and coaches get one extra button instead of two: it goes straight to Beheer or Coach,
+ * or opens a little menu with both when you are both.
+ */
+export function WorkMenu({
+  uid,
+  isAdmin,
+  adminCount,
+}: {
+  uid: string | undefined;
+  isAdmin: boolean;
+  adminCount: number;
+}) {
+  const coachOpen = useCoachOpen(uid);
+  const isCoach = coachOpen != null;
+  if (!isAdmin && !isCoach) return null;
+  const Icon = isAdmin ? Shield : GraduationCap;
+  const total = (isAdmin ? adminCount : 0) + (coachOpen ?? 0);
+  if (!isAdmin || !isCoach) {
+    return (
+      <Link
+        to={isAdmin ? "/beheer" : "/coach"}
+        aria-label={isAdmin ? "Beheer" : coachOpen ? `Coach: ${coachOpen} vragen` : "Coach"}
+        className={headerButton}
+        activeProps={headerActive}
+      >
+        <Icon className="size-5" />
+        <HeaderBadge n={total} />
+      </Link>
+    );
+  }
+  const item = "flex items-center gap-3 rounded-2xl px-3 py-2.5 font-semibold hover:bg-muted";
+  const count = (n: number) =>
+    n > 0 && (
+      <span className="ml-auto rounded-full bg-primary px-2 text-xs font-bold text-primary-foreground">
+        {n > 9 ? "9+" : n}
+      </span>
+    );
   return (
-    <Link
-      to="/coach"
-      aria-label={open ? `Coach: ${open} vragen` : "Coach"}
-      className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground"
-      activeProps={{ className: "bg-secondary !text-secondary-foreground" }}
-    >
-      <GraduationCap className="size-5" />
-      {open > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-          {open > 9 ? "9+" : open}
-        </span>
-      )}
-    </Link>
+    <Popover>
+      <PopoverTrigger aria-label="Beheer en coach" className={headerButton}>
+        <Icon className="size-5" />
+        <HeaderBadge n={total} />
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-56 rounded-3xl p-2 text-sm">
+        <Link to="/beheer" className={item}>
+          <Shield className="size-5" /> Beheer {count(adminCount)}
+        </Link>
+        <Link to="/coach" className={item}>
+          <GraduationCap className="size-5" /> Coach {count(coachOpen ?? 0)}
+        </Link>
+      </PopoverContent>
+    </Popover>
   );
 }

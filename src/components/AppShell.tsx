@@ -5,11 +5,11 @@ import { BirthdayPopup } from "@/components/BirthdayPopup";
 import { AppLock } from "@/components/AppLock";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { BirthdateGate } from "@/components/BirthdateGate";
-import { CoachLink, InboxBell, PetLink, StreakChip } from "@/components/HeaderStats";
+import { InboxBell, PetLink, ShopLink, StreakChip, WorkMenu } from "@/components/HeaderStats";
 import { CareHelpDialog } from "@/components/CareHelpDialog";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
-import { Home, Users, Compass, MessageCircle, User, ShoppingBag, Shield } from "lucide-react";
+import { Home, Users, Compass, MessageCircle, User } from "lucide-react";
 import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
 import { useAdminNews } from "@/lib/use-admin-news";
@@ -76,28 +76,21 @@ export function AppShell() {
       <BirthdayPopup />
       <CareHelpDialog />
       <WelcomeTour />
-      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-5 text-ink-foreground">
+      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-4 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
           <img src="/cerita-beer.png" alt="" className="size-11 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
-          <span className="min-w-0 leading-tight">
+          {/* On a phone the bear logo alone; the name only where it fits without being cut off. */}
+          <span className="hidden min-w-0 leading-tight min-[440px]:block">
             <span className="block truncate font-display text-base">CeritaProject</span>
             <span className="block truncate text-[10px] opacity-70">Jouw verhaal mag er zijn</span>
           </span>
         </Link>
-        <div className="flex shrink-0 items-center gap-0.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           <StreakChip uid={me?.user.id} />
           <InboxBell />
-          <CoachLink uid={me?.user.id} />
-          {me?.isAdmin && (
-            <Link to="/beheer" aria-label="Beheer" className="relative rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary !text-secondary-foreground" }}>
-              <Shield className="size-5" />
-              <TabBadge n={unread.reports + news.unread} />
-            </Link>
-          )}
           <PetLink uid={me?.user.id} />
-          <Link to="/shop" data-tour="shop" aria-label="CeritaShop" className="rounded-full p-1.5 text-ink-foreground hover:bg-secondary hover:text-secondary-foreground" activeProps={{ className: "bg-secondary !text-secondary-foreground" }}>
-            <ShoppingBag className="size-5" />
-          </Link>
+          <ShopLink />
+          <WorkMenu uid={me?.user.id} isAdmin={!!me?.isAdmin} adminCount={unread.reports + news.unread} />
         </div>
       </header>
       <main className="flex-1 px-5 pb-28">
