@@ -194,7 +194,7 @@ function PetPage() {
   return (
     <div className="space-y-5 pt-2">
       <h1 className="text-3xl">Mijn diertjes</h1>
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 py-1.5">
         {[{ id: "main", species: pet.species, name: pet.name }, ...companions].map((c) => (
           <button key={c.id} onClick={() => { setActiveRef(c.id); setListId(null); }}
             className={`shrink-0 rounded-2xl px-3 py-2 text-center ${activeRef === c.id ? "bg-accent ring-2 ring-primary" : "bg-card shadow-soft"}`}>

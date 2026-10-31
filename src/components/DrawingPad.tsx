@@ -186,7 +186,7 @@ export function DrawingPad({
       </div>
 
       <div className="space-y-2 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3">
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto px-1 py-1.5">
           {DRAW_COLORS.map((c) => (
             <button
               key={c}
