@@ -21,7 +21,7 @@ export type LegalPage = {
 export const ORG = {
   name: "CeritaProject",
   /** Fill in to show it; leave empty to leave it out. */
-  kvk: "",
+  kvk: "81909535",
   email: "ceritaproject@outlook.com",
 };
 const kvk = ORG.kvk ? ` (KvK ${ORG.kvk})` : "";

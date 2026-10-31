@@ -21,6 +21,7 @@ Alles wat je nodig hebt om de app in de Play Store te zetten, op één plek.
 | Gratis of betaald | Gratis |
 | Categorie | **Sociaal** (de kern is verhalen en contact met leeftijdsgenoten) |
 | E-mailadres (contact) | ceritaproject@outlook.com |
+| KvK-nummer | 81909535 |
 | Website | https://app.ceritaproject.nl |
 | Privacybeleid | https://app.ceritaproject.nl/privacy |
 | Account verwijderen | https://app.ceritaproject.nl/account-verwijderen |
