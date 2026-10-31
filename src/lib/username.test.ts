@@ -1,9 +1,18 @@
-import { describe, it, expect } from "vitest";
-const valid = (u: string) => /^[a-z0-9_.]{3,20}$/.test(u);
-describe("gebruikersnaam", () => {
-  it("3 tot 20 tekens, letters/cijfers/_/.", () => {
-    expect(valid("chay_2001")).toBe(true);
-    expect(valid("ab")).toBe(false);
-    expect(valid("met spatie")).toBe(false);
+import { describe, expect, it } from "vitest";
+import { normalizeUsername, usernameProblem } from "./username";
+
+describe("username", () => {
+  it("normalizes what people type", () => {
+    expect(normalizeUsername("  @Chayenne ")).toBe("chayenne");
+    expect(normalizeUsername("Anouk van Dijk!")).toBe("anoukvandijk");
+    expect(normalizeUsername("mimi_2.0")).toBe("mimi_2.0");
+  });
+  it("explains what is wrong", () => {
+    expect(usernameProblem("")).toMatch(/Vul/);
+    expect(usernameProblem("ab")).toMatch(/minstens 3/);
+    expect(usernameProblem("a".repeat(21))).toMatch(/3 tot 20/);
+    expect(usernameProblem("anouk")).toBeNull();
+    expect(usernameProblem("chay_2001")).toBeNull();
+    expect(usernameProblem("met spatie")).not.toBeNull();
   });
 });

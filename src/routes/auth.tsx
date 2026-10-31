@@ -123,7 +123,7 @@ function AuthPage() {
           <form onSubmit={submit} className="space-y-4">
             {mode === "up" && (
               <>
-                <div><Label htmlFor="n">Naam (mag een bijnaam zijn)</Label><Input id="n" required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-12 rounded-2xl" /></div>
+                <div><Label htmlFor="n">Naam (mag een bijnaam zijn)</Label><Input id="n" required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-12 rounded-2xl" /><p className="mt-1 text-xs text-muted-foreground">Na het aanmelden kies je ook een eigen @gebruikersnaam.</p></div>
                 <div><Label htmlFor="b">Geboortedatum</Label><Input id="b" type="date" required value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="mt-1 h-12 rounded-2xl" /></div>
               </>
             )}

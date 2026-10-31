@@ -1,4 +1,5 @@
 import { AppLockSettings } from "@/components/AppLock";
+import { normalizeUsername, usernameProblem } from "@/lib/username";
 import { InstallGuide } from "@/components/InstallGuide";
 import { QuietHours, TextSizePicker } from "@/components/ComfortSettings";
 import { MyBadges, useBadges } from "@/components/MyBadges";
@@ -93,15 +94,17 @@ function ProfilePage() {
         return;
       }
     }
-    const uname = username.trim().toLowerCase().replace(/^@/, "");
-    if (uname && !/^[a-z0-9_.]{3,20}$/.test(uname)) {
-      toast.error("Gebruikersnaam: 3 tot 20 tekens, alleen letters, cijfers, _ en .");
+    // Everyone keeps a username: it can change, but not be emptied.
+    const uname = normalizeUsername(username);
+    const problem = usernameProblem(uname);
+    if (problem) {
+      toast.error(problem);
       return;
     }
     const { error } = await supabase
       .from("profiles")
       .update({
-        username: uname || null,
+        username: uname,
         display_name: name,
         bio,
         ...(p.birthdate ? {} : { birthdate: birthdate || null }),
@@ -236,7 +239,7 @@ function ProfilePage() {
             />
           </div>
           <div>
-            <Label>Gebruikersnaam</Label>
+            <Label>Gebruikersnaam (verplicht)</Label>
             <div className="mt-1 flex items-center rounded-2xl border border-input bg-background px-3">
               <span className="text-muted-foreground">@</span>
               <input
@@ -250,7 +253,8 @@ function ProfilePage() {
               />
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Hiermee kunnen anderen je vinden bij Berichten.
+              Je naam mag iedereen hebben, je @gebruikersnaam is alleen van jou. Daarmee vinden
+              anderen je als buddy of in een chat.
             </p>
           </div>
           <div>
