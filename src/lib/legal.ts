@@ -166,6 +166,48 @@ export const PRIVACY: LegalPage = {
   ],
 };
 
+/** Public page the app stores ask for: how to delete your account and what happens to your data. */
+export const ACCOUNT_DELETION: LegalPage = {
+  title: "Account verwijderen",
+  emoji: "🚪",
+  intro:
+    "Wil je stoppen met CeritaProject? Dan kun je je account en je gegevens zelf verwijderen. Zo werkt het.",
+  sections: [
+    {
+      title: "In de app (het snelst)",
+      bullets: [
+        "Open CeritaProject en log in.",
+        "Ga naar Profiel en open onderaan het blok 🚪 Account.",
+        "Tik op Account verwijderen en bevestig. Je account is dan meteen weg.",
+      ],
+    },
+    {
+      title: "Kun je niet meer inloggen?",
+      text: [
+        `Stuur een mail naar ${ORG.email} vanaf het e-mailadres van je account, met als onderwerp "Account verwijderen". We verwijderen je account binnen 30 dagen en laten je weten wanneer het gedaan is.`,
+      ],
+    },
+    {
+      title: "Wat wordt er verwijderd?",
+      bullets: [
+        "Je profiel, je gebruikersnaam, je foto en je instellingen",
+        "Je berichten in groepen en privéchats, je reacties en je ingestuurde verhalen",
+        "Je dagboek, stemmingen, veiligheidsplan, brieven aan jezelf en je diertje",
+        "Je foto's, spraakberichten en bestanden",
+        "Je anonieme vragen en je meldingen",
+      ],
+    },
+    {
+      title: "Wat blijft er bewaard?",
+      bullets: [
+        "Bestellingen uit de CeritaShop: die moeten we volgens de wet 7 jaar bewaren voor de boekhouding.",
+        "Antwoorden en beslissingen van beheerders en coaches blijven staan, maar niet meer gekoppeld aan jou.",
+      ],
+    },
+  ],
+  contact: "jongere",
+};
+
 export const HOUSE_RULES: LegalPage = {
   title: "Huisregels",
   emoji: "💛",

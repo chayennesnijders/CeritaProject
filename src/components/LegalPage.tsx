@@ -77,6 +77,7 @@ export function LegalLinks({ className = "" }: { className?: string }) {
     ["/voorwaarden", "Voorwaarden"],
     ["/ouders", "Voor ouders"],
     ["/organisaties", "Voor organisaties"],
+    ["/account-verwijderen", "Account verwijderen"],
   ] as const;
   return (
     <nav className={`flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs ${className}`}>

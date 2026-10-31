@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Even geen internet — CeritaProject</title>
+<style>
+  :root { --bg: #faf3ea; --fg: #3b2a20; --muted: #7a6455; --btn: #f4a7c0; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1c1512; --fg: #f5ece3; --muted: #bba99b; } }
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+         background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, sans-serif; text-align: center; }
+  main { max-width: 320px; padding: 24px 16px; }
+  img { width: 140px; height: 140px; border-radius: 32px; }
+  h1 { font-size: 24px; margin: 20px 0 8px; }
+  p { color: var(--muted); line-height: 1.5; margin: 0 0 20px; }
+  button { background: var(--btn); color: #2b1a12; border: 0; border-radius: 999px; padding: 14px 28px;
+           font-size: 16px; font-weight: 600; }
+  small { display: block; margin-top: 24px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <img src="/icon-192.png" alt="CeritaProject">
+  <h1>Even geen internet 📶</h1>
+  <p>Je bent offline. Zodra je weer verbinding hebt, kun je verder in CeritaProject.</p>
+  <button onclick="location.reload()">Opnieuw proberen</button>
+  <small>Heb je nu meteen hulp nodig? Bel 113 (0800-0113) of de Kindertelefoon (0800-0432). Bij gevaar: 112.</small>
+</main>
+</body>
+</html>

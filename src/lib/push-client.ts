@@ -23,9 +23,26 @@ function loadConfig(): Promise<FirebaseWebConfig | null> {
   return loading;
 }
 
+/**
+ * The app's one service worker (push + offline screen). The Firebase settings go in its address; the
+ * address must be the same everywhere, or the browser would swap one registration for another.
+ */
+function serviceWorkerUrl(fb: FirebaseWebConfig | null) {
+  if (!fb) return "/firebase-messaging-sw.js";
+  const { vapidKey: _vapid, ...config } = fb;
+  return `/firebase-messaging-sw.js?${new URLSearchParams(config)}`;
+}
+
 // Fetch the settings as soon as the app opens: asking for permission must happen right after a tap,
 // so there is no time to wait for the server then.
 if (typeof window !== "undefined") void loadConfig();
+
+/** Register the service worker on every page, so the offline screen also works before logging in. */
+export async function registerAppServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  const fb = await loadConfig();
+  await navigator.serviceWorker.register(serviceWorkerUrl(fb)).catch(() => {});
+}
 
 export type PushResult =
   "registered" | "not-configured" | "unsupported" | "open-in-new-tab" | "denied";
@@ -45,9 +62,7 @@ export async function enablePush(userId: string): Promise<PushResult> {
   const perm =
     Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
   if (perm !== "granted") return "denied";
-  const reg = await navigator.serviceWorker.register(
-    `/firebase-messaging-sw.js?${new URLSearchParams(config)}`,
-  );
+  const reg = await navigator.serviceWorker.register(serviceWorkerUrl(fb));
   const app = getApps()[0] ?? initializeApp(config);
   const token = await getToken(getMessaging(app), { vapidKey, serviceWorkerRegistration: reg });
   if (!token) return "denied";

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AccountVerwijderenRouteImport } from './routes/account-verwijderen'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactOnsRouteImport } from './routes/contact-ons'
 import { Route as HuisregelsRouteImport } from './routes/huisregels'
@@ -20,6 +21,7 @@ import { Route as OudersRouteImport } from './routes/ouders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
+import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
 import { Route as AuthenticatedBrievenRouteImport } from './routes/_authenticated/brieven'
@@ -64,6 +66,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountVerwijderenRoute = AccountVerwijderenRouteImport.update({
+  id: '/account-verwijderen',
+  path: '/account-verwijderen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -111,6 +118,12 @@ const VoorwaardenRoute = VoorwaardenRouteImport.update({
   path: '/voorwaarden',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownAssetlinksDotjsonRoute =
+  DotwellKnownAssetlinksDotjsonRouteImport.update({
+    id: '/.well-known/assetlinks.json',
+    path: '/.well-known/assetlinks.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   id: '/agenda',
   path: '/agenda',
@@ -307,6 +320,7 @@ const ApiPublicMemberRemindersRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account-verwijderen': typeof AccountVerwijderenRoute
   '/auth': typeof AuthRoute
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
@@ -316,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
@@ -355,6 +370,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account-verwijderen': typeof AccountVerwijderenRoute
   '/auth': typeof AuthRoute
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
@@ -364,6 +380,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
@@ -405,6 +422,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/account-verwijderen': typeof AccountVerwijderenRoute
   '/auth': typeof AuthRoute
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
@@ -414,6 +432,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
   '/_authenticated/brieven': typeof AuthenticatedBrievenRoute
@@ -455,6 +474,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account-verwijderen'
     | '/auth'
     | '/contact-ons'
     | '/huisregels'
@@ -464,6 +484,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/.well-known/assetlinks.json'
     | '/agenda'
     | '/beheer'
     | '/brieven'
@@ -503,6 +524,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account-verwijderen'
     | '/auth'
     | '/contact-ons'
     | '/huisregels'
@@ -512,6 +534,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/.well-known/assetlinks.json'
     | '/agenda'
     | '/beheer'
     | '/brieven'
@@ -552,6 +575,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/account-verwijderen'
     | '/auth'
     | '/contact-ons'
     | '/huisregels'
@@ -561,6 +585,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/voorwaarden'
+    | '/.well-known/assetlinks.json'
     | '/_authenticated/agenda'
     | '/_authenticated/beheer'
     | '/_authenticated/brieven'
@@ -602,6 +627,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AccountVerwijderenRoute: typeof AccountVerwijderenRoute
   AuthRoute: typeof AuthRoute
   ContactOnsRoute: typeof ContactOnsRoute
   HuisregelsRoute: typeof HuisregelsRoute
@@ -611,6 +637,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   VoorwaardenRoute: typeof VoorwaardenRoute
+  DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   ApiAuthEmailRoute: typeof ApiAuthEmailRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiPublicAdminNewsPushRoute: typeof ApiPublicAdminNewsPushRoute
@@ -632,6 +659,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-verwijderen': {
+      id: '/account-verwijderen'
+      path: '/account-verwijderen'
+      fullPath: '/account-verwijderen'
+      preLoaderRoute: typeof AccountVerwijderenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -695,6 +729,13 @@ declare module '@tanstack/react-router' {
       path: '/voorwaarden'
       fullPath: '/voorwaarden'
       preLoaderRoute: typeof VoorwaardenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/assetlinks.json': {
+      id: '/.well-known/assetlinks.json'
+      path: '/.well-known/assetlinks.json'
+      fullPath: '/.well-known/assetlinks.json'
+      preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/agenda': {
@@ -1026,6 +1067,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AccountVerwijderenRoute: AccountVerwijderenRoute,
   AuthRoute: AuthRoute,
   ContactOnsRoute: ContactOnsRoute,
   HuisregelsRoute: HuisregelsRoute,
@@ -1035,6 +1077,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   VoorwaardenRoute: VoorwaardenRoute,
+  DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   ApiAuthEmailRoute: ApiAuthEmailRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiPublicAdminNewsPushRoute: ApiPublicAdminNewsPushRoute,
