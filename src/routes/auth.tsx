@@ -38,7 +38,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  // Terug van Google (of al ingelogd)? Dan meteen door naar de app,
+  // Terug van een inlog-link (of al ingelogd)? Dan meteen door naar de app,
   // in plaats van opnieuw het e-mailformulier te tonen.
   useEffect(() => {
     let done = false;
@@ -99,7 +99,7 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.user && !data.user.identities?.length) {
-          toast.error("Dit e-mailadres heeft al een account. Log in (bijvoorbeeld met Google) of kies 'Wachtwoord vergeten'.", { duration: 9000 });
+          toast.error("Dit e-mailadres heeft al een account. Log in, of kies 'Wachtwoord vergeten' (ook als je eerder met Google inlogde).", { duration: 9000 });
           setMode("in");
           return;
         }
@@ -113,16 +113,6 @@ function AuthPage() {
       toast.error(err instanceof Error ? err.message : "Er ging iets mis");
     } finally {
       setBusy(false);
-    }
-  }
-
-  async function google() {
-    try {
-      // Supabase stuurt je naar Google en daarna terug naar /auth; de useEffect hierboven gaat dan door naar de app.
-      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/auth" } });
-      if (error) toast.error("Inloggen met Google lukte niet");
-    } catch {
-      toast.error("Inloggen met Google lukte niet. Probeer het opnieuw.");
     }
   }
 
@@ -143,12 +133,7 @@ function AuthPage() {
         </div>
       ) : (
         <>
-          <Button variant="outline" className="mt-8 h-12 w-full rounded-full" onClick={google}>
-            Doorgaan met Google
-          </Button>
-          <p className="mt-2 text-center text-xs text-muted-foreground">Met Google ben je meteen binnen — je krijgt geen bevestigingsmail.</p>
-          <div className="my-6 text-center text-xs text-muted-foreground">of met e-mail</div>
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="mt-8 space-y-4">
             {mode === "up" && (
               <>
                 <div><Label htmlFor="n">Naam (mag een bijnaam zijn)</Label><Input id="n" required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-12 rounded-2xl" /><p className="mt-1 text-xs text-muted-foreground">Na het aanmelden kies je ook een eigen @gebruikersnaam.</p></div>
@@ -165,6 +150,10 @@ function AuthPage() {
             <div className="mt-4 space-y-2">
               <button onClick={() => setMode("forgot")} className="w-full text-center text-sm text-muted-foreground underline">Wachtwoord vergeten?</button>
               <button onClick={() => setMode("resend")} className="w-full text-center text-sm text-muted-foreground underline">Bevestigingsmail niet ontvangen?</button>
+              {/* Inloggen met Google is weg: wie dat eerder deed, kiest zo een wachtwoord en houdt hetzelfde account. */}
+              <p className="rounded-2xl bg-muted p-3 text-center text-xs text-muted-foreground">
+                Logde je eerder in met Google? Tik op <button onClick={() => setMode("forgot")} className="font-semibold underline">Wachtwoord vergeten</button>, vul hetzelfde e-mailadres in en kies een wachtwoord. Je houdt gewoon je account.
+              </p>
             </div>
           )}
           <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-6 w-full text-center text-sm text-primary underline">

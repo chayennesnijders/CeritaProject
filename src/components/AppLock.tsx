@@ -112,7 +112,7 @@ function LockScreen({ pin, onUnlock, onReset }: { pin: string; onUnlock: () => v
           <p className="max-w-xs text-sm text-muted-foreground">Vul het wachtwoord van je account in. Dan wissen we je code. Al je spullen blijven gewoon bewaard.</p>
           <Input type="password" placeholder="Wachtwoord van je account" value={pw} onChange={(e) => setPw(e.target.value)} className="w-64 rounded-2xl" />
           <Button disabled={busy || !pw} onClick={resetWithPassword} className="rounded-full px-8">Code wissen</Button>
-          <button onClick={resetViaLogin} className="max-w-xs text-sm text-primary underline">Log je in met Google of weet je je wachtwoord niet? Log opnieuw in</button>
+          <button onClick={resetViaLogin} className="max-w-xs text-sm text-primary underline">Weet je je wachtwoord niet? Log opnieuw in</button>
           <button onClick={() => setForgot(false)} className="text-xs text-muted-foreground underline">Terug</button>
         </>
       ) : (
