@@ -11,7 +11,7 @@ import { ageGroupFor } from "@/lib/auth";
 import { readOAuthReturn } from "@/lib/oauth-return";
 
 // The address as it was when the page opened (before anything can tidy it up), so tokens or an
-// error that Google/Supabase sent back are never lost.
+// error that Supabase sent back (for example from a mail link) are never lost.
 const openedAt = typeof window === "undefined" ? "" : window.location.href;
 
 export const Route = createFileRoute("/auth")({
@@ -99,7 +99,7 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.user && !data.user.identities?.length) {
-          toast.error("Dit e-mailadres heeft al een account. Log in, of kies 'Wachtwoord vergeten' (ook als je eerder met Google inlogde).", { duration: 9000 });
+          toast.error("Dit e-mailadres heeft al een account. Log in of kies 'Wachtwoord vergeten'.", { duration: 9000 });
           setMode("in");
           return;
         }
@@ -150,10 +150,6 @@ function AuthPage() {
             <div className="mt-4 space-y-2">
               <button onClick={() => setMode("forgot")} className="w-full text-center text-sm text-muted-foreground underline">Wachtwoord vergeten?</button>
               <button onClick={() => setMode("resend")} className="w-full text-center text-sm text-muted-foreground underline">Bevestigingsmail niet ontvangen?</button>
-              {/* Inloggen met Google is weg: wie dat eerder deed, kiest zo een wachtwoord en houdt hetzelfde account. */}
-              <p className="rounded-2xl bg-muted p-3 text-center text-xs text-muted-foreground">
-                Logde je eerder in met Google? Tik op <button onClick={() => setMode("forgot")} className="font-semibold underline">Wachtwoord vergeten</button>, vul hetzelfde e-mailadres in en kies een wachtwoord. Je houdt gewoon je account.
-              </p>
             </div>
           )}
           <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-6 w-full text-center text-sm text-primary underline">

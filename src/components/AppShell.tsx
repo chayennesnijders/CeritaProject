@@ -28,27 +28,6 @@ export function AppShell() {
   const unread = useUnreadCounts();
   const news = useAdminNews(me?.isAdmin ? me.user.id : undefined);
   const navigate = useNavigate();
-  // Na inloggen met Google: laten weten dat het gelukt is (er komt geen mail).
-  // We kijken naar het inlogmoment zelf, want bij Google kan de app in een ander
-  // tabblad terugkomen en is tijdelijke opslag dan weg.
-  useEffect(() => {
-    let cancelled = false;
-    supabase.auth.getUser().then(({ data }) => {
-      const u = data.user;
-      if (cancelled || !u?.last_sign_in_at) return;
-      const viaGoogle = u.app_metadata?.provider === "google" || u.identities?.some((i) => i.provider === "google");
-      const fresh = Date.now() - new Date(u.last_sign_in_at).getTime() < 5 * 60 * 1000;
-      const key = `google-welcome:${u.id}`;
-      if (!viaGoogle || !fresh || localStorage.getItem(key) === u.last_sign_in_at) return;
-      localStorage.setItem(key, u.last_sign_in_at);
-      const isNew = Date.now() - new Date(u.created_at).getTime() < 10 * 60 * 1000;
-      setTimeout(() => toast.success(
-        isNew ? "Welkom! Je account is aangemaakt met Google. Je hoeft geen mail te bevestigen." : "Gelukt! Je bent ingelogd met Google. Je hoeft geen mail te bevestigen.",
-        { duration: 8000 },
-      ), 400);
-    });
-    return () => { cancelled = true; };
-  }, []);
   // Meldingen die binnenkomen terwijl de app open is, tonen we als pop-up bovenin.
   useEffect(() => {
     let stop: () => void = () => {};

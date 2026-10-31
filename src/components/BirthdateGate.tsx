@@ -11,7 +11,7 @@ import { UsernameGate } from "@/components/UsernameGate";
 
 /**
  * Everyone needs a birthdate (it decides your age group and which stories you see).
- * Members without one (e.g. signed up with Google) fill it in here before using the app.
+ * Members without one (e.g. older accounts) fill it in here before using the app.
  */
 export function BirthdateGate({ children }: { children: React.ReactNode }) {
   const { data: me } = useMe();
