@@ -30,7 +30,7 @@ function Board({
   handlers,
 }: {
   darts: Dart[];
-  aim: { x: number; y: number } | null;
+  aim: { x: number; y: number; spread: number } | null;
   /** The dart in your hand (or flying), null when you can't throw. */
   dart: { x: number; y: number; flying: boolean } | null;
   svgRef?: React.Ref<SVGSVGElement>;
@@ -91,7 +91,7 @@ function Board({
       ))}
       {aim && (
         <g stroke="#fff" strokeWidth={0.018} fill="none" opacity={0.9}>
-          <circle cx={aim.x} cy={aim.y} r={0.08} strokeDasharray="0.03 0.025" />
+          <circle cx={aim.x} cy={aim.y} r={aim.spread} strokeDasharray="0.03 0.025" />
           <circle cx={aim.x} cy={aim.y} r={0.015} fill="#fff" />
         </g>
       )}
@@ -119,7 +119,18 @@ export function DartsBoard({ state, me, myTurn, busy, onMove }: BoardProps<Darts
   const [drag, setDrag] = useState<{
     start: { x: number; y: number };
     now: { x: number; y: number };
+    since: number;
   } | null>(null);
+  // Clock while pulling, so the aim can sway.
+  const [clock, setClock] = useState(0);
+  useEffect(() => {
+    if (!drag) return;
+    let id = requestAnimationFrame(function tick() {
+      setClock(performance.now());
+      id = requestAnimationFrame(tick);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [drag]);
   const [flight, setFlight] = useState<{ x: number; y: number; flying: boolean } | null>(null);
   const playing = myTurn && me !== null && !busy;
   const canThrow = playing && thrown.length < 3 && !flight;
@@ -132,13 +143,24 @@ export function DartsBoard({ state, me, myTurn, busy, onMove }: BoardProps<Darts
     return { x: p.x, y: p.y };
   };
   const pull = drag ? { x: drag.now.x - drag.start.x, y: drag.now.y - drag.start.y } : null;
-  const aim = pull ? dartAim(pull) : null;
+  const held = drag ? Math.max(0, clock - drag.since) : 0;
+  const aimed = pull ? dartAim(pull, [0, 0], held) : null;
+  const aim = aimed
+    ? { x: aimed.aimX, y: aimed.aimY, spread: aimed.spread, power: aimed.power }
+    : null;
 
   function release() {
     if (!drag || !pull || !aim) return;
     setDrag(null);
     if (aim.power < 0.08) return; // just a tap: nothing thrown
-    const hit = dartAim(pull, [Math.random() * 2 - 1, Math.random() * 2 - 1]);
+    // Random point inside the circle (not the square), at the sway of this very moment.
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.sqrt(Math.random());
+    const hit = dartAim(
+      pull,
+      [Math.cos(angle) * dist, Math.sin(angle) * dist],
+      performance.now() - drag.since,
+    );
     const from = {
       x: DART_START.x + Math.max(-0.4, Math.min(0.4, pull.x)),
       y: DART_START.y + Math.min(0.15, Math.max(0, pull.y)),
@@ -197,7 +219,9 @@ export function DartsBoard({ state, me, myTurn, busy, onMove }: BoardProps<Darts
                 onPointerDown: (e) => {
                   e.currentTarget.setPointerCapture(e.pointerId);
                   const p = toBoard(e);
-                  setDrag({ start: p, now: p });
+                  const t = performance.now();
+                  setClock(t);
+                  setDrag({ start: p, now: p, since: t });
                 },
                 onPointerMove: (e) => drag && setDrag({ ...drag, now: toBoard(e) }),
                 onPointerUp: release,
@@ -226,7 +250,9 @@ export function DartsBoard({ state, me, myTurn, busy, onMove }: BoardProps<Darts
           {thrown.length >= 3
             ? "Mooi gegooid!"
             : drag
-              ? "Laat los om te gooien!"
+              ? held > 2500
+                ? "Je arm wordt moe… gooi nu!"
+                : "Je hand trilt een beetje: laat los op het goede moment!"
               : `Pijl ${thrown.length + 1} van 3 · ronde ${round}: zet je vinger op het bord en trek naar beneden`}
         </p>
       )}

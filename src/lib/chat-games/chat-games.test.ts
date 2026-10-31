@@ -3,7 +3,7 @@ import { c4Move, c4Start } from "./connect4";
 import { chessMove, chessMoves, chessStart, type ChessState } from "./chess";
 import { damMove, damMoves, damStart, type DamState } from "./draughts";
 import { ludoMovable, ludoMove, ludoRoll, ludoStart } from "./ludo";
-import { dartAim, dartScore, dartsMove, dartsStart } from "./darts";
+import { dartAim, dartScore, dartSway, dartsMove, dartsStart } from "./darts";
 import { CHAT_GAMES, chatGame, gameCardLine, gamePushText, playerIndex } from "./index";
 import { poolMove, poolStart, simulate } from "./pool";
 import { tttMove, tttStart } from "./tictactoe";
@@ -91,6 +91,21 @@ describe("darten richten", () => {
   it("misses below the board without pulling, and aims the other way when pulling sideways", () => {
     expect(dartScore(dartAim({ x: 0, y: 0 }).x, dartAim({ x: 0, y: 0 }).y).score).toBe(0);
     expect(dartAim({ x: -0.3, y: 0.8 }).x).toBeGreaterThan(0);
+  });
+  it("sways more the longer you hold, so timing matters", () => {
+    expect(dartSway(4000).size).toBeGreaterThan(dartSway(0).size * 2);
+    expect(dartSway(9000).size).toBe(dartSway(4000).size);
+    const early = dartAim({ x: 0, y: 0.8 }, [0, 0], 500);
+    expect(Math.hypot(early.aimX, early.aimY)).toBeGreaterThan(0);
+  });
+  it("lands inside the spread, which grows when you pull too hard", () => {
+    const a = dartAim({ x: 0, y: 0.8 }, [1, 0]);
+    expect(Math.hypot(a.x - a.aimX, a.y - a.aimY)).toBeCloseTo(a.spread);
+    expect(dartAim({ x: 0, y: 1.2 }).spread).toBeGreaterThan(a.spread);
+  });
+  it("makes a perfect aim no sure bull's-eye any more", () => {
+    const edge = dartAim({ x: 0, y: 0.8 }, [0.8, 0]);
+    expect(dartScore(edge.x, edge.y).score).not.toBe(50);
   });
 });
 

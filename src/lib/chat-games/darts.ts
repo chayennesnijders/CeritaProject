@@ -59,16 +59,44 @@ export const DART_START = { x: 0, y: 1.6 };
 const AIM_GAIN = 2;
 
 /**
- * Throw like a slingshot: pull the dart back (down) and let go. `pull` is how far you dragged the finger
- * (finger now minus finger start). Pulling straight down by about 0.8 lands in the bull's-eye;
- * pulling sideways aims the other way. `wobble` (two numbers between -1 and 1) adds a little shake.
+ * Your hand is never completely still: while you hold the dart the aim sways in a slow figure-eight,
+ * and the longer you hold, the more tired your arm gets and the bigger the sway. Let go at the right
+ * moment! `heldMs` is how long you have been pulling.
  */
-export function dartAim(pull: { x: number; y: number }, wobble: [number, number] = [0, 0]) {
-  const power = Math.min(Math.hypot(pull.x, pull.y), 1.2);
-  const shake = 0.03 + power * 0.05;
+export function dartSway(heldMs: number) {
+  const t = heldMs / 1000;
+  const size = 0.07 + Math.min(t, 4) * 0.035; // 0.07 at the start, 0.21 after 4 seconds
   return {
-    x: DART_START.x - pull.x * AIM_GAIN * 0.6 + wobble[0] * shake,
-    y: DART_START.y - pull.y * AIM_GAIN + wobble[1] * shake,
+    x: Math.sin(t * 2.3) * size,
+    y: Math.sin(t * 3.1 + 1.2) * size * 0.75,
+    size,
+  };
+}
+
+/**
+ * Throw like a slingshot: pull the dart back (down) and let go. `pull` is how far you dragged the finger
+ * (finger now minus finger start). Pulling straight down by about 0.8 aims at the bull's-eye;
+ * pulling sideways aims the other way. `heldMs` adds the sway of your hand (see dartSway), and
+ * `wobble` (two numbers between -1 and 1) is the last little shake when you let go: the dart lands
+ * somewhere inside the circle of radius `spread` around the aim.
+ */
+export function dartAim(
+  pull: { x: number; y: number },
+  wobble: [number, number] = [0, 0],
+  heldMs = 0,
+) {
+  const power = Math.min(Math.hypot(pull.x, pull.y), 1.2);
+  const sway = heldMs > 0 ? dartSway(heldMs) : { x: 0, y: 0 };
+  // Pulling harder than needed makes the throw less steady.
+  const spread = 0.06 + Math.max(0, power - 0.8) * 0.25;
+  const aimX = DART_START.x - pull.x * AIM_GAIN * 0.6 + sway.x;
+  const aimY = DART_START.y - pull.y * AIM_GAIN + sway.y;
+  return {
+    aimX,
+    aimY,
+    x: aimX + wobble[0] * spread,
+    y: aimY + wobble[1] * spread,
+    spread,
     power: power / 1.2,
   };
 }
