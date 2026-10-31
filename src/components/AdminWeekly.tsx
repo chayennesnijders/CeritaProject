@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { nameWithUsername } from "@/lib/username";
 import { supabase } from "@/integrations/supabase/client";
 import { bandLabel } from "@/lib/auth";
 import { euro, settlement } from "@/lib/shop";
@@ -10,7 +11,7 @@ export function AdminWeekly() {
     queryFn: async () => {
       const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const [members, orders, articles, subs] = await Promise.all([
-        supabase.from("profiles").select("id, display_name, age_group, created_at").order("created_at", { ascending: false }).limit(10),
+        supabase.from("profiles").select("id, display_name, username, age_group, created_at").order("created_at", { ascending: false }).limit(10),
         supabase.from("shop_orders").select("*").neq("kind", "gift").gte("created_at", since),
         supabase.from("articles").select("id", { count: "exact", head: true }).gte("created_at", since),
         supabase.from("story_submissions").select("id", { count: "exact", head: true }).gte("created_at", since),
@@ -56,7 +57,7 @@ export function AdminWeekly() {
       <div className="space-y-2">
         {data.members.map((m) => (
           <div key={m.id} className="flex items-center justify-between rounded-2xl bg-muted p-3 text-sm">
-            <span className="font-semibold">{m.display_name}</span>
+            <span className="font-semibold">{m.display_name}{" "}<span className={`font-normal ${m.username ? "text-muted-foreground" : "text-destructive"}`}>{m.username ? `@${m.username}` : "nog geen @"}</span></span>
             <span className="text-xs text-muted-foreground">
               {bandLabel(m.age_group)} · {new Date(m.created_at).toLocaleDateString("nl-NL")}
             </span>

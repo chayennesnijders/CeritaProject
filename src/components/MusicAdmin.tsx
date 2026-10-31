@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { nameWithUsername } from "@/lib/username";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +35,7 @@ export function MusicAdmin() {
         supabase
           .from("song_tips")
           .select(
-            "id, title, artist, url, hidden, age_group, created_at, author:profiles(display_name)",
+            "id, title, artist, url, hidden, age_group, created_at, author:profiles(display_name, username)",
           )
           .order("created_at", { ascending: false })
           .limit(50),
@@ -230,8 +231,11 @@ export function MusicAdmin() {
                 {t.title} · {t.artist}
               </span>
               <span className="block text-xs text-muted-foreground">
-                {(t.author as { display_name?: string } | null)?.display_name ?? "Lid"} ·{" "}
-                {t.age_group}
+                {nameWithUsername(
+                  (t.author as { display_name?: string } | null)?.display_name,
+                  (t.author as { username?: string | null } | null)?.username,
+                )}{" "}
+                · {t.age_group}
                 {t.url && (
                   <>
                     {" "}

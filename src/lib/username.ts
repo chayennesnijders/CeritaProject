@@ -18,3 +18,12 @@ export function usernameProblem(username: string): string | null {
     return "Gebruik 3 tot 20 tekens: alleen letters, cijfers, _ en .";
   return null;
 }
+
+/** "Chayenne (@chay)" for admin lists, or just the name when there is no username yet. */
+export function nameWithUsername(
+  name: string | null | undefined,
+  username: string | null | undefined,
+) {
+  const n = name?.trim() || "Lid";
+  return username ? `${n} (@${username})` : n;
+}

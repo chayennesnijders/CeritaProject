@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { nameWithUsername } from "@/lib/username";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,9 +29,11 @@ export function StorySubmissionsAdmin() {
         .limit(50);
       const ids = [...new Set((subs ?? []).map((s) => s.user_id))];
       const { data: people } = ids.length
-        ? await supabase.from("profiles").select("id, display_name").in("id", ids)
+        ? await supabase.from("profiles").select("id, display_name, username").in("id", ids)
         : { data: [] };
-      const names = Object.fromEntries((people ?? []).map((p) => [p.id, p.display_name]));
+      const names = Object.fromEntries(
+        (people ?? []).map((p) => [p.id, nameWithUsername(p.display_name, p.username)]),
+      );
       return { subs: subs ?? [], names };
     },
   });

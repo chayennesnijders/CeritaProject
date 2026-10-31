@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeUsername, usernameProblem } from "./username";
+import { nameWithUsername, normalizeUsername, usernameProblem } from "./username";
 
 describe("username", () => {
   it("normalizes what people type", () => {
@@ -14,5 +14,10 @@ describe("username", () => {
     expect(usernameProblem("anouk")).toBeNull();
     expect(usernameProblem("chay_2001")).toBeNull();
     expect(usernameProblem("met spatie")).not.toBeNull();
+  });
+  it("shows name and username together for admins", () => {
+    expect(nameWithUsername("Anouk", "anouk")).toBe("Anouk (@anouk)");
+    expect(nameWithUsername("Anouk", null)).toBe("Anouk");
+    expect(nameWithUsername(null, null)).toBe("Lid");
   });
 });

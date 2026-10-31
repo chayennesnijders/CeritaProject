@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { nameWithUsername } from "@/lib/username";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +37,7 @@ export function ThemeAdmin() {
         supabase
           .from("theme_entries")
           .select(
-            "id, theme_id, kind, body, image_path, status, show_name, age_group, created_at, maker:profiles(display_name)",
+            "id, theme_id, kind, body, image_path, status, show_name, age_group, created_at, maker:profiles(display_name, username)",
           )
           .order("created_at", { ascending: false })
           .limit(100),
@@ -157,8 +158,12 @@ export function ThemeAdmin() {
           <article key={e.id} className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
             <p className="text-xs text-muted-foreground">
               {themeName(e.theme_id)} ·{" "}
-              {(e.maker as { display_name?: string } | null)?.display_name ?? "Lid"} ·{" "}
-              {bandLabel(e.age_group)}
+              {nameWithUsername(
+                (e.maker as { display_name?: string; username?: string | null } | null)
+                  ?.display_name,
+                (e.maker as { username?: string | null } | null)?.username,
+              )}{" "}
+              · {bandLabel(e.age_group)}
               {e.show_name ? " · naam mag erbij" : " · anoniem"}
             </p>
             {e.image_path && <AdminImage path={e.image_path} />}

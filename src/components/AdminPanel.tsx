@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { nameWithUsername } from "@/lib/username";
 import { CoachesAdmin } from "@/components/CoachesAdmin";
 import { ThemeAdmin } from "@/components/ThemeAdmin";
 import { LaunchBanner, LaunchChecklist } from "@/components/LaunchChecklist";
@@ -89,8 +90,8 @@ export function AdminPanel() {
         ...warnings.flatMap((x) => [x.member_id, x.admin_id]),
         ...timeouts.flatMap((x) => [x.member_id, x.admin_id]),
       ].filter(Boolean))] as string[];
-      const { data: people } = ids.length ? await supabase.from("profiles").select("id, display_name").in("id", ids) : { data: [] };
-      const names = Object.fromEntries((people ?? []).map((p) => [p.id, p.display_name]));
+      const { data: people } = ids.length ? await supabase.from("profiles").select("id, display_name, username").in("id", ids) : { data: [] };
+      const names = Object.fromEntries((people ?? []).map((p) => [p.id, nameWithUsername(p.display_name, p.username)]));
       return { reports, groups: g.data ?? [], log, convs, warnings, timeouts, members, names };
     },
   });
@@ -195,7 +196,7 @@ export function AdminPanel() {
                   .map((m) => (
                     <button key={m.id} onClick={() => { setWarnTarget(m.id); setMemberQuery(""); }} className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm ${warnTarget === m.id ? "bg-primary/20" : "bg-muted"}`}>
                       <span className="font-semibold">{m.display_name}</span>
-                      <span className="text-xs text-muted-foreground">{m.username ? `@${m.username} · ` : ""}{bandLabel(m.age_group)}</span>
+                      <span className="text-xs text-muted-foreground">{m.username ? `@${m.username}` : <span className="font-semibold text-destructive">nog geen @gebruikersnaam</span>} · {bandLabel(m.age_group)}</span>
                     </button>
                   ))}
               </div>
