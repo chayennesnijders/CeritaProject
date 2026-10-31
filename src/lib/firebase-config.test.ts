@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveFirebaseConfig } from "./firebase-config";
+import { parseServiceAccount, pushProblems, resolveFirebaseConfig } from "./firebase-config";
 
 const good = {
   VITE_FIREBASE_API_KEY: "AIzaSyExample123",
@@ -37,5 +37,35 @@ describe("resolveFirebaseConfig", () => {
     expect(r.problems.join(" ")).toMatch(/APP_ID klopt niet/);
     expect(r.problems.join(" ")).toMatch(/VAPID_KEY ontbreekt/);
     expect(r.problems.join(" ")).not.toMatch(/Cerita/);
+  });
+});
+
+describe("parseServiceAccount", () => {
+  const key = "-----BEGIN PRIVATE KEY-----\\nMIIEabc\\n-----END PRIVATE KEY-----\\n";
+  const file = `{\n  "type": "service_account",\n  "project_id": "ceritaproject",\n  "private_key": "${key}",\n  "client_email": "firebase-adminsdk@ceritaproject.iam.gserviceaccount.com"\n}`;
+  it("reads the downloaded file as it is", () => {
+    expect(parseServiceAccount(file).sa?.project_id).toBe("ceritaproject");
+  });
+  it("still works when the private key got real line breaks", () => {
+    const broken = file.replace(/\\n/g, "\n");
+    expect(broken).not.toContain("\\n");
+    const r = parseServiceAccount(broken);
+    expect(r.problem).toBeNull();
+    expect(r.sa?.private_key).toContain("PRIVATE KEY");
+  });
+  it("says what is wrong without showing the value", () => {
+    expect(parseServiceAccount("").problem).toMatch(/ontbreekt/);
+    expect(parseServiceAccount("geheim123").problem).toMatch(/geen geldig bestand/);
+    expect(parseServiceAccount('{"project_id":"x"}').problem).toMatch(
+      /mist client_email, private_key/,
+    );
+  });
+  it("notices when the keys come from two different Firebase projects", () => {
+    const p = pushProblems({
+      ...good,
+      FIREBASE_SERVICE_ACCOUNT: file.replace('"ceritaproject"', '"ander"'),
+    });
+    expect(p.join(" ")).toMatch(/verschillende Firebase-projecten/);
+    expect(pushProblems({ ...good, FIREBASE_SERVICE_ACCOUNT: file })).toEqual([]);
   });
 });

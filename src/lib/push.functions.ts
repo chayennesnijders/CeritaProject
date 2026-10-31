@@ -522,6 +522,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
       serviceRole: env("SUPABASE_SERVICE_ROLE_KEY"),
       firebaseServer: fcm,
       firebaseClient: (await import("@/lib/firebase-config")).resolveFirebaseConfig(process.env).config !== null,
+      pushProblems: (await import("@/lib/firebase-config")).pushProblems(process.env),
       resend: env("RESEND_API_KEY") && env("EMAIL_FROM"),
       emailHook: env("SEND_EMAIL_HOOK_SECRET"),
       stripeLive: (process.env["STRIPE_SECRET_KEY"] ?? "").startsWith("sk_live_"),

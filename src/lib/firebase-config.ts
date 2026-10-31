@@ -54,3 +54,70 @@ export function resolveFirebaseConfig(env: Record<string, string | undefined>): 
     problems,
   };
 }
+
+export type ServiceAccount = { project_id: string; client_email: string; private_key: string };
+
+/**
+ * Read FIREBASE_SERVICE_ACCOUNT forgivingly: the whole JSON file (also with real line breaks inside
+ * the private key, quotes around it, or base64), and say in Dutch what is wrong, never the value.
+ */
+export function parseServiceAccount(raw: string | undefined): {
+  sa: ServiceAccount | null;
+  problem: string | null;
+} {
+  let text = (raw ?? "").trim().replace(/^'+|'+$/g, "");
+  if (!text) return { sa: null, problem: "FIREBASE_SERVICE_ACCOUNT ontbreekt" };
+  if (!text.includes("{")) {
+    try {
+      text = atob(text);
+    } catch {
+      /* not base64 */
+    }
+  }
+  let obj: Partial<ServiceAccount> | null = null;
+  try {
+    obj = JSON.parse(text) as Partial<ServiceAccount>;
+  } catch {
+    // Fallback for a pasted file whose private key got real line breaks: pick the 3 fields out.
+    const field = (k: string) =>
+      new RegExp(`"${k}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`).exec(text)?.[1]?.replace(/\\n/g, "\n");
+    const pick = {
+      project_id: field("project_id"),
+      client_email: field("client_email"),
+      private_key: field("private_key"),
+    };
+    if (pick.project_id || pick.client_email || pick.private_key)
+      obj = pick as Partial<ServiceAccount>;
+  }
+  if (!obj)
+    return {
+      sa: null,
+      problem: "FIREBASE_SERVICE_ACCOUNT is geen geldig bestand (kopieer alles, van { tot })",
+    };
+  const missing = (["project_id", "client_email", "private_key"] as const).filter((k) => !obj![k]);
+  if (missing.length)
+    return { sa: null, problem: `FIREBASE_SERVICE_ACCOUNT mist ${missing.join(", ")}` };
+  if (!obj.private_key!.includes("PRIVATE KEY"))
+    return { sa: null, problem: "FIREBASE_SERVICE_ACCOUNT: de private_key is niet compleet" };
+  return {
+    sa: {
+      project_id: obj.project_id!,
+      client_email: obj.client_email!,
+      private_key: obj.private_key!,
+    },
+    problem: null,
+  };
+}
+
+/** Everything that stops push, by name only: web settings, the secret key, and whether they match. */
+export function pushProblems(env: Record<string, string | undefined>): string[] {
+  const web = resolveFirebaseConfig(env);
+  const server = parseServiceAccount(env["FIREBASE_SERVICE_ACCOUNT"]);
+  const problems = [...web.problems];
+  if (server.problem) problems.push(server.problem);
+  if (web.config && server.sa && web.config.projectId !== server.sa.project_id)
+    problems.push(
+      "VITE_FIREBASE_PROJECT_ID en FIREBASE_SERVICE_ACCOUNT horen bij verschillende Firebase-projecten",
+    );
+  return problems;
+}

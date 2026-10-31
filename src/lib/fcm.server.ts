@@ -2,16 +2,12 @@
 // signs a short JWT, which is swapped for an access token that is cached until it expires.
 // FIREBASE_SERVICE_ACCOUNT holds the service-account JSON downloaded from the Firebase console.
 
-type ServiceAccount = { project_id: string; client_email: string; private_key: string };
+import { parseServiceAccount, type ServiceAccount } from "@/lib/firebase-config";
 
 let cached: { token: string; expires: number } | undefined;
 
 export function fcmServiceAccount(): ServiceAccount | null {
-  const raw = process.env["FIREBASE_SERVICE_ACCOUNT"];
-  if (!raw) return null;
-  const sa = JSON.parse(raw) as Partial<ServiceAccount>;
-  if (!sa.project_id || !sa.client_email || !sa.private_key) return null;
-  return { project_id: sa.project_id, client_email: sa.client_email, private_key: sa.private_key };
+  return parseServiceAccount(process.env["FIREBASE_SERVICE_ACCOUNT"]).sa;
 }
 
 const b64url = (bytes: ArrayBuffer | Uint8Array) =>

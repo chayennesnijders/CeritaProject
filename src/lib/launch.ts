@@ -12,6 +12,8 @@ export type LaunchCheck = {
 export type ServerChecks = {
   serviceRole: boolean;
   firebaseServer: boolean;
+  /** Names of push settings that are missing or wrong (never values). */
+  pushProblems?: string[];
   resend: boolean;
   emailHook: boolean;
   stripeLive: boolean;
@@ -63,7 +65,9 @@ export function launchChecks(s: ServerChecks, c: ClientChecks): LaunchCheck[] {
       label: "Pushmeldingen (Firebase)",
       ok: s.firebaseServer && c.firebaseClient,
       required: true,
-      how: "Zet de 4 VITE_FIREBASE_-sleutels en FIREBASE_SERVICE_ACCOUNT in Vercel en doe een Redeploy.",
+      how: s.pushProblems?.length
+        ? `Dit klopt nog niet in Vercel: ${s.pushProblems.join("; ")}.`
+        : "Zet de 4 VITE_FIREBASE_-sleutels en FIREBASE_SERVICE_ACCOUNT in Vercel en doe een Redeploy.",
     },
     {
       id: "mail",
