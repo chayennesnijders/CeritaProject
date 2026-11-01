@@ -17,7 +17,9 @@ function friendly(error: unknown): never {
   const status =
     (error as { statusCode?: number; status?: number })?.statusCode ??
     (error as { status?: number })?.status;
-  if (status === 402)
+  // OpenAI says "insufficient_quota" (with status 429) when the credit is used up.
+  const detail = `${(error as { message?: string })?.message ?? ""} ${JSON.stringify((error as { responseBody?: unknown })?.responseBody ?? "")}`;
+  if (status === 402 || /insufficient_quota|exceeded your current quota|billing/i.test(detail))
     throw new Error("Het OpenAI-tegoed is op. Vul het aan op platform.openai.com.");
   if (status === 429)
     throw new Error("Even te veel verzoeken. Probeer het over een minuutje opnieuw.");
@@ -93,8 +95,14 @@ export async function illustrateStory(title: string, body: string) {
     }),
   });
   if (!res.ok) {
-    if (res.status === 402 || res.status === 429) friendly({ status: res.status });
-    const err = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+    const err = (await res.json().catch(() => null)) as {
+      error?: { message?: string; code?: string };
+    } | null;
+    if (res.status === 402 || res.status === 429)
+      friendly({
+        status: res.status,
+        message: `${err?.error?.code ?? ""} ${err?.error?.message ?? ""}`,
+      });
     throw new Error(
       `Een plaatje maken lukte niet${err?.error?.message ? `: ${err.error.message}` : "."}`,
     );
