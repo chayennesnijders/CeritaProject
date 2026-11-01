@@ -1,4 +1,5 @@
 import { GraduationCap, Shield } from "lucide-react";
+import { JoinGroupDialog } from "@/components/JoinGroupDialog";
 import { GroupCheckIn } from "@/components/GroupCheckIn";
 import { ShyTip } from "@/components/ShyTip";
 import { QuickReplies } from "@/components/QuickReplies";
@@ -87,6 +88,9 @@ function GroupPage() {
   const [editing, setEditing] = useState(false);
   const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
   const { ask: askReason, dialog: reportDialog } = useReportReason();
+  // Not a member yet? Ask once when the group opens; "Eerst even rondkijken" closes it.
+  const [browsing, setBrowsing] = useState(false);
+  const [joining, setJoining] = useState(false);
   useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
   useChatGamesLive({ groupId });
   usePollsLive(groupId);
@@ -145,7 +149,23 @@ function GroupPage() {
   const { map: reactionMap, react } = useReactions({ kind: "post", ids: (data?.posts ?? []).map((p) => p.id).reverse(), channel: groupId });
 
 
+  async function join() {
+    if (!uid) return;
+    setJoining(true);
+    const { error } = await supabase.from("group_members").insert({ group_id: groupId, user_id: uid });
+    setJoining(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setBrowsing(true);
+    toast.success(`Welkom in ${data?.group?.name ?? "de groep"}! 👋`);
+    celebrate("groot");
+    refresh();
+    qc.invalidateQueries({ queryKey: ["groups"] });
+  }
   async function toggleJoin() {
+    if (!data?.isMember) return join();
     const { error } = data?.isMember
       ? await supabase.from("group_members").delete().eq("group_id", groupId).eq("user_id", uid!)
       : await supabase.from("group_members").insert({ group_id: groupId, user_id: uid! });
@@ -354,6 +374,23 @@ function GroupPage() {
       {reportDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
+      {data?.group && !data.isMember && !me?.isAdmin && (
+        <div className="shrink-0 border-t bg-card px-4 py-3">
+          <Button disabled={joining} onClick={join} className="h-12 w-full rounded-full text-base">
+            👋 Word lid om mee te praten
+          </Button>
+        </div>
+      )}
+      {data?.group && (
+        <JoinGroupDialog
+          open={!data.isMember && !me?.isAdmin && !browsing}
+          group={data.group}
+          memberCount={data.members?.length ?? 0}
+          busy={joining}
+          onJoin={join}
+          onBrowse={() => setBrowsing(true)}
+        />
+      )}
       {data?.isMember && <ChatComposer onGame={playGame} onSticker={sendSticker} groupId={groupId} onPoll={refresh} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}
     </div>
   );
