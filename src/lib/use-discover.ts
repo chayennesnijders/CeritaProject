@@ -80,7 +80,10 @@ export function useStoryActions(uid: string | undefined) {
             .eq("kind", kind)
         : await supabase
             .from("article_reactions")
-            .insert({ article_id: articleId, user_id: uid, kind });
+            .upsert(
+              { article_id: articleId, user_id: uid, kind },
+              { onConflict: "article_id,user_id,kind", ignoreDuplicates: true },
+            );
       if (error) toast.error("Dat lukte niet, probeer het opnieuw.", { description: error.message });
       refresh();
     },
@@ -92,7 +95,12 @@ export function useStoryActions(uid: string | undefined) {
             .delete()
             .eq("article_id", articleId)
             .eq("user_id", uid)
-        : await supabase.from("article_saves").insert({ article_id: articleId, user_id: uid });
+        : await supabase
+            .from("article_saves")
+            .upsert(
+              { article_id: articleId, user_id: uid },
+              { onConflict: "article_id,user_id", ignoreDuplicates: true },
+            );
       if (error) toast.error("Dat lukte niet, probeer het opnieuw.", { description: error.message });
       else
         toast.success(

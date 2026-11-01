@@ -154,7 +154,8 @@ function GroupPage() {
     setJoining(true);
     const { error } = await supabase.from("group_members").insert({ group_id: groupId, user_id: uid });
     setJoining(false);
-    if (error) {
+    // Already a member (e.g. tapped twice)? That is fine, not an error.
+    if (error && error.code !== "23505") {
       toast.error(error.message);
       return;
     }

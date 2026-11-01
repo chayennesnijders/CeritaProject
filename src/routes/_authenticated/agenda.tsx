@@ -52,7 +52,7 @@ function AgendaPage() {
     const { error } = going
       ? await supabase.from("event_rsvps").delete().eq("event_id", eventId).eq("user_id", uid)
       : await supabase.from("event_rsvps").insert({ event_id: eventId, user_id: uid });
-    if (error) toast.error("Dat lukte niet.");
+    if (error && error.code !== "23505") toast.error("Dat lukte niet.");
     else toast.success(going ? "Afgemeld" : "Je bent aangemeld! Je krijgt een herinnering. 🎉");
     qc.invalidateQueries({ queryKey: ["agenda", uid] });
   }

@@ -50,7 +50,11 @@ export function TalkToCoach() {
       .select("id")
       .single();
     if (error) {
-      toast.error("Dat lukte niet. Probeer het later opnieuw.");
+      toast.error(
+        error.code === "23505"
+          ? "Jullie hebben al een gesprek of verzoek. Kijk bij Berichten."
+          : "Dat lukte niet. Probeer het later opnieuw.",
+      );
       return;
     }
     notify({ data: { convId: created.id } }).catch(() => {});
