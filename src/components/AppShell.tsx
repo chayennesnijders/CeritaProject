@@ -1,4 +1,5 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { WeeklyRulesPopup } from "@/components/WeeklyRulesPopup";
 import { useEffect } from "react";
 import { CallProvider } from "@/components/CallProvider";
 import { BirthdayPopup } from "@/components/BirthdayPopup";
@@ -55,6 +56,7 @@ export function AppShell() {
       <BirthdayPopup />
       <CareHelpDialog />
       <WelcomeTour />
+      <WeeklyRulesPopup uid={me?.user.id} />
       <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-4 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
           <img src="/cerita-beer.png" alt="" className="size-11 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
