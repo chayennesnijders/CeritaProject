@@ -81,7 +81,7 @@ export function useStoryActions(uid: string | undefined) {
         : await supabase
             .from("article_reactions")
             .insert({ article_id: articleId, user_id: uid, kind });
-      if (error) toast.error("Dat lukte niet, probeer het opnieuw.");
+      if (error) toast.error("Dat lukte niet, probeer het opnieuw.", { description: error.message });
       refresh();
     },
     async toggleSave(articleId: string, on: boolean) {
@@ -93,7 +93,7 @@ export function useStoryActions(uid: string | undefined) {
             .eq("article_id", articleId)
             .eq("user_id", uid)
         : await supabase.from("article_saves").insert({ article_id: articleId, user_id: uid });
-      if (error) toast.error("Dat lukte niet, probeer het opnieuw.");
+      if (error) toast.error("Dat lukte niet, probeer het opnieuw.", { description: error.message });
       else
         toast.success(
           on ? "Niet meer bewaard" : "Bewaard ⭐ Je vindt het terug bij Ontdekken → Bewaard.",
