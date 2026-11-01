@@ -31,8 +31,11 @@ import { reportsQueryOptions } from "@/lib/reports";
 import { MODERATOR_TABS, canSeeAdminTab, seesPublicMessages } from "@/lib/staff";
 import { StaffAdmin } from "@/components/StaffAdmin";
 import { WaitlistAdmin } from "@/components/WaitlistAdmin";
+import { AdminStart } from "@/components/AdminStart";
+import { ADMIN_PAGES, type AdminPage } from "@/lib/admin-nav";
 
 const TABS = [
+  { id: "start", label: "🏠 Start" },
   { id: "nieuws", label: "Nieuws" },
   { id: "livegang", label: "🚀 Livegang" },
   { id: "berichten", label: "Berichten" },
@@ -55,7 +58,12 @@ export function AdminPanel() {
   const { data: me } = useMe();
   const { data: openReportRows } = useQuery(reportsQueryOptions(me?.isStaff ? me.user.id : undefined));
   const qc = useQueryClient();
-  const [chosen, setTab] = useState<Tab>("nieuws");
+  const [chosen, setChosen] = useState<Tab>("start");
+  // Open a page and start at the top of it.
+  const setTab = (t: Tab) => {
+    setChosen(t);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  };
   const news = useAdminNews(me?.isAdmin ? me.user.id : undefined);
   const [qDate, setQDate] = useState(new Date().toISOString().slice(0, 10));
   const [qTitle, setQTitle] = useState("");
@@ -145,14 +153,28 @@ export function AdminPanel() {
 
   return (
     <div className="space-y-4 pt-2">
-      <h1 className="text-3xl">{me.isAdmin ? "Beheer" : "Moderatie"}</h1>
+      {(tab === "start" || !canSeeAdminTab("start", roles)) && (
+        <h1 className="text-3xl">{me.isAdmin ? "Beheer" : "Moderatie"}</h1>
+      )}
       {!me.isAdmin && (
         <p className="text-sm text-muted-foreground">
           Je bent moderator 🛡️ Je helpt met meldingen, zorgsignalen en berichten van leden.
         </p>
       )}
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      {canSeeAdminTab("start", roles) ? (
+        tab !== "start" && (
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" className="rounded-full" onClick={() => setTab("start")}>
+              ← Overzicht
+            </Button>
+            <h2 className="text-lg">
+              {ADMIN_PAGES[tab as AdminPage]?.emoji} {ADMIN_PAGES[tab as AdminPage]?.label ?? tab}
+            </h2>
+          </div>
+        )
+      ) : (
+        <div className="flex gap-2 overflow-x-auto pb-1">
         {visibleTabs.map((t) => (
           <Button key={t.id} size="sm" variant={tab === t.id ? "default" : "outline"} className="shrink-0 rounded-full" onClick={() => setTab(t.id)}>
             {t.label}
@@ -161,8 +183,20 @@ export function AdminPanel() {
           </Button>
         ))}
       </div>
+      )}
 
-      {tab === "nieuws" && <LaunchBanner onOpen={() => setTab("livegang")} />}
+      {tab === "start" && (
+        <>
+          <LaunchBanner onOpen={() => setTab("livegang")} />
+          <AdminStart
+            openReports={openReports}
+            newsUnread={news.unread}
+            canSee={(p) => canSeeAdminTab(p, roles)}
+            onOpen={(p) => setTab(p as Tab)}
+          />
+        </>
+      )}
+
       {tab === "livegang" && <LaunchChecklist />}
       {tab === "nieuws" && <AdminNews uid={me.user.id} onOpenTab={(t) => setTab(t as Tab)} />}
 
