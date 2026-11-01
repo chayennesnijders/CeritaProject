@@ -28,6 +28,13 @@ export function groupsByBand<T extends { age_group: string }>(groups: T[]) {
 export type Mentionable = { user_id: string; display_name: string; username?: string | null };
 
 /** Vindt @vermeldingen in een bericht en koppelt ze aan groepsleden (op gebruikersnaam of naam). */
+/** At most this many people get a notification per message, so tagging the whole group isn't spam. */
+export const MAX_MENTION_PUSHES = 3;
+/** Who gets a notification for a message's @mentions: not the writer, and only the first few. */
+export function mentionPushTargets(mentions: string[] | null | undefined, authorId: string) {
+  return (mentions ?? []).filter((u) => u !== authorId).slice(0, MAX_MENTION_PUSHES);
+}
+
 export function parseMentions(body: string, members: Mentionable[]): string[] {
   const found = new Set<string>();
   for (const m of body.matchAll(/@([A-Za-z0-9_.-]+)/g)) {

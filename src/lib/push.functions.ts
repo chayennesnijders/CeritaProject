@@ -283,7 +283,9 @@ export const notifyGroupMention = createServerFn({ method: "POST" })
       .eq("id", data.postId)
       .maybeSingle();
     if (!post || post.author_id !== context.userId) return { sent: 0 };
-    const targets = (post.mentions ?? []).filter((u) => u !== context.userId);
+    // Only the first few tagged people get a push, so tagging everyone can't flood a group.
+    const { mentionPushTargets } = await import("@/lib/groups");
+    const targets = mentionPushTargets(post.mentions, context.userId);
     if (targets.length === 0) return { sent: 0 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: prefs }, { data: g }] = await Promise.all([

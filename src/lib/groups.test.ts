@@ -115,3 +115,11 @@ describe("eigen groep maken", () => {
     expect(groupFormError("  Gamers  ", "Samen gamen")).toBeNull();
   });
 });
+
+import { mentionPushTargets } from "./groups";
+describe("mentionPushTargets", () => {
+  it("notifies at most 3 tagged people and never the writer", () => {
+    expect(mentionPushTargets(["me", "a", "b", "c", "d", "e"], "me")).toEqual(["a", "b", "c"]);
+    expect(mentionPushTargets(null, "me")).toEqual([]);
+  });
+});
