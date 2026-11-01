@@ -270,7 +270,11 @@ function GroupPage() {
     if (!el) return;
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 240;
     const mine = posts[n - 1]?.author_id === uid;
-    if (first || nearBottom || mine) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    if (first) {
+      // Open at the newest message straight away, and again once photos/stickers have their height.
+      el.scrollTop = el.scrollHeight;
+      for (const t of [150, 500, 1200]) setTimeout(() => { el.scrollTop = el.scrollHeight; }, t);
+    } else if (nearBottom || mine) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [posts.length, posts, uid]);
 
   // Toetsenbord open of dicht? Blijf op het nieuwste bericht staan als je daar al stond.

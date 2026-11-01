@@ -6,14 +6,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ritiImage, type RitiExpression } from "@/lib/riti";
-import { STICKERS, stickerById, type StickerId } from "@/lib/stickers";
+import { STICKERS, stickerById, stickerImage, type StickerId } from "@/lib/stickers";
+
+type Sticker = (typeof STICKERS)[number];
 
 /** The Riti sticker drawing for a sticker. */
-function StickerFace({ face, size }: { face: RitiExpression; size: number }) {
+function StickerFace({ sticker, size }: { sticker: Sticker; size: number }) {
   return (
     <img
-      src={ritiImage(face)}
+      src={stickerImage(sticker)}
       alt=""
       draggable={false}
       className="block shrink-0 object-contain drop-shadow-md"
@@ -29,11 +30,14 @@ export function StickerView({ id }: { id: string }) {
   return (
     <div className="flex flex-col items-center">
       <span role="img" aria-label={`Riti: ${s.text}`}>
-        <StickerFace face={s.face} size={130} />
+        <StickerFace sticker={s} size={130} />
       </span>
-      <span className="relative -mt-3 rounded-full bg-card px-3 py-0.5 text-sm font-bold text-foreground shadow-soft">
-        {s.text}
-      </span>
+      {/* Stickers with their own drawing already have the text on them. */}
+      {!("image" in s) && (
+        <span className="relative -mt-3 rounded-full bg-card px-3 py-0.5 text-sm font-bold text-foreground shadow-soft">
+          {s.text}
+        </span>
+      )}
     </div>
   );
 }
@@ -73,7 +77,7 @@ export function StickerPicker({
                 }}
                 className="flex flex-col items-center rounded-2xl bg-muted p-1.5 active:scale-95"
               >
-                <StickerFace face={s.face} size={64} />
+                <StickerFace sticker={s} size={64} />
                 <span className="text-[10px] font-bold leading-tight">{s.text}</span>
               </button>
             ))}

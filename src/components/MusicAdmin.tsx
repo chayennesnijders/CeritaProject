@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { isMusicUrl } from "@/lib/music";
 
-const emptyPlaylist = { title: "", emoji: "🎵", description: "", url: "", min_age: 12, sort: 0 };
+const emptyPlaylist = { title: "", emoji: "🎵", description: "", url: "", min_age: 13, sort: 0 };
 type Pending = { kind: "playlist" | "tip"; id: string; name: string } | null;
 
 /** Beheer → Muziek: playlists and the members' song tips. */
@@ -98,12 +98,12 @@ export function MusicAdmin() {
   }
   const ageButtons = (value: number, set: (v: number) => void) => (
     <div className="flex gap-2">
-      {[12, 16].map((a) => (
+      {[13, 16].map((a) => (
         <Button
           key={a}
           type="button"
           size="sm"
-          variant={value === a ? "default" : "outline"}
+          variant={(value < 16 ? 13 : 16) === a ? "default" : "outline"}
           className="rounded-full"
           onClick={() => set(a)}
         >

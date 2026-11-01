@@ -121,7 +121,7 @@ function MusicPage() {
                 {p.description && <p className="text-xs text-muted-foreground">{p.description}</p>}
               </div>
             </div>
-            <MusicPlayer url={p.url} />
+            <MusicPlayer url={p.url} title={p.title} />
           </div>
         ))}
       </section>
@@ -200,7 +200,7 @@ function MusicPage() {
                 </button>
               )}
             </div>
-            {t.url && <MusicPlayer url={t.url} label="Afspelen" />}
+            {t.url && <MusicPlayer url={t.url} label="Afspelen" title={`${t.title} · ${t.artist}`} />}
           </div>
         ))}
       </section>

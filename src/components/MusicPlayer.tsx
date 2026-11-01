@@ -1,12 +1,20 @@
-import { useState } from "react";
-import { embedUrl, musicService, playerHeight, SERVICE_LABEL } from "@/lib/music";
+import { embedUrl, musicService, SERVICE_LABEL } from "@/lib/music";
+import { play, useNowPlaying } from "@/lib/now-playing";
 
 /**
- * A Spotify, YouTube or Apple Music player inside the app. It only loads after a tap, so those
- * services are not contacted until the member chooses to listen.
+ * Start a Spotify, YouTube or Apple Music player. It plays in the bar above the menu, so it keeps
+ * playing on other screens. Nothing is loaded from those services until the member taps.
  */
-export function MusicPlayer({ url, label = "Luisteren" }: { url: string; label?: string }) {
-  const [open, setOpen] = useState(false);
+export function MusicPlayer({
+  url,
+  label = "Luisteren",
+  title = "Muziek",
+}: {
+  url: string;
+  label?: string;
+  title?: string;
+}) {
+  const now = useNowPlaying();
   const src = embedUrl(url);
   const service = musicService(url);
   if (!src || !service)
@@ -20,24 +28,15 @@ export function MusicPlayer({ url, label = "Luisteren" }: { url: string; label?:
         Openen
       </a>
     );
-  if (!open)
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground active:scale-95"
-      >
-        ▶ {label}
-        <span className="text-[11px] font-normal opacity-80">via {SERVICE_LABEL[service]}</span>
-      </button>
-    );
+  if (now?.url === url)
+    return <p className="text-sm font-semibold text-primary">🎶 Speelt nu, onderaan in beeld</p>;
   return (
-    <iframe
-      src={src}
-      title={`${SERVICE_LABEL[service]}-speler`}
-      className="w-full rounded-2xl border-0"
-      style={{ height: playerHeight(url) }}
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-      loading="lazy"
-    />
+    <button
+      onClick={() => play(url, title)}
+      className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground active:scale-95"
+    >
+      ▶ {label}
+      <span className="text-[11px] font-normal opacity-80">via {SERVICE_LABEL[service]}</span>
+    </button>
   );
 }

@@ -1,4 +1,6 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { useNowPlaying } from "@/lib/now-playing";
+import { NowPlayingBar } from "@/components/NowPlayingBar";
 import { WeeklyRulesPopup } from "@/components/WeeklyRulesPopup";
 import { useEffect } from "react";
 import { CallProvider } from "@/components/CallProvider";
@@ -29,6 +31,8 @@ export function AppShell() {
   const unread = useUnreadCounts();
   const news = useAdminNews(me?.isAdmin ? me.user.id : undefined);
   const navigate = useNavigate();
+  // Room for the music bar above the menu while something plays.
+  const playing = !!useNowPlaying();
   // Meldingen die binnenkomen terwijl de app open is, tonen we als pop-up bovenin.
   useEffect(() => {
     let stop: () => void = () => {};
@@ -74,7 +78,8 @@ export function AppShell() {
           <WorkMenu uid={me?.user.id} isAdmin={!!me?.isStaff} adminCount={unread.reports + (me?.isAdmin ? news.unread : 0)} />
         </div>
       </header>
-      <main className="flex-1 px-5 pb-28">
+      <NowPlayingBar />
+      <main className={`flex-1 px-5 ${playing ? "pb-72" : "pb-28"}`}>
         <Outlet />
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">

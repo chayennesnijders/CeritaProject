@@ -5,7 +5,7 @@ import { useReportReason } from "@/components/ReportReasonDialog";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Archive, ArchiveRestore, ArrowLeft, Ban, BellOff, Bell, Check, CheckCheck, Flag, Phone, Video } from "lucide-react";
 import { useCall } from "@/components/CallProvider";
@@ -102,6 +102,20 @@ function ChatPage() {
     return () => clearTimeout(t);
   }, [uid, id, data?.status, data?.msgs.length, data?.muted, data?.archived, qc]);
 
+  // Open at the newest message; follow new messages when you're already near the bottom.
+  const seenMsgs = useRef(0);
+  const msgCount = data?.msgs.length ?? 0;
+  useEffect(() => {
+    if (!msgCount || msgCount <= seenMsgs.current) return;
+    const first = seenMsgs.current === 0;
+    seenMsgs.current = msgCount;
+    const toBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight });
+    const nearBottom = window.innerHeight + window.scrollY > document.documentElement.scrollHeight - 300;
+    if (first) {
+      toBottom();
+      for (const t of [150, 500, 1200]) setTimeout(toBottom, t);
+    } else if (nearBottom) toBottom();
+  }, [msgCount]);
   const { map: reactionMap, react } = useReactions({ kind: "dm", ids: (data?.msgs ?? []).map((m) => m.id), channel: id });
 
   if (data === null) return <p className="pt-6 text-sm text-muted-foreground">Dit gesprek is niet beschikbaar.</p>;
