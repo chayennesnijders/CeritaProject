@@ -125,7 +125,7 @@ function LettersPage() {
                   )}
                 </div>
                 {reading === l.id && l.body && (
-                  <p className="mt-3 whitespace-pre-wrap rounded-2xl bg-white/70 p-3 text-sm animate-in fade-in">
+                  <p className="mt-3 whitespace-pre-wrap rounded-2xl bg-white/70 p-3 text-sm text-[#3b2a2f] animate-in fade-in">
                     {l.body}
                   </p>
                 )}

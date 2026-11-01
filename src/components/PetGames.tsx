@@ -198,7 +198,7 @@ function BreathGame({ petEmoji, onDone }: { petEmoji: string; onDone: Done }) {
         }
         right={`⏱️ ${left}s`}
       />
-      <div className="flex h-72 items-center justify-center rounded-2xl bg-gradient-to-b from-sky-100 to-violet-100">
+      <div className="flex h-72 items-center justify-center rounded-2xl bg-gradient-to-b from-sky-100 to-violet-100 text-[#3b2a2f]">
         <button
           onPointerDown={hold(true)}
           onPointerUp={hold(false)}
@@ -296,7 +296,7 @@ function StroopGame({ onDone }: { onDone: Done }) {
     <div>
       <GameHeader left={`⭐ ${score}`} right={`⏱️ ${seconds}s`} />
       <div
-        className={`flex h-40 items-center justify-center rounded-2xl transition-colors duration-200 ${flash === "goed" ? "bg-emerald-100" : flash === "fout" ? "bg-rose-100" : "bg-muted"}`}
+        className={`flex h-40 items-center justify-center rounded-2xl transition-colors duration-200 ${flash === "goed" ? "bg-emerald-100 text-[#3b2a2f]" : flash === "fout" ? "bg-rose-100 text-[#3b2a2f]" : "bg-muted"}`}
       >
         <span
           key={turn}
@@ -361,7 +361,7 @@ function FeelingsGame({ onDone }: { onDone: Done }) {
             <button
               key={o}
               onClick={() => choose(o)}
-              className={`h-12 rounded-2xl text-sm font-semibold transition-colors ${right ? "bg-emerald-200" : wrong ? "bg-rose-200" : "bg-card shadow-soft"}`}
+              className={`h-12 rounded-2xl text-sm font-semibold transition-colors ${right ? "bg-emerald-200 text-[#3b2a2f]" : wrong ? "bg-rose-200 text-[#3b2a2f]" : "bg-card shadow-soft"}`}
             >
               {o}
             </button>
@@ -481,7 +481,7 @@ function ThoughtsGame({ onDone }: { onDone: Done }) {
       <GameHeader left={`⭐ ${score}`} right={`${n + 1}/${list.length}`} />
       <div
         key={n}
-        className="flex min-h-36 animate-in fade-in slide-in-from-right-8 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-100 to-pink-100 p-5 text-center duration-300"
+        className="flex min-h-36 animate-in fade-in slide-in-from-right-8 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-100 to-pink-100 text-[#3b2a2f] p-5 text-center duration-300"
       >
         <p className="font-display text-xl leading-snug text-foreground">💭 "{t.text}"</p>
       </div>
@@ -489,13 +489,13 @@ function ThoughtsGame({ onDone }: { onDone: Done }) {
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => choose(true)}
-            className="h-14 rounded-2xl bg-emerald-200 text-sm font-bold active:scale-95"
+            className="h-14 rounded-2xl bg-emerald-200 text-[#3b2a2f] text-sm font-bold active:scale-95"
           >
             💚 Houden
           </button>
           <button
             onClick={() => choose(false)}
-            className="h-14 rounded-2xl bg-sky-200 text-sm font-bold active:scale-95"
+            className="h-14 rounded-2xl bg-sky-200 text-[#3b2a2f] text-sm font-bold active:scale-95"
           >
             🎈 Loslaten
           </button>
@@ -553,7 +553,7 @@ function OddGame({ onDone }: { onDone: Done }) {
             key={i}
             onClick={() => tap(i)}
             aria-label={`Plaatje ${i + 1}`}
-            className={`flex aspect-square items-center justify-center rounded-xl ${round.size >= 5 ? "text-2xl" : "text-3xl"} ${miss === i ? "bg-rose-200" : "bg-muted"}`}
+            className={`flex aspect-square items-center justify-center rounded-xl ${round.size >= 5 ? "text-2xl" : "text-3xl"} ${miss === i ? "bg-rose-200 text-[#3b2a2f]" : "bg-muted"}`}
           >
             {i === round.oddIndex ? round.odd : round.same}
           </button>
