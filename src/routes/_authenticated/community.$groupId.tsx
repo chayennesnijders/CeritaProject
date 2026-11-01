@@ -374,7 +374,7 @@ function GroupPage() {
       {reportDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
-      {data?.group && !data.isMember && !me?.isAdmin && (
+      {data?.group && !data.isMember && (
         <div className="shrink-0 border-t bg-card px-4 py-3">
           <Button disabled={joining} onClick={join} className="h-12 w-full rounded-full text-base">
             👋 Word lid om mee te praten
@@ -383,7 +383,7 @@ function GroupPage() {
       )}
       {data?.group && (
         <JoinGroupDialog
-          open={!data.isMember && !me?.isAdmin && !browsing}
+          open={!data.isMember && !browsing}
           group={data.group}
           memberCount={data.members?.length ?? 0}
           busy={joining}
