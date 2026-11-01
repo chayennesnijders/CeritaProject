@@ -1,4 +1,7 @@
 import { GraduationCap, Shield } from "lucide-react";
+import { ShyTip } from "@/components/ShyTip";
+import { QuickReplies } from "@/components/QuickReplies";
+import { celebrate } from "@/lib/celebrate";
 import { NeedBadge, NeedPicker } from "@/components/NeedPicker";
 import type { NeedId } from "@/lib/needs";
 import { useReportReason } from "@/components/ReportReasonDialog";
@@ -172,6 +175,24 @@ function GroupPage() {
       return false;
     }
   }
+  // One-tap kind reply under someone else's message (for members who find writing scary).
+  async function quickReply(to: { id: string }, text: string) {
+    if (!uid) return false;
+    const { data: created, error } = await supabase
+      .from("posts")
+      .insert({ group_id: groupId, author_id: uid, body: text, reply_to: to.id })
+      .select("id")
+      .single();
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    if (created) notifyReply({ data: { postId: created.id } }).catch(() => {});
+    toast.success("Verstuurd 🤍");
+    celebrate("klein", { set: "hartjes" });
+    refresh();
+    return true;
+  }
   async function saveGroup(v: { name: string; description: string; emoji: string }) {
     const { error } = await supabase.rpc("update_my_group", { _group: groupId, _name: v.name, _description: v.description, _emoji: v.emoji });
     if (error) { toast.error(error.message); return; }
@@ -269,6 +290,7 @@ function GroupPage() {
         {data?.group && data?.isMember && !me?.isAdmin && <GroupMembersAdmin groupId={groupId} ageGroup={data.group.age_group} mode="member" />}
         {data?.group && <GroupChallenge groupId={groupId} uid={uid} isMember={!!data.isMember} />}
         {data?.isMember && posts.length > 0 && <p className="text-center text-[11px] text-muted-foreground">Swipe naar rechts om te antwoorden · houd ingedrukt voor een emoji</p>}
+        {data?.isMember && posts.length > 0 && !posts.some((p) => p.author_id === uid) && <ShyTip groupId={groupId} />}
         {withDayDividers(posts, (p) => p.created_at).map((row) => {
           if (row.kind === "day") return <ChatDayDivider key={row.key} label={row.label} />;
           const p = row.item;
@@ -306,6 +328,9 @@ function GroupPage() {
                 </p>}
                 {p.audio_path && !p.is_hidden && <ChatAudio path={p.audio_path} />}
                 {p.attachment_path && !p.is_hidden && <ChatAttachment path={p.attachment_path} name={p.attachment_name} type={p.attachment_type} />}
+                {!mine && data?.isMember && !p.is_hidden && !p.sticker && !p.poll_id && !p.game_id && (
+                  <QuickReplies need={p.need} onSend={(t) => quickReply(p, t)} />
+                )}
                 <p className="mt-1 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
                   {!isToday(p.created_at) && <span>{shortDay(p.created_at)}</span>}
                   {new Date(p.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
