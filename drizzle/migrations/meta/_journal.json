@@ -589,6 +589,13 @@
       "when": 1794070800000,
       "tag": "0083_slow_down_flooding",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1794157200000,
+      "tag": "0084_group_checkins",
+      "breakpoints": true
     }
   ]
 }

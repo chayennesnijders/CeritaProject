@@ -390,6 +390,20 @@ export const ORGANISATIONS: LegalPage = {
       ],
     },
     {
+      title: "Wat jongeren ons vertellen",
+      text: [
+        "CeritaProject is gebouwd op wat jongeren zelf aangeven. In onze enquête onder 44 jongeren (de grootste groep was 16–18 jaar) zagen we:",
+      ],
+      bullets: [
+        "84% voelt zich soms of vaak niet helemaal zichzelf.",
+        "61% is bang dat anderen hen raar vinden; 52% noemt verlegenheid als drempel.",
+        "Jongeren willen vooral meer zelfvertrouwen (55%), gelijkgestemden ontmoeten (52%), iemand om mee te praten (50%) en hun verhaal kunnen delen (50%).",
+        "73% gaf het concept 4 of 5 sterren (gemiddeld 4,0 van 5).",
+        "In onze bestaande community voelde 85% zich meestal of volledig veilig (gemiddelde waardering 4,2 van 5).",
+        "Pesten, discriminatie, uitsluiting en grensoverschrijdend gedrag zijn de grootste afknappers. Daarom staan veiligheid en moderatie bij ons voorop.",
+      ],
+    },
+    {
       title: "Veiligheid voorop",
       bullets: [
         "Aparte leeftijdsgroepen (13–15, 16–25, 26–27): jonge leden komen niet in contact met volwassenen.",

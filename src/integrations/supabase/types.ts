@@ -1865,6 +1865,12 @@ export type Database = {
         }
         Relationships: []
       }
+      group_checkins: {
+        Row: { group_id: string; user_id: string; week: string; mood: string; created_at: string }
+        Insert: { group_id: string; user_id: string; week: string; mood: string; created_at?: string }
+        Update: { group_id?: string; user_id?: string; week?: string; mood?: string; created_at?: string }
+        Relationships: []
+      }
       push_tokens: {
         Row: {
           created_at: string
@@ -2283,6 +2289,10 @@ export type Database = {
     }
     Functions: {
       admin_ids: { Args: never; Returns: string[] }
+      group_checkin_totals: {
+        Args: { _group: string; _week: string }
+        Returns: { mood: string; total: number }[]
+      }
       join_waitlist: {
         Args: { _email: string; _age: number; _store: string; _parent_ok: boolean; _source?: string }
         Returns: boolean

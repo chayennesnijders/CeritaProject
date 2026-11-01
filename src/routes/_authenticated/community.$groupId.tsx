@@ -1,4 +1,5 @@
 import { GraduationCap, Shield } from "lucide-react";
+import { GroupCheckIn } from "@/components/GroupCheckIn";
 import { ShyTip } from "@/components/ShyTip";
 import { QuickReplies } from "@/components/QuickReplies";
 import { celebrate } from "@/lib/celebrate";
@@ -288,6 +289,7 @@ function GroupPage() {
       <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
         {data?.group && me?.isAdmin && <GroupMembersAdmin groupId={groupId} ageGroup={data.group.age_group} />}
         {data?.group && data?.isMember && !me?.isAdmin && <GroupMembersAdmin groupId={groupId} ageGroup={data.group.age_group} mode="member" />}
+        {data?.group && <GroupCheckIn groupId={groupId} uid={uid} isMember={!!data.isMember} />}
         {data?.group && <GroupChallenge groupId={groupId} uid={uid} isMember={!!data.isMember} />}
         {data?.isMember && posts.length > 0 && <p className="text-center text-[11px] text-muted-foreground">Swipe naar rechts om te antwoorden · houd ingedrukt voor een emoji</p>}
         {data?.isMember && posts.length > 0 && !posts.some((p) => p.author_id === uid) && <ShyTip groupId={groupId} />}
