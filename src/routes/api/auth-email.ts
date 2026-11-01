@@ -6,6 +6,14 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/auth-email")({
   server: {
     handlers: {
+      // Open this address in a browser to check that Supabase can reach the hook at all.
+      GET: () =>
+        Response.json({
+          werkt: true,
+          ingesteld: ["SEND_EMAIL_HOOK_SECRET", "RESEND_API_KEY", "SUPABASE_URL"].every(
+            (k) => !!process.env[k]?.trim(),
+          ),
+        }),
       POST: async ({ request }) => {
         const fail = (status: number, message: string) =>
           Response.json({ error: { http_code: status, message } }, { status });

@@ -511,24 +511,33 @@ export const sendTestEmail = createServerFn({ method: "POST" })
       data.to || (typeof context.claims.email === "string" ? context.claims.email : "");
     if (!to) return { ok: false, message: "Je account heeft geen e-mailadres." };
     const from = process.env["EMAIL_FROM"] ?? "CeritaProject <noreply@notify.ceritaproject.nl>";
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env["RESEND_API_KEY"]?.trim()}`,
-        "Content-Type": "application/json",
+    // The real "Wachtwoord vergeten" email, rendered and sent exactly like the Supabase hook does,
+    // so a failure here shows what goes wrong inside the hook.
+    const { mailsFor, sendWithResend } = await import("@/lib/auth-email.server");
+    const site = "https://app.ceritaproject.nl";
+    const [mail] = mailsFor(
+      {
+        user: { email: to },
+        email_data: {
+          token: "000000",
+          token_hash: "test",
+          redirect_to: `${site}/reset-password`,
+          email_action_type: "recovery",
+          site_url: site,
+        },
       },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject: "Testmail CeritaProject",
-        html: "<p>Deze testmail komt aan, dus Resend werkt. 💗</p>",
-      }),
-    });
-    if (res.ok) return { ok: true, message: `Verstuurd naar ${to} (afzender ${from}).` };
-    return {
-      ok: false,
-      message: `Resend weigert [${res.status}]: ${(await res.text()).slice(0, 300)}`,
-    };
+      process.env["SUPABASE_URL"]!.trim(),
+      site,
+    );
+    try {
+      await sendWithResend(process.env["RESEND_API_KEY"]!.trim(), from, mail!);
+      return {
+        ok: true,
+        message: `Een voorbeeld van de wachtwoord-mail is verstuurd naar ${to} (afzender ${from}). De knop in die mail werkt niet, het is een test.`,
+      };
+    } catch (e) {
+      return { ok: false, message: (e instanceof Error ? e.message : String(e)).slice(0, 400) };
+    }
   });
 
 // Admin only: what is set up for going live. Only yes/no and counts, never the keys themselves.
