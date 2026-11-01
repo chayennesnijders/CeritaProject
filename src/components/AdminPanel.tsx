@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PlanStories } from "@/components/PlanStories";
 import { StoryImport } from "@/components/StoryImport";
 import { nameWithUsername } from "@/lib/username";
 import { CoachesAdmin } from "@/components/CoachesAdmin";
@@ -320,6 +321,7 @@ export function AdminPanel() {
 
       {tab === "verhalen" && (
         <div className="space-y-5">
+          <PlanStories />
           <StoryImport />
           <ArticleComposer />
           <StorySubmissionsAdmin />
