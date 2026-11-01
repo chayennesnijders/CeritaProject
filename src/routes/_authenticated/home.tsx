@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useThemeOfMonth } from "@/lib/use-theme-month";
 import { AutoInstallGuide } from "@/components/InstallGuide";
 import { useEffect, useState } from "react";
@@ -170,6 +171,7 @@ function MoodCheckIn({ uid, day, name }: { uid: string | undefined; day: string;
   }, [key]);
   function pick(id: MoodId | null) {
     setMood(id);
+    if (id) celebrate("klein", { set: "hartjes" });
     // Also saved privately for your mood calendar (only you can read it).
     if (uid) {
       const q = id

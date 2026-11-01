@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,6 +100,7 @@ function SubmitStoryPage() {
         ? "Dankjewel voor je verhaal 💛 We lezen het zorgvuldig."
         : "Dankjewel voor je verhaal 💛 We lezen het en delen het niet.",
     );
+    celebrate("groot", { set: "hartjes" });
     navigate({ to: "/ontdekken" });
   }
 

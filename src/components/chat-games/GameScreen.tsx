@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { X } from "lucide-react";
@@ -73,6 +74,8 @@ export function GameScreen({
     if (error) toast.error(error.message);
     else notify({ data: { gameId: game.id } }).catch(() => {});
     if (r.finished && !error) navigator.vibrate?.([30, 60, 30]);
+    // You won: confetti!
+    if (r.finished && !error && me !== null && r.winner === me) celebrate("groot");
     refresh();
   }
 

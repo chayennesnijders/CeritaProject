@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,6 +48,7 @@ function LettersPage() {
     }
     if (needsCare(body)) showCareHelp();
     toast.success("Je brief is verzegeld 💌");
+    celebrate("klein", { set: "hartjes" });
     setBody("");
     qc.invalidateQueries({ queryKey: ["letters", uid] });
   }

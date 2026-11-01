@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -68,6 +69,7 @@ function CommunityPage() {
     if (error || !id) { toast.error(error?.message ?? "Groep maken lukte niet."); return; }
     setCreating(false);
     toast.success("Je groep is gemaakt! 🎉 Nodig anderen uit via de groep.");
+    celebrate("groot");
     qc.invalidateQueries({ queryKey: ["groups", uid] });
     navigate({ to: "/community/$groupId", params: { groupId: id } });
   }

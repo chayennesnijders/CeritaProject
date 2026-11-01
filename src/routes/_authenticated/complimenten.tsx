@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -81,6 +82,7 @@ function ComplimentsPage() {
       return;
     }
     toast.success(`Je compliment is verstuurd naar ${person?.display_name ?? "de ander"}! 💐`);
+    celebrate("klein", { set: "hartjes" });
     notify({ data: { to } }).catch(() => {});
     setTo(null);
     qc.invalidateQueries({ queryKey: ["badge-stats"] });

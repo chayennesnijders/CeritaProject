@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { celebrate } from "@/lib/celebrate";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,7 @@ export function UsernameGate({ children }: { children: React.ReactNode }) {
       return;
     }
     toast.success(`Welkom, @${value}! 🎉`);
+    celebrate("groot");
     qc.invalidateQueries({ queryKey: ["me"] });
   }
 

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, Plus, X } from "lucide-react";
@@ -64,6 +65,7 @@ function SafetyPlanPage() {
       return;
     }
     toast.success("Je plan is bewaard 💛");
+    celebrate("klein", { set: "hartjes" });
     setEditing(false);
     qc.invalidateQueries({ queryKey: ["safety-plan", uid] });
   }

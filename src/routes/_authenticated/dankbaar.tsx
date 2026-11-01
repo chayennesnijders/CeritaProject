@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -56,6 +57,7 @@ function JarPage() {
     }
     setText("");
     toast.success("In het potje! ✨");
+    celebrate("klein", { set: "sterren" });
     qc.invalidateQueries({ queryKey: ["gratitude", uid] });
   }
   function shake() {

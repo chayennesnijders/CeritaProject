@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { celebrate } from "@/lib/celebrate";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -170,6 +171,8 @@ function PetPage() {
   async function toggleTodo(id: string, done: boolean, rewarded: boolean) {
     await supabase.from("pet_todos").update({ done }).eq("id", id);
     if (done) burst(rewarded ? "✨" : "⭐");
+    // The last task of today ticked off: a little party.
+    if (done && todayTasks > 0 && doneTodos + 1 >= todayTasks) celebrate("groot", { set: "natuur" });
     refresh();
   }
   async function addList(title: string) {
@@ -426,6 +429,7 @@ function useLevelUpToast(level: number | null) {
       const grew = growthStage(level) > growthStage(prev);
       if (grew) extra.unshift(`🌱 je diertje is gegroeid: nu een ${STAGE_LABELS[growthStage(level)]!.toLowerCase()}`);
       const items = [...extra, ...unlocksAt(level).map((i) => `${i.emoji} ${i.label}`)].join(", ");
+      celebrate("groot");
       toast.success(`Level ${level}! 🎉`, { description: items ? `Nieuw voor je diertje: ${items}` : "Goed bezig!" });
     }
   }, [level]);
