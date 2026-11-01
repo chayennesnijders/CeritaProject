@@ -15,7 +15,7 @@
 2. **Stuur ze dit bericht**, met de link naar de app:
 
    > Hoi! Wil je een week lang mijn app CeritaProject testen? 💗
-   > Open **app.ceritaproject.nl** op je telefoon, maak een account aan en gebruik de app zoals je zelf zou doen. Op iPhone: open hem in Safari → Delen → "Zet op beginscherm".
+   > Open **app.ceritaproject.nl** op je telefoon, maak een account aan en gebruik de app zoals je zelf zou doen. Op **app.ceritaproject.nl/testen** staat een checklist om af te vinken, en aan het eind een paar vragen. Op iPhone: open hem in Safari → Delen → "Zet op beginscherm".
    > Kom je iets tegen dat niet werkt, raar is of onduidelijk? Maak een screenshot en stuur het naar mij. Aan het eind van de week stuur ik je 5 korte vragen. Dankjewel! 🤍
 
 3. **Maak een groepje** (bijvoorbeeld in WhatsApp) waarin testers hun screenshots kunnen sturen.
@@ -24,6 +24,9 @@
 ---
 
 ## 2. Wat testers doen: de checklist
+
+**Deze checklist staat ook in de app: app.ceritaproject.nl/testen.** Testers vinken daar af, en sturen aan het eind hun antwoorden op de vragen van stap 4. Die komen bij jou binnen in **Beheer → Berichten**, met *🧪 Testfeedback* bovenaan.
+
 
 Laat testers dit lijstje afwerken in de eerste 2 à 3 dagen. Daarna gebruiken ze de app gewoon zoals ze willen.
 

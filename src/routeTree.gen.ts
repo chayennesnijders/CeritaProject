@@ -40,6 +40,7 @@ import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRustRouteImport } from './routes/_authenticated/rust'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
 import { Route as AuthenticatedStemmingRouteImport } from './routes/_authenticated/stemming'
+import { Route as AuthenticatedTestenRouteImport } from './routes/_authenticated/testen'
 import { Route as AuthenticatedThemaRouteImport } from './routes/_authenticated/thema'
 import { Route as AuthenticatedVeiligheidsplanRouteImport } from './routes/_authenticated/veiligheidsplan'
 import { Route as AuthenticatedVerhaalInsturenRouteImport } from './routes/_authenticated/verhaal-insturen'
@@ -216,6 +217,11 @@ const AuthenticatedStemmingRoute = AuthenticatedStemmingRouteImport.update({
   path: '/stemming',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTestenRoute = AuthenticatedTestenRouteImport.update({
+  id: '/testen',
+  path: '/testen',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedThemaRoute = AuthenticatedThemaRouteImport.update({
   id: '/thema',
   path: '/thema',
@@ -355,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
   '/stemming': typeof AuthenticatedStemmingRoute
+  '/testen': typeof AuthenticatedTestenRoute
   '/thema': typeof AuthenticatedThemaRoute
   '/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
@@ -406,6 +413,7 @@ export interface FileRoutesByTo {
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
   '/stemming': typeof AuthenticatedStemmingRoute
+  '/testen': typeof AuthenticatedTestenRoute
   '/thema': typeof AuthenticatedThemaRoute
   '/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
@@ -459,6 +467,7 @@ export interface FileRoutesById {
   '/_authenticated/rust': typeof AuthenticatedRustRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/_authenticated/stemming': typeof AuthenticatedStemmingRoute
+  '/_authenticated/testen': typeof AuthenticatedTestenRoute
   '/_authenticated/thema': typeof AuthenticatedThemaRoute
   '/_authenticated/veiligheidsplan': typeof AuthenticatedVeiligheidsplanRoute
   '/_authenticated/verhaal-insturen': typeof AuthenticatedVerhaalInsturenRoute
@@ -512,6 +521,7 @@ export interface FileRouteTypes {
     | '/rust'
     | '/shop'
     | '/stemming'
+    | '/testen'
     | '/thema'
     | '/veiligheidsplan'
     | '/verhaal-insturen'
@@ -563,6 +573,7 @@ export interface FileRouteTypes {
     | '/rust'
     | '/shop'
     | '/stemming'
+    | '/testen'
     | '/thema'
     | '/veiligheidsplan'
     | '/verhaal-insturen'
@@ -615,6 +626,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rust'
     | '/_authenticated/shop'
     | '/_authenticated/stemming'
+    | '/_authenticated/testen'
     | '/_authenticated/thema'
     | '/_authenticated/veiligheidsplan'
     | '/_authenticated/verhaal-insturen'
@@ -877,6 +889,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStemmingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/testen': {
+      id: '/_authenticated/testen'
+      path: '/testen'
+      fullPath: '/testen'
+      preLoaderRoute: typeof AuthenticatedTestenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/thema': {
       id: '/_authenticated/thema'
       path: '/thema'
@@ -1031,6 +1050,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRustRoute: typeof AuthenticatedRustRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
   AuthenticatedStemmingRoute: typeof AuthenticatedStemmingRoute
+  AuthenticatedTestenRoute: typeof AuthenticatedTestenRoute
   AuthenticatedThemaRoute: typeof AuthenticatedThemaRoute
   AuthenticatedVeiligheidsplanRoute: typeof AuthenticatedVeiligheidsplanRoute
   AuthenticatedVerhaalInsturenRoute: typeof AuthenticatedVerhaalInsturenRoute
@@ -1065,6 +1085,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRustRoute: AuthenticatedRustRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
   AuthenticatedStemmingRoute: AuthenticatedStemmingRoute,
+  AuthenticatedTestenRoute: AuthenticatedTestenRoute,
   AuthenticatedThemaRoute: AuthenticatedThemaRoute,
   AuthenticatedVeiligheidsplanRoute: AuthenticatedVeiligheidsplanRoute,
   AuthenticatedVerhaalInsturenRoute: AuthenticatedVerhaalInsturenRoute,
