@@ -7,13 +7,18 @@ export const Route = createFileRoute("/api/auth-email")({
   server: {
     handlers: {
       // Open this address in a browser to check that Supabase can reach the hook at all.
-      GET: () =>
-        Response.json({
-          werkt: true,
-          ingesteld: ["SEND_EMAIL_HOOK_SECRET", "RESEND_API_KEY", "SUPABASE_URL"].every(
-            (k) => !!process.env[k]?.trim(),
-          ),
-        }),
+      GET: () => {
+        const names = ["SEND_EMAIL_HOOK_SECRET", "RESEND_API_KEY", "SUPABASE_URL"];
+        const mist = names.filter((k) => !process.env[k]?.trim());
+        // Names only, never values. Also lists look-alike names (typos, extra spaces).
+        const lijktOp = Object.keys(process.env)
+          .filter((k) => /hook|resend|supabase_url/i.test(k) && !names.includes(k))
+          .map((k) => JSON.stringify(k));
+        return Response.json(
+          { werkt: true, ingesteld: mist.length === 0, mist, lijktOp: mist.length ? lijktOp : [] },
+          { headers: { "Cache-Control": "no-store" } },
+        );
+      },
       POST: async ({ request }) => {
         const fail = (status: number, message: string) =>
           Response.json({ error: { http_code: status, message } }, { status });
