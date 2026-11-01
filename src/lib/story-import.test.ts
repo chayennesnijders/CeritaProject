@@ -39,3 +39,15 @@ describe("parseStories", () => {
     expect(guessCategory("mijn ouders en mijn vriend")).toBe("relaties");
   });
 });
+
+import { dutchMoment, planDays } from "./story-import";
+describe("planning", () => {
+  it("plans one story a day from tomorrow, skipping taken days", () => {
+    const today = new Date("2026-11-02T10:00:00Z");
+    expect(planDays(3, ["2026-11-04"], today)).toEqual(["2026-11-03", "2026-11-05", "2026-11-06"]);
+  });
+  it("turns a Dutch time into the right moment (winter and summer time)", () => {
+    expect(dutchMoment("2026-11-03", "08:00")).toBe("2026-11-03T07:00:00.000Z");
+    expect(dutchMoment("2026-07-03", "08:00")).toBe("2026-07-03T06:00:00.000Z");
+  });
+});

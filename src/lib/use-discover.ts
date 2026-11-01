@@ -13,7 +13,8 @@ export function useDiscover(uid: string | undefined) {
           .from("articles")
           .select("id, title, body, emoji, category, created_at, image_url, min_age, kind")
           .eq("is_published", true)
-          .order("created_at", { ascending: false })
+          .lte("publish_at", new Date().toISOString())
+          .order("publish_at", { ascending: false })
       ).data ?? [],
   });
   const counts = useQuery({

@@ -37,8 +37,8 @@ export function ArticleComposer() {
       (
         await supabase
           .from("articles")
-          .select("id, title, emoji, category, is_published, created_at, min_age, kind")
-          .order("created_at", { ascending: false })
+          .select("id, title, emoji, category, is_published, created_at, publish_at, min_age, kind")
+          .order("publish_at", { ascending: false })
       ).data ?? [],
   });
 
@@ -197,6 +197,11 @@ export function ArticleComposer() {
           <div key={a.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="truncate">
               {a.emoji} {a.title}{" "}
+              {a.is_published && new Date(a.publish_at) > new Date() && (
+                <span className="text-xs font-normal text-primary">
+                  📅 {new Date(a.publish_at).toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" })}{" "}
+                </span>
+              )}
               {!a.is_published && (
                 <span className="text-xs text-muted-foreground">(verborgen)</span>
               )}

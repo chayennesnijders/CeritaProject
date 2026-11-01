@@ -748,6 +748,7 @@ export type Database = {
       }
       articles: {
         Row: {
+          publish_at: string
           author_id: string | null
           body: string
           category: string
@@ -763,6 +764,7 @@ export type Database = {
           wp_id: number | null
         }
         Insert: {
+          publish_at?: string
           author_id?: string | null
           body: string
           category?: string
@@ -778,6 +780,7 @@ export type Database = {
           wp_id?: number | null
         }
         Update: {
+          publish_at?: string
           author_id?: string | null
           body?: string
           category?: string

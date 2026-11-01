@@ -80,3 +80,38 @@ export function parseStories(raw: string): ImportedStory[] {
     })
     .filter((s) => s.title && s.body.length >= 20);
 }
+
+const dayKey = (d: Date) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam" }).format(d);
+
+/**
+ * One story a day: the first n free days from tomorrow, skipping days that already have a
+ * planned story. Returns dates as YYYY-MM-DD.
+ */
+export function planDays(n: number, taken: string[], today = new Date()): string[] {
+  const busy = new Set(taken);
+  const out: string[] = [];
+  const d = new Date(`${dayKey(today)}T12:00:00Z`);
+  while (out.length < n) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    const k = d.toISOString().slice(0, 10);
+    if (!busy.has(k)) out.push(k);
+  }
+  return out;
+}
+
+/** "YYYY-MM-DD" + "HH:MM" in Dutch time → ISO moment. */
+export function dutchMoment(day: string, time: string) {
+  const guess = new Date(`${day}T${time}:00Z`);
+  const shown = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Amsterdam",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(guess);
+  const [h, m] = shown.split(":").map(Number) as [number, number];
+  const [th, tm] = time.split(":").map(Number) as [number, number];
+  const diff = (h * 60 + m - (th * 60 + tm)) * 60000;
+  return new Date(guess.getTime() - diff).toISOString();
+}
+export { dayKey };
