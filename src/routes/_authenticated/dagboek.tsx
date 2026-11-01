@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { challengeDay } from "@/lib/challenges";
-import { questionForDay } from "@/lib/self-questions";
 import { useConfirm } from "@/components/ConfirmDialog";
 import { DrawingPad } from "@/components/DrawingPad";
 import { isDrawingChallenge } from "@/lib/drawing";
@@ -132,18 +131,6 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
           )}
         </section>
       )}
-
-      {/* Vraag van de dag: jezelf beter leren kennen en je zelfvertrouwen laten groeien. */}
-      <section className="rounded-3xl bg-secondary p-4 text-secondary-foreground shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-widest opacity-75">🌱 Vraag van de dag</p>
-        <p className="mt-1 font-display text-lg leading-snug">{questionForDay(challengeDay())}</p>
-        <button
-          onClick={() => setText((prev) => (prev.trim() ? prev : `${questionForDay(challengeDay())}\n\n`))}
-          className="mt-2 rounded-full bg-background px-4 py-1.5 text-xs font-semibold text-foreground shadow-soft active:scale-95"
-        >
-          ✍️ Schrijf erover
-        </button>
-      </section>
 
       <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
         <h2 className="text-lg">{challenge ? "Doe de opdracht of schrijf vrij" : "Schrijf over alles en nog wat"}</h2>
