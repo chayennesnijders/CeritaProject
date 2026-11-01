@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { DrawingPad } from "@/components/DrawingPad";
 import { isDrawingChallenge } from "@/lib/drawing";
 import { needsCare, showCareHelp } from "@/lib/care";
@@ -35,6 +36,7 @@ function DagboekPage() {
 }
 
 function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
+  const { confirm: askConfirm, dialog: confirmDialog } = useConfirm();
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -93,13 +95,15 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Deze dagboekpagina verwijderen?")) return;
+    if (!(await askConfirm("Deze dagboekpagina verwijderen?", "Verwijderen"))) return;
     const { error } = await supabase.from("diary_entries").delete().eq("id", id);
     if (error) toast.error(error.message);
     refresh();
   }
 
   return (
+    <>
+      {confirmDialog}
     <div className="space-y-5 pt-2">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl">Mijn dagboek</h1>
@@ -191,6 +195,7 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
         {entries?.length === 0 && <p className="text-sm text-muted-foreground">Nog leeg. Schrijf je eerste pagina hierboven.</p>}
       </section>
     </div>
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
 import { GraduationCap, Shield } from "lucide-react";
+import { useReportReason } from "@/components/ReportReasonDialog";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useAdminIds, useCoachIds } from "@/components/UserAvatar";
@@ -79,6 +80,7 @@ function GroupPage() {
   const goTo = useNavigate();
   const [editing, setEditing] = useState(false);
   const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
+  const { ask: askReason, dialog: reportDialog } = useReportReason();
   useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
   useChatGamesLive({ groupId });
   usePollsLive(groupId);
@@ -136,7 +138,6 @@ function GroupPage() {
 
   const { map: reactionMap, react } = useReactions({ kind: "post", ids: (data?.posts ?? []).map((p) => p.id).reverse(), channel: groupId });
 
-  if (data && !data.group) return <p className="pt-6 text-sm text-muted-foreground">Deze groep is niet beschikbaar voor jou.</p>;
 
   async function toggleJoin() {
     const { error } = data?.isMember
@@ -203,7 +204,7 @@ function GroupPage() {
   }
   const nameOf = (pid: string) => (pid === uid ? "Jij" : data?.members.find((m) => m.user_id === pid)?.display_name ?? "Lid");
   async function report(postId: string) {
-    const reason = prompt("Waarom meld je dit bericht?");
+    const reason = await askReason("Bericht melden");
     if (!reason) return;
     const { error } = await supabase.from("reports").insert({ post_id: postId, reporter_id: uid!, reason });
     toast[error ? "error" : "success"](error ? "Melden lukte niet" : "Bedankt, een beheerder kijkt ernaar.");
@@ -234,6 +235,8 @@ function GroupPage() {
     if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 300) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [inset]);
 
+  // Only after every hook above (hooks must run in the same order on every render).
+  if (data && !data.group) return <p className="pt-6 text-sm text-muted-foreground">Deze groep is niet beschikbaar voor jou.</p>;
   return (
     <div className="fixed inset-0 z-40 mx-auto flex max-w-md flex-col bg-background">
       {/* Compacte kop: blijft altijd in beeld, met vaste terugknop naar de groepen */}
@@ -318,6 +321,7 @@ function GroupPage() {
           initial={{ name: data.group.name, description: data.group.description ?? "", emoji: data.group.emoji ?? "💬" }} />
       )}
       {kindDialog}
+      {reportDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
 
       {data?.isMember && <ChatComposer onGame={playGame} onSticker={sendSticker} groupId={groupId} onPoll={refresh} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSend={post} inset={inset} members={(data.members ?? []).filter((m) => m.user_id !== uid)} />}

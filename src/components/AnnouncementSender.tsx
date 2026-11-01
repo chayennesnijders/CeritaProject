@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export function AnnouncementSender() {
+  const { confirm: askConfirm, dialog: confirmDialog } = useConfirm();
   const send = useServerFn(sendAnnouncement);
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
@@ -16,7 +18,7 @@ export function AnnouncementSender() {
   const [busy, setBusy] = useState(false);
 
   async function submit() {
-    if (!confirm(`Aankondiging "${title}" naar alle leden met pushmeldingen sturen?`)) return;
+    if (!(await askConfirm(`Aankondiging "${title}" naar alle leden met pushmeldingen sturen?`, "Versturen"))) return;
     setBusy(true);
     try {
       const r = await send({ data: { title, body } });
@@ -29,6 +31,8 @@ export function AnnouncementSender() {
   }
 
   return (
+    <>
+      {confirmDialog}
     <section className="space-y-3 rounded-3xl bg-card p-4 shadow-soft">
       <h2 className="flex items-center gap-2 font-display text-lg font-bold text-primary"><Megaphone className="size-5" /> Aankondiging sturen</h2>
       <p className="text-sm text-muted-foreground">Gaat als pushmelding naar iedereen die meldingen aan heeft staan.</p>
@@ -39,5 +43,6 @@ export function AnnouncementSender() {
         <Button onClick={submit} disabled={busy || !title.trim() || !body.trim()}>{busy ? "Versturen..." : "Versturen"}</Button>
       </div>
     </section>
+    </>
   );
 }

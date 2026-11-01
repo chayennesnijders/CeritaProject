@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { euro, settlement, TIER_LABELS, type Tier } from "@/lib/shop";
 
 export function ShopOrdersAdmin() {
+  const { confirm: askConfirm, dialog: confirmDialog } = useConfirm();
   const qc = useQueryClient();
   const send = useServerFn(sendAnnouncement);
   const notifyOrder = useServerFn(notifyOrderUpdate);
@@ -27,7 +29,7 @@ export function ShopOrdersAdmin() {
   const tot = orders.reduce((a, o) => { const x = settlement(o); return { paid: a.paid + x.paid, shipping: a.shipping + x.shipping, cost: a.cost + x.cost, profit: a.profit + x.profit, points: a.points + o.points }; }, { paid: 0, shipping: 0, cost: 0, profit: 0, points: 0 });
 
   async function announce() {
-    if (!confirm(`Pushmelding sturen dat er ${free} gratis Game Clicks klaarstaan?`)) return;
+    if (!(await askConfirm(`Pushmelding sturen dat er ${free} gratis Game Clicks klaarstaan?`, "Versturen"))) return;
     try {
       const r = await send({ data: { title: "🎁 Gratis Game Clicks!", body: `Er ${free === 1 ? "staat" : "staan"} ${free} gratis Game Clicks klaar in de CeritaShop. Op = op!` } });
       toast.success(`Verstuurd naar ${r.users} leden.`);
@@ -48,6 +50,8 @@ export function ShopOrdersAdmin() {
   }
 
   return (
+    <>
+      {confirmDialog}
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
       <h2 className="text-lg">Shop-bestellingen</h2>
       <div className="flex items-center justify-between rounded-2xl bg-muted p-3 text-sm">
@@ -75,6 +79,7 @@ export function ShopOrdersAdmin() {
       ); })}
       {data?.orders.length === 0 && <p className="text-sm text-muted-foreground">Nog geen bestellingen.</p>}
     </section>
+    </>
   );
 }
 

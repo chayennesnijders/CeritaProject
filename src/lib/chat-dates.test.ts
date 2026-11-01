@@ -41,6 +41,8 @@ describe("datums in de chat", () => {
   it("kort het tijdstip in de gesprekslijst af per dag", () => {
     expect(listStamp(at(2026, 10, 25, 14, 37), now)).toBe("14:37");
     expect(listStamp(at(2026, 10, 24, 14, 37), now)).toBe("Gisteren 14:37");
+    expect(listStamp(undefined, now)).toBe("");
+    expect(listStamp("geen datum", now)).toBe("");
     expect(listStamp(at(2026, 10, 18, 9, 5), now)).toContain("18 okt");
   });
 });

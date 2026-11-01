@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useReportReason } from "@/components/ReportReasonDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ function InboxPage() {
   const nav = useNavigate();
   const qc = useQueryClient();
   const notify = useServerFn(notifyChatRequest);
+  const { ask: askReason, dialog: reportDialog } = useReportReason();
   const [q, setQ] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
@@ -77,7 +79,7 @@ function InboxPage() {
   }
 
   async function reportRequest(requesterId: string, name: string) {
-    const why = window.prompt(`Waarom meld je het verzoek van ${name}?`);
+    const why = await askReason(`Verzoek van ${name} melden`);
     if (!why?.trim()) return;
     const { error } = await supabase.from("reports").insert({ reporter_id: uid!, reason: `Chatverzoek van ${name}: ${why.trim().slice(0, 500)}` });
     toast[error ? "error" : "success"](error ? error.message : "Gemeld. Een beheerder kijkt ernaar.");
@@ -171,6 +173,7 @@ function InboxPage() {
         })}
         {fresh.length === 0 && <p className="text-sm text-muted-foreground">Nog geen gesprekken.</p>}
       </div>
+      {reportDialog}
     </div>
   );
 }

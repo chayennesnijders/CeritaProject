@@ -39,7 +39,9 @@ export function dayLabel(iso: string, now = new Date()) {
 export const shortDay = (iso: string) => shortFmt.format(new Date(iso));
 
 // Stempeltje bij een gesprek in de lijst: "14:37", "Gisteren 14:37" of "24 okt 14:37".
-export function listStamp(iso: string, now = new Date()) {
+export function listStamp(iso: string | null | undefined, now = new Date()) {
+  // A missing or broken date shows nothing, instead of breaking the whole list.
+  if (!iso || Number.isNaN(new Date(iso).getTime())) return "";
   const t = clockFmt.format(new Date(iso));
   const diff = dayDiff(iso, now);
   if (diff === 0) return t;

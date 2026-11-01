@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useReportReason } from "@/components/ReportReasonDialog";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +42,7 @@ function ChatPage() {
   const uid = me?.user.id;
   const qc = useQueryClient();
   const notify = useServerFn(notifyNewMessage);
+  const { ask: askReason, dialog: reportDialog } = useReportReason();
   const [body, setBody] = useState("");
   const [audio, setAudio] = useState<File | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -167,7 +169,10 @@ function ChatPage() {
     refresh();
   }
   async function report(msgId: string, text: string) {
-    const { error } = await supabase.from("reports").insert({ reporter_id: uid!, message_id: msgId, reason: `Privébericht van ${data?.name}: "${text.slice(0, 500)}"` });
+    // Ask first (in the app), so a mis-tap doesn't report someone right away.
+    const why = await askReason("Bericht melden");
+    if (!why) return;
+    const { error } = await supabase.from("reports").insert({ reporter_id: uid!, message_id: msgId, reason: `Privébericht van ${data?.name}: "${text.slice(0, 400)}" · Reden: ${why.slice(0, 300)}` });
     toast[error ? "error" : "success"](error ? error.message : "Gemeld. Een beheerder kijkt ernaar.");
   }
 
@@ -237,6 +242,7 @@ function ChatPage() {
       </div>
       <Button disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>
       {kindDialog}
+      {reportDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}
     </div>
   );

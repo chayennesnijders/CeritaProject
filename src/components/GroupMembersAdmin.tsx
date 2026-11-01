@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirm } from "@/components/ConfirmDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { UserMinus, UserPlus, Users } from "lucide-react";
@@ -12,6 +13,7 @@ type Props = { groupId: string; ageGroup: "junior" | "senior" | "adult"; mode?: 
 
 /** Beheerder: leden bekijken, uitnodigen en verwijderen. Lid: iemand uitnodigen. */
 export function GroupMembersAdmin({ groupId, ageGroup, mode = "admin" }: Props) {
+  const { confirm: askConfirm, dialog: confirmDialog } = useConfirm();
   const isAdmin = mode === "admin";
   const qc = useQueryClient();
   const notifyInvite = useServerFn(notifyGroupInvite);
@@ -52,8 +54,10 @@ export function GroupMembersAdmin({ groupId, ageGroup, mode = "admin" }: Props) 
       refresh();
       return;
     }
+    const inviter = (await supabase.auth.getUser()).data.user?.id;
+    if (!inviter) return;
     const { data: created, error } = await supabase.from("group_invites")
-      .insert({ group_id: groupId, inviter_id: (await supabase.auth.getUser()).data.user?.id!, invitee_id: userId })
+      .insert({ group_id: groupId, inviter_id: inviter, invitee_id: userId })
       .select("id").single();
     if (error) toast.error("Uitnodigen lukte niet (al lid of al uitgenodigd?)");
     else {
@@ -63,7 +67,7 @@ export function GroupMembersAdmin({ groupId, ageGroup, mode = "admin" }: Props) 
     }
   }
   async function remove(userId: string) {
-    if (!confirm("Dit lid uit de groep verwijderen?")) return;
+    if (!(await askConfirm("Dit lid uit de groep verwijderen?", "Verwijderen"))) return;
     const { error } = await supabase.from("group_members").delete().eq("group_id", groupId).eq("user_id", userId);
     toast[error ? "error" : "success"](error ? "Verwijderen lukte niet" : "Lid verwijderd");
     refresh();
@@ -76,6 +80,8 @@ export function GroupMembersAdmin({ groupId, ageGroup, mode = "admin" }: Props) 
   );
 
   return (
+    <>
+      {confirmDialog}
     <div className="mt-3 rounded-3xl bg-card p-4 shadow-soft">
       <div className="flex items-center justify-between">
         <h2 className="text-base">{isAdmin ? "🛡️" : "👋"} {isAdmin ? `Leden (${members.length})` : "Iemand uitnodigen"}</h2>
@@ -110,5 +116,6 @@ export function GroupMembersAdmin({ groupId, ageGroup, mode = "admin" }: Props) 
       )}
       {!isAdmin && <p className="mt-3 text-xs text-muted-foreground">De ander krijgt een melding en kan zelf accepteren of weigeren. Alleen leden uit dezelfde leeftijdsgroep.</p>}
     </div>
+    </>
   );
 }
