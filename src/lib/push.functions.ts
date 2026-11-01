@@ -486,6 +486,47 @@ export const notifyCompliment = createServerFn({ method: "POST" })
     return { sent: pushed };
   });
 
+// Admin only: sends a test email to yourself through Resend and returns the real reason when it
+// fails (missing setting, domain not verified, wrong key), so email problems can be found in-app.
+export const sendTestEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Alleen voor beheerders.");
+    const missing = ["RESEND_API_KEY", "SEND_EMAIL_HOOK_SECRET", "SUPABASE_URL"].filter(
+      (k) => !process.env[k]?.trim(),
+    );
+    if (missing.length)
+      return {
+        ok: false,
+        message: `Deze staan niet in Vercel (Production): ${missing.join(", ")}`,
+      };
+    const to = typeof context.claims.email === "string" ? context.claims.email : "";
+    if (!to) return { ok: false, message: "Je account heeft geen e-mailadres." };
+    const from = process.env["EMAIL_FROM"] ?? "CeritaProject <noreply@notify.ceritaproject.nl>";
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env["RESEND_API_KEY"]?.trim()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject: "Testmail CeritaProject",
+        html: "<p>Deze testmail komt aan, dus Resend werkt. 💗</p>",
+      }),
+    });
+    if (res.ok) return { ok: true, message: `Verstuurd naar ${to} (afzender ${from}).` };
+    return {
+      ok: false,
+      message: `Resend weigert [${res.status}]: ${(await res.text()).slice(0, 300)}`,
+    };
+  });
+
 // Admin only: what is set up for going live. Only yes/no and counts, never the keys themselves.
 export const getLaunchChecks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -523,7 +564,8 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
     return {
       serviceRole: env("SUPABASE_SERVICE_ROLE_KEY"),
       firebaseServer: fcm,
-      firebaseClient: (await import("@/lib/firebase-config")).resolveFirebaseConfig(process.env).config !== null,
+      firebaseClient:
+        (await import("@/lib/firebase-config")).resolveFirebaseConfig(process.env).config !== null,
       pushProblems: (await import("@/lib/firebase-config")).pushProblems(process.env),
       // Where this app runs, and which Firebase-like names it can see (names only, never values),
       // so settings saved in another Vercel project or environment are easy to spot.

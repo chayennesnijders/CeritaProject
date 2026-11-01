@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getLaunchChecks } from "@/lib/push.functions";
+import { useState } from "react";
+import { getLaunchChecks, sendTestEmail } from "@/lib/push.functions";
 import { OutsidePhotos } from "@/components/OutsidePhotos";
 import { ORG } from "@/lib/legal";
 import { launchChecks, launchStatus, type LaunchCheck } from "@/lib/launch";
@@ -120,10 +121,48 @@ export function LaunchChecklist() {
             ))}
         </section>
       ))}
+      <TestEmail />
       <OutsidePhotos />
       <p className="text-center text-xs text-muted-foreground">
         ✅ klaar · ❌ nodig voor livegang · ⚪ mag later · 📝 zelf afvinken in je hoofd 😉
       </p>
     </div>
+  );
+}
+
+/** Sends a test email to yourself and shows exactly why it fails, if it does. */
+function TestEmail() {
+  const send = useServerFn(sendTestEmail);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  return (
+    <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
+      <h2 className="text-lg">📧 Mails testen</h2>
+      <p className="text-xs text-muted-foreground">
+        Stuurt een testmail naar je eigen e-mailadres. Lukt het niet, dan zie je hier waarom.
+      </p>
+      <button
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            setResult(await send());
+          } catch (e) {
+            setResult({ ok: false, message: e instanceof Error ? e.message : String(e) });
+          } finally {
+            setBusy(false);
+          }
+        }}
+        className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+      >
+        {busy ? "Versturen…" : "Stuur testmail"}
+      </button>
+      {result && (
+        <p className={`break-words text-sm ${result.ok ? "text-[#1b4332]" : "text-destructive"}`}>
+          {result.ok ? "✅ " : "❌ "}
+          {result.message}
+        </p>
+      )}
+    </section>
   );
 }

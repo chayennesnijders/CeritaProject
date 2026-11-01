@@ -9,9 +9,9 @@ export const Route = createFileRoute("/api/auth-email")({
       POST: async ({ request }) => {
         const fail = (status: number, message: string) =>
           Response.json({ error: { http_code: status, message } }, { status });
-        const secret = process.env["SEND_EMAIL_HOOK_SECRET"];
-        const resendKey = process.env["RESEND_API_KEY"];
-        const supabaseUrl = process.env["SUPABASE_URL"];
+        const secret = process.env["SEND_EMAIL_HOOK_SECRET"]?.trim();
+        const resendKey = process.env["RESEND_API_KEY"]?.trim();
+        const supabaseUrl = process.env["SUPABASE_URL"]?.trim();
         if (!secret || !resendKey || !supabaseUrl) return fail(500, "Email hook is not configured");
 
         const { verifyHook, mailsFor, sendWithResend } = await import("@/lib/auth-email.server");
