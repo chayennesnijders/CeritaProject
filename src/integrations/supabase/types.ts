@@ -1082,6 +1082,7 @@ export type Database = {
       }
       direct_messages: {
         Row: {
+          need: string | null
           sticker: string | null
           attachment_name: string | null
           attachment_path: string | null
@@ -1095,6 +1096,7 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          need?: string | null
           sticker?: string | null
           attachment_name?: string | null
           attachment_path?: string | null
@@ -1108,6 +1110,7 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          need?: string | null
           sticker?: string | null
           attachment_name?: string | null
           attachment_path?: string | null
@@ -1671,6 +1674,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          need: string | null
           sticker: string | null
           poll_id: string | null
           attachment_name: string | null
@@ -1688,6 +1692,7 @@ export type Database = {
           reply_to: string | null
         }
         Insert: {
+          need?: string | null
           sticker?: string | null
           poll_id?: string | null
           attachment_name?: string | null
@@ -1705,6 +1710,7 @@ export type Database = {
           reply_to?: string | null
         }
         Update: {
+          need?: string | null
           sticker?: string | null
           poll_id?: string | null
           attachment_name?: string | null

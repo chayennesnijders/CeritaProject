@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { NeedBadge, NeedPicker } from "@/components/NeedPicker";
+import type { NeedId } from "@/lib/needs";
 import { useReportReason } from "@/components/ReportReasonDialog";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
@@ -43,6 +45,7 @@ function ChatPage() {
   const qc = useQueryClient();
   const notify = useServerFn(notifyNewMessage);
   const { ask: askReason, dialog: reportDialog } = useReportReason();
+  const [need, setNeed] = useState<NeedId | null>(null);
   const [body, setBody] = useState("");
   const [audio, setAudio] = useState<File | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -116,10 +119,10 @@ function ChatPage() {
       if (audio) path = await uploadChatAudio(audio, uid, "dm", id);
       if (file) attachment = await uploadChatFile(file, uid, "dm", id);
       const fallback = attachment ? attachmentLabel(attachment.attachment_type, attachment.attachment_name) : "🎙️ Spraakmemo";
-      const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || fallback, audio_path: path, ...attachment }).select("id").single();
+      const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || fallback, audio_path: path, ...attachment, need }).select("id").single();
       if (error) throw error;
       if (needsCare(body)) showCareHelp();
-      setBody(""); setAudio(null); setFile(null); refresh();
+      setBody(""); setAudio(null); setFile(null); setNeed(null); refresh();
       if (sent) notify({ data: { messageId: sent.id } }).catch(() => {});
     } catch (e) {
       if (path) await supabase.storage.from("chat-audio").remove([path]);
@@ -211,6 +214,7 @@ function ChatPage() {
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <Reactable className="max-w-[80%]" reactions={reactionMap.get(m.id) ?? []} uid={uid} mine={mine} enabled={!data?.blocked} onReact={(e) => uid && react(m.id, e, uid)}>
               <div className={`max-w-full rounded-2xl px-3 py-2 text-sm ${m.sticker ? "bg-transparent" : mine ? "bg-primary text-primary-foreground" : "bg-card shadow-soft"}`}>
+                {!m.sticker && <NeedBadge need={m.need} mine={mine} />}
                 {m.sticker
                   ? <StickerView id={m.sticker} />
                   : m.game_id
@@ -233,6 +237,7 @@ function ChatPage() {
         })}
         {data?.msgs.length === 0 && <p className="text-sm text-muted-foreground">Zeg hallo 👋</p>}
       </div>
+      {(body.trim().length > 0 || need) && <NeedPicker value={need} onChange={setNeed} />}
       <Textarea rows={2} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Typ een bericht…" className="rounded-2xl" />
       <div className="flex flex-wrap items-center gap-2">
         <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending || !!data?.blocked || !data} />

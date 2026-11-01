@@ -575,6 +575,13 @@
       "when": 1793898000000,
       "tag": "0081_waitlist",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1793984400000,
+      "tag": "0082_message_needs",
+      "breakpoints": true
     }
   ]
 }

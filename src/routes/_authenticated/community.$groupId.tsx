@@ -1,4 +1,6 @@
 import { GraduationCap, Shield } from "lucide-react";
+import { NeedBadge, NeedPicker } from "@/components/NeedPicker";
+import type { NeedId } from "@/lib/needs";
 import { useReportReason } from "@/components/ReportReasonDialog";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
@@ -146,7 +148,7 @@ function GroupPage() {
     if (error) toast.error(error.message);
     refresh(); qc.invalidateQueries({ queryKey: ["groups"] });
   }
-  async function post(text: string, audio: File | null, file: File | null) {
+  async function post(text: string, audio: File | null, file: File | null, need: NeedId | null = null) {
     if (!uid) return false;
     if (!(await confirmKind(text))) return false;
     let path: string | null = null;
@@ -156,7 +158,7 @@ function GroupPage() {
     if (file) attachment = await uploadChatFile(file, uid, "group", groupId);
     const mentions = parseMentions(text, data?.members ?? []);
     const fallback = attachment ? attachmentLabel(attachment.attachment_type, attachment.attachment_name) : "🎙️ Spraakmemo";
-    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions }).select("id").single();
+    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions, need }).select("id").single();
     if (error) throw error;
     if (needsCare(text)) showCareHelp();
     if (replyTo && created) notifyReply({ data: { postId: created.id } }).catch(() => {});
@@ -292,6 +294,7 @@ function GroupPage() {
                 )}
                 {p.reply_to && !quoted && <p className="mt-1 text-xs italic text-muted-foreground">Reactie op een verwijderd bericht</p>}
                 {p.is_hidden && <p className="text-xs text-destructive">Verborgen door moderatie</p>}
+                {!p.is_hidden && <NeedBadge need={p.need} mine={mine} />}
                 {p.sticker && !p.is_hidden ? <StickerView id={p.sticker} /> : p.poll_id && !p.is_hidden ? <PollCard pollId={p.poll_id} uid={uid} canVote={!!data?.isMember} /> : p.game_id && !p.is_hidden ? <GameCard gameId={p.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(p.game_id)} /> : <p className="mt-1 whitespace-pre-wrap text-sm">
                   {splitMentions(p.body).map((part, i) =>
                     part.mention ? (
@@ -352,13 +355,14 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
   onPoll: () => void;
   replyTo: { id: string; name: string; body: string } | null;
   onCancelReply: () => void;
-  onSend: (text: string, audio: File | null, file: File | null) => Promise<boolean>;
+  onSend: (text: string, audio: File | null, file: File | null, need: NeedId | null) => Promise<boolean>;
   inset: number;
   members: Mentionable[];
 }) {
   const [body, setBody] = useState("");
   const [audio, setAudio] = useState<File | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [need, setNeed] = useState<NeedId | null>(null);
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -395,7 +399,7 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
     const text = body.trim();
     if (sending || recording || (!text && !audio && !file)) return;
     setSending(true);
-    try { if (await onSend(text, audio, file)) { setBody(""); setAudio(null); setFile(null); } }
+    try { if (await onSend(text, audio, file, need)) { setBody(""); setAudio(null); setFile(null); setNeed(null); } }
     finally { setSending(false); }
   }
 
@@ -420,6 +424,8 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
             <button aria-label="Annuleren" onClick={onCancelReply} className="shrink-0 p-1"><X className="size-4" /></button>
           </div>
         )}
+        {/* Typing something? Then you can say what you'd like from others. */}
+        {(body.trim().length > 0 || need) && <NeedPicker value={need} onChange={setNeed} />}
         <div className="flex items-end gap-2">
           <textarea ref={taRef} disabled={sending} value={body} onChange={(e) => setBody(e.target.value)} maxLength={2000} rows={1}
             enterKeyHint="send" placeholder="Typ een bericht…"
