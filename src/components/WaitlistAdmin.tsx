@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { storeLabel, WAITLIST_STORES } from "@/lib/waitlist";
+import { countBySource, sourceLabel, storeLabel, WAITLIST_STORES } from "@/lib/waitlist";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -106,6 +106,23 @@ export function WaitlistAdmin() {
               </div>
             ))}
           </div>
+          <div className="space-y-1.5 rounded-2xl bg-muted p-3">
+            <p className="text-sm font-semibold">Waar komen ze vandaan?</p>
+            {countBySource(rows).map((x) => (
+              <div key={x.source} className="flex items-center gap-2 text-sm">
+                <span className="min-w-0 flex-1 truncate">{x.label}</span>
+                <span className="font-bold">{x.count}</span>
+                <span className="w-10 text-right text-xs text-muted-foreground">
+                  {Math.round((x.count / rows.length) * 100)}%
+                </span>
+              </div>
+            ))}
+            {rows.length === 0 && <p className="text-xs text-muted-foreground">Nog niemand.</p>}
+            <p className="pt-1 text-[11px] text-muted-foreground">
+              Zet achter je link waar je hem deelt, bijvoorbeeld app.ceritaproject.nl/wachtlijst
+              <strong>?bron=whatsapp</strong>. Dan zie je het hier.
+            </p>
+          </div>
           <p className="text-xs text-muted-foreground">
             Mailen: kopieer de adressen en zet ze in je mail in <strong>BCC</strong>, zodat niemand
             elkaars adres ziet. Daarna tik je op "gemaild", zodat je niemand twee keer mailt.
@@ -200,7 +217,7 @@ export function WaitlistAdmin() {
                 </div>
                 <p className="text-muted-foreground">
                   {r.age} jaar · {storeLabel(r.store)}
-                  {r.source ? ` · via ${r.source}` : ""} ·{" "}
+                  {` · ${sourceLabel(r.source)}`} ·{" "}
                   {new Date(r.created_at).toLocaleDateString("nl-NL")}
                   {r.mailed_at ? " · ✉️ gemaild" : ""}
                 </p>

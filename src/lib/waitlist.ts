@@ -37,3 +37,29 @@ export function waitlistProblem(f: WaitlistForm): string | null {
   if (!f.privacyOk) return "Vink aan dat je het goed vindt dat we je een mail sturen.";
   return null;
 }
+
+/** Friendly name for where a sign-up came from (the ?bron= part of the link). */
+const SOURCE_LABELS: Record<string, string> = {
+  tiktok: "🎵 TikTok (bio)",
+  story: "📱 Story",
+  whatsapp: "💬 WhatsApp",
+  instagram: "📸 Instagram",
+  vriend: "🤝 Doorgestuurd door een vriend(in)",
+};
+export function sourceLabel(source: string | null | undefined) {
+  const s = source?.trim().toLowerCase();
+  if (!s) return "🔗 Zonder bron (link zonder ?bron=)";
+  return SOURCE_LABELS[s] ?? `📍 ${s}`;
+}
+
+/** How many sign-ups per source, biggest first. */
+export function countBySource(rows: { source: string | null }[]) {
+  const counts = new Map<string, number>();
+  for (const r of rows) {
+    const key = r.source?.trim().toLowerCase() || "";
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([source, count]) => ({ source, label: sourceLabel(source), count }))
+    .sort((a, b) => b.count - a.count);
+}

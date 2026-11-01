@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { waitlistProblem, type WaitlistForm } from "./waitlist";
+import { countBySource, waitlistProblem, type WaitlistForm } from "./waitlist";
 
 const ok: WaitlistForm = {
   email: "noor@example.nl",
@@ -23,5 +23,21 @@ describe("waitlist", () => {
     expect(waitlistProblem({ ...ok, age: null })).toMatch(/oud/);
     expect(waitlistProblem({ ...ok, store: null })).toMatch(/telefoon/);
     expect(waitlistProblem({ ...ok, privacyOk: false })).toMatch(/mail/);
+  });
+});
+
+describe("waitlist sources", () => {
+  it("counts sign-ups per source, biggest first, with friendly names", () => {
+    const r = countBySource([
+      { source: "tiktok" },
+      { source: "TikTok" },
+      { source: "vriend" },
+      { source: null },
+      { source: "school-x" },
+      { source: "tiktok" },
+    ]);
+    expect(r[0]).toEqual({ source: "tiktok", label: "🎵 TikTok (bio)", count: 3 });
+    expect(r.map((x) => x.label)).toContain("🔗 Zonder bron (link zonder ?bron=)");
+    expect(r.map((x) => x.label)).toContain("📍 school-x");
   });
 });
