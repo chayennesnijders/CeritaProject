@@ -92,7 +92,7 @@ export function ArticleComposer() {
     refresh();
   }
 
-  async function setAge(id: string, minAge: 13 | 16) {
+  async function setAge(id: string, minAge: 12 | 16) {
     const { error } = await supabase.from("articles").update({ min_age: minAge }).eq("id", id);
     if (error) toast.error(error.message);
     refresh();
@@ -213,7 +213,7 @@ export function ArticleComposer() {
               </button>
               <button
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.min_age >= 16 ? "bg-primary text-primary-foreground" : "bg-muted"}`}
-                onClick={() => setAge(a.id, a.min_age >= 16 ? 13 : 16)}
+                onClick={() => setAge(a.id, a.min_age >= 16 ? 12 : 16)}
                 title="Tik om te wisselen tussen iedereen (13+) en 16+"
               >
                 {a.min_age >= 16 ? "16+" : "13+"}
