@@ -1,7 +1,8 @@
 import type { MoodId } from "@/lib/home";
 
 /** Riti's emotions from her character sheet that the app shows (drawings in public/riti). */
-export type RitiExpression = "neutraal" | "blij" | "troostend" | "denkend" | "trots";
+export type RitiExpression =
+  "neutraal" | "blij" | "troostend" | "denkend" | "trots" | "verdrietig" | "boos";
 
 export const ritiImage = (e: RitiExpression) => `/riti/${e === "neutraal" ? "riti" : e}.webp`;
 

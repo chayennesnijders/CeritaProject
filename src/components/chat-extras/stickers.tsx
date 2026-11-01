@@ -6,25 +6,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ritiImage } from "@/lib/riti";
+import { ritiImage, type RitiExpression } from "@/lib/riti";
 import { STICKERS, stickerById, type StickerId } from "@/lib/stickers";
 
-/** The whole Riti with the sticker's emoji in a little circle at the top right. */
-function StickerFace({ badge, size }: { badge: string; size: number }) {
+/** The Riti sticker drawing for a sticker. */
+function StickerFace({ face, size }: { face: RitiExpression; size: number }) {
   return (
-    <span className="relative block shrink-0" style={{ width: size, height: size }}>
-      <img
-        src={ritiImage("neutraal")}
-        alt=""
-        className="h-full w-full object-contain drop-shadow-md"
-      />
-      <span
-        className="absolute -right-1 top-0 grid place-items-center rounded-full bg-white shadow-soft"
-        style={{ width: size * 0.38, height: size * 0.38, fontSize: size * 0.22 }}
-      >
-        {badge}
-      </span>
-    </span>
+    <img
+      src={ritiImage(face)}
+      alt=""
+      draggable={false}
+      className="block shrink-0 object-contain drop-shadow-md"
+      style={{ width: size, height: size }}
+    />
   );
 }
 
@@ -35,7 +29,7 @@ export function StickerView({ id }: { id: string }) {
   return (
     <div className="flex flex-col items-center">
       <span role="img" aria-label={`Riti: ${s.text}`}>
-        <StickerFace badge={s.badge} size={120} />
+        <StickerFace face={s.face} size={130} />
       </span>
       <span className="relative -mt-3 rounded-full bg-card px-3 py-0.5 text-sm font-bold text-foreground shadow-soft">
         {s.text}
@@ -79,7 +73,7 @@ export function StickerPicker({
                 }}
                 className="flex flex-col items-center rounded-2xl bg-muted p-1.5 active:scale-95"
               >
-                <StickerFace badge={s.badge} size={60} />
+                <StickerFace face={s.face} size={64} />
                 <span className="text-[10px] font-bold leading-tight">{s.text}</span>
               </button>
             ))}
