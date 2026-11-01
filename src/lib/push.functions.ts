@@ -490,7 +490,10 @@ export const notifyCompliment = createServerFn({ method: "POST" })
 // fails (missing setting, domain not verified, wrong key), so email problems can be found in-app.
 export const sendTestEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d: { to?: string } | undefined) =>
+    z.object({ to: z.string().trim().email().optional().or(z.literal("")) }).parse(d ?? {}),
+  )
+  .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
@@ -504,7 +507,8 @@ export const sendTestEmail = createServerFn({ method: "POST" })
         ok: false,
         message: `Deze staan niet in Vercel (Production): ${missing.join(", ")}`,
       };
-    const to = typeof context.claims.email === "string" ? context.claims.email : "";
+    const to =
+      data.to || (typeof context.claims.email === "string" ? context.claims.email : "");
     if (!to) return { ok: false, message: "Je account heeft geen e-mailadres." };
     const from = process.env["EMAIL_FROM"] ?? "CeritaProject <noreply@notify.ceritaproject.nl>";
     const res = await fetch("https://api.resend.com/emails", {

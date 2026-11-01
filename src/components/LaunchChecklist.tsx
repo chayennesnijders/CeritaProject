@@ -134,19 +134,28 @@ export function LaunchChecklist() {
 function TestEmail() {
   const send = useServerFn(sendTestEmail);
   const [busy, setBusy] = useState(false);
+  const [to, setTo] = useState("");
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   return (
     <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
       <h2 className="text-lg">📧 Mails testen</h2>
       <p className="text-xs text-muted-foreground">
-        Stuurt een testmail naar je eigen e-mailadres. Lukt het niet, dan zie je hier waarom.
+        Stuurt een testmail naar je eigen e-mailadres, of naar het adres dat je hieronder invult.
+        Lukt het niet, dan zie je hier waarom.
       </p>
+      <input
+        type="email"
+        value={to}
+        onChange={(e) => setTo(e.target.value)}
+        placeholder="Ander e-mailadres (mag leeg)"
+        className="w-full rounded-2xl border bg-background px-3 py-2 text-sm"
+      />
       <button
         disabled={busy}
         onClick={async () => {
           setBusy(true);
           try {
-            setResult(await send());
+            setResult(await send({ data: { to } }));
           } catch (e) {
             setResult({ ok: false, message: e instanceof Error ? e.message : String(e) });
           } finally {
