@@ -25,8 +25,11 @@ export const Route = createFileRoute("/api/auth-email")({
           for (const mail of mailsFor(JSON.parse(body), supabaseUrl, siteUrl))
             await sendWithResend(resendKey, from, mail);
         } catch (e) {
+          // Supabase shows this message in its Auth logs, so the real Resend
+          // reason (e.g. "domain is not verified") is visible there.
           console.error(e);
-          return fail(500, "Sending the email failed");
+          const reason = e instanceof Error ? e.message : String(e);
+          return fail(500, `Sending the email failed: ${reason}`.slice(0, 500));
         }
         return Response.json({});
       },
