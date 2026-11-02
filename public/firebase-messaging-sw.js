@@ -9,7 +9,7 @@ if (params.get('apiKey')) {
 }
 
 const OFFLINE_PAGE = '/offline.html';
-const CACHE = 'cerita-offline-v2';
+const CACHE = 'cerita-offline-v3';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

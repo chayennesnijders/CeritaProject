@@ -21,10 +21,19 @@
 <body>
 <main>
   <img src="/icon-192.png" alt="CeritaProject">
-  <h1>Even geen internet 📶</h1>
-  <p>Je bent offline. Zodra je weer verbinding hebt, kun je verder in CeritaProject.</p>
+  <h1 id="t">Even geen internet 📶</h1>
+  <p id="m">Je bent offline. Zodra je weer verbinding hebt, kun je verder in CeritaProject.</p>
   <button onclick="location.reload()">Opnieuw proberen</button>
   <small>Heb je nu meteen hulp nodig? Bel 113 (0800-0113) of de Kindertelefoon (0800-0432). Bij gevaar: 112.</small>
 </main>
+<script>
+  // Online, but the app can't be reached: usually a school or work network that blocks it.
+  if (navigator.onLine) {
+    document.getElementById('t').textContent = 'Dit netwerk blokkeert CeritaProject 🔒';
+    document.getElementById('m').textContent =
+      'Je hebt wel internet, maar dit wifi-netwerk laat de app niet door. Dat gebeurt soms op school- of werkwifi. ' +
+      'Zet je wifi even uit en gebruik mobiele data, of vraag de ICT van je school om app.ceritaproject.nl toe te staan.';
+  }
+</script>
 </body>
 </html>
