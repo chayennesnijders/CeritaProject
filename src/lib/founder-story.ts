@@ -111,12 +111,91 @@ const STORIES: ((s: FounderStats) => FounderStory)[] = [
   }),
 ];
 
+/** The next round number for the community (members + waitlist) to grow towards. */
+const MILESTONES = [100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
+export const nextMilestone = (value: number) =>
+  MILESTONES.find((m) => m > value) ?? Math.ceil((value + 1) / 100000) * 100000;
+const euro = (v: number) => `€${v.toLocaleString("nl-NL")}`;
+
+/** Growth milestones and money goals: what CeritaProject can earn, so it can keep growing. */
+const GOALS: ((s: FounderStats) => FounderStory)[] = [
+  (s) => {
+    const total = s.members + s.waitlist;
+    const next = nextMilestone(total);
+    return {
+      title: `Op weg naar ${next.toLocaleString("nl-NL")}`,
+      now: `Samen zijn het nu ${total} jongeren: ${n(s.members, "lid", "leden")} en ${s.waitlist} op de wachtlijst.`,
+      dream: `Nog ${next - total} te gaan tot ${next.toLocaleString("nl-NL")}. Elke mijlpaal maakt je verhaal sterker bij gemeenten, scholen en fondsen.`,
+      step: "Zet vandaag een post online die mensen willen opslaan of delen. Daarmee groeit de wachtlijst het snelst.",
+    };
+  },
+  (s) => ({
+    title: "Je eerste betaalde opdracht",
+    now: `Je hebt al iets wat organisaties zoeken: ${n(s.stories, "echt verhaal", "echte verhalen")} van jongeren, een veilige app en een groeiende community.`,
+    dream: `Doel: je eerste betalende klant. Bijvoorbeeld een school voor ${euro(2500)} per jaar, of een gemeente voor ${euro(15000)}. Dat eerste contract bewijst: dit is iets waard.`,
+    step: "Schrijf vandaag drie scholen of gemeenten op die je zou kunnen mailen.",
+  }),
+  () => ({
+    title: "Fondsen geloven in verhalen",
+    now: "Fondsen zoeken projecten die jongeren helpen, met een duidelijk verhaal en een veilige aanpak. Dat heb je allebei al.",
+    dream: `Doel voor 2027: ${euro(200000)} aan fondsen en subsidies, bijvoorbeeld van het Oranje Fonds, VSBfonds of Fonds Kwadraad. Begin met één aanvraag van ${euro(10000)} tot ${euro(25000)}.`,
+    step: "Kies vandaag één fonds en lees hun voorwaarden. Dat is stap één van je eerste aanvraag.",
+  }),
+  () => ({
+    title: "Gemeenten als partner",
+    now: "Gemeenten hebben geld voor preventie, eenzaamheid en jeugd. Jouw app doet precies dat: jongeren helpen voordat het misgaat.",
+    dream: `Doel: 15 gemeenten die elk ongeveer ${euro(30000)} per jaar betalen, zodat jongeren in hun gemeente de app gratis gebruiken. Samen is dat ${euro(450000)} per jaar.`,
+    step: "Zoek vandaag op wie in jouw gemeente over jeugd en preventie gaat.",
+  }),
+  () => ({
+    title: "Scholen in je mentorlessen",
+    now: "Mentoren zoeken lessen over gevoelens, vriendschap en stress. Met jouw verhalen en de app kun je dat bieden.",
+    dream: `Doel: 60 scholen die ${euro(2500)} per jaar betalen voor het lesprogramma. Samen is dat ${euro(150000)} per jaar.`,
+    step: "Bedenk vandaag welke mentor of leraar je kent die het eerste programma wil testen.",
+  }),
+  () => ({
+    title: "Riti in de winkel",
+    now: "Riti is een figuur waar jongeren van houden. Daarmee heb je al een merk.",
+    dream: `Doel: een eerste merch-drop met knuffels, hoodies en stickers, verkocht via voorverkoop. 4.000 stuks van ${euro(40)} is ${euro(160000)}. En elke hoodie is gratis reclame.`,
+    step: "Schets vandaag (of vraag iemand) één ontwerp voor je eerste merch.",
+  }),
+  () => ({
+    title: "Jezelf een salaris betalen",
+    now: "Je werkt al maanden hard aan CeritaProject, grotendeels naast alles wat je verder doet.",
+    dream: `Doel: in 2027 genoeg omzet om jezelf een salaris te geven. Met ${euro(60000)} per jaar kun je er fulltime aan werken, en dat maakt alles sneller.`,
+    step: "Schrijf vandaag op hoeveel je per maand nodig hebt om ervan te kunnen leven. Dat is je eerste echte doel.",
+  }),
+  () => ({
+    title: "Een team om je heen",
+    now: "Nu doe je bijna alles zelf: posten, bouwen, modereren, plannen.",
+    dream: `Doel: geld voor een klein team. Een sales-persoon voor scholen en gemeenten, een moderator en een coach. Met ${euro(150000)} per jaar kun je met z'n vieren bouwen.`,
+    step: "Schrijf vandaag op welke taak je als eerste uit handen zou willen geven.",
+  }),
+  (s) => ({
+    title: `${euro(250000)} in 2027`,
+    now: `Je begint niet bij nul: ${s.members + s.waitlist} jongeren, ${n(s.stories, "verhaal", "verhalen")} en een app die klaarstaat.`,
+    dream: `Realistisch doel voor 2027: ${euro(250000)}. Bijvoorbeeld 5 gemeenten (${euro(150000)}), 20 scholen (${euro(50000)}) en fondsen en merch (${euro(50000)}). Daarmee betaal je jezelf, je team en de groei.`,
+    step: "Kijk vandaag welk van die drie potjes je als eerste wilt vullen.",
+  }),
+  () => ({
+    title: "De droom: een miljoen",
+    now: "Elk groot bedrijf begon ooit klein, met iemand die erin geloofde. Jij gelooft erin.",
+    dream: `De grote droom: ${euro(1000000)} per jaar. Dan is CeritaProject niet meer een project, maar een organisatie die in heel Nederland jongeren helpt. En jongeren betalen nog steeds niets.`,
+    step: "Stel je vandaag even voor hoe die dag voelt. Wie bel je als eerste?",
+  }),
+];
+
 /** Days since 1 January 1970 for a YYYY-MM-DD key, so the story changes at midnight. */
 const dayNumber = (day: string) => Math.floor(Date.parse(`${day}T00:00:00Z`) / 86400000) || 0;
 
+// Every other day a growth or money goal, so the dream stays concrete.
+const ALL = STORIES.flatMap((st, i) =>
+  GOALS[i % GOALS.length] ? [st, GOALS[i % GOALS.length]!] : [st],
+);
+
 export function founderStory(stats: FounderStats, day: string): FounderStory {
-  const pick = STORIES[((dayNumber(day) % STORIES.length) + STORIES.length) % STORIES.length]!;
+  const pick = ALL[((dayNumber(day) % ALL.length) + ALL.length) % ALL.length]!;
   return pick(stats);
 }
 
-export const FOUNDER_STORY_COUNT = STORIES.length;
+export const FOUNDER_STORY_COUNT = ALL.length;
