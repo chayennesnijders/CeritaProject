@@ -6,12 +6,14 @@ import { enablePush, pushMessage } from "@/lib/push-client";
 import { setAdminNewsPush } from "@/lib/push.functions";
 import { dayLabel, isNew, NEWS_KINDS, newsCounts, newsKind, type NewsKind } from "@/lib/admin-news";
 import { useAdminNews } from "@/lib/use-admin-news";
+import { MemberProfileDialog } from "@/components/MemberProfileDialog";
 
 /** Dashboard with everything that happened: new members, orders, submitted stories and reports. */
 export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: string) => void }) {
   const { items, seenAt, isLoading, markSeen, push, refreshSeen } = useAdminNews(uid);
   const savePush = useServerFn(setAdminNewsPush);
   const [pushBusy, setPushBusy] = useState(false);
+  const [member, setMember] = useState<string | null>(null);
   async function togglePush(on: boolean) {
     setPushBusy(true);
     try {
@@ -52,6 +54,7 @@ export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: st
 
   return (
     <section className="space-y-4">
+      <MemberProfileDialog userId={member} onClose={() => setMember(null)} />
       <div className="rounded-3xl bg-warm p-5 text-blush shadow-soft">
         <p className="text-xs uppercase tracking-widest opacity-75">Nieuws</p>
         <p className="mt-1 font-display text-2xl">
@@ -120,7 +123,10 @@ export function AdminNews({ uid, onOpenTab }: { uid: string; onOpenTab: (tab: st
                 </p>
               )}
               <button
-                onClick={() => onOpenTab(k.tab)}
+                onClick={() =>
+                  // A new member opens their profile card; everything else opens its Beheer tab.
+                  i.kind === "aanmelding" ? setMember(i.ref_id) : onOpenTab(k.tab)
+                }
                 className="mt-2 flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left shadow-soft active:scale-[0.99]"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-xl">

@@ -34,6 +34,7 @@ import { StaffAdmin } from "@/components/StaffAdmin";
 import { WaitlistAdmin } from "@/components/WaitlistAdmin";
 import { AdminStart } from "@/components/AdminStart";
 import { ADMIN_PAGES, type AdminPage } from "@/lib/admin-nav";
+import { MemberProfileDialog } from "@/components/MemberProfileDialog";
 
 const TABS = [
   { id: "start", label: "🏠 Start" },
@@ -74,6 +75,7 @@ export function AdminPanel() {
   const [gAge, setGAge] = useState<"junior" | "senior" | "adult">("senior");
   const [memberQuery, setMemberQuery] = useState("");
   const [warnTarget, setWarnTarget] = useState<string | null>(null);
+  const [profileOf, setProfileOf] = useState<string | null>(null);
   const [warnText, setWarnText] = useState("");
 
   const { data } = useQuery({
@@ -233,6 +235,7 @@ export function AdminPanel() {
 
       {tab === "inbox" && (
         <div className="space-y-5">
+          <MemberProfileDialog userId={profileOf} onClose={() => setProfileOf(null)} />
           <SafetyAlerts />
           <ReportInbox onWarn={(id) => { setWarnTarget(id); setWarnText(""); }} onTimeout={timeoutMember} />
           <section className="rounded-3xl bg-card p-5 shadow-soft">
@@ -257,6 +260,7 @@ export function AdminPanel() {
                 <p className="text-sm font-semibold">Gekozen lid: {data?.names[warnTarget] ?? data?.members.find((m) => m.id === warnTarget)?.display_name ?? "lid"}</p>
                 <textarea placeholder="Schrijf hier de waarschuwing…" value={warnText} onChange={(e) => setWarnText(e.target.value)} rows={3} className="w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm" />
                 <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" className="rounded-full" onClick={() => setProfileOf(warnTarget)}>👤 Profiel</Button>
                   <Button size="sm" className="rounded-full" disabled={!warnText.trim()} onClick={() => { if (warnTarget) warnMember(warnTarget); }}>⚠️ Waarschuwing sturen</Button>
                   <Button size="sm" variant="outline" className="rounded-full" onClick={() => timeoutMember(warnTarget, 24)}>Time-out 1 dag</Button>
                   <Button size="sm" variant="outline" className="rounded-full" onClick={() => timeoutMember(warnTarget, 24 * 7)}>Time-out 7 dagen</Button>
