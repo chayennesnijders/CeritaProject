@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { FounderStory } from "@/components/FounderStory";
 import { celebrate } from "@/lib/celebrate";
 import { useThemeOfMonth } from "@/lib/use-theme-month";
 import { AutoInstallGuide } from "@/components/InstallGuide";
@@ -68,6 +69,7 @@ function HomePage() {
         <Affirmation day={day} />
       </div>
       <ModerationNotice />
+      {me?.isOwner && <FounderStory day={day} />}
 
       {/* Everything new in one line instead of a card per kind; the bell shows the details. */}
       {total > 0 && (
