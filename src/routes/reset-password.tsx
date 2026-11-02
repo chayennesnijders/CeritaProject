@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { newPasswordError } from "@/lib/password-errors";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -32,7 +33,7 @@ function ResetPage() {
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: pw });
     setBusy(false);
-    if (error) { toast.error("Dat lukte niet. Vraag opnieuw een link aan."); return; }
+    if (error) { toast.error(newPasswordError(error)); return; }
     toast.success("Je nieuwe wachtwoord is opgeslagen");
     nav({ to: "/home" });
   }
