@@ -115,3 +115,28 @@ export function dutchMoment(day: string, time: string) {
   return new Date(guess.getTime() - diff).toISOString();
 }
 export { dayKey };
+
+/**
+ * Every photo the stories already have (banners and old photos between the text), once each,
+ * so a new story can reuse one as its banner. `inUse` marks banners of stories that are live
+ * or planned, so the same photo is not shown twice in Ontdekken.
+ */
+export function storyPhotoBank(
+  stories: { image_url: string | null; body: string; is_published: boolean }[],
+): { path: string; inUse: boolean }[] {
+  const inUse = new Set(
+    stories.filter((s) => s.is_published && s.image_url).map((s) => s.image_url!),
+  );
+  const seen = new Set<string>();
+  const out: { path: string; inUse: boolean }[] = [];
+  for (const s of stories) {
+    const inText = [...s.body.matchAll(/\[\[foto:([^\]]+)\]\]/g)].map((m) => m[1]!.trim());
+    for (const path of [s.image_url, ...inText]) {
+      if (!path || seen.has(path)) continue;
+      seen.add(path);
+      out.push({ path, inUse: inUse.has(path) });
+    }
+  }
+  // Free photos first.
+  return out.sort((a, b) => Number(a.inUse) - Number(b.inUse));
+}

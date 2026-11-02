@@ -84,10 +84,11 @@ function ArticlePage() {
         </div>
       )}
       <div className="mt-4 space-y-4 text-[15px] leading-relaxed">
-        {article.body.split("\n\n").map((p, i) => {
-          const photo = photoInParagraph(p);
-          return photo ? <StoryPhoto key={i} path={photo} /> : <p key={i} className="whitespace-pre-line">{p}</p>;
-        })}
+        {/* Photos only appear as the banner at the top, never between the text. */}
+        {article.body
+          .split("\n\n")
+          .filter((p) => p.trim() && !photoInParagraph(p))
+          .map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
       </div>
       <section className="mt-8 rounded-3xl bg-card p-5 text-center shadow-soft">
         <p className="font-semibold">{k.kind === "verhaal" ? "Hoe raakt dit verhaal je?" : "Wat vond je van dit artikel?"}</p>
@@ -138,7 +139,3 @@ function ArticlePage() {
 // Stories about hard experiences get a gentle note with where to find help.
 const SENSITIVE = new Set(["overkomen", "in-je-hoofd"]);
 
-function StoryPhoto({ path }: { path: string }) {
-  const { data: src } = useArticleImage(path);
-  return src ? <img src={src} alt="" loading="lazy" className="w-full rounded-3xl object-cover" /> : null;
-}
