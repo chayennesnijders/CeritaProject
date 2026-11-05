@@ -93,11 +93,19 @@ function CommunityPage() {
 
   const row = (g: (typeof all)[number], isArchived: boolean) => (
     <div key={g.id} className={`flex items-center gap-4 rounded-3xl p-4 ${isArchived ? "bg-muted" : "bg-card shadow-soft"}`}>
-      <Link to="/community/$groupId" params={{ groupId: g.id }} className="flex flex-1 items-center gap-4">
+      <Link to="/community/$groupId" params={{ groupId: g.id }} className="flex min-w-0 flex-1 items-center gap-4">
         <span className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-2xl">{g.emoji}</span>
-        <div className="flex-1">
-          <p className="font-semibold">{g.name}{g.created_by === uid && <span className="ml-1 rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-semibold text-secondary-foreground">jouw groep</span>}{data?.prefs[g.id]?.muted && <span className="ml-1 text-xs">🔕</span>}{me?.isAdmin && <span className="ml-2 text-xs text-muted-foreground">({g.age_group})</span>}</p>
-          <p className="text-xs text-muted-foreground">{g.description}</p>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold leading-tight">{g.name}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{g.description}</p>
+          {/* Small labels on their own line, so the group name stays readable. */}
+          {(g.created_by === uid || data?.prefs[g.id]?.muted || me?.isAdmin) && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {g.created_by === uid && <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-semibold">⭐ jouw groep</span>}
+              {data?.prefs[g.id]?.muted && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold">🔕 gedempt</span>}
+              {me?.isAdmin && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold">{bandLabel(g.age_group)}</span>}
+            </div>
+          )}
         </div>
         <span className="flex items-center gap-2 text-xs text-muted-foreground">{(g.group_members as unknown as { count: number }[])?.[0]?.count ?? 0} leden{unread.groups[g.id] ? <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-accent-foreground">{unread.groups[g.id]}</span> : null}</span>
       </Link>
