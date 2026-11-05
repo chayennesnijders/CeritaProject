@@ -1,4 +1,4 @@
-# Donderdag 5 t/m donderdag 12 november: bijschriften
+# Donderdag 5 t/m zondag 15 november: bijschriften
 
 **Nieuw:** korte posts van 5–6 slides, 2 punten per slide, een vraag aan het eind en een kleine afsluiter met Riti.
 **Vergeet niet:** haal de posts van week 2, 3 en 4 die nog ingepland staan voor deze dagen eruit. Deze vervangen ze.
@@ -86,3 +86,41 @@
 > **Soms wil je gewoon gehoord worden (deel 2)🤍**
 > Jullie vonden deel 1 zo herkenbaar, dus hier is deel 2. Welke herken jij?
 > #gehoordworden #herkenbaar #mentalehealth #steungroep #voorjou
+
+**20:30 · 15 · aan iedereen die vandaag weer een masker opzet**
+> **Je mag je masker af en toe afzetten🤍**
+> Bij wie mag jij helemaal jezelf zijn? Tag diegene.
+> #masker #herkenbaar #jezelfzijn #mentalehealth #voorjou
+
+### Vrijdag 13 november
+**07:15 · 16 · 6 signalen dat je overprikkeld bent**
+> **Als alles even te veel is🤍**
+> Overprikkeling zie je niet aan de buitenkant. Wat helpt jou?
+> #overprikkeld #hsp #herkenbaar #mentalehealth #voorjou
+
+**20:30 · 17 · ‘ik ben meer dan mijn verleden’**
+> **Uit een echt verhaal🤍**
+> Een meisje van 14 dat er altijd voor anderen is, en leert ook voor zichzelf te zorgen. Haar hele verhaal staat in de app. Maak jij je zorgen om een vriend(in)? Bel samen met 113 (0800-0113).
+> #echtverhaal #vriendschap #herkenbaar #mentalehealth #fyp
+
+### Zaterdag 14 november
+**07:15 · 18 · 6 signalen dat je bang bent om 'te veel' te zijn**
+> **Jij bent niet te veel🤍**
+> Welke herken jij? Stuur dit naar iemand die dit moet horen.
+> #teveel #herkenbaar #jezelfzijn #mentalehealth #voorjou
+
+**20:30 · 19 · wat ik had willen horen toen ik 13 was**
+> **Voor je jongere zelf🤍**
+> Wat had jij willen horen toen je 13 was? Zet het in de reacties, misschien heeft iemand het vandaag nodig.
+> #jongerezelf #herkenbaar #mentalehealth #steungroep #fyp
+
+### Zondag 15 november
+**07:15 · 20 · 6 signalen dat je eigenlijk heel sterk bent**
+> **Je bent sterker dan je denkt🤍**
+> Stuur dit naar iemand die vergeet hoe sterk hij of zij is.
+> #sterk #hoop #herkenbaar #mentalehealth #voorjou
+
+**20:30 · 21 · we zijn al met meer dan 120🥹**
+> **Meer dan 120🥹**
+> Dankjewel dat jullie er zijn. Een app met echte verhalen en veilige steungroepen per leeftijd. Zet je op de wachtlijst via de link in bio.
+> #ceritaproject #steungroep #wachtlijst #mentalehealth #fyp
