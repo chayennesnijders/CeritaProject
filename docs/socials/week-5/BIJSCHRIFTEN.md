@@ -10,15 +10,15 @@
 ---
 
 ### Donderdag 5 november
-**20:30 · 01 · 6 signalen dat je eigenlijk een knuffel nodig hebt**
+**20:30 · 01 · 6 signalen dat je eigenlijk gewoon een knuffel nodig hebt**
 > **Soms heb je gewoon een knuffel nodig🤍**
-> Welke herken jij? Op zoek naar een plek om te praten met jongeren die het snappen? Daar bouw ik een app voor, link in bio.
+> Stuur dit naar iemand van wie je een knuffel wilt🫂 Op zoek naar een plek om te praten met jongeren die het snappen? Daar bouw ik een app voor, link in bio.
 > #herkenbaar #mentalehealth #steungroep #nietalleen #voorjou
 
 ### Vrijdag 6 november
 **07:15 · 02 · 6 signalen dat je mentaal moe bent (niet lui)**
 > **Je bent niet lui, je bent moe🤍**
-> Mentale vermoeidheid zie je niet aan de buitenkant. Herken je dit? Je bent niet de enige.
+> Mentale vermoeidheid zie je niet aan de buitenkant. Sla dit op voor een dag dat je denkt dat je lui bent🔖
 > #mentaalmoe #herkenbaar #mentalehealth #school #voorjou
 
 **20:30 · 03 · aan het meisje dat altijd de sterke vriendin is**
@@ -65,7 +65,7 @@
 > Herken je dit? Je mag zeggen hoe het écht gaat. In de app kan dat ook anoniem, link in bio.
 > #hetgaatgoed #herkenbaar #mentalehealth #praten #voorjou
 
-**20:30 · 11 · waarom een steungroep zoveel helpt**
+**20:30 · 11 · 6 dingen die je merkt als je in een goede steungroep zit**
 > **Waarom een steungroep helpt🤍**
 > Op zoek naar een steungroep of een plek om te praten? Ik bouw een app met veilige groepen per leeftijd, met coaches die meekijken. Zet je op de wachtlijst via de link in bio.
 > #steungroep #supportgroep #praten #mentalehealth #fyp
@@ -87,9 +87,9 @@
 > Jullie vonden deel 1 zo herkenbaar, dus hier is deel 2. Welke herken jij?
 > #gehoordworden #herkenbaar #mentalehealth #steungroep #voorjou
 
-**20:30 · 15 · aan iedereen die vandaag weer een masker opzet**
+**20:30 · 15 · 6 signalen dat je een masker draagt**
 > **Je mag je masker af en toe afzetten🤍**
-> Bij wie mag jij helemaal jezelf zijn? Tag diegene.
+> Stuur dit naar die ene persoon bij wie je je masker af mag zetten🤍
 > #masker #herkenbaar #jezelfzijn #mentalehealth #voorjou
 
 ### Vrijdag 13 november
