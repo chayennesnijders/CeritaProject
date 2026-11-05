@@ -1,6 +1,6 @@
 # Dinsdag 10 t/m maandag 16 november: bijschriften
 
-Elke map is één post, met de slides op volgorde (01, 02, …). De laatste slide is de flyer met "link in bio".
+Elke map is één post, met de slides op volgorde (01, 02, …). De laatste slide sluit aan op het onderwerp van de post en verwijst rustig naar de app (link in bio).
 **Nieuw deze week:** posts **📖 uit een echt verhaal** (stukjes uit verhalen in de app) en **📱 in de app** (wat je straks in de app kunt).
 **Vaste reactie om te pinnen:** *er komt een app vol echte verhalen 💗 al 120+ jongeren staan op de wachtlijst, link in bio*
 
