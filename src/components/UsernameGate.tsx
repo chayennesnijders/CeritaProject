@@ -48,7 +48,7 @@ export function UsernameGate({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 bg-background px-6 text-center">
-      <img src="/cerita-logo.png" alt="CeritaProject" className="size-28 rounded-3xl" />
+      <img src="/cerita-logo.webp" alt="CeritaProject" className="size-28 rounded-3xl" />
       <h1 className="text-2xl">Kies je gebruikersnaam</h1>
       <p className="text-sm text-muted-foreground">
         Naast je naam heeft iedereen een eigen <strong>gebruikersnaam</strong>. Daarmee kunnen

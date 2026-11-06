@@ -45,7 +45,7 @@ function InboxPage() {
       const avatars = Object.fromEntries(people.map((x) => [x.id, x.avatar_url]));
       const prefs = Object.fromEntries((pr.data ?? []).map((x) => [x.conversation_id, x]));
       // The newest message of each of my open chats, for a one-line preview.
-      const mineOpen = (c.data ?? []).filter((x) => x.status === "accepted" && (x.user_a === uid || x.user_b === uid)).slice(0, 40);
+      const mineOpen = (c.data ?? []).filter((x) => x.status === "accepted" && (x.user_a === uid || x.user_b === uid)).slice(0, 20);
       const lasts = await Promise.all(
         mineOpen.map((x) =>
           supabase

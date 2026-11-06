@@ -56,7 +56,7 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 bg-background px-6 text-center">
-      <img src="/cerita-logo.png" alt="CeritaProject" className="size-28 rounded-3xl" />
+      <img src="/cerita-logo.webp" alt="CeritaProject" className="size-28 rounded-3xl" />
       {tooYoung ? (
         <>
           <h1 className="text-2xl">Nog even geduld 💛</h1>
