@@ -12,7 +12,7 @@ import { needsCare, showCareHelp } from "@/lib/care";
 import { useAdminIds, useCoachIds } from "@/components/UserAvatar";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { GroupMembersAdmin } from "@/components/GroupMembersAdmin";
 import { GroupForm } from "@/components/GroupForm";
 import { toast } from "sonner";
@@ -39,6 +39,8 @@ import { StickerPicker, StickerView } from "@/components/chat-extras/stickers";
 import { PollCard, PollComposer, usePollsLive } from "@/components/chat-extras/polls";
 import { GroupChallenge } from "@/components/chat-extras/GroupChallenge";
 import { stickerBody, type StickerId } from "@/lib/stickers";
+import { addMessage, CHAT_PAGE } from "@/lib/chat-merge";
+import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/community/$groupId")({
   // ?spel=… opens a game straight away (from a "jouw beurt" push).
@@ -65,6 +67,29 @@ function useKeyboardInset() {
   }, []);
   return inset;
 }
+
+type PostTableRow = Database["public"]["Tables"]["posts"]["Row"];
+
+/** The group, your membership, the newest messages (older ones on request), members and read marks. */
+async function loadGroup(groupId: string, uid: string, limit: number) {
+  const [g, m, p, mem, reads] = await Promise.all([
+    supabase.from("groups").select("*").eq("id", groupId).maybeSingle(),
+    supabase.from("group_members").select("user_id").eq("group_id", groupId).eq("user_id", uid).maybeSingle(),
+    supabase.from("posts").select("*, author:profiles(display_name), post_comments(id, body, author_id, created_at, author:profiles(display_name))")
+      .eq("group_id", groupId).order("created_at", { ascending: false }).limit(limit),
+    supabase.from("group_members").select("user_id, profiles(display_name, username)").eq("group_id", groupId),
+    supabase.from("group_reads").select("user_id, last_read_at").eq("group_id", groupId),
+  ]);
+  const members: Mentionable[] = (mem.data ?? []).map((r) => ({
+    user_id: r.user_id,
+    display_name: (r.profiles as { display_name?: string } | null)?.display_name ?? "Lid",
+    username: (r.profiles as { username?: string | null } | null)?.username ?? null,
+  }));
+  const posts = p.data ?? [];
+  return { group: g.data, isMember: !!m.data, posts, hasMore: posts.length >= limit, members, reads: reads.data ?? [] };
+}
+type GroupData = Awaited<ReturnType<typeof loadGroup>>;
+type GroupPost = GroupData["posts"][number];
 
 function GroupPage() {
   const { data: admins } = useAdminIds();
@@ -95,36 +120,40 @@ function GroupPage() {
   useChatGamesLive({ groupId });
   usePollsLive(groupId);
 
+  const [limit, setLimit] = useState(CHAT_PAGE);
   const { data } = useQuery({
-    queryKey: ["group", groupId, uid],
+    queryKey: ["group", groupId, uid, limit],
     enabled: !!uid,
-    queryFn: async () => {
-      const [g, m, p, mem, reads] = await Promise.all([
-        supabase.from("groups").select("*").eq("id", groupId).maybeSingle(),
-        supabase.from("group_members").select("user_id").eq("group_id", groupId).eq("user_id", uid!).maybeSingle(),
-        supabase.from("posts").select("*, author:profiles(display_name), post_comments(id, body, author_id, created_at, author:profiles(display_name))")
-          .eq("group_id", groupId).order("created_at", { ascending: false }),
-        supabase.from("group_members").select("user_id, profiles(display_name, username)").eq("group_id", groupId),
-        supabase.from("group_reads").select("user_id, last_read_at").eq("group_id", groupId),
-      ]);
-      const members: Mentionable[] = (mem.data ?? []).map((r) => ({
-        user_id: r.user_id,
-        display_name: (r.profiles as { display_name?: string } | null)?.display_name ?? "Lid",
-        username: (r.profiles as { username?: string | null } | null)?.username ?? null,
-      }));
-      return { group: g.data, isMember: !!m.data, posts: p.data ?? [], members, reads: reads.data ?? [] };
-    },
+    // "Oudere berichten laden" keeps the current messages on screen while it loads.
+    placeholderData: (prev, prevQuery) => (prevQuery?.queryKey[1] === groupId ? prev : undefined),
+    queryFn: () => loadGroup(groupId, uid!, limit),
   });
+  // Put one message on screen directly (from the live channel or after sending).
+  const addPost = useCallback(
+    (row: PostTableRow) =>
+      qc.setQueriesData<GroupData>({ queryKey: ["group", groupId] }, (old) => {
+        if (!old) return old;
+        const name = old.members.find((m) => m.user_id === row.author_id)?.display_name ?? "Lid";
+        const post = { ...row, author: { display_name: name }, post_comments: [] } as unknown as GroupPost;
+        return { ...old, posts: addMessage(old.posts, post, "newest-first") };
+      }),
+    [groupId, qc],
+  );
   const refresh = () => qc.invalidateQueries({ queryKey: ["group", groupId] });
 
   // Live groepschat: nieuwe of verwijderde berichten verschijnen meteen.
   useEffect(() => {
     const ch = supabase.channel(`group-${groupId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "posts", filter: `group_id=eq.${groupId}` },
+      // New messages are added directly; edits and deletions (rare) reload the chat.
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "posts", filter: `group_id=eq.${groupId}` },
+        (e) => addPost(e.new as PostTableRow))
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "posts", filter: `group_id=eq.${groupId}` },
+        () => qc.invalidateQueries({ queryKey: ["group", groupId] }))
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "posts", filter: `group_id=eq.${groupId}` },
         () => qc.invalidateQueries({ queryKey: ["group", groupId] }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [groupId, qc]);
+  }, [groupId, qc, addPost]);
 
   // Terugkomen uit een ander app-venster: even ophalen zodat niets ontbreekt.
   useEffect(() => {
@@ -183,12 +212,13 @@ function GroupPage() {
     if (file) attachment = await uploadChatFile(file, uid, "group", groupId);
     const mentions = parseMentions(text, data?.members ?? []);
     const fallback = attachment ? attachmentLabel(attachment.attachment_type, attachment.attachment_name) : "🎙️ Spraakmemo";
-    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions, need }).select("id").single();
+    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: text || fallback, audio_path: path, ...attachment, reply_to: replyTo?.id ?? null, mentions, need }).select("*").single();
     if (error) throw error;
     if (needsCare(text)) showCareHelp();
     if (replyTo && created) notifyReply({ data: { postId: created.id } }).catch(() => {});
     if (created && mentions.length > 0) notifyMention({ data: { postId: created.id } }).catch(() => {});
-    setReplyTo(null); refresh();
+    setReplyTo(null);
+    if (created) addPost(created);
     return true;
     } catch (e) {
       if (path) await supabase.storage.from("chat-audio").remove([path]);
@@ -203,7 +233,7 @@ function GroupPage() {
     const { data: created, error } = await supabase
       .from("posts")
       .insert({ group_id: groupId, author_id: uid, body: text, reply_to: to.id })
-      .select("id")
+      .select("*")
       .single();
     if (error) {
       toast.error(error.message);
@@ -212,7 +242,7 @@ function GroupPage() {
     if (created) notifyReply({ data: { postId: created.id } }).catch(() => {});
     toast.success("Verstuurd 🤍");
     celebrate("klein", { set: "hartjes" });
-    refresh();
+    if (created) addPost(created);
     return true;
   }
   async function saveGroup(v: { name: string; description: string; emoji: string }) {
@@ -230,9 +260,9 @@ function GroupPage() {
   }
   async function sendSticker(sticker: StickerId) {
     if (!uid) return;
-    const { error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: stickerBody(sticker), sticker });
+    const { data: created, error } = await supabase.from("posts").insert({ group_id: groupId, author_id: uid, body: stickerBody(sticker), sticker }).select("*").single();
     if (error) { toast.error("Sticker sturen lukte niet."); return; }
-    refresh();
+    addPost(created);
   }
   async function playGame(game: ChatGameId) {
     try {
@@ -258,6 +288,8 @@ function GroupPage() {
     await supabase.from("posts").delete().eq("id", postId); refresh();
   }
 
+  const newestPost = useRef<string | null>(null);
+  const keepFromBottom = useRef<number | null>(null);
   const posts = [...(data?.posts ?? [])].reverse();
 
   // Nieuw bericht? Blijf onderaan als je daar al stond, of als het bericht van jou is.
@@ -269,6 +301,15 @@ function GroupPage() {
     if (!grew) return;
     const el = scrollRef.current;
     if (!el) return;
+    // Older messages were loaded above: stay at the same message instead of jumping.
+    const newest = posts[n - 1]?.id ?? null;
+    const newestChanged = newest !== newestPost.current;
+    newestPost.current = newest;
+    if (!first && !newestChanged) {
+      if (keepFromBottom.current != null) el.scrollTop = el.scrollHeight - keepFromBottom.current;
+      keepFromBottom.current = null;
+      return;
+    }
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 240;
     const mine = posts[n - 1]?.author_id === uid;
     if (first) {
@@ -318,6 +359,11 @@ function GroupPage() {
         {data?.group && <GroupChallenge groupId={groupId} uid={uid} isMember={!!data.isMember} />}
         {data?.isMember && posts.length > 0 && <p className="text-center text-[11px] text-muted-foreground">Swipe naar rechts om te antwoorden · houd ingedrukt voor een emoji</p>}
         {data?.isMember && posts.length > 0 && !posts.some((p) => p.author_id === uid) && <ShyTip groupId={groupId} />}
+        {data?.hasMore && (
+          <button onClick={() => { const el = scrollRef.current; if (el) keepFromBottom.current = el.scrollHeight - el.scrollTop; setLimit((n) => n + CHAT_PAGE); }} className="mx-auto rounded-full bg-secondary px-4 py-1.5 text-xs font-semibold text-secondary-foreground">
+            Oudere berichten laden
+          </button>
+        )}
         {withDayDividers(posts, (p) => p.created_at).map((row) => {
           if (row.kind === "day") return <ChatDayDivider key={row.key} label={row.label} />;
           const p = row.item;
@@ -341,7 +387,7 @@ function GroupPage() {
                     <p className="line-clamp-2 text-muted-foreground">{quoted.body}</p>
                   </div>
                 )}
-                {p.reply_to && !quoted && <p className="mt-1 text-xs italic text-muted-foreground">Reactie op een verwijderd bericht</p>}
+                {p.reply_to && !quoted && <p className="mt-1 text-xs italic text-muted-foreground">{data?.hasMore ? "Reactie op een ouder bericht" : "Reactie op een verwijderd bericht"}</p>}
                 {p.is_hidden && <p className="text-xs text-destructive">Verborgen door moderatie</p>}
                 {!p.is_hidden && <NeedBadge need={p.need} mine={mine} />}
                 {p.sticker && !p.is_hidden ? <StickerView id={p.sticker} /> : p.poll_id && !p.is_hidden ? <PollCard pollId={p.poll_id} uid={uid} canVote={!!data?.isMember} /> : p.game_id && !p.is_hidden ? <GameCard gameId={p.game_id} uid={uid} nameOf={nameOf} onOpen={() => setOpenGame(p.game_id)} /> : <p className="mt-1 whitespace-pre-wrap text-sm">
@@ -470,8 +516,12 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
     const text = body.trim();
     if (sending || recording || (!text && !audio && !file)) return;
     setSending(true);
-    try { if (await onSend(text, audio, file, need)) { setBody(""); setAudio(null); setFile(null); setNeed(null); } }
-    finally { setSending(false); }
+    // Clear the box right away; if posting doesn't go through, the text comes back.
+    setBody("");
+    try {
+      if (await onSend(text, audio, file, need)) { setAudio(null); setFile(null); setNeed(null); }
+      else setBody((cur) => cur || text);
+    } finally { setSending(false); }
   }
 
   return (

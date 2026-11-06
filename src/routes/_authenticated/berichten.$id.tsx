@@ -5,11 +5,12 @@ import { useReportReason } from "@/components/ReportReasonDialog";
 import { useKindCheck } from "@/components/KindCheck";
 import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Archive, ArchiveRestore, ArrowLeft, Ban, BellOff, Bell, Check, CheckCheck, Flag, Phone, Plus, Send, Video } from "lucide-react";
 import { useCall } from "@/components/CallProvider";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { useMe } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { useServerFn } from "@tanstack/react-start";
@@ -29,6 +30,7 @@ import { startChatGame, useChatGamesLive } from "@/lib/use-chat-games";
 import { Reactable, useReactions } from "@/components/chat-extras/reactions";
 import { StickerPicker, StickerView } from "@/components/chat-extras/stickers";
 import { stickerBody, type StickerId } from "@/lib/stickers";
+import { addMessage, CHAT_PAGE } from "@/lib/chat-merge";
 
 export const Route = createFileRoute("/_authenticated/berichten/$id")({
   // ?spel=… opens a game straight away (from a "jouw beurt" push).
@@ -36,6 +38,12 @@ export const Route = createFileRoute("/_authenticated/berichten/$id")({
   head: () => ({ meta: [{ title: "Gesprek — CeritaProject" }, { name: "description", content: "Je privégesprek op CeritaProject." }, { property: "og:title", content: "Gesprek — CeritaProject" }, { property: "og:description", content: "Je privégesprek op CeritaProject." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: ChatPage,
 });
+
+type DmRow = Database["public"]["Tables"]["direct_messages"]["Row"];
+type ChatData = {
+  other: string; name: string; avatar: string | null; msgs: DmRow[]; hasMore: boolean; blocked: boolean;
+  status: string; muted: boolean; archived: boolean; otherReadAt: string | null;
+} | null;
 
 function ChatPage() {
   const { id } = Route.useParams();
@@ -54,41 +62,61 @@ function ChatPage() {
   const hasExtra = !!file || !!audio || recording;
   const { startCall } = useCall();
   const { confirmKind, dialog: kindDialog } = useKindCheck();
-  const key = ["chat", id, uid];
+  const [limit, setLimit] = useState(CHAT_PAGE);
+  const key = ["chat", id, uid, limit];
   const { spel } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [openGame, setOpenGame] = useState<string | null>(spel ?? null);
   useEffect(() => { if (spel) setOpenGame(spel); }, [spel]);
   useChatGamesLive({ convId: id });
 
+  const uidRef = useRef(uid);
+  uidRef.current = uid;
+  const addToChat = useCallback(
+    (row: DmRow) =>
+      qc.setQueriesData<ChatData>({ queryKey: ["chat", id] }, (old) => (old ? { ...old, msgs: addMessage(old.msgs, row) } : old)),
+    [id, qc],
+  );
+
   const { data } = useQuery({
     queryKey: key,
     enabled: !!uid,
+    // "Oudere berichten laden" keeps the current messages on screen while it loads.
+    placeholderData: (prev, prevQuery) => (prevQuery?.queryKey[1] === id ? prev : undefined),
     queryFn: async () => {
-      const { data: c } = await supabase.from("conversations").select("*").eq("id", id).maybeSingle();
-      if (!c) return null;
-      const other = c.user_a === uid ? c.user_b : c.user_a;
-      const [p, m, b, pr, opr] = await Promise.all([
-        supabase.from("profiles").select("display_name, avatar_url").eq("id", other).maybeSingle(),
-        supabase.from("direct_messages").select("*").eq("conversation_id", id).order("created_at"),
-        supabase.from("blocks").select("blocked_id").eq("blocked_id", other).maybeSingle(),
+      // Only the newest messages (older ones on request), fetched alongside the conversation.
+      const [{ data: c }, m, pr, opr] = await Promise.all([
+        supabase.from("conversations").select("*").eq("id", id).maybeSingle(),
+        supabase.from("direct_messages").select("*").eq("conversation_id", id).order("created_at", { ascending: false }).limit(limit),
         supabase.from("conversation_prefs").select("muted, archived").eq("user_id", uid!).eq("conversation_id", id).maybeSingle(),
         supabase.rpc("dm_other_read_at", { _conv: id }),
       ]);
-      return { other, name: p.data?.display_name ?? "Lid", avatar: p.data?.avatar_url ?? null, msgs: m.data ?? [], blocked: !!b.data, status: c.status as string, muted: !!pr.data?.muted, archived: !!pr.data?.archived, otherReadAt: (opr.data as string | null) ?? null };
+      if (!c) return null;
+      const other = c.user_a === uid ? c.user_b : c.user_a;
+      const [p, b] = await Promise.all([
+        supabase.from("profiles").select("display_name, avatar_url").eq("id", other).maybeSingle(),
+        supabase.from("blocks").select("blocked_id").eq("blocked_id", other).maybeSingle(),
+      ]);
+      const msgs = (m.data ?? []).reverse();
+      return { other, name: p.data?.display_name ?? "Lid", avatar: p.data?.avatar_url ?? null, msgs, hasMore: msgs.length >= limit, blocked: !!b.data, status: c.status as string, muted: !!pr.data?.muted, archived: !!pr.data?.archived, otherReadAt: (opr.data as string | null) ?? null };
     },
   });
 
   useEffect(() => {
     const ch = supabase.channel(`dm-${id}`)
+      // A new message is added to the screen directly, without reloading the chat.
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages", filter: `conversation_id=eq.${id}` },
-        () => qc.invalidateQueries({ queryKey: ["chat", id] }))
+        (e) => addToChat(e.new as DmRow))
       // Leest de ander het gesprek? Dan verschijnt het leesvinkje meteen.
       .on("postgres_changes", { event: "*", schema: "public", table: "conversation_prefs", filter: `conversation_id=eq.${id}` },
-        () => qc.invalidateQueries({ queryKey: ["chat", id] }))
+        (e) => {
+          const row = e.new as { user_id?: string; last_read_at?: string | null } | undefined;
+          if (!row?.user_id || row.user_id === uidRef.current) return; // my own read mark changes nothing on screen
+          qc.setQueriesData<ChatData>({ queryKey: ["chat", id] }, (old) => (old ? { ...old, otherReadAt: row.last_read_at ?? old.otherReadAt } : old));
+        })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [id, qc]);
+  }, [id, qc, addToChat]);
 
   // Dit gesprek staat open: markeer alles als gelezen (na een kleine pauze,
   // zodat je bij snel achter elkaar binnenkomende berichten niet telkens opschrijft).
@@ -105,11 +133,18 @@ function ChatPage() {
 
   // Open at the newest message; follow new messages when you're already near the bottom.
   const seenMsgs = useRef(0);
+  const keepFromBottom = useRef<number | null>(null);
   const msgCount = data?.msgs.length ?? 0;
   useEffect(() => {
     if (!msgCount || msgCount <= seenMsgs.current) return;
     const first = seenMsgs.current === 0;
     seenMsgs.current = msgCount;
+    // Older messages were loaded above: stay at the same message instead of jumping.
+    if (keepFromBottom.current != null) {
+      window.scrollTo({ top: document.documentElement.scrollHeight - keepFromBottom.current });
+      keepFromBottom.current = null;
+      return;
+    }
     const toBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight });
     const nearBottom = window.innerHeight + window.scrollY > document.documentElement.scrollHeight - 300;
     if (first) {
@@ -128,28 +163,33 @@ function ChatPage() {
     if (!uid || sending || recording || (!body.trim() && !audio && !file)) return;
     if (!(await confirmKind(body))) return;
     setSending(true);
+    // Clear the box right away; if sending fails the text comes back.
+    const text = body;
+    setBody("");
     let path: string | null = null;
     let attachment: Awaited<ReturnType<typeof uploadChatFile>> | null = null;
     try {
       if (audio) path = await uploadChatAudio(audio, uid, "dm", id);
       if (file) attachment = await uploadChatFile(file, uid, "dm", id);
       const fallback = attachment ? attachmentLabel(attachment.attachment_type, attachment.attachment_name) : "🎙️ Spraakmemo";
-      const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: body.trim() || fallback, audio_path: path, ...attachment, need }).select("id").single();
+      const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: text.trim() || fallback, audio_path: path, ...attachment, need }).select("*").single();
       if (error) throw error;
-      if (needsCare(body)) showCareHelp();
-      setBody(""); setAudio(null); setFile(null); setNeed(null); refresh();
+      if (needsCare(text)) showCareHelp();
+      setAudio(null); setFile(null); setNeed(null);
+      addToChat(sent);
       if (sent) notify({ data: { messageId: sent.id } }).catch(() => {});
     } catch (e) {
       if (path) await supabase.storage.from("chat-audio").remove([path]);
       if (attachment) await supabase.storage.from("chat-files").remove([attachment.attachment_path]);
+      setBody((cur) => cur || text);
       toast.error(e instanceof Error ? e.message : "Bericht kon niet worden verstuurd.");
     } finally { setSending(false); }
   }
   async function sendSticker(sticker: StickerId) {
     if (!uid) return;
-    const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: stickerBody(sticker), sticker }).select("id").single();
+    const { data: sent, error } = await supabase.from("direct_messages").insert({ conversation_id: id, sender_id: uid, body: stickerBody(sticker), sticker }).select("*").single();
     if (error) { toast.error("Sticker sturen lukte niet."); return; }
-    refresh();
+    addToChat(sent);
     if (sent) notify({ data: { messageId: sent.id } }).catch(() => {});
   }
   async function playGame(game: ChatGameId) {
@@ -221,6 +261,11 @@ function ChatPage() {
         )}
       </div>
       <div className="space-y-2">
+        {data?.hasMore && (
+          <button onClick={() => { keepFromBottom.current = document.documentElement.scrollHeight - window.scrollY; setLimit((n) => n + CHAT_PAGE); }} className="mx-auto rounded-full bg-secondary px-4 py-1.5 text-xs font-semibold text-secondary-foreground">
+            Oudere berichten laden
+          </button>
+        )}
         {withDayDividers(data?.msgs ?? [], (m) => m.created_at).map((row) => {
           if (row.kind === "day") return <ChatDayDivider key={row.key} label={row.label} />;
           const m = row.item;
