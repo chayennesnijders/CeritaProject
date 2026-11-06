@@ -103,7 +103,7 @@ function SwipePage() {
         <button
           onClick={close}
           aria-label="Sluiten"
-          className="pointer-events-auto grid size-10 place-items-center rounded-full bg-black/40 backdrop-blur"
+          className="pointer-events-auto grid size-10 place-items-center rounded-full bg-black/50"
         >
           <X className="size-5" />
         </button>
@@ -217,7 +217,7 @@ function StorySlide({
           <span className="text-[7rem] opacity-90">{story.emoji}</span>
         </div>
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.85)_0%,rgba(0,0,0,0.45)_35%,rgba(0,0,0,0)_60%,rgba(0,0,0,0.25)_100%)]" />
 
       {burst > 0 && (
         <span key={burst} className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_0.7s_ease-out_1] text-8xl">
@@ -239,10 +239,10 @@ function StorySlide({
               aria-label={r.label}
               className="flex flex-col items-center"
             >
-              <span className={`grid size-12 place-items-center rounded-full text-2xl backdrop-blur transition active:scale-90 ${on ? "bg-white/90" : "bg-black/35"}`}>
+              <span className={`grid size-12 place-items-center rounded-full text-2xl transition active:scale-90 ${on ? "bg-white/90" : "bg-black/45"}`}>
                 {r.emoji}
               </span>
-              <span className="mt-0.5 text-[11px] font-semibold drop-shadow">{counts[r.kind]}</span>
+              <span className="mt-0.5 text-[11px] font-semibold [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">{counts[r.kind]}</span>
             </button>
           );
         })}
@@ -255,23 +255,23 @@ function StorySlide({
           aria-label={isSaved ? "Niet meer bewaren" : "Bewaren"}
           className="flex flex-col items-center"
         >
-          <span className={`grid size-12 place-items-center rounded-full text-2xl backdrop-blur ${isSaved ? "bg-white/90" : "bg-black/35"}`}>
+          <span className={`grid size-12 place-items-center rounded-full text-2xl ${isSaved ? "bg-white/90" : "bg-black/45"}`}>
             {isSaved ? "⭐" : "☆"}
           </span>
-          <span className="mt-0.5 text-[11px] font-semibold drop-shadow">Bewaar</span>
+          <span className="mt-0.5 text-[11px] font-semibold [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">Bewaar</span>
         </button>
       </div>
 
       <div className="absolute inset-x-0 bottom-0 z-[5] space-y-2 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] pr-20">
         <p className="flex flex-wrap gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
-          <span className="rounded-full bg-white/20 px-2 py-0.5 backdrop-blur">
+          <span className="rounded-full bg-black/45 px-2 py-0.5">
             {categoryEmoji(story.category)} {categoryLabel(story.category)}
           </span>
-          <span className="rounded-full bg-white/20 px-2 py-0.5 backdrop-blur">⏱️ {readingMinutes(story.body)} min</span>
-          {wasRead && <span className="rounded-full bg-white/20 px-2 py-0.5 backdrop-blur">✓ Gelezen</span>}
+          <span className="rounded-full bg-black/45 px-2 py-0.5">⏱️ {readingMinutes(story.body)} min</span>
+          {wasRead && <span className="rounded-full bg-black/45 px-2 py-0.5">✓ Gelezen</span>}
         </p>
-        <h2 className="text-2xl font-bold leading-tight drop-shadow">{story.title}</h2>
-        <p className="line-clamp-5 text-[15px] leading-relaxed opacity-95 drop-shadow">{hook}</p>
+        <h2 className="text-2xl font-bold leading-tight [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">{story.title}</h2>
+        <p className="line-clamp-5 text-[15px] leading-relaxed opacity-95 [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">{hook}</p>
         {SENSITIVE_CATEGORIES.has(story.category) && (
           <p className="text-xs opacity-80">💛 Kan over moeilijke dingen gaan. Stop wanneer je wilt.</p>
         )}
