@@ -45,19 +45,40 @@ export const Route = createFileRoute("/_authenticated/profiel")({
   component: ProfilePage,
 });
 
-/** Quick links to the personal tools, at the top of the profile. */
-const SHORTCUTS = [
-  { to: "/stemming", emoji: "📅", label: "Stemming" },
-  { to: "/complimenten", emoji: "💐", label: "Complimenten" },
-  { to: "/rust", emoji: "🫧", label: "Rustmoment" },
-  { to: "/veiligheidsplan", emoji: "🛟", label: "Veiligheidsplan" },
-  { to: "/brieven", emoji: "💌", label: "Brief aan jezelf" },
-  { to: "/vragen", emoji: "🎓", label: "Coaches" },
-  { to: "/buddy", emoji: "🤝", label: "Buddy zoeken" },
-  { to: "/agenda", emoji: "🗓️", label: "Agenda" },
-  { to: "/dankbaar", emoji: "🫙", label: "Dankbaar potje" },
-  { to: "/thema", emoji: "✨", label: "Thema" },
-  { to: "/meldingen", emoji: "🔔", label: "Meldingen" },
+/** Quick links to the personal tools, grouped so the profile stays easy to scan. */
+const SHORTCUT_GROUPS = [
+  {
+    title: "Voor je gevoel",
+    emoji: "💗",
+    tint: "bg-[#fde4ea] dark:bg-[#4a2c35]",
+    items: [
+      { to: "/stemming", emoji: "📅", label: "Stemming" },
+      { to: "/rust", emoji: "🫧", label: "Rustmoment" },
+      { to: "/dankbaar", emoji: "🫙", label: "Dankbaar potje" },
+      { to: "/veiligheidsplan", emoji: "🛟", label: "Veiligheids\u00adplan" },
+    ],
+  },
+  {
+    title: "Samen",
+    emoji: "🤝",
+    tint: "bg-[#e3f1e8] dark:bg-[#1f3a2c]",
+    items: [
+      { to: "/vragen", emoji: "🎓", label: "Coaches" },
+      { to: "/buddy", emoji: "🤝", label: "Buddy zoeken" },
+      { to: "/agenda", emoji: "🗓️", label: "Agenda" },
+      { to: "/complimenten", emoji: "💐", label: "Compli\u00admenten" },
+    ],
+  },
+  {
+    title: "Voor later",
+    emoji: "✨",
+    tint: "bg-[#f6ead9] dark:bg-[#3a2d26]",
+    items: [
+      { to: "/brieven", emoji: "💌", label: "Brief aan jezelf" },
+      { to: "/thema", emoji: "✨", label: "Thema" },
+      { to: "/meldingen", emoji: "🔔", label: "Meldingen" },
+    ],
+  },
 ] as const;
 
 function ProfilePage() {
@@ -204,20 +225,29 @@ function ProfilePage() {
         </button>
       </div>
 
-      <section>
-        <h2 className="mb-2 text-lg">Voor jou</h2>
-        <div className="grid grid-cols-4 gap-2">
-          {SHORTCUTS.map((s) => (
-            <Link
-              key={s.to}
-              to={s.to}
-              className="flex flex-col items-center gap-1 rounded-2xl bg-card p-2 text-center shadow-soft active:scale-95"
-            >
-              <span className="text-2xl">{s.emoji}</span>
-              <span className="text-[10px] font-semibold leading-tight">{s.label}</span>
-            </Link>
-          ))}
-        </div>
+      <section className="space-y-3">
+        <h2 className="text-lg">Voor jou</h2>
+        {SHORTCUT_GROUPS.map((g) => (
+          <div key={g.title} className={`rounded-3xl p-3 ${g.tint}`}>
+            <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-foreground/70">
+              {g.emoji} {g.title}
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {g.items.map((s) => (
+                <Link
+                  key={s.to}
+                  to={s.to}
+                  className="group flex flex-col items-center gap-1 rounded-2xl bg-card px-1 py-2.5 text-center shadow-soft transition-transform active:scale-90"
+                >
+                  <span className="text-2xl transition-transform group-hover:-rotate-6 group-hover:scale-110">
+                    {s.emoji}
+                  </span>
+                  <span className="text-[10px] font-semibold leading-tight">{s.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="space-y-2">

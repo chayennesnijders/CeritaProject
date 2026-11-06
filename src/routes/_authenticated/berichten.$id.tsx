@@ -7,12 +7,11 @@ import { needsCare, showCareHelp } from "@/lib/care";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Archive, ArchiveRestore, ArrowLeft, Ban, BellOff, Bell, Check, CheckCheck, Flag, Phone, Video } from "lucide-react";
+import { Archive, ArchiveRestore, ArrowLeft, Ban, BellOff, Bell, Check, CheckCheck, Flag, Phone, Plus, Send, Video } from "lucide-react";
 import { useCall } from "@/components/CallProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyNewMessage } from "@/lib/push.functions";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -51,6 +50,8 @@ function ChatPage() {
   const [file, setFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [extras, setExtras] = useState(false);
+  const hasExtra = !!file || !!audio || recording;
   const { startCall } = useCall();
   const { confirmKind, dialog: kindDialog } = useKindCheck();
   const key = ["chat", id, uid];
@@ -252,14 +253,28 @@ function ChatPage() {
         {data?.msgs.length === 0 && <p className="text-sm text-muted-foreground">Zeg hallo 👋</p>}
       </div>
       {(body.trim().length > 0 || need) && <NeedPicker value={need} onChange={setNeed} />}
-      <Textarea rows={2} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Typ een bericht…" className="rounded-2xl" />
-      <div className="flex flex-wrap items-center gap-2">
-        <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending || !!data?.blocked || !data} />
-        <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending || !!data?.blocked || !data} onRecordingChange={setRecording} />
-        <StickerPicker onPick={sendSticker} disabled={sending || !!data?.blocked || !data} />
-        <GamePicker onPick={playGame} disabled={sending || !!data?.blocked || !data} />
+      <div className="rounded-3xl bg-card p-2 shadow-soft">
+        <div className="flex items-end gap-2">
+          <button type="button" onClick={() => setExtras((v) => !v)} aria-expanded={extras || hasExtra} aria-label="Foto, spraak, sticker of spelletje"
+            title="Meer" className={`flex size-10 shrink-0 items-center justify-center rounded-full transition-transform ${extras || hasExtra ? "rotate-45 bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
+            <Plus className="size-5" />
+          </button>
+          <textarea rows={1} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Typ een bericht…" maxLength={2000}
+            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-2xl border border-input bg-background px-3 py-2 text-sm [field-sizing:content]" />
+          <Button size="icon" disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send}
+            aria-label="Versturen" title="Versturen" className="shrink-0 rounded-full">
+            <Send className="size-4" />
+          </Button>
+        </div>
+        {(extras || hasExtra) && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-bottom-1">
+            <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending || !!data?.blocked || !data} />
+            <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending || !!data?.blocked || !data} onRecordingChange={setRecording} />
+            <StickerPicker onPick={async (s) => { await sendSticker(s); setExtras(false); }} disabled={sending || !!data?.blocked || !data} />
+            <GamePicker onPick={async (g) => { await playGame(g); setExtras(false); }} disabled={sending || !!data?.blocked || !data} />
+          </div>
+        )}
       </div>
-      <Button disabled={sending || recording || (!body.trim() && !audio && !file) || data?.blocked || !data} onClick={send} className="rounded-full">{sending ? "Versturen…" : "Versturen"}</Button>
       {kindDialog}
       {reportDialog}
       {openGame && <GameScreen gameId={openGame} uid={uid} nameOf={nameOf} onClose={closeGame} onRematch={playGame} />}

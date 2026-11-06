@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useNowPlaying } from "@/lib/now-playing";
 import { NowPlayingBar } from "@/components/NowPlayingBar";
 import { WeeklyRulesPopup } from "@/components/WeeklyRulesPopup";
@@ -33,6 +33,8 @@ export function AppShell() {
   const navigate = useNavigate();
   // Room for the music bar above the menu while something plays.
   const playing = !!useNowPlaying();
+  // Each page fades in softly (opacity only, so fixed bars inside a page stay put).
+  const page = useRouterState({ select: (st) => st.location.pathname });
   // Meldingen die binnenkomen terwijl de app open is, tonen we als pop-up bovenin.
   useEffect(() => {
     let stop: () => void = () => {};
@@ -80,7 +82,9 @@ export function AppShell() {
       </header>
       <NowPlayingBar />
       <main className={`flex-1 px-5 ${playing ? "pb-72" : "pb-28"}`}>
-        <Outlet />
+        <div key={page} className="animate-in fade-in duration-300 motion-reduce:animate-none">
+          <Outlet />
+        </div>
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
         <div className="flex justify-around rounded-3xl border-2 border-secondary bg-ink px-2 py-2 text-ink-foreground shadow-soft">

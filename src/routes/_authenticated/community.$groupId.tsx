@@ -16,7 +16,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { GroupMembersAdmin } from "@/components/GroupMembersAdmin";
 import { GroupForm } from "@/components/GroupForm";
 import { toast } from "sonner";
-import { ArrowLeft, Check, CheckCheck, Flag, Reply, Send, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, Flag, Plus, Reply, Send, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { parseMentions, splitMentions, type Mentionable } from "@/lib/groups";
@@ -434,6 +434,8 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
   const [need, setNeed] = useState<NeedId | null>(null);
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [extras, setExtras] = useState(false);
+  const hasExtra = !!file || !!audio || recording;
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   // Typ je @? Dan verschijnt een lijstje met groepsleden om te taggen.
@@ -496,6 +498,10 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
         {/* Typing something? Then you can say what you'd like from others. */}
         {(body.trim().length > 0 || need) && <NeedPicker value={need} onChange={setNeed} />}
         <div className="flex items-end gap-2">
+          <button type="button" onClick={() => setExtras((v) => !v)} aria-expanded={extras || hasExtra} aria-label="Foto, spraak, sticker, peiling of spelletje"
+            title="Meer" className={`flex size-10 shrink-0 items-center justify-center rounded-full transition-transform ${extras || hasExtra ? "rotate-45 bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
+            <Plus className="size-5" />
+          </button>
           <textarea ref={taRef} disabled={sending} value={body} onChange={(e) => setBody(e.target.value)} maxLength={2000} rows={1}
             enterKeyHint="send" placeholder="Typ een bericht…"
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
@@ -504,13 +510,15 @@ function ChatComposer({ replyTo, onCancelReply, onSend, inset, members, onGame, 
             <Send className="size-4" />
           </Button>
         </div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending} />
-          <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending} onRecordingChange={setRecording} />
-          <StickerPicker onPick={onSticker} disabled={sending} />
-          <PollComposer groupId={groupId} onCreated={onPoll} disabled={sending} />
-          <GamePicker onPick={onGame} disabled={sending} inGroup />
-        </div>
+        {(extras || hasExtra) && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-bottom-1">
+            <ChatAttachmentPicker file={file} onChange={setFile} disabled={sending} />
+            <ChatVoiceMemo file={audio} onChange={setAudio} disabled={sending} onRecordingChange={setRecording} />
+            <StickerPicker onPick={async (s) => { await onSticker(s); setExtras(false); }} disabled={sending} />
+            <PollComposer groupId={groupId} onCreated={() => { onPoll(); setExtras(false); }} disabled={sending} />
+            <GamePicker onPick={async (g) => { await onGame(g); setExtras(false); }} disabled={sending} inGroup />
+          </div>
+        )}
       </div>
     </div>
   );
