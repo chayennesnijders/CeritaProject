@@ -63,6 +63,7 @@ import { Route as AuthenticatedLuisterenIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedLuisterenMediaIdRouteImport } from './routes/_authenticated/luisteren.$mediaId'
 import { Route as AuthenticatedOntdekkenIndexRouteImport } from './routes/_authenticated/ontdekken.index'
 import { Route as AuthenticatedOntdekkenArticleIdRouteImport } from './routes/_authenticated/ontdekken.$articleId'
+import { Route as AuthenticatedOntdekkenSwipeRouteImport } from './routes/_authenticated/ontdekken.swipe'
 import { Route as ApiPublicAdminNewsPushRouteImport } from './routes/api/public/admin-news-push'
 import { Route as ApiPublicFreeItemsWeeklyRouteImport } from './routes/api/public/free-items-weekly'
 import { Route as ApiPublicMemberRemindersRouteImport } from './routes/api/public/member-reminders'
@@ -351,6 +352,12 @@ const AuthenticatedOntdekkenArticleIdRoute =
     path: '/ontdekken/$articleId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOntdekkenSwipeRoute =
+  AuthenticatedOntdekkenSwipeRouteImport.update({
+    id: '/ontdekken/swipe',
+    path: '/ontdekken/swipe',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicAdminNewsPushRoute = ApiPublicAdminNewsPushRouteImport.update({
   id: '/api/public/admin-news-push',
   path: '/api/public/admin-news-push',
@@ -418,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/handleidingen/$slug': typeof AuthenticatedHandleidingenSlugRoute
   '/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
+  '/ontdekken/swipe': typeof AuthenticatedOntdekkenSwipeRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
@@ -476,6 +484,7 @@ export interface FileRoutesByTo {
   '/handleidingen/$slug': typeof AuthenticatedHandleidingenSlugRoute
   '/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
+  '/ontdekken/swipe': typeof AuthenticatedOntdekkenSwipeRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
@@ -536,6 +545,7 @@ export interface FileRoutesById {
   '/_authenticated/handleidingen/$slug': typeof AuthenticatedHandleidingenSlugRoute
   '/_authenticated/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/_authenticated/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
+  '/_authenticated/ontdekken/swipe': typeof AuthenticatedOntdekkenSwipeRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
   '/api/public/free-items-weekly': typeof ApiPublicFreeItemsWeeklyRoute
   '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
@@ -596,6 +606,7 @@ export interface FileRouteTypes {
     | '/handleidingen/$slug'
     | '/luisteren/$mediaId'
     | '/ontdekken/$articleId'
+    | '/ontdekken/swipe'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/api/public/member-reminders'
@@ -654,6 +665,7 @@ export interface FileRouteTypes {
     | '/handleidingen/$slug'
     | '/luisteren/$mediaId'
     | '/ontdekken/$articleId'
+    | '/ontdekken/swipe'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/api/public/member-reminders'
@@ -713,6 +725,7 @@ export interface FileRouteTypes {
     | '/_authenticated/handleidingen/$slug'
     | '/_authenticated/luisteren/$mediaId'
     | '/_authenticated/ontdekken/$articleId'
+    | '/_authenticated/ontdekken/swipe'
     | '/api/public/admin-news-push'
     | '/api/public/free-items-weekly'
     | '/api/public/member-reminders'
@@ -1127,6 +1140,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOntdekkenArticleIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ontdekken/swipe': {
+      id: '/_authenticated/ontdekken/swipe'
+      path: '/ontdekken/swipe'
+      fullPath: '/ontdekken/swipe'
+      preLoaderRoute: typeof AuthenticatedOntdekkenSwipeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/admin-news-push': {
       id: '/api/public/admin-news-push'
       path: '/api/public/admin-news-push'
@@ -1183,6 +1203,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHandleidingenSlugRoute: typeof AuthenticatedHandleidingenSlugRoute
   AuthenticatedLuisterenMediaIdRoute: typeof AuthenticatedLuisterenMediaIdRoute
   AuthenticatedOntdekkenArticleIdRoute: typeof AuthenticatedOntdekkenArticleIdRoute
+  AuthenticatedOntdekkenSwipeRoute: typeof AuthenticatedOntdekkenSwipeRoute
   AuthenticatedBerichtenIndexRoute: typeof AuthenticatedBerichtenIndexRoute
   AuthenticatedCommunityIndexRoute: typeof AuthenticatedCommunityIndexRoute
   AuthenticatedHandleidingenIndexRoute: typeof AuthenticatedHandleidingenIndexRoute
@@ -1222,6 +1243,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHandleidingenSlugRoute: AuthenticatedHandleidingenSlugRoute,
   AuthenticatedLuisterenMediaIdRoute: AuthenticatedLuisterenMediaIdRoute,
   AuthenticatedOntdekkenArticleIdRoute: AuthenticatedOntdekkenArticleIdRoute,
+  AuthenticatedOntdekkenSwipeRoute: AuthenticatedOntdekkenSwipeRoute,
   AuthenticatedBerichtenIndexRoute: AuthenticatedBerichtenIndexRoute,
   AuthenticatedCommunityIndexRoute: AuthenticatedCommunityIndexRoute,
   AuthenticatedHandleidingenIndexRoute: AuthenticatedHandleidingenIndexRoute,

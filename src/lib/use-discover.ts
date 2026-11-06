@@ -48,6 +48,8 @@ export function useDiscover(uid: string | undefined) {
   return {
     stories: stories.data ?? [],
     isLoading: stories.isLoading,
+    /** True once the member's own reads, saves and reactions are known. */
+    mineLoaded: !uid || mine.isSuccess || mine.isError,
     counts: counts.data ?? new Map<string, ReactionCounts>(),
     saved: mine.data?.saved ?? new Set<string>(),
     read: mine.data?.read ?? new Set<string>(),

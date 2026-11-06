@@ -95,6 +95,23 @@ function OntdekkenPage() {
         onSelect={() => setF(NO_FILTER)}
       />
 
+      {k.kind === "verhaal" && stories.length > 0 && (
+        <Link
+          to="/ontdekken/swipe"
+          className="mt-3 flex items-center gap-3 overflow-hidden rounded-3xl bg-gradient-to-br from-[#2a1026] to-[#7a3b69] p-4 text-white shadow-soft active:scale-[0.99]"
+        >
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/15 text-2xl">📱</span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Swipen door verhalen</span>
+            <span className="block text-xs opacity-85">
+              Eén verhaal per scherm. Swipe omhoog voor het volgende
+              {unreadCount > 0 ? ` · ${unreadCount} nieuw voor jou` : ""}
+            </span>
+          </span>
+          <span className="text-xl">↑</span>
+        </Link>
+      )}
+
       {k.kind === "verhaal" && (
         <Link
           to="/verhaal-insturen"

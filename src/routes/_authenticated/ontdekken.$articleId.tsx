@@ -7,6 +7,7 @@ import { categoryLabel, photoInParagraph, useArticleImage } from "@/lib/articles
 import { useMe } from "@/lib/auth";
 import { kindInfo, NO_REACTIONS, ofKind, REACTIONS, readingMinutes, relatedStories } from "@/lib/discover";
 import { useDiscover, useStoryActions } from "@/lib/use-discover";
+import { SENSITIVE_CATEGORIES } from "@/lib/swipe-feed";
 
 export const Route = createFileRoute("/_authenticated/ontdekken/$articleId")({
   head: () => ({
@@ -77,7 +78,7 @@ function ArticlePage() {
         </button>
         </div>
       </div>
-      {k.kind === "verhaal" && SENSITIVE.has(article.category) && (
+      {k.kind === "verhaal" && SENSITIVE_CATEGORIES.has(article.category) && (
         <div className="mt-4 rounded-2xl bg-secondary p-4 text-sm text-secondary-foreground">
           💛 Dit is een echt verhaal van een jongere en het kan over moeilijke dingen gaan. Lees in je eigen tempo en stop wanneer je wilt.
           Raakt het je? Praat erover met iemand die je vertrouwt, of bel gratis de Kindertelefoon (0800-0432) of 113 (0800-0113).
@@ -136,6 +137,4 @@ function ArticlePage() {
   );
 }
 
-// Stories about hard experiences get a gentle note with where to find help.
-const SENSITIVE = new Set(["overkomen", "in-je-hoofd"]);
 
