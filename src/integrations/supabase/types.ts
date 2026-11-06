@@ -405,6 +405,8 @@ export type Database = {
           step: number
           plan: string
           completed_at: string | null
+          reflection: string | null
+          reflected_at: string | null
           updated_at: string
         }
         Insert: {
@@ -413,6 +415,8 @@ export type Database = {
           step?: number
           plan?: string
           completed_at?: string | null
+          reflection?: string | null
+          reflected_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -421,6 +425,8 @@ export type Database = {
           step?: number
           plan?: string
           completed_at?: string | null
+          reflection?: string | null
+          reflected_at?: string | null
           updated_at?: string
         }
         Relationships: []

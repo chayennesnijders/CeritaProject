@@ -5,7 +5,18 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { celebrate } from "@/lib/celebrate";
-import { guideBySlug, type Guide, type GuideOption, type GuideStep } from "@/lib/guides";
+import { GuideCheckIn } from "@/components/GuideCheckIn";
+import { ReadAloud } from "@/components/ReadAloud";
+import {
+  cheatsheetText,
+  guideBySlug,
+  needsCheckIn,
+  stepSpeech,
+  type Guide,
+  type GuideOption,
+  type GuideStep,
+  type Reflection,
+} from "@/lib/guides";
 
 export const Route = createFileRoute("/_authenticated/handleidingen/$slug")({
   head: () => ({ meta: [{ title: "Handleiding — CeritaProject" }] }),
@@ -44,7 +55,7 @@ function GuideRunner({ guide, uid }: { guide: Guide; uid: string }) {
     queryFn: async () => {
       const { data } = await supabase
         .from("guide_progress")
-        .select("step, plan, completed_at")
+        .select("step, plan, completed_at, reflection")
         .eq("user_id", uid)
         .eq("guide", guide.slug)
         .maybeSingle();
@@ -112,16 +123,44 @@ function GuideRunner({ guide, uid }: { guide: Guide; uid: string }) {
       </div>
 
       {step === 0 && (
-        <header className="space-y-1">
+        <header className="space-y-3">
           <p className="text-3xl">{guide.emoji}</p>
           <h1 className="text-2xl leading-tight">{guide.title}</h1>
+          <div className="space-y-2 rounded-3xl bg-secondary p-4 text-sm text-secondary-foreground">
+            <p className="font-semibold">Na deze handleiding:</p>
+            <ul className="space-y-1">
+              {guide.outcomes.map((o) => (
+                <li key={o}>✔️ {o}</li>
+              ))}
+            </ul>
+            <p className="pt-1 text-xs opacity-80">
+              {guide.forWho} · ±{guide.minutes} min · je kunt altijd stoppen en later verder
+            </p>
+          </div>
         </header>
       )}
 
       {current ? (
-        <StepView key={step} step={current} plan={plan} setPlan={setPlan} onPlanSave={(t) => void save(step, false, t)} />
+        <>
+          <div className="flex justify-end">
+            <ReadAloud key={step} text={stepSpeech(current)} />
+          </div>
+          <StepView key={step} step={current} plan={plan} setPlan={setPlan} onPlanSave={(t) => void save(step, false, t)} />
+        </>
       ) : (
-        <Cheatsheet guide={guide} plan={plan} />
+        <>
+          {saved?.completed_at &&
+            (saved.reflection ||
+              needsCheckIn({ completed_at: saved.completed_at, plan: saved.plan, reflection: null }, Date.now())) && (
+              <GuideCheckIn
+                guide={guide}
+                uid={uid}
+                plan={saved.plan}
+                reflection={(saved.reflection as Reflection | null) ?? null}
+              />
+            )}
+          <Cheatsheet guide={guide} plan={plan} />
+        </>
       )}
 
       <div className="flex gap-2">
@@ -181,6 +220,8 @@ function StepView({
       return <SentencesStep step={step} />;
     case "checklist":
       return <ChecklistStep step={step} />;
+    case "gesprek":
+      return <ConversationStep step={step} />;
     case "plan":
       return (
         <section className={card}>
@@ -315,12 +356,74 @@ function ChecklistStep({ step }: { step: Extract<GuideStep, { kind: "checklist" 
   );
 }
 
+function ConversationStep({ step }: { step: Extract<GuideStep, { kind: "gesprek" }> }) {
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const toggle = (i: number) =>
+    setOpen((s) => {
+      const n = new Set(s);
+      if (n.has(i)) n.delete(i);
+      else n.add(i);
+      return n;
+    });
+  const tips = step.lines.filter((l) => l.why).length;
+  return (
+    <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
+      <h2 className="text-lg">{step.title}</h2>
+      <p className="text-sm">{step.text}</p>
+      <div className="space-y-2">
+        {step.lines.map((l, i) =>
+          l.who === "kind" ? (
+            <div key={i} className="flex justify-start">
+              <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-muted px-3 py-2 text-sm">
+                <span className="block text-[10px] font-semibold uppercase text-muted-foreground">Kind</span>
+                {l.text}
+              </p>
+            </div>
+          ) : (
+            <div key={i} className="flex flex-col items-end gap-1">
+              <button
+                onClick={() => l.why && toggle(i)}
+                aria-expanded={l.why ? open.has(i) : undefined}
+                className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3 py-2 text-left text-sm text-primary-foreground"
+              >
+                <span className="block text-[10px] font-semibold uppercase opacity-80">Ouder {l.why ? "· tik voor uitleg" : ""}</span>
+                {l.text}
+              </button>
+              {l.why && open.has(i) && (
+                <p className="max-w-[85%] rounded-2xl bg-[#e3f6e8] px-3 py-2 text-xs text-[#1d5a2c]">💡 {l.why}</p>
+              )}
+            </div>
+          ),
+        )}
+      </div>
+      {open.size > 0 && open.size === tips && (
+        <p className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
+          Je hebt alle uitleg gezien. Probeer het gesprek eens hardop te oefenen, met je eigen woorden.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function Cheatsheet({ guide, plan }: { guide: Guide; plan: string }) {
+  const share = async () => {
+    const text = cheatsheetText(guide, plan);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: guide.title, text });
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      toast.success("Gekopieerd. Plak het in je notities of stuur het naar je partner.");
+    } catch {
+      // Sharing was cancelled; nothing to do.
+    }
+  };
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
       <p className="text-3xl">🎉</p>
       <h2 className="text-lg">Klaar! Jouw spiekbriefje</h2>
-      <p className="text-sm text-muted-foreground">Maak er een screenshot van, zodat je het altijd bij de hand hebt.</p>
+      <p className="text-sm text-muted-foreground">De kern in vijf zinnen. Bewaar het, zodat je het bij de hand hebt als het moment komt.</p>
       <ol className="list-decimal space-y-2 pl-5 text-sm">
         {guide.cheatsheet.map((c) => (
           <li key={c}>{c}</li>
@@ -331,6 +434,10 @@ function Cheatsheet({ guide, plan }: { guide: Guide; plan: string }) {
           <b>Jouw plan voor deze week:</b> {plan}
         </p>
       )}
+      <button onClick={() => void share()} className="w-full rounded-full border px-4 py-2.5 text-sm font-semibold">
+        📤 Deel of bewaar je spiekbriefje
+      </button>
+      {plan && <p className="text-xs text-muted-foreground">Over twee dagen vragen we hoe het ging met je plan.</p>}
     </section>
   );
 }

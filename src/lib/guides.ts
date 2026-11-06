@@ -3,13 +3,22 @@
  * choose a reaction in (with feedback), sentences to pick for yourself, a checklist and a small plan.
  * Content is general guidance, not medical advice; it always points to real help.
  */
+import { EXTRA_GUIDES } from "./guides-extra";
+
 export type GuideOption = { text: string; verdict: "goed" | "kan beter" | "liever niet"; feedback: string };
 export type GuideStep =
   | { kind: "uitleg"; title: string; text: string[]; tip?: string }
   | { kind: "keuze"; title: string; situation: string; question: string; options: GuideOption[] }
   | { kind: "zinnen"; title: string; text: string; sentences: string[]; avoid?: string[] }
   | { kind: "checklist"; title: string; text: string; items: string[]; after?: string }
-  | { kind: "plan"; title: string; text: string; actions: string[] };
+  | { kind: "plan"; title: string; text: string; actions: string[] }
+  | { kind: "gesprek"; title: string; text: string; lines: GuideLine[] };
+
+/** One line of an example conversation; "why" explains what makes it work. */
+export type GuideLine = { who: "ouder" | "kind"; text: string; why?: string };
+
+/** How a parent says their plan went, a few days later. */
+export type Reflection = "goed" | "lastig" | "niet";
 
 export type Guide = {
   slug: string;
@@ -17,9 +26,15 @@ export type Guide = {
   title: string;
   summary: string;
   minutes: number;
+  /** For whom, e.g. "Ouders van kinderen van 10 tot 18". */
+  forWho: string;
+  /** What you can do after this guide (shown before you start). */
+  outcomes: string[];
   steps: GuideStep[];
   /** The short reminder at the end (key sentences to keep). */
   cheatsheet: string[];
+  /** Advice after the check-in "how did your plan go?". */
+  followUp: Record<Reflection, string>;
 };
 
 export const GUIDES: Guide[] = [
@@ -28,8 +43,15 @@ export const GUIDES: Guide[] = [
     emoji: "💬",
     title: "Het gesprek beginnen als je je zorgen maakt",
     summary:
-      "Je kind is stiller, sneller boos of trekt zich terug, en je weet niet hoe je erover begint. In 9 korte stappen oefen je wat je kunt zeggen, en wat je beter niet doet.",
-    minutes: 12,
+      "Je kind is stiller, sneller boos of trekt zich terug, en je weet niet hoe je erover begint. In 10 korte stappen oefen je wat je kunt zeggen, en wat je beter niet doet.",
+    minutes: 15,
+    forWho: "Ouders en verzorgers van kinderen van 10 tot 18 jaar",
+    outcomes: [
+      "Je weet wanneer en waar je het gesprek het best begint",
+      "Je hebt een eerste zin klaarliggen die bij jou past",
+      "Je weet wat je zegt als je kind dichtklapt, of iets heftigs vertelt",
+      "Je herkent wanneer het tijd is voor hulp, en waar je dan terechtkunt",
+    ],
     steps: [
       {
         kind: "uitleg",
@@ -109,6 +131,22 @@ export const GUIDES: Guide[] = [
         tip: "Geef niet meteen oplossingen. Vraag liever: ‘Wil je dat ik meedenk, of wil je dat ik gewoon luister?’",
       },
       {
+        kind: "gesprek",
+        title: "Zo kan het klinken",
+        text: "Een voorbeeld van een gesprek in de auto. Tik op een zin van de ouder om te zien waarom die werkt.",
+        lines: [
+          { who: "ouder", text: "Ik merk dat je de laatste tijd minder met je vrienden afspreekt.", why: "Je beschrijft wat je ziet, zonder oordeel. Daar kan je kind niet tegenin gaan." },
+          { who: "kind", text: "Ja, en? Mag dat niet?" },
+          { who: "ouder", text: "Tuurlijk mag dat. Ik vroeg me alleen af hoe het met je gaat.", why: "Je gaat niet in de verdediging, en maakt meteen duidelijk dat het je om je kind gaat." },
+          { who: "kind", text: "Gewoon. Ze doen een beetje raar de laatste tijd." },
+          { who: "ouder", text: "Raar? Hoe bedoel je?", why: "Doorvragen met de woorden van je kind zelf. Kort, nieuwsgierig, geen ‘waarom’." },
+          { who: "kind", text: "Ze hebben een groepsapp zonder mij. Ik zag het bij iemand op zijn telefoon." },
+          { who: "ouder", text: "Dus je voelt je buitengesloten door je eigen vrienden. Dat doet pijn.", why: "Samenvatten en het gevoel benoemen. Je kind voelt zich gehoord, en vertelt vaak uit zichzelf meer." },
+          { who: "kind", text: "Ja… best wel." },
+          { who: "ouder", text: "Wil je dat ik meedenk, of wil je vooral dat ik het weet?", why: "Je kind houdt de regie. Dat maakt het makkelijker om de volgende keer weer naar jou te komen." },
+        ],
+      },
+      {
         kind: "keuze",
         title: "Als het zwaar wordt",
         situation: "Je kind vertelt zachtjes: ‘Soms voel ik me zo rot dat ik er niet meer wil zijn.’",
@@ -175,15 +213,21 @@ export const GUIDES: Guide[] = [
       "Luisteren, Samenvatten, Doorvragen. Eerst luisteren, dan pas meedenken.",
       "Gaat het over er niet meer willen zijn? Rustig blijven, serieus nemen, dezelfde dag hulp zoeken (113: 0800-0113).",
     ],
+    followUp: {
+      goed: "Mooi dat het gesprek op gang kwam. Houd het klein en herhaal het: een korte check-in in de auto of tijdens het koken werkt vaak beter dan een groot gesprek. Vraag over een paar dagen gewoon nog eens hoe het gaat, ook als het goed lijkt.",
+      lastig: "Dat het lastig was, is heel normaal. Een eerste poging die stroef gaat is niet mislukt: je kind weet nu dat je het ziet. Probeer het over een paar dagen opnieuw op een ander moment, en zeg gerust: ‘Ik deed het misschien wat onhandig laatst, maar ik meen het.’",
+      niet: "Het kwam er nog niet van, en dat is oké. Kies één moment deze week waarop jullie toch al samen zijn, zoals een autorit, en neem je voor alleen de eerste zin te zeggen. Meer hoeft niet.",
+    },
   },
+  ...EXTRA_GUIDES,
 ];
 
 /** Guides that are coming, shown so parents know what to expect. */
 export const GUIDES_SOON = [
-  { emoji: "📱", title: "Schermtijd zonder ruzie" },
-  { emoji: "😔", title: "Als je kind gepest wordt" },
-  { emoji: "🏫", title: "Je kind wil niet naar school" },
-  { emoji: "🌈", title: "Als je kind vertelt dat het lhbtiq+ is" },
+  { emoji: "🩹", title: "Als je kind zichzelf pijn doet" },
+  { emoji: "🏠", title: "Scheiden zonder dat je kind ertussen zit" },
+  { emoji: "🍽️", title: "Zorgen over eten en lichaamsbeeld" },
+  { emoji: "📚", title: "Stress rond toetsen en examens" },
 ];
 
 export const guideBySlug = (slug: string) => GUIDES.find((g) => g.slug === slug) ?? null;
@@ -191,3 +235,45 @@ export const guideBySlug = (slug: string) => GUIDES.find((g) => g.slug === slug)
 /** Progress as a whole number from 0 to 100. */
 export const guidePercent = (guide: Guide, step: number, done: boolean) =>
   done ? 100 : Math.round((Math.min(step, guide.steps.length) / guide.steps.length) * 100);
+
+/** The text of a step, to read aloud (e.g. while driving). */
+export function stepSpeech(step: GuideStep): string {
+  switch (step.kind) {
+    case "uitleg":
+      return [step.title, ...step.text, step.tip ?? ""].filter(Boolean).join(" ");
+    case "keuze":
+      return [step.title, step.situation, step.question, ...step.options.map((o, i) => `Antwoord ${i + 1}: ${o.text}`)].join(" ");
+    case "zinnen":
+      return [step.title, step.text, ...step.sentences].join(" ");
+    case "checklist":
+      return [step.title, step.text, ...step.items, step.after ?? ""].filter(Boolean).join(" ");
+    case "plan":
+      return [step.title, step.text, ...step.actions].join(" ");
+    case "gesprek":
+      return [step.title, ...step.lines.map((l) => `${l.who === "ouder" ? "Ouder" : "Kind"}: ${l.text}`)].join(" ");
+  }
+}
+
+/** The cheat sheet as plain text, to share with a partner or save in notes. */
+export function cheatsheetText(guide: Guide, plan: string): string {
+  const lines = [`${guide.emoji} ${guide.title}`, "", ...guide.cheatsheet.map((c, i) => `${i + 1}. ${c}`)];
+  if (plan.trim()) lines.push("", `Mijn plan: ${plan.trim()}`);
+  lines.push("", "Uit de handleidingen van CeritaProject");
+  return lines.join("\n");
+}
+
+export const REFLECTIONS: { id: Reflection; emoji: string; label: string }[] = [
+  { id: "goed", emoji: "😊", label: "Het ging goed" },
+  { id: "lastig", emoji: "😕", label: "Het was lastig" },
+  { id: "niet", emoji: "⏳", label: "Het kwam er nog niet van" },
+];
+
+/** Two days after finishing a guide with a plan, ask how the plan went (once). */
+export const CHECK_IN_AFTER_MS = 2 * 86_400_000;
+export function needsCheckIn(
+  row: { completed_at: string | null; plan: string; reflection: string | null },
+  now: number,
+): boolean {
+  if (!row.completed_at || row.reflection || !row.plan.trim()) return false;
+  return now - Date.parse(row.completed_at) >= CHECK_IN_AFTER_MS;
+}

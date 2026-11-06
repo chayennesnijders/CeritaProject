@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GUIDES, guideBySlug, guidePercent } from "./guides";
+import { CHECK_IN_AFTER_MS, cheatsheetText, GUIDES, guideBySlug, guidePercent, needsCheckIn, stepSpeech } from "./guides";
 
 describe("guides", () => {
   it("have unique slugs and steps that make sense", () => {
@@ -27,5 +27,36 @@ describe("guides", () => {
     expect(guidePercent(g, g.steps.length, false)).toBe(100);
     expect(guidePercent(g, 2, true)).toBe(100);
     expect(guideBySlug("bestaat-niet")).toBeNull();
+  });
+});
+
+describe("guide extras", () => {
+  it("every guide sells itself and has follow-up advice", () => {
+    for (const g of GUIDES) {
+      expect(g.outcomes.length).toBeGreaterThanOrEqual(3);
+      expect(g.forWho).not.toBe("");
+      expect(Object.keys(g.followUp).sort()).toEqual(["goed", "lastig", "niet"]);
+      expect(g.steps.some((s) => s.kind === "gesprek")).toBe(true);
+      expect(g.steps.some((s) => s.kind === "plan")).toBe(true);
+      for (const s of g.steps) expect(stepSpeech(s).length).toBeGreaterThan(20);
+    }
+    expect(GUIDES.length).toBeGreaterThanOrEqual(5);
+  });
+  it("makes a shareable cheat sheet", () => {
+    const g = GUIDES[0]!;
+    const t = cheatsheetText(g, "Een wandeling plannen");
+    expect(t).toContain(g.title);
+    expect(t).toContain("1. ");
+    expect(t).toContain("Mijn plan: Een wandeling plannen");
+    expect(cheatsheetText(g, "  ")).not.toContain("Mijn plan");
+  });
+  it("asks how the plan went two days after finishing, once", () => {
+    const done = "2026-11-01T10:00:00Z";
+    const later = Date.parse(done) + CHECK_IN_AFTER_MS;
+    expect(needsCheckIn({ completed_at: done, plan: "x", reflection: null }, later)).toBe(true);
+    expect(needsCheckIn({ completed_at: done, plan: "x", reflection: null }, later - 1000)).toBe(false);
+    expect(needsCheckIn({ completed_at: done, plan: "x", reflection: "goed" }, later)).toBe(false);
+    expect(needsCheckIn({ completed_at: done, plan: "", reflection: null }, later)).toBe(false);
+    expect(needsCheckIn({ completed_at: null, plan: "x", reflection: null }, later)).toBe(false);
   });
 });

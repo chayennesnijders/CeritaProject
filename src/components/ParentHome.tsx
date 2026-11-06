@@ -7,6 +7,7 @@ import { ThemeDayCard } from "@/components/ThemeDayCard";
 import { celebrate } from "@/lib/celebrate";
 import { MOODS, dutchHour, greeting, moodById, type MoodId } from "@/lib/home";
 import { PARENT_HELP, parentDay } from "@/lib/parent";
+import { GUIDES, needsCheckIn } from "@/lib/guides";
 
 type CheckKind = "zelf" | "kind";
 
@@ -26,6 +27,21 @@ export function ParentHome({
   const hi = greeting(dutchHour());
   const today = parentDay(day);
   const weekAgo = new Date(new Date(day).getTime() - 6 * 86_400_000).toISOString().slice(0, 10);
+
+  const { data: guideRows } = useQuery({
+    queryKey: ["guide-progress", uid],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("guide_progress")
+          .select("guide, step, plan, completed_at, reflection")
+          .eq("user_id", uid)
+      ).data ?? [],
+  });
+  const checkIn = GUIDES.find((g) => {
+    const r = guideRows?.find((x) => x.guide === g.slug);
+    return r ? needsCheckIn(r, Date.now()) : false;
+  });
 
   const { data } = useQuery({
     queryKey: ["parent-home", uid, day],
@@ -162,13 +178,15 @@ export function ParentHome({
 
       <Link
         to="/handleidingen"
-        className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft transition active:scale-[0.99]"
+        className={`flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft transition active:scale-[0.99] ${checkIn ? "border-2 border-primary" : ""}`}
       >
-        <span className="text-3xl">📘</span>
+        <span className="text-3xl">{checkIn ? "💬" : "📘"}</span>
         <span className="min-w-0 flex-1">
-          <span className="block font-semibold">Handleidingen</span>
+          <span className="block font-semibold">{checkIn ? "Hoe ging het met je plan?" : "Handleidingen"}</span>
           <span className="block text-sm text-muted-foreground">
-            Oefen in korte stappen: hoe begin je het gesprek als je je zorgen maakt?
+            {checkIn
+              ? `Van ‘${checkIn.title}’. Vertel het in één tik en krijg advies dat erbij past.`
+              : `${GUIDES.length} trainingen, zoals: gesprek beginnen, schermtijd, pesten en schoolweigering.`}
           </span>
         </span>
         <span className="text-primary">→</span>

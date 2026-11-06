@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
-import { GUIDES, GUIDES_SOON, guidePercent } from "@/lib/guides";
+import { GuideCheckIn } from "@/components/GuideCheckIn";
+import { GUIDES, GUIDES_SOON, guidePercent, needsCheckIn } from "@/lib/guides";
 
 export const Route = createFileRoute("/_authenticated/handleidingen/")({
   head: () => ({ meta: [{ title: "Handleidingen voor ouders — CeritaProject" }] }),
@@ -16,10 +18,13 @@ function GuidesPage() {
     queryKey: ["guide-progress", uid],
     enabled: !!uid,
     queryFn: async () => {
-      const { data } = await supabase.from("guide_progress").select("guide, step, completed_at").eq("user_id", uid!);
+      const { data } = await supabase.from("guide_progress").select("guide, step, plan, completed_at, reflection").eq("user_id", uid!);
       return data ?? [];
     },
   });
+
+  // Keep a check-in on screen after answering, so the advice stays readable.
+  const [answered, setAnswered] = useState<Set<string>>(new Set());
 
   return (
     <div className="space-y-4 pb-6">
@@ -27,10 +32,25 @@ function GuidesPage() {
         <p className="text-3xl">📘</p>
         <h1 className="text-2xl">Handleidingen</h1>
         <p className="text-sm text-muted-foreground">
-          Korte, praktische stappen voor ouders en verzorgers. Je oefent met echte situaties en kiest wat bij jou past.
-          Je voortgang wordt bewaard, dus je kunt altijd later verder.
+          Praktische trainingen voor ouders en verzorgers. Je oefent met echte situaties, ziet voorbeeldgesprekken met
+          uitleg, en gaat weg met een spiekbriefje en een eigen plan. Twee dagen later vragen we hoe het ging.
         </p>
       </header>
+
+      {uid &&
+        GUIDES.map((g) => {
+          const p = progress?.find((r) => r.guide === g.slug);
+          return p && (answered.has(g.slug) || needsCheckIn(p, Date.now())) ? (
+            <GuideCheckIn
+              key={`checkin-${g.slug}`}
+              guide={g}
+              uid={uid}
+              plan={p.plan}
+              reflection={null}
+              onAnswered={() => setAnswered((s) => new Set(s).add(g.slug))}
+            />
+          ) : null;
+        })}
 
       {GUIDES.map((g) => {
         const p = progress?.find((r) => r.guide === g.slug);
@@ -50,10 +70,10 @@ function GuidesPage() {
               </div>
             </div>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span>⏱️ ±{g.minutes} min</span>
-              <span>· {g.steps.length} stappen</span>
-              <span className="ml-auto font-semibold text-primary">
-                {pct === 100 ? "✅ Klaar · opnieuw bekijken" : pct > 0 ? `Verder (${pct}%)` : "Beginnen →"}
+              <span className="whitespace-nowrap">⏱️ ±{g.minutes} min</span>
+              <span className="whitespace-nowrap">· {g.steps.length} stappen</span>
+              <span className="ml-auto whitespace-nowrap font-semibold text-primary">
+                {pct === 100 ? "✅ Klaar" : pct > 0 ? `Verder (${pct}%)` : "Beginnen →"}
               </span>
             </div>
             {pct > 0 && (
