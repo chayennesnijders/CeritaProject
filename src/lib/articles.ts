@@ -35,20 +35,91 @@ export const excerpt = (body: string) => {
   return first.length > 110 ? `${first.slice(0, 110).trimEnd()}…` : first;
 };
 
-/** Foto's uit besloten opslag; dit maakt een tijdelijke kijk-link (1 uur geldig). */
+// ---------- Photo links ----------
+// Photos live in private storage and are shown through temporary links. The same link is reused
+// (also after closing the app, via localStorage) for as long as it is valid, so the phone keeps
+// the photo it already downloaded instead of fetching it again.
+
+/** How long a link stays valid. Story photos may be cached a day; private chat files only an hour. */
+const LINK_SECONDS: Record<string, number> = { "article-images": 24 * 3600, avatars: 24 * 3600 };
+const linkSeconds = (bucket: string) => LINK_SECONDS[bucket] ?? 3600;
+const STORE_KEY = "cerita-fotolinks-v1";
+type Stored = Record<string, { url: string; until: number }>;
+
+function readStore(): Stored {
+  try {
+    return JSON.parse(localStorage.getItem(STORE_KEY) ?? "{}") as Stored;
+  } catch {
+    return {};
+  }
+}
+function writeStore(add: Stored) {
+  try {
+    const now = Date.now();
+    const all = { ...readStore(), ...add };
+    for (const [k, v] of Object.entries(all)) if (v.until < now) delete all[k];
+    localStorage.setItem(STORE_KEY, JSON.stringify(all));
+  } catch {
+    // No storage (private window): links are simply made again next time.
+  }
+}
+/** A remembered link that is still valid for at least 10 minutes, or null. */
+export function rememberedLink(bucket: string, path: string): string | null {
+  if (typeof window === "undefined") return null;
+  const hit = readStore()[`${bucket}/${path}`];
+  return hit && hit.until - Date.now() > 10 * 60_000 ? hit.url : null;
+}
+function remember(bucket: string, links: { path: string; url: string }[]) {
+  const until = Date.now() + linkSeconds(bucket) * 1000;
+  writeStore(Object.fromEntries(links.map((l) => [`${bucket}/${l.path}`, { url: l.url, until }])));
+}
+
+/**
+ * Links asked for at (almost) the same moment are made together in ONE request: a list of 150
+ * story cards asks for 150 links at once, which used to be 150 separate requests.
+ */
+const waiting = new Map<string, Map<string, ((url: string | null) => void)[]>>();
+export function signBatched(bucket: string, path: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    let queue = waiting.get(bucket);
+    if (!queue) {
+      queue = new Map();
+      waiting.set(bucket, queue);
+      setTimeout(() => void flush(bucket), 25);
+    }
+    queue.set(path, [...(queue.get(path) ?? []), resolve]);
+  });
+}
+async function flush(bucket: string) {
+  const queue = waiting.get(bucket);
+  waiting.delete(bucket);
+  if (!queue) return;
+  const paths = [...queue.keys()];
+  for (let i = 0; i < paths.length; i += 100) {
+    const chunk = paths.slice(i, i + 100);
+    const { data } = await supabase.storage.from(bucket).createSignedUrls(chunk, linkSeconds(bucket));
+    const found = new Map<string, string>();
+    for (const d of data ?? []) if (d.path && d.signedUrl && !d.error) found.set(d.path, d.signedUrl);
+    remember(bucket, [...found].map(([path, url]) => ({ path, url })));
+    for (const p of chunk) for (const done of queue.get(p) ?? []) done(found.get(p) ?? null);
+  }
+}
+
+/** Foto's uit besloten opslag: een tijdelijke kijk-link, hergebruikt zolang hij geldig is. */
 export function useSignedImage(bucket: string, path: string | null | undefined) {
+  const web = !!path && /^https?:\/\//.test(path);
   return useQuery({
     queryKey: ["signed-image", bucket, path],
     enabled: !!path,
-    staleTime: 50 * 60 * 1000,
-    // Keep the same link while it is valid, so the phone reuses the photo it already downloaded.
-    gcTime: 55 * 60 * 1000,
+    // Web addresses (e.g. a photo still on WordPress) are used as they are.
+    initialData: () => (path ? (web ? path : (rememberedLink(bucket, path) ?? undefined)) : undefined),
+    staleTime: (linkSeconds(bucket) - 15 * 60) * 1000,
+    gcTime: (linkSeconds(bucket) - 10 * 60) * 1000,
     queryFn: async () => {
-      // Web addresses (e.g. a photo still on WordPress) are used as they are.
-      if (/^https?:\/\//.test(path!)) return path!;
-      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path!, 3600);
-      if (error) return null;
-      return data.signedUrl;
+      if (web) return path!;
+      const known = rememberedLink(bucket, path!);
+      if (known) return known;
+      return signBatched(bucket, path!);
     },
   });
 }

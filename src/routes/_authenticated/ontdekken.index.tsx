@@ -335,7 +335,7 @@ function StoryTile({
     >
       <div className="relative h-28 bg-secondary">
         {src ? (
-          <img src={src} alt="" className="h-full w-full object-cover" />
+          <img src={src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
         ) : (
           <span className="flex h-full items-center justify-center text-4xl">{story.emoji}</span>
         )}
@@ -365,7 +365,7 @@ function HeroImage({ imageUrl }: { imageUrl: string | null }) {
   const { data: src } = useArticleImage(imageUrl);
   return (
     <>
-      {src && <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+      {src && <img src={src} alt="" decoding="async" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
     </>
   );
@@ -373,7 +373,7 @@ function HeroImage({ imageUrl }: { imageUrl: string | null }) {
 
 function ArticleThumb({ emoji, imageUrl }: { emoji: string; imageUrl: string | null }) {
   const { data: src } = useArticleImage(imageUrl);
-  if (src) return <img src={src} alt="" className="size-16 shrink-0 rounded-2xl object-cover" />;
+  if (src) return <img src={src} alt="" loading="lazy" decoding="async" className="size-16 shrink-0 rounded-2xl object-cover" />;
   return (
     <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-secondary text-2xl">
       {emoji}
