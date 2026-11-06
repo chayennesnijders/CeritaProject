@@ -474,7 +474,7 @@ function Chat({
       <div ref={bottom} />
 
       <form
-        className="sticky bottom-24 z-10 rounded-3xl bg-card p-2 shadow-soft"
+        className="sticky bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))] z-10 rounded-3xl bg-card p-2 shadow-soft"
         onSubmit={(e) => {
           e.preventDefault();
           void send(text);
