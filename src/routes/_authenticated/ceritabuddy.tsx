@@ -422,7 +422,7 @@ function Chat({
                   setMode(m.id);
                   void send(m.starter, { mode: m.id });
                 }}
-                className="flex items-center gap-2 rounded-2xl bg-card p-3 text-left text-xs font-semibold shadow-soft transition-transform active:scale-95"
+                className="flex items-center gap-2 rounded-2xl bg-card p-3 text-left text-xs font-semibold shadow-soft transition-transform active:scale-95 [&:last-child:nth-child(odd)]:col-span-2"
               >
                 <span className="text-xl">{m.emoji}</span>
                 <span>{m.label}</span>
