@@ -312,7 +312,6 @@ function Chat({
   const [safety, setSafety] = useState<"none" | "zorg" | "acuut">("none");
   const [mode, setMode] = useState<BuddyModeId | null>(null);
   const convRef = useRef(convId);
-  const bottom = useRef<HTMLDivElement>(null);
 
   const { data: msgs = [], isLoading } = useQuery({
     queryKey: ["buddy-msgs", convId],
@@ -329,9 +328,31 @@ function Chat({
       ).data ?? []) as Msg[],
   });
 
+  // Follow the conversation to the very bottom (below the composer), but only while the member is
+  // already near the bottom, so scrolling up to reread is never pulled back down mid-answer.
+  const follow = useRef(true);
   useEffect(() => {
-    bottom.current?.scrollIntoView({ block: "end" });
-  }, [msgs.length, pending, stream, failed]);
+    const onScroll = () => {
+      follow.current = window.innerHeight + window.scrollY > document.documentElement.scrollHeight - 160;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  useEffect(() => {
+    if (pending) follow.current = true; // you just sent something: always show it
+  }, [pending]);
+  useEffect(() => {
+    if (follow.current) window.scrollTo({ top: document.documentElement.scrollHeight });
+  }, [msgs.length, pending, stream, failed, busy]);
+  // Cards and choice buttons can appear a moment after the answer; keep following while they do.
+  useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      if (follow.current) window.scrollTo({ top: document.documentElement.scrollHeight });
+    });
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  }, []);
 
   async function send(message: string, opts: { retry?: boolean; mode?: BuddyModeId | null } = {}) {
     const clean = message.trim();
@@ -482,8 +503,6 @@ function Chat({
         </div>
       )}
 
-      <div ref={bottom} />
-
       <form
         className="sticky bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))] z-10 rounded-3xl bg-card p-2 shadow-soft"
         onSubmit={(e) => {
@@ -518,6 +537,8 @@ function Chat({
           </p>
         )}
       </form>
+      {/* Room for the home bar, so the composer never covers the end of the conversation. */}
+      <div aria-hidden className="h-[env(safe-area-inset-bottom,0px)]" />
     </div>
   );
 }
