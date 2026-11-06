@@ -11,7 +11,7 @@ import {
   type BuddyTurn,
 } from "@/lib/ceritabuddy";
 import { buddySystemPrompt } from "@/server/buddy/prompt";
-import { buddyModel, moderate } from "@/server/buddy/model.server";
+import { aiSafetyCheck, buddyModel, THINKING_ROOM } from "@/server/buddy/model.server";
 
 // POST /api/buddy — één beurt in een CeritaBuddy-gesprek.
 // Volgorde: inloggen controleren → uitleg gelezen? → aan/uit en daglimiet → veiligheidscheck →
@@ -56,6 +56,9 @@ export const Route = createFileRoute("/api/buddy")({
         if (!settings?.enabled) return json({ error: "CeritaBuddy staat even uit. Probeer het later nog eens." }, 503);
         if (!prefs?.accepted_at) return json({ error: "Lees eerst de uitleg over CeritaBuddy.", code: "consent" }, 403);
 
+        // The separate AI safety check starts now, so it runs while the checks below are done.
+        const aiCheck = aiSafetyCheck(message);
+
         // Conversation: must be yours. A new one is made on the first message.
         if (conversationId) {
           const { data: conv } = await db
@@ -85,8 +88,8 @@ export const Route = createFileRoute("/api/buddy")({
         if ((used ?? 0) > settings.daily_limit)
           return json({ error: "Je hebt vandaag al veel met CeritaBuddy gepraat. Morgen kan het weer! Wil je nu met iemand praten? Kijk dan bij de coaches of de hulplijnen.", code: "limit" }, 429);
 
-        // Safety layer: word patterns + moderation service (the model's own [[veilig]] mark comes after).
-        const safety = assessSafety(message, await moderate(message));
+        // Safety layer: word patterns + a separate AI check (the model's own [[veilig]] mark comes after).
+        const safety = assessSafety(message, await aiCheck);
 
         if (!conversationId) {
           const { data: conv, error } = await db
@@ -132,7 +135,8 @@ export const Route = createFileRoute("/api/buddy")({
           model: ai.model,
           system,
           messages: history,
-          maxOutputTokens: settings.max_reply_tokens,
+          // The visible answer is kept short by the instruction; the extra room is for Claude's thinking.
+          maxOutputTokens: settings.max_reply_tokens + THINKING_ROOM,
           providerOptions: ai.providerOptions,
           onError: ({ error }) => {
             failure = error;

@@ -24,6 +24,7 @@ export type ServerChecks = {
   emailHook: boolean;
   stripeLive: boolean;
   openai: boolean;
+  anthropic: boolean;
   updates: Record<string, boolean>;
   playlists: number;
   articles: number;
@@ -45,6 +46,7 @@ export const DB_UPDATES = [
   { id: "22", label: "Update 22 (reacties, peilingen, complimenten)" },
   { id: "23-24", label: "Updates 23 en 24 (muziek)" },
   { id: "25", label: "Update 25 (veiligheidsplan, vragen, agenda)" },
+  { id: "47", label: "Update 47 (CeritaBuddy)" },
 ] as const;
 
 /** "The app runs in Vercel project X (Production) and sees these Firebase names: …" */
@@ -107,6 +109,14 @@ export function launchChecks(s: ServerChecks, c: ClientChecks): LaunchCheck[] {
       ok: s.openai,
       required: false,
       how: "Zet OPENAI_API_KEY in Vercel. Zonder werkt de rest gewoon.",
+    },
+    {
+      id: "buddy-ai",
+      group: "Techniek",
+      label: "CeritaBuddy, de AI-gesprekspartner (Claude)",
+      ok: s.anthropic,
+      required: false,
+      how: "Maak een API-sleutel op platform.claude.com en zet die als ANTHROPIC_API_KEY in Vercel. Zet daar ook een maandlimiet.",
     },
     ...DB_UPDATES.map((u) => ({
       id: `db-${u.id}`,

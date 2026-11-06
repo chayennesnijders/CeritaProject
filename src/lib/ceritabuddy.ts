@@ -163,20 +163,19 @@ const careRe = new RegExp(CARE_PATTERN, "i");
 const abuseRe = new RegExp(ABUSE_PATTERN, "i");
 const dangerRe = new RegExp(DANGER_PATTERN, "i");
 
-/** What the moderation service said, reduced to what matters here. */
-export type ModerationResult = { selfHarm: boolean; selfHarmIntent: boolean; violence: boolean; sexualMinors: boolean };
+/** What the separate AI safety check said about the newest message. */
+export type AiSafetyCheck = "geen" | "zorg" | "acuut";
 
 /** none: normal chat · zorg: show help and follow the safety protocol · acuut: also point to 112. */
 export type SafetyLevel = "none" | "zorg" | "acuut";
 
 /**
- * The safety layer: word patterns AND the moderation service (and, after the reply, the model's own
+ * The safety layer: word patterns AND a separate AI check (and, after the reply, the model's own
  * [[veilig]] mark). Any one of them is enough; it never depends on a word list alone.
  */
-export function assessSafety(text: string, moderation: ModerationResult | null): SafetyLevel {
-  if (dangerRe.test(text) || moderation?.selfHarmIntent) return "acuut";
-  if (careRe.test(text) || abuseRe.test(text)) return "zorg";
-  if (moderation && (moderation.selfHarm || moderation.sexualMinors || moderation.violence)) return "zorg";
+export function assessSafety(text: string, aiCheck: AiSafetyCheck | null): SafetyLevel {
+  if (dangerRe.test(text) || aiCheck === "acuut") return "acuut";
+  if (careRe.test(text) || abuseRe.test(text) || aiCheck === "zorg") return "zorg";
   return "none";
 }
 

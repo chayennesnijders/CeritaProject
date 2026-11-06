@@ -3,7 +3,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS public.buddy_settings (
   id int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   enabled boolean NOT NULL DEFAULT true,
-  model text NOT NULL DEFAULT 'gpt-5-mini',
+  model text NOT NULL DEFAULT 'claude-haiku-5-5',
   daily_limit int NOT NULL DEFAULT 40 CHECK (daily_limit BETWEEN 0 AND 1000),
   context_messages int NOT NULL DEFAULT 16 CHECK (context_messages BETWEEN 2 AND 60),
   max_reply_tokens int NOT NULL DEFAULT 700 CHECK (max_reply_tokens BETWEEN 100 AND 4000),
@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS public.buddy_settings (
   updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL
 );
 INSERT INTO public.buddy_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+ALTER TABLE public.buddy_settings ALTER COLUMN model SET DEFAULT 'claude-haiku-5-5';
+UPDATE public.buddy_settings SET model = 'claude-haiku-5-5' WHERE model NOT LIKE 'claude-%';
 ALTER TABLE public.buddy_settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "admins lezen buddy-instellingen" ON public.buddy_settings;
 CREATE POLICY "admins lezen buddy-instellingen" ON public.buddy_settings

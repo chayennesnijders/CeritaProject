@@ -9,7 +9,6 @@ import {
   visibleWhileStreaming,
 } from "./ceritabuddy";
 
-const noMod = { selfHarm: false, selfHarmIntent: false, violence: false, sexualMinors: false };
 
 describe("parseReply", () => {
   it("turns a KEUZES line into buttons", () => {
@@ -46,24 +45,25 @@ describe("visibleWhileStreaming", () => {
 
 describe("assessSafety", () => {
   it("is calm for ordinary chats", () => {
-    expect(assessSafety("Mijn vriendin reageert niet en ik baal ervan", noMod)).toBe("none");
-    expect(assessSafety("Mijn oma heeft kanker, ik ben zo verdrietig", noMod)).toBe("none");
+    expect(assessSafety("Mijn vriendin reageert niet en ik baal ervan", "geen")).toBe("none");
+    expect(assessSafety("Mijn oma heeft kanker, ik ben zo verdrietig", "geen")).toBe("none");
   });
   it("follows the safety protocol for suicide, self-harm and abuse", () => {
-    expect(assessSafety("ik wil er niet meer zijn", noMod)).toBe("zorg");
-    expect(assessSafety("ik heb mezelf weer gesneden", noMod)).toBe("zorg");
-    expect(assessSafety("mijn stiefvader slaat me als hij gedronken heeft", noMod)).toBe("zorg");
-    expect(assessSafety("ik durf niet meer naar huis", noMod)).toBe("zorg");
+    expect(assessSafety("ik wil er niet meer zijn", "geen")).toBe("zorg");
+    expect(assessSafety("ik heb mezelf weer gesneden", "geen")).toBe("zorg");
+    expect(assessSafety("mijn stiefvader slaat me als hij gedronken heeft", "geen")).toBe("zorg");
+    expect(assessSafety("ik durf niet meer naar huis", "geen")).toBe("zorg");
   });
   it("points to 112 when there is acute danger", () => {
-    expect(assessSafety("ik heb net een hele strip pillen geslikt", noMod)).toBe("acuut");
-    expect(assessSafety("ik sta nu op de brug", noMod)).toBe("acuut");
+    expect(assessSafety("ik heb net een hele strip pillen geslikt", "geen")).toBe("acuut");
+    expect(assessSafety("ik sta nu op de brug", "geen")).toBe("acuut");
   });
   it("does not depend on the word list alone", () => {
     const msg = "het heeft allemaal geen zin meer, morgen ben ik weg";
-    expect(assessSafety(msg, noMod)).toBe("none");
-    expect(assessSafety(msg, { ...noMod, selfHarm: true })).toBe("zorg");
-    expect(assessSafety(msg, { ...noMod, selfHarmIntent: true })).toBe("acuut");
+    expect(assessSafety(msg, "geen")).toBe("none");
+    expect(assessSafety(msg, "zorg")).toBe("zorg");
+    expect(assessSafety(msg, "acuut")).toBe("acuut");
+    expect(assessSafety(msg, null)).toBe("none");
   });
 });
 

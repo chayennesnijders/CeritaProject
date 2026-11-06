@@ -66,7 +66,8 @@ vi.mock("ai", () => ({
 }));
 vi.mock("@/server/buddy/model.server", () => ({
   buddyModel: () => ({ model: {}, providerOptions: {} }),
-  moderate: async () => ai.moderation,
+  aiSafetyCheck: async () => ai.moderation,
+  THINKING_ROOM: 1500,
 }));
 
 const { Route } = await import("./buddy");
@@ -158,8 +159,8 @@ describe("POST /api/buddy", () => {
     expect(inserts("buddy_messages")[0]).toMatchObject({ safety: true });
   });
 
-  it("also uses the moderation check, not only words", async () => {
-    ai.moderation = { selfHarm: false, selfHarmIntent: true, violence: false, sexualMinors: false };
+  it("also uses the separate AI safety check, not only words", async () => {
+    ai.moderation = "acuut";
     const res = await ask({ message: "morgen ben ik er gewoon niet meer, klaar" });
     expect(res.headers.get("X-Buddy-Safety")).toBe("acuut");
     await res.text();

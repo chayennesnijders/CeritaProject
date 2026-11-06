@@ -162,7 +162,7 @@ function Intro({ onAccept }: { onAccept: () => void }) {
         <p className="font-semibold">Even goed om te weten</p>
         <p>🤖 <b>Ik ben een AI</b>, geen mens, geen echte vriend en geen hulpverlener. Ik kan luisteren, meedenken en je helpen dingen op een rijtje te zetten, maar ik kan me ook vergissen.</p>
         <p>🔒 <b>Je gesprekken zijn alleen van jou.</b> Ook de beheerders van CeritaProject kunnen ze niet lezen. Je kunt ze altijd zelf verwijderen. Een gesprek waar je 90 dagen niets in doet, verdwijnt vanzelf.</p>
-        <p>🌍 <b>Hoe het werkt:</b> om te kunnen antwoorden gaan je berichten naar OpenAI, het bedrijf achter de AI. We sturen niet je naam of geboortedatum mee, alleen je leeftijdsgroep. OpenAI gebruikt je berichten niet om zijn AI te trainen en bewaart ze hooguit 30 dagen voor veiligheidscontrole. Deel liever geen achternaam, adres of telefoonnummer.</p>
+        <p>🌍 <b>Hoe het werkt:</b> om te kunnen antwoorden gaan je berichten naar Anthropic, het bedrijf achter de AI Claude. We sturen niet je naam of geboortedatum mee, alleen je leeftijdsgroep. Anthropic gebruikt je berichten niet om zijn AI te trainen en verwijdert ze standaard binnen 30 dagen. Deel liever geen achternaam, adres of telefoonnummer.</p>
         <p>🆘 <b>Ben je in gevaar?</b> Ik ben geen hulplijn. Bel 112 bij direct gevaar, of 113 (0800-0113) als je aan zelfmoord denkt. Je kunt ook altijd naar <Link to="/hulp" className="font-semibold underline">Hulp</Link>.</p>
       </div>
       <Button

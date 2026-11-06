@@ -1,45 +1,57 @@
 /**
- * Which AI model answers. Kept in one place so another provider can be added later without
- * touching the chat: add a branch here (and its API key in the environment).
+ * Which AI answers in CeritaBuddy: Claude (Anthropic). Kept in one place so another model or
+ * provider can be added later without touching the chat.
  */
-import { createOpenAI } from "@ai-sdk/openai";
-import type { LanguageModel } from "ai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { generateText, type LanguageModel } from "ai";
+import type { AiSafetyCheck } from "@/lib/ceritabuddy";
 
-export type BuddyModel = { model: LanguageModel; providerOptions: Record<string, Record<string, string | boolean>> };
+export const DEFAULT_BUDDY_MODEL = "claude-haiku-5-5";
 
-export function buddyModel(name: string): BuddyModel {
-  const key = process.env["OPENAI_API_KEY"];
-  if (!key) throw new Error("AI is niet ingesteld (OPENAI_API_KEY ontbreekt).");
-  const openai = createOpenAI({ apiKey: key });
-  const reasoning = /^(gpt-5|o\d)/.test(name);
-  return {
-    model: openai.responses(name),
-    // store: false — OpenAI keeps no copy of the conversation for its own use.
-    providerOptions: { openai: reasoning ? { reasoningEffort: "low", store: false } : { store: false } },
-  };
+/** Room for Claude's (hidden) thinking on top of the visible answer. */
+export const THINKING_ROOM = 1500;
+
+function provider() {
+  const key = process.env["ANTHROPIC_API_KEY"];
+  if (!key) throw new Error("AI is niet ingesteld (ANTHROPIC_API_KEY ontbreekt).");
+  return createAnthropic({ apiKey: key });
 }
 
-/** Second safety layer next to the word patterns: OpenAI's (free) moderation check. Null if unavailable. */
-export async function moderate(text: string) {
-  const key = process.env["OPENAI_API_KEY"];
-  if (!key) return null;
+export type BuddyModel = { model: LanguageModel; providerOptions: { anthropic: { effort: "low" } } };
+
+export function buddyModel(name: string): BuddyModel {
+  const id = name.startsWith("claude-") ? name : DEFAULT_BUDDY_MODEL;
+  // Low effort: quick, natural chat replies (thinking stays on, it is just brief).
+  return { model: provider()(id), providerOptions: { anthropic: { effort: "low" } } };
+}
+
+const CHECK = `Je bent een veiligheidscheck voor een Nederlandstalige chat-app voor jongeren (13-27 jaar).
+Lees het bericht van de jongere en antwoord met precies één woord:
+ACUUT = er is nu of vandaag direct gevaar: iemand heeft zichzelf iets aangedaan of gaat dat nu doen, heeft pillen genomen, staat ergens om te springen, of wordt nu bedreigd of mishandeld.
+ZORG = signalen van gedachten aan zelfdoding, zelfbeschadiging, mishandeling, (seksueel) misbruik, uitbuiting, grooming of ernstige psychische nood, ook als het indirect of verhuld gezegd wordt.
+GEEN = al het andere, ook verdriet, ruzie, stress, een zieke oma, of grapjes en films waarin iets ergs voorkomt.
+Antwoord alleen ACUUT, ZORG of GEEN.`;
+
+/**
+ * Second safety layer next to the word patterns: a short, separate Claude check of the newest
+ * message (it understands hidden or indirect signals). Null if it could not run; the word
+ * patterns and the model's own [[veilig]] mark still apply then.
+ */
+export async function aiSafetyCheck(text: string): Promise<AiSafetyCheck | null> {
   try {
-    const res = await fetch("https://api.openai.com/v1/moderations", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "omni-moderation-latest", input: text }),
-      signal: AbortSignal.timeout(5000),
+    const { text: out } = await generateText({
+      model: provider()(DEFAULT_BUDDY_MODEL),
+      system: CHECK,
+      messages: [{ role: "user", content: text }],
+      maxOutputTokens: 1200,
+      providerOptions: { anthropic: { effort: "low" } },
+      abortSignal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { results?: { categories?: Record<string, boolean>; category_scores?: Record<string, number> }[] };
-    const c = json.results?.[0]?.categories ?? {};
-    const s = json.results?.[0]?.category_scores ?? {};
-    return {
-      selfHarm: !!c["self-harm"] || (s["self-harm"] ?? 0) > 0.3,
-      selfHarmIntent: !!c["self-harm/intent"] || !!c["self-harm/instructions"],
-      violence: !!c["violence"] && (s["violence"] ?? 0) > 0.6,
-      sexualMinors: !!c["sexual/minors"],
-    };
+    const word = out.trim().toUpperCase();
+    if (word.includes("ACUUT")) return "acuut";
+    if (word.includes("ZORG")) return "zorg";
+    if (word.includes("GEEN")) return "geen";
+    return null;
   } catch {
     return null;
   }

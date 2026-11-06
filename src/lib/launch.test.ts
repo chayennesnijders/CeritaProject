@@ -15,6 +15,7 @@ const allServer: ServerChecks = {
   emailHook: true,
   stripeLive: true,
   openai: false,
+  anthropic: false,
   updates: Object.fromEntries(DB_UPDATES.map((u) => [u.id, true])),
   playlists: 0,
   articles: 12,

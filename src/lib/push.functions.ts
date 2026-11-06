@@ -560,13 +560,14 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
       return !error;
     };
     const count = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
-    const [chat, groupsBy, compliments, playlists, books, questions] = await Promise.all([
+    const [chat, groupsBy, compliments, playlists, books, questions, buddy] = await Promise.all([
       exists("chat_games"),
       exists("groups", "created_by"),
       exists("compliments"),
       exists("playlists"),
       exists("books"),
       exists("anon_questions"),
+      exists("buddy_settings"),
     ]);
     let fcm = false;
     try {
@@ -595,11 +596,13 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
       emailHook: env("SEND_EMAIL_HOOK_SECRET"),
       stripeLive: (process.env["STRIPE_SECRET_KEY"] ?? "").startsWith("sk_live_"),
       openai: env("OPENAI_API_KEY"),
+      anthropic: env("ANTHROPIC_API_KEY"),
       updates: {
         "18-21": chat && groupsBy,
         "22": compliments,
         "23-24": playlists && !books,
         "25": questions,
+        "47": buddy,
       },
       playlists: playlists
         ? await count(supabaseAdmin.from("playlists").select("id", { count: "exact", head: true }))

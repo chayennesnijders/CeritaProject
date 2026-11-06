@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { BUDDY_LINKS, BUDDY_MODES } from "@/lib/ceritabuddy";
 
-/** The models admins can choose from (all via the OpenAI key; more providers can be added on the server). */
+/** The Claude models admins can choose from (via the Anthropic key). */
 const MODELS = [
-  { id: "gpt-5-mini", label: "gpt-5-mini (aanrader: goed en betaalbaar)" },
-  { id: "gpt-5", label: "gpt-5 (slimmer, duurder)" },
-  { id: "gpt-5-nano", label: "gpt-5-nano (goedkoopst, minder diep)" },
-  { id: "gpt-4.1-mini", label: "gpt-4.1-mini (snel)" },
+  { id: "claude-haiku-5-5", label: "Claude Haiku 5.5 (aanrader: snel en goedkoop)" },
+  { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5 (nog beter, ongeveer 20× duurder)" },
 ];
 
 type Stats = { messages_today: number; people_today: number; people_7_days: number; messages_7_days: number };
@@ -27,7 +25,7 @@ export function BuddyAdmin() {
     queryKey: ["buddy-stats"],
     queryFn: async () => (await supabase.rpc("buddy_stats")).data as unknown as Stats | null,
   });
-  const [form, setForm] = useState({ enabled: true, model: "gpt-5-mini", daily_limit: 40, context_messages: 16, max_reply_tokens: 700, extra_instructions: "" });
+  const [form, setForm] = useState({ enabled: true, model: "claude-haiku-5-5", daily_limit: 40, context_messages: 16, max_reply_tokens: 700, extra_instructions: "" });
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (settings)
@@ -122,7 +120,7 @@ export function BuddyAdmin() {
           <div className="flex items-center justify-between gap-2"><span>Maximale lengte antwoord (tokens)</span>{num("max_reply_tokens", 100, 4000)}</div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Kosten: met gpt-5-mini kost een bericht ongeveer €0,001 tot €0,004. Bij 40 berichten per dag is dat hooguit zo'n 15 cent per jongere per dag.
+          Kosten: met Claude Haiku 5.5 kost een bericht ongeveer €0,0006 (inclusief de veiligheidscheck). Bij 30 berichten per dag is dat hooguit zo'n 2 cent per jongere per dag. Zet ook een maandlimiet op platform.claude.com.
         </p>
       </section>
 
@@ -158,7 +156,7 @@ export function BuddyAdmin() {
           </ul>
           <p className="font-semibold">Veiligheid</p>
           <p className="text-muted-foreground">
-            Elk bericht gaat eerst langs een veiligheidscheck (woordpatronen én de moderatiecheck van OpenAI), en de AI markeert zelf ook zorgelijke berichten. Dan ziet de jongere hulplijnen (113, Kindertelefoon, Veilig Thuis, en 112 bij acuut gevaar). Beheerders krijgen hiervan geen melding en kunnen niet meelezen.
+            Elk bericht gaat eerst langs een veiligheidscheck (woordpatronen én een aparte korte check door Claude), en de AI markeert zelf ook zorgelijke berichten. Dan ziet de jongere hulplijnen (113, Kindertelefoon, Veilig Thuis, en 112 bij acuut gevaar). Beheerders krijgen hiervan geen melding en kunnen niet meelezen.
           </p>
         </div>
       </details>
