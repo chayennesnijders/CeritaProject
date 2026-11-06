@@ -1,4 +1,5 @@
 import { AppLockSettings } from "@/components/AppLock";
+import { useActsAsParent } from "@/lib/parent-view";
 import { shrinkImage } from "@/lib/shrink-image";
 import { normalizeUsername, usernameProblem } from "@/lib/username";
 import { InstallGuide } from "@/components/InstallGuide";
@@ -89,6 +90,7 @@ function ProfilePage() {
   const qc = useQueryClient();
   const nav = useNavigate();
   const p = me?.profile;
+  const asParent = useActsAsParent();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -207,7 +209,7 @@ function ProfilePage() {
           <h1 className="truncate text-2xl">{p.display_name}</h1>
           {p.username && <p className="text-sm text-muted-foreground">@{p.username}</p>}
           <p className="text-xs text-muted-foreground">
-            {p.is_parent ? "Ouder of verzorger" : p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
+            {asParent ? "Ouder of verzorger" : p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
             {me?.isAdmin ? " · Beheerder" : me?.isModerator ? " · Moderator" : ""}
           </p>
         </div>
@@ -233,7 +235,7 @@ function ProfilePage() {
 
       <section className="space-y-3">
         <h2 className="text-lg">Voor jou</h2>
-        {SHORTCUT_GROUPS.map((g) => ({ ...g, items: g.items.filter((s) => !p.is_parent || parentMayOpen(s.to)) }))
+        {SHORTCUT_GROUPS.map((g) => ({ ...g, items: g.items.filter((s) => !asParent || parentMayOpen(s.to)) }))
           .filter((g) => g.items.length > 0)
           .map((g) => (
           <div key={g.title} className={`rounded-3xl p-3 ${g.tint}`}>
@@ -322,7 +324,7 @@ function ProfilePage() {
           <Button onClick={saveProfile} className="w-full rounded-full">
             Opslaan
           </Button>
-          {!p.is_parent && (
+          {!asParent && (
             <div className="flex items-start justify-between gap-3 rounded-2xl bg-muted p-3">
               <div>
                 <p className="text-sm font-semibold">👶 Ik ben zelf ook ouder</p>

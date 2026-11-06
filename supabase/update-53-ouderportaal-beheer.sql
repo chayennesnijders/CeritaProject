@@ -19,7 +19,9 @@ BEGIN
           count(*) FILTER (WHERE to_jsonb(g) ->> 'reflection' = 'goed') AS goed,
           count(*) FILTER (WHERE to_jsonb(g) ->> 'reflection' = 'lastig') AS lastig,
           count(*) FILTER (WHERE to_jsonb(g) ->> 'reflection' = 'niet') AS niet
-        FROM public.guide_progress g GROUP BY guide
+        FROM public.guide_progress g
+        WHERE NOT public.has_role(g.user_id, 'admin'::app_role)
+        GROUP BY guide
       ) s
     $q$ INTO guides;
   END IF;
@@ -28,13 +30,13 @@ BEGIN
     'parents_new_7_days', (SELECT count(*) FROM public.profiles p JOIN auth.users u ON u.id = p.id
                            WHERE p.is_parent AND u.created_at > now() - interval '7 days'),
     'young_parents', (SELECT count(*) FROM public.profiles WHERE also_parent AND NOT is_parent),
-    'active_7_days', (SELECT count(DISTINCT user_id) FROM public.parent_checks WHERE day > today - 7),
+    'active_7_days', (SELECT count(DISTINCT user_id) FROM public.parent_checks WHERE day > today - 7 AND NOT public.has_role(user_id, 'admin'::app_role)),
     'tasks_7_days', jsonb_build_object(
-      'zelf', (SELECT count(*) FROM public.parent_checks WHERE day > today - 7 AND kind = 'zelf'),
-      'kind', (SELECT count(*) FROM public.parent_checks WHERE day > today - 7 AND kind = 'kind')),
+      'zelf', (SELECT count(*) FROM public.parent_checks WHERE day > today - 7 AND kind = 'zelf' AND NOT public.has_role(user_id, 'admin'::app_role)),
+      'kind', (SELECT count(*) FROM public.parent_checks WHERE day > today - 7 AND kind = 'kind' AND NOT public.has_role(user_id, 'admin'::app_role))),
     'tasks_per_day', COALESCE((
       SELECT jsonb_agg(jsonb_build_object('day', d, 'count', c) ORDER BY d)
-      FROM (SELECT day AS d, count(*) AS c FROM public.parent_checks WHERE day > today - 14 GROUP BY day) x), '[]'::jsonb),
+      FROM (SELECT day AS d, count(*) AS c FROM public.parent_checks WHERE day > today - 14 AND NOT public.has_role(user_id, 'admin'::app_role) GROUP BY day) x), '[]'::jsonb),
     'guides', guides
   );
 END $$;

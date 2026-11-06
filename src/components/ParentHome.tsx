@@ -17,14 +17,11 @@ export function ParentHome({
   day,
   name,
   corner = false,
-  preview = false,
 }: {
   uid: string;
   day: string;
   name: string;
   corner?: boolean;
-  /** Beheer's preview: shows the screen exactly, but saves nothing. */
-  preview?: boolean;
 }) {
   const qc = useQueryClient();
   const hi = greeting(dutchHour());
@@ -66,10 +63,6 @@ export function ParentHome({
   const refresh = () => qc.invalidateQueries({ queryKey: ["parent-home", uid, day] });
 
   async function toggle(kind: CheckKind) {
-    if (preview) {
-      toast("Voorbeeld: bij een ouder wordt dit bewaard 💛");
-      return;
-    }
     const { error } = done(kind)
       ? await supabase
           .from("parent_checks")
@@ -86,10 +79,6 @@ export function ParentHome({
     refresh();
   }
   async function setMood(id: MoodId) {
-    if (preview) {
-      toast("Voorbeeld: bij een ouder wordt dit bewaard 💛");
-      return;
-    }
     const { error } = await supabase.from("mood_entries").upsert({ user_id: uid, day, mood: id });
     if (error) {
       toast.error("Opslaan lukte niet.");

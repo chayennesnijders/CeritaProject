@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useActsAsParent } from "@/lib/parent-view";
 import { FounderStory } from "@/components/FounderStory";
 import { ParentHome } from "@/components/ParentHome";
 import { ThemeDayCard } from "@/components/ThemeDayCard";
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/_authenticated/home")({
 function HomePage() {
   const { data: me } = useMe();
   const p = me?.profile;
+  const asParent = useActsAsParent();
   const uid = me?.user.id;
   const day = useChallengeDay();
   const hi = greeting(dutchHour());
@@ -61,7 +63,7 @@ function HomePage() {
   }).format(new Date());
 
   // Parents and carers have their own home (no groups, chats or young people's content).
-  if (p?.is_parent && uid) return <ParentHome uid={uid} day={day} name={p.display_name} />;
+  if (asParent && uid) return <ParentHome uid={uid} day={day} name={p?.display_name ?? ""} />;
 
   return (
     <div className="space-y-6 pt-2">

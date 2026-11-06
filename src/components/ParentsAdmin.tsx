@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { setParentView } from "@/lib/parent-view";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Copy } from "lucide-react";
@@ -23,6 +24,7 @@ const SIGNUP_TEXT =
 
 /** Beheer → Ouderportaal: how the parents' environment is used (counts only), what's in it, and a preview. */
 export function ParentsAdmin() {
+  const navigate = useNavigate();
   const { data: stats, isLoading, isError } = useQuery({
     queryKey: ["parent-portal-stats"],
     retry: false,
@@ -46,12 +48,15 @@ export function ParentsAdmin() {
           hier alleen aantallen, nooit wie wat deed.
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
-          <Link
-            to="/ouderportaal-voorbeeld"
+          <button
+            onClick={() => {
+              setParentView(true);
+              void navigate({ to: "/home" });
+            }}
             className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
-            👀 Bekijk als ouder
-          </Link>
+            👀 Bekijk en probeer als ouder
+          </button>
           <Link to="/handleidingen" className="rounded-full bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground">
             📘 Handleidingen
           </Link>

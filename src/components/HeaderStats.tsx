@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { Bell, GraduationCap, PawPrint, Shield, ShoppingBag } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Bell, GraduationCap, PawPrint, Shield, ShoppingBag, Users } from "lucide-react";
+import { setParentView, useParentView } from "@/lib/parent-view";
 import { useInbox } from "@/lib/use-inbox";
 import { useMe } from "@/lib/auth";
 import { canEnterShop } from "@/lib/shop-status";
@@ -181,11 +183,17 @@ export function WorkMenu({
   adminCount: number;
 }) {
   const coachOpen = useCoachOpen(uid);
+  const { data: me } = useMe();
+  const parentView = useParentView();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
   const isCoach = coachOpen != null;
+  // Only real admins can look at the app as a parent (moderators can't).
+  const canViewAsParent = !!me?.isAdmin;
   if (!isAdmin && !isCoach) return null;
   const Icon = isAdmin ? Shield : GraduationCap;
   const total = (isAdmin ? adminCount : 0) + (coachOpen ?? 0);
-  if (!isAdmin || !isCoach) {
+  if ((!isAdmin || !isCoach) && !canViewAsParent) {
     return (
       <Link
         to={isAdmin ? "/beheer" : "/coach"}
@@ -206,18 +214,35 @@ export function WorkMenu({
       </span>
     );
   return (
-    <Popover>
-      <PopoverTrigger aria-label="Beheer en coach" className={headerButton}>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+      <PopoverTrigger aria-label="Beheer, coach en ouder" className={headerButton}>
         <Icon className="size-5" />
         <HeaderBadge n={total} />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-56 rounded-3xl p-2 text-sm">
-        <Link to="/beheer" className={item}>
-          <Shield className="size-5" /> Beheer {count(adminCount)}
-        </Link>
-        <Link to="/coach" className={item}>
-          <GraduationCap className="size-5" /> Coach {count(coachOpen ?? 0)}
-        </Link>
+        {isAdmin && (
+          <Link to="/beheer" className={item} onClick={() => setMenuOpen(false)}>
+            <Shield className="size-5" /> Beheer {count(adminCount)}
+          </Link>
+        )}
+        {isCoach && (
+          <Link to="/coach" className={item} onClick={() => setMenuOpen(false)}>
+            <GraduationCap className="size-5" /> Coach {count(coachOpen ?? 0)}
+          </Link>
+        )}
+        {canViewAsParent && (
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              setParentView(!parentView);
+              void navigate({ to: parentView ? "/beheer" : "/home" });
+            }}
+            className={`${item} w-full text-left`}
+          >
+            <Users className="size-5" /> {parentView ? "Stop ouder-weergave" : "Ouder"}
+            {parentView && <span className="ml-auto text-xs">👀</span>}
+          </button>
+        )}
       </PopoverContent>
     </Popover>
   );
