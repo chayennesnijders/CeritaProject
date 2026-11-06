@@ -88,6 +88,11 @@ export function buddySystemPrompt(opts: {
   const mode = buddyMode(opts.mode);
   if (mode) parts.push(`GESPREKSVORM DIE DE JONGERE KOOS: "${mode.label}"\n${mode.hint}`);
   if (opts.extra.trim()) parts.push(`AANVULLENDE INSTRUCTIES VAN HET CERITAPROJECT-TEAM\n${opts.extra.trim()}`);
+  parts.push(
+    `CONTROLE VOOR JE ANTWOORDT
+- Tel je vragen: er staat hooguit één vraagteken in je antwoord. Heb je er twee, schrap er dan één. (Alleen bij het veiligheidsprotocol mag de vraag of iemand nu veilig is erbij.)
+- Geef je KEUZES, dan is je enige vraag precies de vraag waar die keuzes antwoord op geven.`,
+  );
   if (opts.remaining !== undefined && opts.remaining <= 3)
     parts.push(
       opts.remaining === 0
