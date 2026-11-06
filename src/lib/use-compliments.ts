@@ -21,11 +21,24 @@ function readSeen(uid: string | undefined) {
   }
 }
 
+/** Fired when the compliments wall was opened, so every counter re-reads "seen". */
+const SEEN_EVENT = "cerita-compliments-seen";
+
 /** How many compliments are new since you last opened your wall on this device. */
 export function useNewCompliments(uid: string | undefined) {
   const { data: wall = [] } = useMyCompliments(uid);
   const [seenAt, setSeenAt] = useState<string | null>(null);
-  useEffect(() => setSeenAt(readSeen(uid)), [uid]);
+  useEffect(() => {
+    const read = () => setSeenAt(readSeen(uid));
+    read();
+    // The bell stays mounted: re-read when the wall is opened (here or in another tab).
+    window.addEventListener(SEEN_EVENT, read);
+    window.addEventListener("storage", read);
+    return () => {
+      window.removeEventListener(SEEN_EVENT, read);
+      window.removeEventListener("storage", read);
+    };
+  }, [uid]);
   return newCompliments(wall, seenAt).length;
 }
 
@@ -42,6 +55,7 @@ export function useMarkComplimentsSeen(uid: string | undefined, active: boolean)
     setBefore((b) => (b === undefined ? prev : b));
     try {
       localStorage.setItem(complimentsSeenKey(uid), new Date().toISOString());
+      window.dispatchEvent(new Event(SEEN_EVENT));
     } catch {
       /* not remembered: then they show as new again next time */
     }
