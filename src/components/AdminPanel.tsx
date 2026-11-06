@@ -36,6 +36,7 @@ import { AdminStart } from "@/components/AdminStart";
 import { ADMIN_PAGES, type AdminPage } from "@/lib/admin-nav";
 import { MemberProfileDialog } from "@/components/MemberProfileDialog";
 import { BuddyAdmin } from "@/components/BuddyAdmin";
+import { DedupeStoryPhotos } from "@/components/DedupeStoryPhotos";
 
 const TABS = [
   { id: "start", label: "🏠 Start" },
@@ -328,6 +329,7 @@ export function AdminPanel() {
       {tab === "verhalen" && (
         <div className="space-y-5">
           <PlanStories />
+          <DedupeStoryPhotos />
           <ArticleComposer />
           <StorySubmissionsAdmin />
         </div>
