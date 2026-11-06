@@ -398,6 +398,33 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_progress: {
+        Row: {
+          user_id: string
+          guide: string
+          step: number
+          plan: string
+          completed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          guide: string
+          step?: number
+          plan?: string
+          completed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          guide?: string
+          step?: number
+          plan?: string
+          completed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       parent_checks: {
         Row: {
           user_id: string

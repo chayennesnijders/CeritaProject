@@ -560,7 +560,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
       return !error;
     };
     const count = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
-    const [chat, groupsBy, compliments, playlists, books, questions, buddy, lessons, parents, corner] = await Promise.all([
+    const [chat, groupsBy, compliments, playlists, books, questions, buddy, lessons, parents, corner, safety51] = await Promise.all([
       exists("chat_games"),
       exists("groups", "created_by"),
       exists("compliments"),
@@ -571,6 +571,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
       exists("lessons"),
       exists("parent_checks"),
       exists("profiles", "also_parent"),
+      Promise.all([exists("contact_signals"), exists("guide_progress")]).then((r) => r.every(Boolean)),
     ]);
     let fcm = false;
     try {
@@ -609,6 +610,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
         "48": lessons,
         "49": parents,
         "50": corner,
+        "51": safety51,
       },
       playlists: playlists
         ? await count(supabaseAdmin.from("playlists").select("id", { count: "exact", head: true }))

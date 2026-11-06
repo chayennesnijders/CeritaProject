@@ -160,13 +160,24 @@ export function ParentHome({
         </>
       )}
 
+      <Link
+        to="/handleidingen"
+        className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft transition active:scale-[0.99]"
+      >
+        <span className="text-3xl">📘</span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">Handleidingen</span>
+          <span className="block text-sm text-muted-foreground">
+            Oefen in korte stappen: hoe begin je het gesprek als je je zorgen maakt?
+          </span>
+        </span>
+        <span className="text-primary">→</span>
+      </Link>
+
       <section className="space-y-2 rounded-3xl bg-secondary p-4 text-secondary-foreground">
         <p className="font-semibold">Binnenkort voor ouders</p>
         <p className="text-sm">
           📖 Elke dag een echt verhaal van een jongere, met wat jij ermee kunt.
-        </p>
-        <p className="text-sm">
-          📘 Handleidingen, bijvoorbeeld: hoe begin je het gesprek als je je zorgen maakt?
         </p>
       </section>
 

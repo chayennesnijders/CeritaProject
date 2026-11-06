@@ -57,6 +57,8 @@ import { Route as AuthenticatedBerichtenIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedBerichtenIdRouteImport } from './routes/_authenticated/berichten.$id'
 import { Route as AuthenticatedCommunityIndexRouteImport } from './routes/_authenticated/community.index'
 import { Route as AuthenticatedCommunityGroupIdRouteImport } from './routes/_authenticated/community.$groupId'
+import { Route as AuthenticatedHandleidingenIndexRouteImport } from './routes/_authenticated/handleidingen.index'
+import { Route as AuthenticatedHandleidingenSlugRouteImport } from './routes/_authenticated/handleidingen.$slug'
 import { Route as AuthenticatedLuisterenIndexRouteImport } from './routes/_authenticated/luisteren.index'
 import { Route as AuthenticatedLuisterenMediaIdRouteImport } from './routes/_authenticated/luisteren.$mediaId'
 import { Route as AuthenticatedOntdekkenIndexRouteImport } from './routes/_authenticated/ontdekken.index'
@@ -313,6 +315,18 @@ const AuthenticatedCommunityGroupIdRoute =
     path: '/community/$groupId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedHandleidingenIndexRoute =
+  AuthenticatedHandleidingenIndexRouteImport.update({
+    id: '/handleidingen/',
+    path: '/handleidingen/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHandleidingenSlugRoute =
+  AuthenticatedHandleidingenSlugRouteImport.update({
+    id: '/handleidingen/$slug',
+    path: '/handleidingen/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLuisterenIndexRoute =
   AuthenticatedLuisterenIndexRouteImport.update({
     id: '/luisteren/',
@@ -401,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
+  '/handleidingen/$slug': typeof AuthenticatedHandleidingenSlugRoute
   '/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
@@ -408,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
   '/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/community/': typeof AuthenticatedCommunityIndexRoute
+  '/handleidingen/': typeof AuthenticatedHandleidingenIndexRoute
   '/luisteren/': typeof AuthenticatedLuisterenIndexRoute
   '/ontdekken/': typeof AuthenticatedOntdekkenIndexRoute
 }
@@ -457,6 +473,7 @@ export interface FileRoutesByTo {
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
+  '/handleidingen/$slug': typeof AuthenticatedHandleidingenSlugRoute
   '/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
@@ -464,6 +481,7 @@ export interface FileRoutesByTo {
   '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
   '/berichten': typeof AuthenticatedBerichtenIndexRoute
   '/community': typeof AuthenticatedCommunityIndexRoute
+  '/handleidingen': typeof AuthenticatedHandleidingenIndexRoute
   '/luisteren': typeof AuthenticatedLuisterenIndexRoute
   '/ontdekken': typeof AuthenticatedOntdekkenIndexRoute
 }
@@ -515,6 +533,7 @@ export interface FileRoutesById {
   '/api/transcribe': typeof ApiTranscribeRoute
   '/_authenticated/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/_authenticated/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
+  '/_authenticated/handleidingen/$slug': typeof AuthenticatedHandleidingenSlugRoute
   '/_authenticated/luisteren/$mediaId': typeof AuthenticatedLuisterenMediaIdRoute
   '/_authenticated/ontdekken/$articleId': typeof AuthenticatedOntdekkenArticleIdRoute
   '/api/public/admin-news-push': typeof ApiPublicAdminNewsPushRoute
@@ -522,6 +541,7 @@ export interface FileRoutesById {
   '/api/public/member-reminders': typeof ApiPublicMemberRemindersRoute
   '/_authenticated/berichten/': typeof AuthenticatedBerichtenIndexRoute
   '/_authenticated/community/': typeof AuthenticatedCommunityIndexRoute
+  '/_authenticated/handleidingen/': typeof AuthenticatedHandleidingenIndexRoute
   '/_authenticated/luisteren/': typeof AuthenticatedLuisterenIndexRoute
   '/_authenticated/ontdekken/': typeof AuthenticatedOntdekkenIndexRoute
 }
@@ -573,6 +593,7 @@ export interface FileRouteTypes {
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
+    | '/handleidingen/$slug'
     | '/luisteren/$mediaId'
     | '/ontdekken/$articleId'
     | '/api/public/admin-news-push'
@@ -580,6 +601,7 @@ export interface FileRouteTypes {
     | '/api/public/member-reminders'
     | '/berichten/'
     | '/community/'
+    | '/handleidingen/'
     | '/luisteren/'
     | '/ontdekken/'
   fileRoutesByTo: FileRoutesByTo
@@ -629,6 +651,7 @@ export interface FileRouteTypes {
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
+    | '/handleidingen/$slug'
     | '/luisteren/$mediaId'
     | '/ontdekken/$articleId'
     | '/api/public/admin-news-push'
@@ -636,6 +659,7 @@ export interface FileRouteTypes {
     | '/api/public/member-reminders'
     | '/berichten'
     | '/community'
+    | '/handleidingen'
     | '/luisteren'
     | '/ontdekken'
   id:
@@ -686,6 +710,7 @@ export interface FileRouteTypes {
     | '/api/transcribe'
     | '/_authenticated/berichten/$id'
     | '/_authenticated/community/$groupId'
+    | '/_authenticated/handleidingen/$slug'
     | '/_authenticated/luisteren/$mediaId'
     | '/_authenticated/ontdekken/$articleId'
     | '/api/public/admin-news-push'
@@ -693,6 +718,7 @@ export interface FileRouteTypes {
     | '/api/public/member-reminders'
     | '/_authenticated/berichten/'
     | '/_authenticated/community/'
+    | '/_authenticated/handleidingen/'
     | '/_authenticated/luisteren/'
     | '/_authenticated/ontdekken/'
   fileRoutesById: FileRoutesById
@@ -1059,6 +1085,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunityGroupIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/handleidingen/': {
+      id: '/_authenticated/handleidingen/'
+      path: '/handleidingen'
+      fullPath: '/handleidingen/'
+      preLoaderRoute: typeof AuthenticatedHandleidingenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/handleidingen/$slug': {
+      id: '/_authenticated/handleidingen/$slug'
+      path: '/handleidingen/$slug'
+      fullPath: '/handleidingen/$slug'
+      preLoaderRoute: typeof AuthenticatedHandleidingenSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/luisteren/': {
       id: '/_authenticated/luisteren/'
       path: '/luisteren'
@@ -1140,10 +1180,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedZoekenRoute: typeof AuthenticatedZoekenRoute
   AuthenticatedBerichtenIdRoute: typeof AuthenticatedBerichtenIdRoute
   AuthenticatedCommunityGroupIdRoute: typeof AuthenticatedCommunityGroupIdRoute
+  AuthenticatedHandleidingenSlugRoute: typeof AuthenticatedHandleidingenSlugRoute
   AuthenticatedLuisterenMediaIdRoute: typeof AuthenticatedLuisterenMediaIdRoute
   AuthenticatedOntdekkenArticleIdRoute: typeof AuthenticatedOntdekkenArticleIdRoute
   AuthenticatedBerichtenIndexRoute: typeof AuthenticatedBerichtenIndexRoute
   AuthenticatedCommunityIndexRoute: typeof AuthenticatedCommunityIndexRoute
+  AuthenticatedHandleidingenIndexRoute: typeof AuthenticatedHandleidingenIndexRoute
   AuthenticatedLuisterenIndexRoute: typeof AuthenticatedLuisterenIndexRoute
   AuthenticatedOntdekkenIndexRoute: typeof AuthenticatedOntdekkenIndexRoute
 }
@@ -1177,10 +1219,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedZoekenRoute: AuthenticatedZoekenRoute,
   AuthenticatedBerichtenIdRoute: AuthenticatedBerichtenIdRoute,
   AuthenticatedCommunityGroupIdRoute: AuthenticatedCommunityGroupIdRoute,
+  AuthenticatedHandleidingenSlugRoute: AuthenticatedHandleidingenSlugRoute,
   AuthenticatedLuisterenMediaIdRoute: AuthenticatedLuisterenMediaIdRoute,
   AuthenticatedOntdekkenArticleIdRoute: AuthenticatedOntdekkenArticleIdRoute,
   AuthenticatedBerichtenIndexRoute: AuthenticatedBerichtenIndexRoute,
   AuthenticatedCommunityIndexRoute: AuthenticatedCommunityIndexRoute,
+  AuthenticatedHandleidingenIndexRoute: AuthenticatedHandleidingenIndexRoute,
   AuthenticatedLuisterenIndexRoute: AuthenticatedLuisterenIndexRoute,
   AuthenticatedOntdekkenIndexRoute: AuthenticatedOntdekkenIndexRoute,
 }
