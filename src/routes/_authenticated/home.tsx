@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { FounderStory } from "@/components/FounderStory";
 import { ParentHome } from "@/components/ParentHome";
 import { ThemeDayCard } from "@/components/ThemeDayCard";
+import { parentDay } from "@/lib/parent";
 import { celebrate } from "@/lib/celebrate";
 import { useThemeOfMonth } from "@/lib/use-theme-month";
 import { AutoInstallGuide } from "@/components/InstallGuide";
@@ -75,6 +76,16 @@ function HomePage() {
       </div>
       <ModerationNotice />
       <ThemeDayCard day={day} audience="jongeren" />
+      {p?.also_parent && (
+        <Link to="/ouderhoek" className="flex items-center gap-3 rounded-3xl bg-secondary p-4 text-secondary-foreground shadow-soft">
+          <span className="text-2xl">👶</span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Jouw ouderhoek</span>
+            <span className="block truncate text-xs opacity-80">{parentDay(day).child}</span>
+          </span>
+          <span>→</span>
+        </Link>
+      )}
       {me?.isOwner && <FounderStory day={day} />}
 
       {/* Everything new in one line instead of a card per kind; the bell shows the details. */}

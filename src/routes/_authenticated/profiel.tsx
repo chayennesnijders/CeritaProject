@@ -148,6 +148,7 @@ function ProfilePage() {
     is_private?: boolean;
     allow_messages?: boolean;
     allow_calls?: boolean;
+    also_parent?: boolean;
   }) {
     if (!p) return;
     const { error } = await supabase.from("profiles").update(patch).eq("id", p.id);
@@ -321,6 +322,18 @@ function ProfilePage() {
           <Button onClick={saveProfile} className="w-full rounded-full">
             Opslaan
           </Button>
+          {!p.is_parent && (
+            <div className="flex items-start justify-between gap-3 rounded-2xl bg-muted p-3">
+              <div>
+                <p className="text-sm font-semibold">👶 Ik ben zelf ook ouder</p>
+                <p className="text-xs text-muted-foreground">
+                  Je blijft gewoon in je groepen. Je krijgt er een ouderhoek bij, met elke dag een tip voor jou en je
+                  kind. Niemand anders ziet dat je dit aanzet.
+                </p>
+              </div>
+              <Switch checked={p.also_parent} onCheckedChange={(v) => setPrivacy({ also_parent: v })} />
+            </div>
+          )}
         </SettingsSection>
 
         <SettingsSection

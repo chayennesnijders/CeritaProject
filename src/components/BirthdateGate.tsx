@@ -84,6 +84,10 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
               Je ziet niets van de groepen, chats of gegevens van jongeren, ook niet van je eigen kind.
               Zo blijft het voor iedereen een veilige plek.
             </p>
+            <p className="rounded-2xl bg-muted p-3">
+              <b>Ben je zelf tussen de 13 en 27 jaar en ook ouder?</b> Ga dan terug en vul je geboortedatum in. Je komt
+              in de groepen van je leeftijd, en kunt daarna bij je profiel de ouderhoek aanzetten.
+            </p>
           </div>
           <Button disabled={busy} onClick={becomeParent} className="h-12 w-64 rounded-full">
             {busy ? "Bezig…" : "Ja, ik ben ouder of verzorger"}

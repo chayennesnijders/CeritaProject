@@ -2012,6 +2012,7 @@ export type Database = {
       profiles: {
         Row: {
           is_parent: boolean
+          also_parent: boolean
           quiet_end: number | null
           quiet_start: number | null
           age_group: Database["public"]["Enums"]["age_group"]
@@ -2028,6 +2029,7 @@ export type Database = {
         }
         Insert: {
           is_parent?: boolean
+          also_parent?: boolean
           quiet_end?: number | null
           quiet_start?: number | null
           age_group?: Database["public"]["Enums"]["age_group"]
@@ -2044,6 +2046,7 @@ export type Database = {
         }
         Update: {
           is_parent?: boolean
+          also_parent?: boolean
           quiet_end?: number | null
           quiet_start?: number | null
           age_group?: Database["public"]["Enums"]["age_group"]
