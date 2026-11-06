@@ -25,7 +25,7 @@ export function BuddyAdmin() {
     queryKey: ["buddy-stats"],
     queryFn: async () => (await supabase.rpc("buddy_stats")).data as unknown as Stats | null,
   });
-  const [form, setForm] = useState({ enabled: true, model: "claude-haiku-5-5", daily_limit: 30, context_messages: 16, max_reply_tokens: 700, extra_instructions: "" });
+  const [form, setForm] = useState({ enabled: true, model: "claude-haiku-5-5", daily_limit: 40, context_messages: 16, max_reply_tokens: 700, extra_instructions: "" });
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (settings)
@@ -120,7 +120,7 @@ export function BuddyAdmin() {
           <div className="flex items-center justify-between gap-2"><span>Maximale lengte antwoord (tokens)</span>{num("max_reply_tokens", 100, 4000)}</div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Kosten: met Claude Haiku 5.5 kost een bericht ongeveer €0,0006 (inclusief de veiligheidscheck). Bij 30 berichten per dag is dat hooguit zo'n 2 cent per jongere per dag. Zet ook een maandlimiet op platform.claude.com.
+          Kosten: met Claude Haiku 5.5 kost een bericht ongeveer €0,0006 (inclusief de veiligheidscheck). Bij 40 berichten per dag is dat hooguit zo'n 2,5 cent per jongere per dag. Zet ook een maandlimiet op platform.claude.com.
         </p>
       </section>
 
