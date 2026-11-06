@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactOnsRouteImport } from './routes/contact-ons'
 import { Route as HuisregelsRouteImport } from './routes/huisregels'
 import { Route as HulpRouteImport } from './routes/hulp'
+import { Route as LessenRouteImport } from './routes/lessen'
 import { Route as OrganisatiesRouteImport } from './routes/organisaties'
 import { Route as OudersRouteImport } from './routes/ouders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -95,6 +96,11 @@ const HuisregelsRoute = HuisregelsRouteImport.update({
 const HulpRoute = HulpRouteImport.update({
   id: '/hulp',
   path: '/hulp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LessenRoute = LessenRouteImport.update({
+  id: '/lessen',
+  path: '/lessen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganisatiesRoute = OrganisatiesRouteImport.update({
@@ -350,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
+  '/lessen': typeof LessenRoute
   '/organisaties': typeof OrganisatiesRoute
   '/ouders': typeof OudersRoute
   '/privacy': typeof PrivacyRoute
@@ -404,6 +411,7 @@ export interface FileRoutesByTo {
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
+  '/lessen': typeof LessenRoute
   '/organisaties': typeof OrganisatiesRoute
   '/ouders': typeof OudersRoute
   '/privacy': typeof PrivacyRoute
@@ -460,6 +468,7 @@ export interface FileRoutesById {
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
+  '/lessen': typeof LessenRoute
   '/organisaties': typeof OrganisatiesRoute
   '/ouders': typeof OudersRoute
   '/privacy': typeof PrivacyRoute
@@ -516,6 +525,7 @@ export interface FileRouteTypes {
     | '/contact-ons'
     | '/huisregels'
     | '/hulp'
+    | '/lessen'
     | '/organisaties'
     | '/ouders'
     | '/privacy'
@@ -570,6 +580,7 @@ export interface FileRouteTypes {
     | '/contact-ons'
     | '/huisregels'
     | '/hulp'
+    | '/lessen'
     | '/organisaties'
     | '/ouders'
     | '/privacy'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/contact-ons'
     | '/huisregels'
     | '/hulp'
+    | '/lessen'
     | '/organisaties'
     | '/ouders'
     | '/privacy'
@@ -681,6 +693,7 @@ export interface RootRouteChildren {
   ContactOnsRoute: typeof ContactOnsRoute
   HuisregelsRoute: typeof HuisregelsRoute
   HulpRoute: typeof HulpRoute
+  LessenRoute: typeof LessenRoute
   OrganisatiesRoute: typeof OrganisatiesRoute
   OudersRoute: typeof OudersRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -745,6 +758,13 @@ declare module '@tanstack/react-router' {
       path: '/hulp'
       fullPath: '/hulp'
       preLoaderRoute: typeof HulpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lessen': {
+      id: '/lessen'
+      path: '/lessen'
+      fullPath: '/lessen'
+      preLoaderRoute: typeof LessenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organisaties': {
@@ -1155,6 +1175,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactOnsRoute: ContactOnsRoute,
   HuisregelsRoute: HuisregelsRoute,
   HulpRoute: HulpRoute,
+  LessenRoute: LessenRoute,
   OrganisatiesRoute: OrganisatiesRoute,
   OudersRoute: OudersRoute,
   PrivacyRoute: PrivacyRoute,

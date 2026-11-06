@@ -272,6 +272,132 @@ export type Database = {
         }
         Relationships: []
       }
+      lessons: {
+        Row: {
+          id: string
+          title: string
+          summary: string
+          audience: string
+          minutes: number
+          theme: string
+          emoji: string
+          is_free: boolean
+          published: boolean
+          sort: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          summary?: string
+          audience?: string
+          minutes?: number
+          theme?: string
+          emoji?: string
+          is_free?: boolean
+          published?: boolean
+          sort?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          summary?: string
+          audience?: string
+          minutes?: number
+          theme?: string
+          emoji?: string
+          is_free?: boolean
+          published?: boolean
+          sort?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      lesson_files: {
+        Row: {
+          id: string
+          lesson_id: string
+          label: string
+          path: string
+          sort: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          lesson_id: string
+          label: string
+          path: string
+          sort?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          lesson_id?: string
+          label?: string
+          path?: string
+          sort?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      school_licenses: {
+        Row: {
+          id: string
+          school: string
+          contact: string
+          code: string
+          valid_until: string
+          active: boolean
+          note: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          school: string
+          contact?: string
+          code: string
+          valid_until: string
+          active?: boolean
+          note?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          school?: string
+          contact?: string
+          code?: string
+          valid_until?: string
+          active?: boolean
+          note?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      lesson_downloads: {
+        Row: {
+          id: number
+          lesson_id: string | null
+          file_id: string | null
+          license_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          lesson_id?: string | null
+          file_id?: string | null
+          license_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          lesson_id?: string | null
+          file_id?: string | null
+          license_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       buddy_settings: {
         Row: {
           id: number

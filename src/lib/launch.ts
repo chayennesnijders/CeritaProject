@@ -47,6 +47,7 @@ export const DB_UPDATES = [
   { id: "23-24", label: "Updates 23 en 24 (muziek)" },
   { id: "25", label: "Update 25 (veiligheidsplan, vragen, agenda)" },
   { id: "47", label: "Update 47 (CeritaBuddy)" },
+  { id: "48", label: "Update 48 (lessen voor leraren)" },
 ] as const;
 
 /** "The app runs in Vercel project X (Production) and sees these Firebase names: …" */

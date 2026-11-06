@@ -77,6 +77,7 @@ export function LegalLinks({ className = "" }: { className?: string }) {
     ["/voorwaarden", "Voorwaarden"],
     ["/ouders", "Voor ouders"],
     ["/organisaties", "Voor organisaties"],
+    ["/lessen", "Voor leraren"],
     ["/account-verwijderen", "Account verwijderen"],
   ] as const;
   return (
