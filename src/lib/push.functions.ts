@@ -613,6 +613,8 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
         "50": corner,
         "51": safety51,
         "52": checkIn52,
+        // The function exists when calling it gives anything but "not found" (without a login it refuses).
+        "53": await supabaseAdmin.rpc("parent_portal_stats").then((r) => !r.error || r.error.code !== "PGRST202"),
       },
       playlists: playlists
         ? await count(supabaseAdmin.from("playlists").select("id", { count: "exact", head: true }))

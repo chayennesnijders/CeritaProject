@@ -2641,6 +2641,7 @@ export type Database = {
       become_parent: { Args: never; Returns: undefined }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }
+      parent_portal_stats: { Args: never; Returns: Json }
       buddy_take_turn: { Args: { _user: string }; Returns: number }
       buddy_cleanup: { Args: { _user: string }; Returns: undefined }
       buddy_suggestions: { Args: never; Returns: { user_id: string; display_name: string; username: string | null; avatar_url: string | null; shared: string[] }[] }

@@ -39,6 +39,7 @@ import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/h
 import { Route as AuthenticatedMeldingenRouteImport } from './routes/_authenticated/meldingen'
 import { Route as AuthenticatedMuziekRouteImport } from './routes/_authenticated/muziek'
 import { Route as AuthenticatedOuderhoekRouteImport } from './routes/_authenticated/ouderhoek'
+import { Route as AuthenticatedOuderportaalVoorbeeldRouteImport } from './routes/_authenticated/ouderportaal-voorbeeld'
 import { Route as AuthenticatedProfielRouteImport } from './routes/_authenticated/profiel'
 import { Route as AuthenticatedRustRouteImport } from './routes/_authenticated/rust'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated/shop'
@@ -220,6 +221,12 @@ const AuthenticatedOuderhoekRoute = AuthenticatedOuderhoekRouteImport.update({
   path: '/ouderhoek',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOuderportaalVoorbeeldRoute =
+  AuthenticatedOuderportaalVoorbeeldRouteImport.update({
+    id: '/ouderportaal-voorbeeld',
+    path: '/ouderportaal-voorbeeld',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProfielRoute = AuthenticatedProfielRouteImport.update({
   id: '/profiel',
   path: '/profiel',
@@ -406,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/meldingen': typeof AuthenticatedMeldingenRoute
   '/muziek': typeof AuthenticatedMuziekRoute
   '/ouderhoek': typeof AuthenticatedOuderhoekRoute
+  '/ouderportaal-voorbeeld': typeof AuthenticatedOuderportaalVoorbeeldRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
@@ -465,6 +473,7 @@ export interface FileRoutesByTo {
   '/meldingen': typeof AuthenticatedMeldingenRoute
   '/muziek': typeof AuthenticatedMuziekRoute
   '/ouderhoek': typeof AuthenticatedOuderhoekRoute
+  '/ouderportaal-voorbeeld': typeof AuthenticatedOuderportaalVoorbeeldRoute
   '/profiel': typeof AuthenticatedProfielRoute
   '/rust': typeof AuthenticatedRustRoute
   '/shop': typeof AuthenticatedShopRoute
@@ -526,6 +535,7 @@ export interface FileRoutesById {
   '/_authenticated/meldingen': typeof AuthenticatedMeldingenRoute
   '/_authenticated/muziek': typeof AuthenticatedMuziekRoute
   '/_authenticated/ouderhoek': typeof AuthenticatedOuderhoekRoute
+  '/_authenticated/ouderportaal-voorbeeld': typeof AuthenticatedOuderportaalVoorbeeldRoute
   '/_authenticated/profiel': typeof AuthenticatedProfielRoute
   '/_authenticated/rust': typeof AuthenticatedRustRoute
   '/_authenticated/shop': typeof AuthenticatedShopRoute
@@ -587,6 +597,7 @@ export interface FileRouteTypes {
     | '/meldingen'
     | '/muziek'
     | '/ouderhoek'
+    | '/ouderportaal-voorbeeld'
     | '/profiel'
     | '/rust'
     | '/shop'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/meldingen'
     | '/muziek'
     | '/ouderhoek'
+    | '/ouderportaal-voorbeeld'
     | '/profiel'
     | '/rust'
     | '/shop'
@@ -706,6 +718,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meldingen'
     | '/_authenticated/muziek'
     | '/_authenticated/ouderhoek'
+    | '/_authenticated/ouderportaal-voorbeeld'
     | '/_authenticated/profiel'
     | '/_authenticated/rust'
     | '/_authenticated/shop'
@@ -972,6 +985,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOuderhoekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ouderportaal-voorbeeld': {
+      id: '/_authenticated/ouderportaal-voorbeeld'
+      path: '/ouderportaal-voorbeeld'
+      fullPath: '/ouderportaal-voorbeeld'
+      preLoaderRoute: typeof AuthenticatedOuderportaalVoorbeeldRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profiel': {
       id: '/_authenticated/profiel'
       path: '/profiel'
@@ -1187,6 +1207,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMeldingenRoute: typeof AuthenticatedMeldingenRoute
   AuthenticatedMuziekRoute: typeof AuthenticatedMuziekRoute
   AuthenticatedOuderhoekRoute: typeof AuthenticatedOuderhoekRoute
+  AuthenticatedOuderportaalVoorbeeldRoute: typeof AuthenticatedOuderportaalVoorbeeldRoute
   AuthenticatedProfielRoute: typeof AuthenticatedProfielRoute
   AuthenticatedRustRoute: typeof AuthenticatedRustRoute
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
@@ -1227,6 +1248,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMeldingenRoute: AuthenticatedMeldingenRoute,
   AuthenticatedMuziekRoute: AuthenticatedMuziekRoute,
   AuthenticatedOuderhoekRoute: AuthenticatedOuderhoekRoute,
+  AuthenticatedOuderportaalVoorbeeldRoute:
+    AuthenticatedOuderportaalVoorbeeldRoute,
   AuthenticatedProfielRoute: AuthenticatedProfielRoute,
   AuthenticatedRustRoute: AuthenticatedRustRoute,
   AuthenticatedShopRoute: AuthenticatedShopRoute,

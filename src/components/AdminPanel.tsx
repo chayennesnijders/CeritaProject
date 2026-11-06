@@ -37,6 +37,7 @@ import { ADMIN_PAGES, type AdminPage } from "@/lib/admin-nav";
 import { MemberProfileDialog } from "@/components/MemberProfileDialog";
 import { BuddyAdmin } from "@/components/BuddyAdmin";
 import { LessonsAdmin } from "@/components/LessonsAdmin";
+import { ParentsAdmin } from "@/components/ParentsAdmin";
 import { DedupeStoryPhotos } from "@/components/DedupeStoryPhotos";
 
 const TABS = [
@@ -50,6 +51,7 @@ const TABS = [
   { id: "impact", label: "Impact" },
   { id: "buddy", label: "CeritaBuddy" },
   { id: "lessen", label: "Lessen & scholen" },
+  { id: "ouders", label: "Ouderportaal" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
@@ -218,6 +220,7 @@ export function AdminPanel() {
       {tab === "impact" && <ImpactReport />}
       {tab === "buddy" && <BuddyAdmin />}
       {tab === "lessen" && <LessonsAdmin />}
+      {tab === "ouders" && <ParentsAdmin />}
       {tab === "vragen" && (
         <div className="space-y-4">
           <CoachesAdmin />
