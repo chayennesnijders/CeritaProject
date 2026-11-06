@@ -12,6 +12,7 @@ import {
   BUDDY_LINKS,
   BUDDY_MAX_MESSAGE,
   BUDDY_MODES,
+  limitStage,
   parseReply,
   visibleWhileStreaming,
   type BuddyModeId,
@@ -58,7 +59,7 @@ function BuddyPage() {
     return (
       <div className="space-y-3 pt-4 text-center">
         <Riti size={120} expression="denkend" className="mx-auto" />
-        <p className="font-semibold">CeritaBuddy staat even uit</p>
+        <p className="text-sm font-semibold">CeritaBuddy staat even uit</p>
         <p className="text-sm text-muted-foreground">Probeer het later nog eens. Wil je nu met iemand praten?</p>
         <Link to="/vragen" className="inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">🎓 Naar de coaches</Link>
       </div>
@@ -140,6 +141,7 @@ function BuddyPage() {
           onConversation={setConvId}
           status={status ?? null}
           young={ageBracket(me?.profile?.birthdate) === "13-15" || ageBracket(me?.profile?.birthdate) === "16-18"}
+          groups={ageBracket(me?.profile?.birthdate) !== "28+"}
         />
       )}
     </div>
@@ -292,12 +294,14 @@ function Chat({
   onConversation,
   status,
   young,
+  groups,
 }: {
   uid: string;
   convId: string | null;
   onConversation: (id: string) => void;
   status: Status | null;
   young: boolean;
+  groups: boolean;
 }) {
   const qc = useQueryClient();
   const [text, setText] = useState("");
@@ -348,6 +352,12 @@ function Chat({
         const err = (await res.json().catch(() => ({}))) as { error?: string; code?: string };
         if (err.code === "consent") qc.invalidateQueries({ queryKey: ["buddy-prefs", uid] });
         if (err.code === "duplicate") return;
+        if (err.code === "limit") {
+          // Shown as the friendly "op voor vandaag" card below, with your text kept in the box.
+          qc.invalidateQueries({ queryKey: ["buddy-status", uid] });
+          if (!opts.retry) setText(clean);
+          return;
+        }
         setFailed({ message: clean, error: err.error ?? "Er ging iets mis. Probeer het nog eens.", retry: false, again: err.code !== "limit" && res.status !== 503 });
         if (!opts.retry) setText(clean);
         return;
@@ -390,6 +400,7 @@ function Chat({
   const lastIsAssistant = msgs.at(-1)?.role === "assistant";
   const anySafety = safety !== "none" || msgs.slice(-4).some((m) => m.safety);
   const remaining = status ? Math.max(0, status.daily_limit - status.used_today) : null;
+  const stage = limitStage(remaining);
   const empty = !convId && !convRef.current && !pending && stream === null;
 
   return (
@@ -480,6 +491,7 @@ function Chat({
           void send(text);
         }}
       >
+        {stage !== "ok" && !busy && <LimitCard left={remaining ?? 0} groups={groups} />}
         <div className="flex items-end gap-2">
           <textarea
             id="buddy-bericht"
@@ -496,13 +508,13 @@ function Chat({
             placeholder={empty ? "Typ gewoon wat er in je opkomt…" : "Typ een bericht…"}
             className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-2xl border border-input bg-background px-3 py-2 text-sm [field-sizing:content]"
           />
-          <Button type="submit" size="icon" disabled={busy || !text.trim()} aria-label="Versturen" className="shrink-0 rounded-full">
+          <Button type="submit" size="icon" disabled={busy || !text.trim() || stage === "op"} aria-label="Versturen" className="shrink-0 rounded-full">
             <Send className="size-4" />
           </Button>
         </div>
-        {remaining !== null && remaining <= 10 && (
+        {remaining !== null && remaining <= 10 && stage === "ok" && (
           <p className="px-2 pt-1 text-[11px] text-muted-foreground">
-            {remaining > 0 ? `Nog ${remaining} berichten vandaag` : "Je berichten voor vandaag zijn op. Morgen kan het weer!"}
+            {remaining > 0 ? `Nog ${remaining} ${remaining === 1 ? "bericht" : "berichten"} vandaag` : "Op voor vandaag · om 00:00 kun je weer"}
           </p>
         )}
       </form>
@@ -544,6 +556,38 @@ function LinkRow({ links }: { links: (keyof typeof BUDDY_LINKS)[] }) {
           {BUDDY_LINKS[k].emoji} {BUDDY_LINKS[k].label} →
         </Link>
       ))}
+    </div>
+  );
+}
+
+/** The last few messages of the day, or none left: a warm pointer to real people. */
+function LimitCard({ left, groups }: { left: number; groups: boolean }) {
+  const op = left <= 0;
+  return (
+    <div className="mb-2 space-y-1.5 rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
+      <p className="font-semibold">
+        {op ? "Je berichten voor vandaag zijn op 🌙" : `Nog ${left} ${left === 1 ? "bericht" : "berichten"} vandaag`}
+      </p>
+      <p>
+        {op
+          ? "Om 00:00 kun je weer verder met CeritaBuddy. Wil je nu nog praten? Dat kan met echte mensen:"
+          : "Fijn dat je praat! Weet je dat je ook terecht kunt bij echte mensen?"}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {groups && (
+          <Link to="/community" className="rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground">
+            👥 Naar de groepen
+          </Link>
+        )}
+        <Link to="/vragen" className="rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground">
+          🎓 Praat met een coach
+        </Link>
+        {op && (
+          <Link to="/hulp" className="rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground">
+            🆘 Hulp nodig?
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

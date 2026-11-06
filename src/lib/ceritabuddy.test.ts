@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ageBracket,
+  limitStage,
   assessSafety,
   buildContext,
   buddyMode,
@@ -102,5 +103,16 @@ describe("small helpers", () => {
   it("finds modes by id", () => {
     expect(buddyMode("relativeren")?.label).toBe("Help me relativeren");
     expect(buddyMode("bestaat-niet")).toBeNull();
+  });
+});
+
+describe("limitStage", () => {
+  it("warns for the last few messages and stops at zero", () => {
+    expect(limitStage(null)).toBe("ok");
+    expect(limitStage(30)).toBe("ok");
+    expect(limitStage(6)).toBe("ok");
+    expect(limitStage(5)).toBe("bijna");
+    expect(limitStage(1)).toBe("bijna");
+    expect(limitStage(0)).toBe("op");
   });
 });

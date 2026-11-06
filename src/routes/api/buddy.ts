@@ -86,7 +86,7 @@ export const Route = createFileRoute("/api/buddy")({
         if (turnErr) return json({ error: "Er ging iets mis. Probeer het zo nog eens." }, 500);
         const remaining = Math.max(0, settings.daily_limit - (used ?? 0));
         if ((used ?? 0) > settings.daily_limit)
-          return json({ error: "Je hebt vandaag al veel met CeritaBuddy gepraat. Morgen kan het weer! Wil je nu met iemand praten? Kijk dan bij de coaches of de hulplijnen.", code: "limit" }, 429);
+          return json({ error: "Je berichten voor vandaag zijn op. Om 00:00 kun je weer verder met CeritaBuddy.", code: "limit" }, 429);
 
         // Safety layer: word patterns + a separate AI check (the model's own [[veilig]] mark comes after).
         const safety = assessSafety(message, await aiCheck);
@@ -128,6 +128,7 @@ export const Route = createFileRoute("/api/buddy")({
           mode,
           safety,
           extra: settings.extra_instructions,
+          remaining,
         });
 
         let failure: unknown = null;

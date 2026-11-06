@@ -25,7 +25,7 @@ export function BuddyAdmin() {
     queryKey: ["buddy-stats"],
     queryFn: async () => (await supabase.rpc("buddy_stats")).data as unknown as Stats | null,
   });
-  const [form, setForm] = useState({ enabled: true, model: "claude-haiku-5-5", daily_limit: 40, context_messages: 16, max_reply_tokens: 700, extra_instructions: "" });
+  const [form, setForm] = useState({ enabled: true, model: "claude-haiku-5-5", daily_limit: 30, context_messages: 16, max_reply_tokens: 700, extra_instructions: "" });
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (settings)

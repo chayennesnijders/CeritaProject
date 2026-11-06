@@ -204,3 +204,13 @@ export function titleFrom(text: string): string {
 }
 
 export const BUDDY_MAX_MESSAGE = 2000;
+
+/** How many messages are left today: "ok", "bijna" (the last few) or "op". The count starts again at 00:00. */
+export type LimitStage = "ok" | "bijna" | "op";
+export const BUDDY_ALMOST = 5;
+export function limitStage(remaining: number | null): LimitStage {
+  if (remaining === null) return "ok";
+  if (remaining <= 0) return "op";
+  if (remaining <= BUDDY_ALMOST) return "bijna";
+  return "ok";
+}

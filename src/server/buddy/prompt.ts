@@ -80,12 +80,20 @@ export function buddySystemPrompt(opts: {
   mode: string | null;
   safety: SafetyLevel;
   extra: string;
+  /** Messages left today after this one (the count starts again at 00:00). */
+  remaining?: number;
 }): string {
   const parts = [IDENTITY, STYLE];
   if (opts.bracket) parts.push(`DOELGROEP\n${TONE[opts.bracket]}`);
   const mode = buddyMode(opts.mode);
   if (mode) parts.push(`GESPREKSVORM DIE DE JONGERE KOOS: "${mode.label}"\n${mode.hint}`);
   if (opts.extra.trim()) parts.push(`AANVULLENDE INSTRUCTIES VAN HET CERITAPROJECT-TEAM\n${opts.extra.trim()}`);
+  if (opts.remaining !== undefined && opts.remaining <= 3)
+    parts.push(
+      opts.remaining === 0
+        ? "LET OP: dit is het laatste bericht dat de jongere vandaag aan jou kan sturen; om 00:00 kan het weer. Rond het gesprek warm af en moedig aan om ook met echte mensen te praten, bijvoorbeeld in de groepen of met een coach. Gebruik daarvoor [[app:community]] en [[app:coach]]."
+        : `LET OP: de jongere kan vandaag nog ${opts.remaining} bericht(en) sturen; om 00:00 kan het weer. Rond niet abrupt af, maar noem op een natuurlijk moment dat ook de groepen of een coach fijn kunnen zijn om mee te praten.`,
+    );
   parts.push(SAFETY);
   if (opts.safety !== "none")
     parts.push(

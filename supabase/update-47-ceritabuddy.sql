@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS public.buddy_settings (
   id int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
   enabled boolean NOT NULL DEFAULT true,
   model text NOT NULL DEFAULT 'claude-haiku-5-5',
-  daily_limit int NOT NULL DEFAULT 40 CHECK (daily_limit BETWEEN 0 AND 1000),
+  daily_limit int NOT NULL DEFAULT 30 CHECK (daily_limit BETWEEN 0 AND 1000),
   context_messages int NOT NULL DEFAULT 16 CHECK (context_messages BETWEEN 2 AND 60),
   max_reply_tokens int NOT NULL DEFAULT 700 CHECK (max_reply_tokens BETWEEN 100 AND 4000),
   extra_instructions text NOT NULL DEFAULT '' CHECK (length(extra_instructions) <= 8000),
