@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { isMean } from "@/lib/kindness";
+import { contactRisks, SENDER_NOTE, type ContactRisk } from "@/lib/contact-safety";
 
 /**
  * "Eerst even nadenken": before a message with mean words goes out, Riti asks whether you are sure.
@@ -17,10 +18,14 @@ import { isMean } from "@/lib/kindness";
  */
 export function useKindCheck() {
   const [open, setOpen] = useState(false);
+  // Besides mean words, also personal details (number, other app, photos, meeting, secrets).
+  const [risks, setRisks] = useState<ContactRisk[]>([]);
   const answer = useRef<((send: boolean) => void) | null>(null);
 
   function confirmKind(text: string) {
-    if (!isMean(text)) return Promise.resolve(true);
+    const found = isMean(text) ? [] : contactRisks(text);
+    if (!isMean(text) && found.length === 0) return Promise.resolve(true);
+    setRisks(found);
     setOpen(true);
     return new Promise<boolean>((resolve) => {
       answer.current = resolve;
@@ -40,11 +45,20 @@ export function useKindCheck() {
         </div>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-center">
-            Weet je zeker dat je dit wilt sturen?
+            {risks.length ? "Even opletten 🛟" : "Weet je zeker dat je dit wilt sturen?"}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center">
-            Er staan woorden in die iemand pijn kunnen doen. Die worden verborgen met ✱✱✱. Misschien
-            kun je het ook anders zeggen? 💛
+            {risks.length ? (
+              <>
+                {risks.map((r) => SENDER_NOTE[r]).join(" ")} Deel nooit je nummer, adres, school of foto&apos;s met
+                iemand die je alleen van internet kent. Je weet nooit zeker wie er echt achter een account zit.
+              </>
+            ) : (
+              <>
+                Er staan woorden in die iemand pijn kunnen doen. Die worden verborgen met ✱✱✱. Misschien
+                kun je het ook anders zeggen? 💛
+              </>
+            )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col gap-2 sm:flex-col">

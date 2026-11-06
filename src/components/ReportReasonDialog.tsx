@@ -9,7 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-const QUICK = ["Gemeen of kwetsend", "Pesten", "Ongepast", "Spam", "Ik maak me zorgen om iemand"];
+/** Reports with this reason go to the top of the inbox (possible adult posing as a peer). */
+export const NOT_A_PEER = "Ik denk dat dit geen leeftijdsgenoot is";
+const QUICK = ["Gemeen of kwetsend", "Pesten", "Ongepast", NOT_A_PEER, "Vraagt om mijn nummer, foto's of afspreken", "Spam", "Ik maak me zorgen om iemand"];
 
 /**
  * In-app "why are you reporting this?" (native prompt() can be blocked in app views and looks

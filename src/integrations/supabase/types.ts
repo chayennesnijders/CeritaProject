@@ -2223,6 +2223,7 @@ export type Database = {
       }
       safety_alerts: {
         Row: {
+          kind: string
           author_id: string | null
           created_at: string
           excerpt: string
@@ -2234,6 +2235,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          kind?: string
           author_id?: string | null
           created_at?: string
           excerpt: string
@@ -2245,6 +2247,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          kind?: string
           author_id?: string | null
           created_at?: string
           excerpt?: string

@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import { reportActionSchema } from "@/lib/report-actions";
 import { reportsQueryOptions } from "@/lib/reports";
 import { useMe } from "@/lib/auth";
+import { NOT_A_PEER } from "@/components/ReportReasonDialog";
+
+/** Possible adults posing as peers, and requests for numbers or photos, come first. */
+const urgent = (reason: string | null | undefined) =>
+  !!reason && (reason.includes(NOT_A_PEER) || reason.includes("nummer, foto's of afspreken"));
 
 export function ReportInbox({ onWarn, onTimeout }: { onWarn: (id: string) => void; onTimeout: (id: string, hours: number) => void }) {
   const qc = useQueryClient();
@@ -38,9 +43,10 @@ export function ReportInbox({ onWarn, onTimeout }: { onWarn: (id: string) => voi
     {isPending && <p className="text-sm text-muted-foreground">Meldingen laden…</p>}
     {error && <div role="alert" className="text-sm text-destructive">Meldingen konden niet worden geladen. <Button size="sm" variant="outline" onClick={() => refetch()}>Opnieuw proberen</Button></div>}
     {data?.length === 0 && <p className="text-sm text-muted-foreground">{closed ? "Nog geen afgehandelde meldingen." : "Geen open meldingen."}</p>}
-    {data?.map((r) => {
+    {[...(data ?? [])].sort((a, b) => Number(urgent(b.reason)) - Number(urgent(a.reason))).map((r) => {
       const target = r.post?.author_id ?? r.message?.sender_id;
-      return <article key={r.id} className="space-y-2 rounded-lg border border-border bg-card p-4 text-sm">
+      return <article key={r.id} className={`space-y-2 rounded-lg border bg-card p-4 text-sm ${urgent(r.reason) ? "border-2 border-destructive" : "border-border"}`}>
+        {urgent(r.reason) && <p className="inline-block rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground">⚠️ Mogelijk geen leeftijdsgenoot · eerst bekijken</p>}
         <h3 className="text-sm font-bold">{r.reporter?.display_name ?? "Lid"} · {r.message_id ? "Privébericht" : r.post_id ? "Groepsbericht" : "Melding"}</h3>
         <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("nl-NL")}</p>
         <p className="break-words">{r.reason}</p>

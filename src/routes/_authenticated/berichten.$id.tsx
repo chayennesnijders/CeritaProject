@@ -31,6 +31,8 @@ import { Reactable, useReactions } from "@/components/chat-extras/reactions";
 import { StickerPicker, StickerView } from "@/components/chat-extras/stickers";
 import { stickerBody, type StickerId } from "@/lib/stickers";
 import { addMessage, CHAT_PAGE } from "@/lib/chat-merge";
+import { contactRisks, RECEIVER_NOTE } from "@/lib/contact-safety";
+import { ageBracket } from "@/lib/ceritabuddy";
 
 export const Route = createFileRoute("/_authenticated/berichten/$id")({
   // ?spel=… opens a game straight away (from a "jouw beurt" push).
@@ -60,6 +62,8 @@ function ChatPage() {
   const [recording, setRecording] = useState(false);
   const [extras, setExtras] = useState(false);
   const hasExtra = !!file || !!audio || recording;
+  // Young members (under 18) see a warning under messages that ask for personal details.
+  const young = ["13-15", "16-18"].includes(ageBracket(me?.profile?.birthdate) ?? "");
   const { startCall } = useCall();
   const { confirmKind, dialog: kindDialog } = useKindCheck();
   const [limit, setLimit] = useState(CHAT_PAGE);
@@ -282,6 +286,12 @@ function ChatPage() {
                   : <p className="whitespace-pre-wrap">{m.body}</p>}
                 {m.audio_path && <ChatAudio path={m.audio_path} />}
                 {m.attachment_path && <ChatAttachment path={m.attachment_path} name={m.attachment_name} type={m.attachment_type} />}
+                {!mine && young && contactRisks(m.body).length > 0 && (
+                  <div className="mt-2 rounded-xl bg-[#fff4d6] p-2 text-xs text-[#5c4300]">
+                    <p>⚠️ {RECEIVER_NOTE}</p>
+                    <button onClick={() => report(m.id, m.body)} className="mt-1 font-semibold underline">Melden</button>
+                  </div>
+                )}
                 <div className="mt-1 flex items-center gap-2 text-[10px] opacity-70">
                   {!isToday(m.created_at) && <span>{shortDay(m.created_at)}</span>}
                   {new Date(m.created_at).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}

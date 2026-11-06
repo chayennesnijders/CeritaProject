@@ -9,6 +9,21 @@ const SOURCE: Record<string, string> = {
   post: "Bericht in een groep",
   comment: "Reactie in een groep",
   dm: "Privégesprek",
+  vraag: "Anonieme vraag",
+  account: "Account",
+};
+
+/** What kind of signal: worry about someone, or someone who may be a risk to young people. */
+const KIND: Record<string, { label: string; what: string }> = {
+  zorg: { label: "🆘 Zorgsignaal", what: "Iemand schreef iets over zelfmoord of zichzelf pijn doen." },
+  contact: {
+    label: "🛑 Vraagt jongeren om contact",
+    what: "Dit account vroeg minderjarigen meerdere keren om een nummer, andere app, foto's, een afspraak of geheimhouding. Bekijk het gesprek, overweeg een time-out, en ga na of dit wel een leeftijdsgenoot is.",
+  },
+  "nieuw-account": {
+    label: "👀 Nieuw account, veel verzoeken",
+    what: "Een account van minder dan een week oud stuurde veel chatverzoeken aan 13–15-jarigen. Kijk of het profiel klopt.",
+  },
 };
 
 /** Beheer → Inbox: open care signals (words about suicide or self-harm), so an admin can reach out. */
@@ -56,7 +71,7 @@ export function SafetyAlerts() {
 
   return (
     <section className="space-y-3 rounded-3xl border-2 border-destructive bg-card p-5 shadow-soft">
-      <h2 className="text-lg">🆘 Zorgsignalen ({rows.length})</h2>
+      <h2 className="text-lg">🆘 Zorg- en veiligheidssignalen ({rows.length})</h2>
       <p className="text-xs text-muted-foreground">
         Iemand schreef iets over zelfmoord of zichzelf pijn doen. Diegene kreeg meteen hulpnummers
         te zien. Stuur een lief bericht, verwijs naar 113 of de Kindertelefoon, en volg je
@@ -66,6 +81,12 @@ export function SafetyAlerts() {
         const who = a.author_id ? data?.people[a.author_id] : undefined;
         return (
           <div key={a.id} className="space-y-2 rounded-2xl bg-muted p-3 text-sm">
+            {a.kind && a.kind !== "zorg" && KIND[a.kind] && (
+              <div className="rounded-xl bg-destructive/10 p-2 text-xs">
+                <p className="font-bold">{KIND[a.kind]!.label}</p>
+                <p>{KIND[a.kind]!.what}</p>
+              </div>
+            )}
             <p className="text-xs font-semibold text-muted-foreground">
               {SOURCE[a.source] ?? a.source} ·{" "}
               {new Date(a.created_at).toLocaleString("nl-NL", {
