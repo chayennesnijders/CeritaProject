@@ -27,6 +27,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
 import { Route as AuthenticatedBrievenRouteImport } from './routes/_authenticated/brieven'
 import { Route as AuthenticatedBuddyRouteImport } from './routes/_authenticated/buddy'
+import { Route as AuthenticatedCeritabuddyRouteImport } from './routes/_authenticated/ceritabuddy'
 import { Route as AuthenticatedCoachRouteImport } from './routes/_authenticated/coach'
 import { Route as AuthenticatedComplimentenRouteImport } from './routes/_authenticated/complimenten'
 import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
@@ -48,6 +49,7 @@ import { Route as AuthenticatedVragenRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedVriendenRouteImport } from './routes/_authenticated/vrienden'
 import { Route as AuthenticatedZoekenRouteImport } from './routes/_authenticated/zoeken'
 import { Route as ApiAuthEmailRouteImport } from './routes/api/auth-email'
+import { Route as ApiBuddyRouteImport } from './routes/api/buddy'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as AuthenticatedBerichtenIndexRouteImport } from './routes/_authenticated/berichten.index'
 import { Route as AuthenticatedBerichtenIdRouteImport } from './routes/_authenticated/berichten.$id'
@@ -151,6 +153,12 @@ const AuthenticatedBuddyRoute = AuthenticatedBuddyRouteImport.update({
   path: '/buddy',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCeritabuddyRoute =
+  AuthenticatedCeritabuddyRouteImport.update({
+    id: '/ceritabuddy',
+    path: '/ceritabuddy',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoachRoute = AuthenticatedCoachRouteImport.update({
   id: '/coach',
   path: '/coach',
@@ -259,6 +267,11 @@ const ApiAuthEmailRoute = ApiAuthEmailRouteImport.update({
   path: '/api/auth-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBuddyRoute = ApiBuddyRouteImport.update({
+  id: '/api/buddy',
+  path: '/api/buddy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   id: '/api/transcribe',
   path: '/api/transcribe',
@@ -348,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
   '/buddy': typeof AuthenticatedBuddyRoute
+  '/ceritabuddy': typeof AuthenticatedCeritabuddyRoute
   '/coach': typeof AuthenticatedCoachRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
@@ -369,6 +383,7 @@ export interface FileRoutesByFullPath {
   '/vrienden': typeof AuthenticatedVriendenRoute
   '/zoeken': typeof AuthenticatedZoekenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
+  '/api/buddy': typeof ApiBuddyRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
@@ -400,6 +415,7 @@ export interface FileRoutesByTo {
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
   '/buddy': typeof AuthenticatedBuddyRoute
+  '/ceritabuddy': typeof AuthenticatedCeritabuddyRoute
   '/coach': typeof AuthenticatedCoachRoute
   '/complimenten': typeof AuthenticatedComplimentenRoute
   '/contact': typeof AuthenticatedContactRoute
@@ -421,6 +437,7 @@ export interface FileRoutesByTo {
   '/vrienden': typeof AuthenticatedVriendenRoute
   '/zoeken': typeof AuthenticatedZoekenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
+  '/api/buddy': typeof ApiBuddyRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
@@ -454,6 +471,7 @@ export interface FileRoutesById {
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
   '/_authenticated/brieven': typeof AuthenticatedBrievenRoute
   '/_authenticated/buddy': typeof AuthenticatedBuddyRoute
+  '/_authenticated/ceritabuddy': typeof AuthenticatedCeritabuddyRoute
   '/_authenticated/coach': typeof AuthenticatedCoachRoute
   '/_authenticated/complimenten': typeof AuthenticatedComplimentenRoute
   '/_authenticated/contact': typeof AuthenticatedContactRoute
@@ -475,6 +493,7 @@ export interface FileRoutesById {
   '/_authenticated/vrienden': typeof AuthenticatedVriendenRoute
   '/_authenticated/zoeken': typeof AuthenticatedZoekenRoute
   '/api/auth-email': typeof ApiAuthEmailRoute
+  '/api/buddy': typeof ApiBuddyRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/_authenticated/berichten/$id': typeof AuthenticatedBerichtenIdRoute
   '/_authenticated/community/$groupId': typeof AuthenticatedCommunityGroupIdRoute
@@ -508,6 +527,7 @@ export interface FileRouteTypes {
     | '/beheer'
     | '/brieven'
     | '/buddy'
+    | '/ceritabuddy'
     | '/coach'
     | '/complimenten'
     | '/contact'
@@ -529,6 +549,7 @@ export interface FileRouteTypes {
     | '/vrienden'
     | '/zoeken'
     | '/api/auth-email'
+    | '/api/buddy'
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
@@ -560,6 +581,7 @@ export interface FileRouteTypes {
     | '/beheer'
     | '/brieven'
     | '/buddy'
+    | '/ceritabuddy'
     | '/coach'
     | '/complimenten'
     | '/contact'
@@ -581,6 +603,7 @@ export interface FileRouteTypes {
     | '/vrienden'
     | '/zoeken'
     | '/api/auth-email'
+    | '/api/buddy'
     | '/api/transcribe'
     | '/berichten/$id'
     | '/community/$groupId'
@@ -613,6 +636,7 @@ export interface FileRouteTypes {
     | '/_authenticated/beheer'
     | '/_authenticated/brieven'
     | '/_authenticated/buddy'
+    | '/_authenticated/ceritabuddy'
     | '/_authenticated/coach'
     | '/_authenticated/complimenten'
     | '/_authenticated/contact'
@@ -634,6 +658,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vrienden'
     | '/_authenticated/zoeken'
     | '/api/auth-email'
+    | '/api/buddy'
     | '/api/transcribe'
     | '/_authenticated/berichten/$id'
     | '/_authenticated/community/$groupId'
@@ -664,6 +689,7 @@ export interface RootRouteChildren {
   WachtlijstRoute: typeof WachtlijstRoute
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   ApiAuthEmailRoute: typeof ApiAuthEmailRoute
+  ApiBuddyRoute: typeof ApiBuddyRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiPublicAdminNewsPushRoute: typeof ApiPublicAdminNewsPushRoute
   ApiPublicFreeItemsWeeklyRoute: typeof ApiPublicFreeItemsWeeklyRoute
@@ -796,6 +822,13 @@ declare module '@tanstack/react-router' {
       path: '/buddy'
       fullPath: '/buddy'
       preLoaderRoute: typeof AuthenticatedBuddyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ceritabuddy': {
+      id: '/_authenticated/ceritabuddy'
+      path: '/ceritabuddy'
+      fullPath: '/ceritabuddy'
+      preLoaderRoute: typeof AuthenticatedCeritabuddyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/coach': {
@@ -945,6 +978,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/buddy': {
+      id: '/api/buddy'
+      path: '/api/buddy'
+      fullPath: '/api/buddy'
+      preLoaderRoute: typeof ApiBuddyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/transcribe': {
       id: '/api/transcribe'
       path: '/api/transcribe'
@@ -1037,6 +1077,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
   AuthenticatedBrievenRoute: typeof AuthenticatedBrievenRoute
   AuthenticatedBuddyRoute: typeof AuthenticatedBuddyRoute
+  AuthenticatedCeritabuddyRoute: typeof AuthenticatedCeritabuddyRoute
   AuthenticatedCoachRoute: typeof AuthenticatedCoachRoute
   AuthenticatedComplimentenRoute: typeof AuthenticatedComplimentenRoute
   AuthenticatedContactRoute: typeof AuthenticatedContactRoute
@@ -1072,6 +1113,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
   AuthenticatedBrievenRoute: AuthenticatedBrievenRoute,
   AuthenticatedBuddyRoute: AuthenticatedBuddyRoute,
+  AuthenticatedCeritabuddyRoute: AuthenticatedCeritabuddyRoute,
   AuthenticatedCoachRoute: AuthenticatedCoachRoute,
   AuthenticatedComplimentenRoute: AuthenticatedComplimentenRoute,
   AuthenticatedContactRoute: AuthenticatedContactRoute,
@@ -1121,6 +1163,7 @@ const rootRouteChildren: RootRouteChildren = {
   WachtlijstRoute: WachtlijstRoute,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   ApiAuthEmailRoute: ApiAuthEmailRoute,
+  ApiBuddyRoute: ApiBuddyRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiPublicAdminNewsPushRoute: ApiPublicAdminNewsPushRoute,
   ApiPublicFreeItemsWeeklyRoute: ApiPublicFreeItemsWeeklyRoute,

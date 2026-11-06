@@ -35,6 +35,7 @@ import { WaitlistAdmin } from "@/components/WaitlistAdmin";
 import { AdminStart } from "@/components/AdminStart";
 import { ADMIN_PAGES, type AdminPage } from "@/lib/admin-nav";
 import { MemberProfileDialog } from "@/components/MemberProfileDialog";
+import { BuddyAdmin } from "@/components/BuddyAdmin";
 
 const TABS = [
   { id: "start", label: "🏠 Start" },
@@ -45,6 +46,7 @@ const TABS = [
   { id: "agenda", label: "Agenda" },
   { id: "thema", label: "Thema" },
   { id: "impact", label: "Impact" },
+  { id: "buddy", label: "CeritaBuddy" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
@@ -211,6 +213,7 @@ export function AdminPanel() {
       )}
 
       {tab === "impact" && <ImpactReport />}
+      {tab === "buddy" && <BuddyAdmin />}
       {tab === "vragen" && (
         <div className="space-y-4">
           <CoachesAdmin />

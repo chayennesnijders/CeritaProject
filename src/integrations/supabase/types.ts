@@ -272,6 +272,114 @@ export type Database = {
         }
         Relationships: []
       }
+      buddy_settings: {
+        Row: {
+          id: number
+          enabled: boolean
+          model: string
+          daily_limit: number
+          context_messages: number
+          max_reply_tokens: number
+          extra_instructions: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: number
+          enabled?: boolean
+          model?: string
+          daily_limit?: number
+          context_messages?: number
+          max_reply_tokens?: number
+          extra_instructions?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: number
+          enabled?: boolean
+          model?: string
+          daily_limit?: number
+          context_messages?: number
+          max_reply_tokens?: number
+          extra_instructions?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      buddy_prefs: {
+        Row: {
+          user_id: string
+          accepted_at: string | null
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          accepted_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          accepted_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      buddy_conversations: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      buddy_messages: {
+        Row: {
+          id: string
+          conversation_id: string
+          user_id: string
+          role: string
+          content: string
+          safety: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          user_id: string
+          role: string
+          content: string
+          safety?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          user_id?: string
+          role?: string
+          content?: string
+          safety?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       buddy_profiles: {
         Row: {
           interests: string[]
@@ -2341,6 +2449,10 @@ export type Database = {
       my_letters: { Args: never; Returns: { id: string; body: string | null; open_at: string; opened_at: string | null; created_at: string }[] }
       open_letter: { Args: { _letter: string }; Returns: undefined }
       event_counts: { Args: never; Returns: { event_id: string; going: number }[] }
+      buddy_status: { Args: never; Returns: Json }
+      buddy_stats: { Args: never; Returns: Json }
+      buddy_take_turn: { Args: { _user: string }; Returns: number }
+      buddy_cleanup: { Args: { _user: string }; Returns: undefined }
       buddy_suggestions: { Args: never; Returns: { user_id: string; display_name: string; username: string | null; avatar_url: string | null; shared: string[] }[] }
       censor: { Args: { _text: string }; Returns: string }
       theme_showcase: { Args: { _theme: string }; Returns: { id: string; kind: string; body: string | null; image_path: string | null; maker: string | null; created_at: string }[] }

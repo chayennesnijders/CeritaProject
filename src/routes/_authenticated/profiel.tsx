@@ -64,10 +64,10 @@ const SHORTCUT_GROUPS = [
     emoji: "🤝",
     tint: "bg-[#e3f1e8] dark:bg-[#1f3a2c]",
     items: [
+      { to: "/ceritabuddy", emoji: "💬", label: "Cerita\u00adBuddy" },
       { to: "/vragen", emoji: "🎓", label: "Coaches" },
       { to: "/buddy", emoji: "🤝", label: "Buddy zoeken" },
       { to: "/agenda", emoji: "🗓️", label: "Agenda" },
-      { to: "/complimenten", emoji: "💐", label: "Compli\u00admenten" },
     ],
   },
   {
@@ -76,6 +76,7 @@ const SHORTCUT_GROUPS = [
     tint: "bg-[#f6ead9] dark:bg-[#3a2d26]",
     items: [
       { to: "/brieven", emoji: "💌", label: "Brief aan jezelf" },
+      { to: "/complimenten", emoji: "💐", label: "Compli\u00admenten" },
       { to: "/thema", emoji: "✨", label: "Thema" },
       { to: "/meldingen", emoji: "🔔", label: "Meldingen" },
     ],

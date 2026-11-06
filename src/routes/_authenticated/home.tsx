@@ -89,6 +89,17 @@ function HomePage() {
       )}
 
       <MoodCheckIn uid={uid} day={day} name={p?.display_name ?? ""} />
+      <Link
+        to="/ceritabuddy"
+        className="flex items-center gap-3 rounded-3xl bg-ink p-4 text-ink-foreground shadow-soft transition-transform active:scale-[0.98]"
+      >
+        <img src="/riti/blij.webp" alt="" className="size-12 shrink-0 rounded-full bg-secondary object-contain" />
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">Praat met CeritaBuddy 💬</span>
+          <span className="block text-xs opacity-80">Je hoeft niet te weten wat je wilt zeggen. Begin gewoon.</span>
+        </span>
+        <span>→</span>
+      </Link>
 
       <section className="space-y-3">
         <SectionTitle>Vandaag</SectionTitle>

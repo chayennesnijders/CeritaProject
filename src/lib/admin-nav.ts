@@ -16,6 +16,7 @@ export const ADMIN_PAGES = {
   nieuws: { emoji: "📰", label: "Nieuws" },
   overzicht: { emoji: "📊", label: "Overzicht & wachtlijst" },
   impact: { emoji: "💛", label: "Impact" },
+  buddy: { emoji: "🤖", label: "CeritaBuddy" },
   livegang: { emoji: "🚀", label: "Livegang" },
   logboek: { emoji: "🗒️", label: "Logboek" },
   team: { emoji: "🧑‍🤝‍🧑", label: "Team" },
@@ -24,7 +25,7 @@ export type AdminPage = keyof typeof ADMIN_PAGES;
 
 export const ADMIN_GROUPS: { title: string; pages: AdminPage[] }[] = [
   { title: "Moderatie", pages: ["inbox", "berichten", "vragen"] },
-  { title: "Inhoud", pages: ["verhalen", "luisteren", "muziek", "thema", "agenda"] },
+  { title: "Inhoud", pages: ["verhalen", "luisteren", "muziek", "thema", "agenda", "buddy"] },
   { title: "Community", pages: ["groepen", "nieuws"] },
   { title: "Organisatie", pages: ["overzicht", "impact", "livegang", "logboek", "team"] },
 ];
