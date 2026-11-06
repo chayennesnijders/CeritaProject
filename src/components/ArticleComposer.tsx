@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { shrinkImage } from "@/lib/shrink-image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,9 +52,10 @@ export function ArticleComposer() {
     setBusy(true);
     let image_url: string | null = null;
     if (photo) {
-      const ext = photo.name.split(".").pop() || "jpg";
+      const small = await shrinkImage(photo, 1920);
+      const ext = small.name.split(".").pop() || "jpg";
       const path = `${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("article-images").upload(path, photo);
+      const { error: upErr } = await supabase.storage.from("article-images").upload(path, small, { contentType: small.type });
       if (upErr) {
         toast.error("Foto uploaden mislukt: " + upErr.message);
         setBusy(false);

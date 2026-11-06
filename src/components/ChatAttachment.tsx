@@ -24,20 +24,28 @@ export function ChatAttachment({
 }) {
   const { data: src, isPending } = useSignedImage("chat-files", path);
   const kind = attachmentKind(type);
+  const [loaded, setLoaded] = useState(false);
+  // While a photo loads, a soft placeholder keeps its place so the chat doesn't jump.
+  if (kind === "image" && (src || isPending))
+    return (
+      <a href={src ?? undefined} target="_blank" rel="noopener noreferrer" className="relative mt-2 block w-64 max-w-full">
+        {!loaded && <span aria-hidden className="block aspect-[4/3] w-full animate-pulse rounded-xl bg-muted" />}
+        {src && (
+          <img
+            src={src}
+            alt={name ?? "Foto"}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setLoaded(true)}
+            onError={() => setLoaded(true)}
+            className={`max-h-72 w-full rounded-xl object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "absolute inset-0 h-full opacity-0"}`}
+          />
+        )}
+      </a>
+    );
   if (!src)
     return (
       <p className="mt-2 text-xs">{isPending ? "Bijlage laden…" : "Bijlage niet beschikbaar."}</p>
-    );
-  if (kind === "image")
-    return (
-      <a href={src} target="_blank" rel="noopener noreferrer" className="mt-2 block">
-        <img
-          src={src}
-          alt={name ?? "Foto"}
-          loading="lazy"
-          className="max-h-72 w-full max-w-64 rounded-xl object-cover"
-        />
-      </a>
     );
   if (kind === "video")
     return (

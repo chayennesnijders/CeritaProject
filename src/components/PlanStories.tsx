@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { shrinkImage } from "@/lib/shrink-image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -105,10 +106,11 @@ function PlanCard({ row, suggestedDay }: { row: Row; suggestedDay: string }) {
     setBusy(true);
     let image_url = chosen ?? row.image_url;
     if (photo) {
-      const path = `verhalen/${crypto.randomUUID()}.${photo.type === "image/png" ? "png" : "jpg"}`;
+      const small = await shrinkImage(photo, 1920);
+      const path = `verhalen/${crypto.randomUUID()}.${small.type === "image/png" ? "png" : "jpg"}`;
       const up = await supabase.storage
         .from("article-images")
-        .upload(path, photo, { contentType: photo.type });
+        .upload(path, small, { contentType: small.type });
       if (up.error) {
         setBusy(false);
         toast.error(`Foto uploaden lukte niet: ${up.error.message}`);

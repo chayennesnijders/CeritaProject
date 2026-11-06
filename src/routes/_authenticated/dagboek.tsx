@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { shrinkImage } from "@/lib/shrink-image";
 import { challengeDay } from "@/lib/challenges";
 import { useConfirm } from "@/components/ConfirmDialog";
 import { DrawingPad } from "@/components/DrawingPad";
@@ -61,9 +62,10 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
     setBusy(true);
     let photo_path: string | null = null;
     if (photo) {
-      const ext = photo.name.split(".").pop() || "jpg";
+      const small = await shrinkImage(photo);
+      const ext = small.name.split(".").pop() || "jpg";
       photo_path = `${me!.profile!.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("diary-photos").upload(photo_path, photo);
+      const { error: upErr } = await supabase.storage.from("diary-photos").upload(photo_path, small, { contentType: small.type });
       if (upErr) {
         toast.error("Foto uploaden mislukt: " + upErr.message);
         setBusy(false);

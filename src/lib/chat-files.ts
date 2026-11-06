@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { shrinkImage } from "@/lib/shrink-image";
 
 /** What the chat-files bucket accepts (kept in sync with migration 0051). */
 export const CHAT_FILE_ACCEPT =
@@ -35,7 +36,9 @@ export function chatFilePath(
   return `${uid}/${kind}/${id}/${fileId}.${ext}`;
 }
 
-export async function uploadChatFile(file: File, uid: string, kind: "dm" | "group", id: string) {
+export async function uploadChatFile(original: File, uid: string, kind: "dm" | "group", id: string) {
+  // Photos are scaled down first, so they send and open quickly.
+  const file = await shrinkImage(original);
   if (file.size > CHAT_FILE_MAX_BYTES) throw new Error("Dit bestand is te groot (max. 20 MB).");
   const path = chatFilePath(uid, kind, id, crypto.randomUUID(), file.name);
   const { error } = await supabase.storage

@@ -1,4 +1,5 @@
 import { AppLockSettings } from "@/components/AppLock";
+import { shrinkImage } from "@/lib/shrink-image";
 import { normalizeUsername, usernameProblem } from "@/lib/username";
 import { InstallGuide } from "@/components/InstallGuide";
 import { QuietHours, TextSizePicker } from "@/components/ComfortSettings";
@@ -176,12 +177,14 @@ function ProfilePage() {
             accept="image/*"
             className="hidden"
             onChange={async (e) => {
-              const f = e.target.files?.[0];
-              if (!f) return;
+              const picked = e.target.files?.[0];
+              if (!picked) return;
+              // A profile photo is shown small: 512 pixels is plenty.
+              const f = await shrinkImage(picked, 512);
               const path = `${p.id}/${crypto.randomUUID()}.${f.name.split(".").pop() ?? "jpg"}`;
               const { error } = await supabase.storage
                 .from("avatars")
-                .upload(path, f, { upsert: true });
+                .upload(path, f, { upsert: true, contentType: f.type });
               if (error) {
                 toast.error("Foto uploaden lukte niet.");
                 return;

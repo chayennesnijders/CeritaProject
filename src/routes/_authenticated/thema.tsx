@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { shrinkImage } from "@/lib/shrink-image";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -83,12 +84,13 @@ function ThemePage() {
       if (kind !== "verhaal") {
         if (!file)
           throw new Error(kind === "tekening" ? "Maak eerst je tekening." : "Kies eerst een foto.");
-        if (file.size > 10 * 1024 * 1024) throw new Error("Deze foto is te groot (max. 10 MB).");
-        const ext = file.type === "image/png" ? "png" : "jpg";
+        const small = await shrinkImage(file);
+        if (small.size > 10 * 1024 * 1024) throw new Error("Deze foto is te groot (max. 10 MB).");
+        const ext = small.type === "image/png" ? "png" : "jpg";
         path = `${uid}/${crypto.randomUUID()}.${ext}`;
         const { error } = await supabase.storage
           .from("theme-entries")
-          .upload(path, file, { contentType: file.type });
+          .upload(path, small, { contentType: small.type });
         if (error) throw new Error("Uploaden lukte niet.");
       }
       const { error } = await supabase.from("theme_entries").insert({

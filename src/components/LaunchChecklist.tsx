@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getLaunchChecks, sendTestEmail } from "@/lib/push.functions";
 import { OutsidePhotos } from "@/components/OutsidePhotos";
+import { ShrinkStoryPhotos } from "@/components/ShrinkStoryPhotos";
 import { ORG } from "@/lib/legal";
 import { launchChecks, launchStatus, type LaunchCheck } from "@/lib/launch";
 
@@ -123,6 +124,7 @@ export function LaunchChecklist() {
       ))}
       <TestEmail />
       <OutsidePhotos />
+      <ShrinkStoryPhotos />
       <p className="text-center text-xs text-muted-foreground">
         ✅ klaar · ❌ nodig voor livegang · ⚪ mag later · 📝 zelf afvinken in je hoofd 😉
       </p>

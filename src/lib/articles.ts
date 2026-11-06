@@ -41,6 +41,8 @@ export function useSignedImage(bucket: string, path: string | null | undefined) 
     queryKey: ["signed-image", bucket, path],
     enabled: !!path,
     staleTime: 50 * 60 * 1000,
+    // Keep the same link while it is valid, so the phone reuses the photo it already downloaded.
+    gcTime: 55 * 60 * 1000,
     queryFn: async () => {
       // Web addresses (e.g. a photo still on WordPress) are used as they are.
       if (/^https?:\/\//.test(path!)) return path!;
