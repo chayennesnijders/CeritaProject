@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { promptFor, shakeJar } from "./gratitude";
-import { platformOf, shouldShowInstall } from "./install";
+import { isSamsungBrowser, platformOf, shouldShowInstall } from "./install";
 import { inboxItems, inboxTotal } from "./inbox";
 import { matches, searchTerm } from "./search";
 
@@ -25,6 +25,10 @@ describe("search", () => {
 });
 
 describe("install guide", () => {
+  it("recognises Samsung Internet, where Play Protect can block installing", () => {
+    expect(isSamsungBrowser("Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0 Mobile Safari/537.36")).toBe(true);
+    expect(isSamsungBrowser("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Mobile Safari/537.36")).toBe(false);
+  });
   it("only on a phone, once, and not when installed", () => {
     expect(platformOf("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)")).toBe("ios");
     expect(platformOf("Mozilla/5.0 (Linux; Android 14)")).toBe("android");

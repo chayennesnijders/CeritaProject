@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { INSTALL_STEPS, platformOf, shouldShowInstall, type Platform } from "@/lib/install";
+import { INSTALL_STEPS, isSamsungBrowser, platformOf, shouldShowInstall, type Platform } from "@/lib/install";
 
 const SEEN_KEY = "cerita-beginscherm-uitleg";
 
@@ -21,9 +21,11 @@ export function InstallGuide({
   onOpenChange: (o: boolean) => void;
 }) {
   const [platform, setPlatform] = useState<Platform>("ios");
+  const [samsung, setSamsung] = useState(false);
   useEffect(() => {
     const p = platformOf(navigator.userAgent);
     setPlatform(p === "other" ? "ios" : p);
+    setSamsung(isSamsungBrowser(navigator.userAgent));
   }, []);
   const steps = INSTALL_STEPS[platform === "android" ? "android" : "ios"];
   return (
@@ -53,6 +55,25 @@ export function InstallGuide({
             </button>
           ))}
         </div>
+        {platform === "android" && samsung && (
+          <div className="rounded-2xl border-2 border-primary bg-card p-3 text-sm">
+            <p className="font-semibold">Je gebruikt Samsung Internet</p>
+            <p className="mt-1 text-muted-foreground">
+              Daar blokkeert Google Play Protect soms de installatie (&lsquo;Onveilige app geblokkeerd&rsquo;).
+              Dat ligt niet aan CeritaProject. Kopieer het adres <b>app.ceritaproject.nl</b> en open het in
+              <b> Chrome</b>; daar werkt installeren wel.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                void navigator.clipboard?.writeText(window.location.origin).catch(() => {});
+              }}
+              className="mt-2 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+            >
+              📋 Adres kopiëren
+            </button>
+          </div>
+        )}
         <ol className="space-y-2">
           {steps.map((s, i) => (
             <li key={i} className="flex items-start gap-3 rounded-2xl bg-muted p-3 text-sm">
