@@ -98,3 +98,67 @@ export const PARENT_HELP = [
   { name: "Veilig Thuis", what: "bij zorgen over geweld of onveiligheid thuis", phone: "0800-2000" },
   { name: "Je huisarts of het CJG", what: "voor advies over opvoeden en hulp in de buurt", phone: null },
 ] as const;
+
+/** Phone numbers in a form a phone can dial (tel: link). */
+export const telHref = (phone: string) => `tel:${phone.replace(/[^0-9+]/g, "")}`;
+
+/** Questions to start a conversation with your child, one at a time on the home screen. */
+export const PARENT_QUESTIONS = [
+  "Wat was vandaag het leukste moment van je dag?",
+  "Waar heb je vandaag om gelachen?",
+  "Wie was er vandaag aardig tegen je?",
+  "Is er iets waar je je zorgen over maakt?",
+  "Wat zou je doen als je een dag geen school had en alles mocht?",
+  "Welk liedje zit nu in je hoofd?",
+  "Wat vind je het lastigste aan deze week?",
+  "Waar ben je trots op, van de afgelopen tijd?",
+  "Wat zou je graag eens samen met mij willen doen?",
+  "Wie is je beste vriend of vriendin op dit moment, en waarom?",
+  "Wat is iets wat ik nog niet van je weet?",
+  "Als je één ding thuis mocht veranderen, wat zou dat zijn?",
+  "Wat helpt jou als je je rot voelt?",
+  "Wat kijk je graag op je telefoon? Laat eens zien.",
+  "Welke docent vind je het fijnst, en waarom?",
+  "Waar kijk je deze week naar uit?",
+  "Wat vind je van jezelf een goede eigenschap?",
+  "Is er iets wat je me al een tijdje wilt vertellen?",
+  "Wat zou je tegen je jongere zelf zeggen?",
+  "Wanneer voelde je je deze week echt ontspannen?",
+  "Wat doen jouw vrienden als iemand verdrietig is?",
+  "Waar droom je over, voor later?",
+  "Wat vind je het fijnst aan thuis?",
+  "Wat zou je willen dat volwassenen beter begrijpen over jongeren?",
+] as const;
+
+/** A different question each time (never the same one twice in a row). */
+export function nextQuestion(current: number, random = Math.random): number {
+  const n = PARENT_QUESTIONS.length;
+  return (current + 1 + Math.floor(random() * (n - 1))) % n;
+}
+
+/** Today's progress: assignment for yourself, tip for your child and (on the parent home) your mood. */
+export function todayProgress(p: { self: boolean; child: boolean; mood?: boolean | undefined }) {
+  const parts = [p.self, p.child, ...(p.mood === undefined ? [] : [p.mood])];
+  return { done: parts.filter(Boolean).length, total: parts.length };
+}
+
+/** Monday to Sunday of the week of `day`, with whether something was done that day. */
+export function weekDots(day: string, doneDays: readonly string[]) {
+  const [y, m, d] = day.split("-").map(Number) as [number, number, number];
+  const date = new Date(Date.UTC(y, m - 1, d));
+  const monday = new Date(date.getTime() - ((date.getUTCDay() + 6) % 7) * 86_400_000);
+  const done = new Set(doneDays);
+  return ["ma", "di", "wo", "do", "vr", "za", "zo"].map((label, i) => {
+    const iso = new Date(monday.getTime() + i * 86_400_000).toISOString().slice(0, 10);
+    return { day: iso, label, done: done.has(iso), today: iso === day, future: iso > day };
+  });
+}
+
+/** What the parent home answers when a parent picks a mood, with one fitting next step. */
+export const PARENT_MOOD_REPLY: Record<string, { text: string; to: string; link: string }> = {
+  super: { text: "Wat fijn! Zeg vandaag eens hardop tegen je kind waar je blij van werd.", to: "/dankbaar", link: "🫙 Zet het in je dankbaar potje" },
+  goed: { text: "Mooi. Een goede dag is een goed moment voor een klein gesprek.", to: "/handleidingen", link: "📘 Bekijk een handleiding" },
+  "gaat-wel": { text: "Oké is ook goed. Je hoeft niet altijd alles op orde te hebben.", to: "/rust", link: "🫧 Neem 2 minuten rust" },
+  verdrietig: { text: "Wat naar dat je je zo voelt. Je hoeft het niet alleen te dragen: De Luisterlijn is er dag en nacht (088-0767000).", to: "/rust", link: "🫧 Even ademen" },
+  gestrest: { text: "Zorgen om je kind kosten veel energie. Neem even tijd voor jezelf, dat is ook goed voor je kind.", to: "/rust", link: "🫧 Rustmoment van 2 minuten" },
+};

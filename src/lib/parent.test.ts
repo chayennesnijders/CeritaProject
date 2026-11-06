@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { dayNumber, PARENT_FOR_CHILD, PARENT_SELF, parentDay, parentMayOpen } from "./parent";
+import {
+  dayNumber,
+  nextQuestion,
+  PARENT_FOR_CHILD,
+  PARENT_MOOD_REPLY,
+  PARENT_QUESTIONS,
+  PARENT_SELF,
+  parentDay,
+  parentMayOpen,
+  telHref,
+  todayProgress,
+  weekDots,
+} from "./parent";
+import { MOODS } from "./home";
 import { THEME_DAYS, themeDaysOn, themeTip } from "./theme-days";
 
 describe("parent day", () => {
@@ -40,5 +53,34 @@ describe("theme days", () => {
       expect(t.to === undefined || t.to >= t.from).toBe(true);
     }
     expect(THEME_DAYS.find((t) => t.from === "2027-09-10")?.help).toContain("113");
+  });
+});
+
+describe("parent home helpers", () => {
+  it("counts today's progress, with or without the mood", () => {
+    expect(todayProgress({ self: true, child: false, mood: true })).toEqual({ done: 2, total: 3 });
+    expect(todayProgress({ self: true, child: true })).toEqual({ done: 2, total: 2 });
+  });
+  it("shows Monday to Sunday with the days something was done", () => {
+    const week = weekDots("2026-11-06", ["2026-11-02", "2026-11-06", "2026-10-30"]);
+    expect(week.map((d) => d.label)).toEqual(["ma", "di", "wo", "do", "vr", "za", "zo"]);
+    expect(week[0]).toMatchObject({ day: "2026-11-02", done: true, today: false });
+    expect(week[4]).toMatchObject({ day: "2026-11-06", done: true, today: true });
+    expect(week[5]!.future).toBe(true);
+    expect(weekDots("2026-11-08", [])[6]!.today).toBe(true);
+  });
+  it("never shows the same question twice in a row", () => {
+    for (let i = 0; i < PARENT_QUESTIONS.length; i++)
+      for (const r of [0, 0.5, 0.999]) {
+        const n = nextQuestion(i, () => r);
+        expect(n).not.toBe(i);
+        expect(n).toBeGreaterThanOrEqual(0);
+        expect(n).toBeLessThan(PARENT_QUESTIONS.length);
+      }
+  });
+  it("has a reply for every mood and dialable numbers", () => {
+    for (const m of MOODS) expect(PARENT_MOOD_REPLY[m.id]).toBeDefined();
+    expect(telHref("088-0767000")).toBe("tel:0880767000");
+    expect(telHref("0800-0113")).toBe("tel:08000113");
   });
 });

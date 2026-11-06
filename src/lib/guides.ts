@@ -277,3 +277,13 @@ export function needsCheckIn(
   if (!row.completed_at || row.reflection || !row.plan.trim()) return false;
   return now - Date.parse(row.completed_at) >= CHECK_IN_AFTER_MS;
 }
+
+/** The guide to show on the parent home: one you're in the middle of, otherwise the first new one. */
+export function nextGuideFor(rows: { guide: string; step: number; completed_at: string | null }[]) {
+  for (const g of GUIDES) {
+    const r = rows.find((x) => x.guide === g.slug);
+    if (r && !r.completed_at && r.step > 0) return { guide: g, status: "verder" as const, pct: guidePercent(g, r.step, false) };
+  }
+  const fresh = GUIDES.find((g) => !rows.some((x) => x.guide === g.slug));
+  return fresh ? { guide: fresh, status: "nieuw" as const, pct: 0 } : null;
+}

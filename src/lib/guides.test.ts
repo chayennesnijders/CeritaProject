@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CHECK_IN_AFTER_MS, cheatsheetText, GUIDES, guideBySlug, guidePercent, needsCheckIn, stepSpeech } from "./guides";
+import { CHECK_IN_AFTER_MS, cheatsheetText, GUIDES, guideBySlug, guidePercent, needsCheckIn, nextGuideFor, stepSpeech } from "./guides";
 
 describe("guides", () => {
   it("have unique slugs and steps that make sense", () => {
@@ -58,5 +58,15 @@ describe("guide extras", () => {
     expect(needsCheckIn({ completed_at: done, plan: "x", reflection: "goed" }, later)).toBe(false);
     expect(needsCheckIn({ completed_at: done, plan: "", reflection: null }, later)).toBe(false);
     expect(needsCheckIn({ completed_at: null, plan: "x", reflection: null }, later)).toBe(false);
+  });
+});
+
+describe("next guide on the parent home", () => {
+  it("continues a started guide first, then suggests a new one", () => {
+    const [a, b] = GUIDES as [(typeof GUIDES)[0], (typeof GUIDES)[0]];
+    expect(nextGuideFor([])).toMatchObject({ guide: { slug: a.slug }, status: "nieuw" });
+    expect(nextGuideFor([{ guide: b.slug, step: 2, completed_at: null }])).toMatchObject({ guide: { slug: b.slug }, status: "verder" });
+    expect(nextGuideFor([{ guide: a.slug, step: 9, completed_at: "x" }])!.guide.slug).toBe(b.slug);
+    expect(nextGuideFor(GUIDES.map((g) => ({ guide: g.slug, step: 1, completed_at: "x" })))).toBeNull();
   });
 });
