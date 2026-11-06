@@ -1,0 +1,265 @@
+<title>Cerita Postplanner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-first column; sticky day strip; each post is a "phone" card with swipeable slides, caption and a big done-toggle */
+:root{
+  --bg:#fbf3ee; --card:#ffffff; --ink:#3b2a2f; --muted:#86717a; --line:#efdcd8;
+  --roze:#f2a7b8; --roze-soft:#fde4ea; --bruin:#7a4b3a; --creme:#f6ead9;
+  --ok:#3f9b6b; --ok-soft:#dff3e7; --now:#e0577a;
+  --display:"Unbounded",system-ui,sans-serif; --body:"Figtree",system-ui,sans-serif;
+  --shadow:0 1px 2px rgba(59,42,47,.06),0 8px 24px rgba(122,75,58,.08);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1f1719; --card:#2b2023; --ink:#f7e9ec; --muted:#bba3ab; --line:#43323a;
+  --roze:#f2a7b8; --roze-soft:#4a2c35; --bruin:#e2b39f; --creme:#3a2d26;
+  --ok:#6fd39d; --ok-soft:#1f3a2c; --now:#ff86a4; --shadow:0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1f1719; --card:#2b2023; --ink:#f7e9ec; --muted:#bba3ab; --line:#43323a;
+  --roze:#f2a7b8; --roze-soft:#4a2c35; --bruin:#e2b39f; --creme:#3a2d26;
+  --ok:#6fd39d; --ok-soft:#1f3a2c; --now:#ff86a4; --shadow:0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);margin:0}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 80px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--now);outline-offset:2px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hero h1{font-size:clamp(24px,6vw,34px);line-height:1.1;margin-top:6px}
+.hero h1 em{font-style:normal;color:var(--now)}
+.ring{width:96px;height:96px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 20px var(--display);line-height:1}
+.ring b small{display:block;font:600 11px var(--body);color:var(--muted);margin-top:4px;text-align:center}
+
+/* next up */
+.next{margin-top:18px;background:var(--bruin);color:var(--bg);border-radius:22px;padding:18px;display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:center;box-shadow:var(--shadow)}
+.next img{width:72px;aspect-ratio:3/4;object-fit:cover;border-radius:10px;max-width:100%}
+.next .lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-weight:700}
+.next h2{font-size:17px;line-height:1.25;margin:4px 0 6px}
+.next .cd{font:700 15px var(--body);font-variant-numeric:tabular-nums}
+.next button{margin-top:8px;background:var(--roze);color:#3b2a2f;border:0;border-radius:999px;padding:8px 14px;font-weight:700}
+
+/* tools */
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.pill{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* day strip */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.days{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin:18px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;padding:10px max(16px,env(safe-area-inset-left,0px));display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;border:0;background:var(--card);border-radius:16px;padding:8px 10px;min-width:54px;text-align:center;box-shadow:var(--shadow);position:relative}
+.day b{display:block;font:700 17px var(--display)}
+.day span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.day i{display:flex;gap:3px;justify-content:center;margin-top:4px}
+.day i u{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.day i u.done{background:var(--ok)}
+.day.today{outline:2px solid var(--now)}
+.day.sel{background:var(--roze);color:#3b2a2f}
+.day.sel span{color:#3b2a2f}
+
+/* posts */
+.dayhead{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px;scroll-margin-top:110px}
+.dayhead h3{font-size:18px}
+.dayhead .tag{font-size:12px;font-weight:700;color:var(--now)}
+.post{background:var(--card);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;transition:opacity .3s}
+.post.done{opacity:.62}
+.post.done:hover,.post.done:focus-within{opacity:1}
+.phead{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;flex-wrap:wrap}
+.time{font:700 15px var(--display);font-variant-numeric:tabular-nums}
+.kind{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}
+.k-signalen{background:var(--roze-soft)}
+.k-verhaal{background:var(--creme)}
+.k-vraag{background:var(--ok-soft)}
+.k-mijlpaal{background:var(--roze);color:#3b2a2f}
+.num{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.hook{padding:0 16px 12px;font:600 19px/1.3 var(--body);text-wrap:balance}
+
+.carousel{position:relative}
+.track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;padding:0 16px;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.track button{flex:0 0 62%;max-width:300px;scroll-snap-align:center;border:0;padding:0;background:none;border-radius:14px;overflow:hidden;position:relative}
+.track img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;background:var(--creme)}
+.track button em{position:absolute;left:8px;top:8px;background:rgba(59,42,47,.75);color:#fff;font:700 11px var(--body);border-radius:999px;padding:2px 8px;font-style:normal}
+.dots{display:flex;gap:5px;justify-content:center;padding:10px 0 4px}
+.dots u{width:6px;height:6px;border-radius:50%;background:var(--line);transition:all .2s}
+.dots u.on{background:var(--now);width:16px;border-radius:4px}
+
+.cap{margin:10px 16px 0;background:var(--bg);border-radius:16px;padding:12px 14px}
+.cap b{display:block;font-weight:700}
+.cap p{margin:4px 0 6px;min-width:0}
+.cap .tags{color:var(--now);font-weight:600;font-size:14px;word-break:break-word}
+.acts{display:flex;gap:8px;padding:12px 16px 16px;flex-wrap:wrap}
+.btn{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:9px 12px;font-weight:700;font-size:14px;display:inline-flex;gap:6px;align-items:center}
+.btn:active{transform:scale(.97)}
+.done-btn{margin-left:auto;background:var(--ok-soft);border-color:transparent;color:var(--ink)}
+.post.done .done-btn{background:var(--ok);color:#fff}
+
+/* tips */
+details{background:var(--card);border-radius:20px;box-shadow:var(--shadow);margin-top:14px}
+summary{padding:14px 16px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+details .in{padding:0 16px 16px}
+details li{margin:6px 0}
+.pin{background:var(--roze-soft);border-radius:14px;padding:12px;margin:8px 0}
+
+/* lightbox */
+.lb[hidden]{display:none}
+.lb{position:fixed;inset:0;z-index:20;background:rgba(20,12,15,.92);display:grid;grid-template-rows:auto 1fr auto;padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));color:#fff}
+.lb .top{display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.lb .x{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:999px;width:40px;height:40px;font-size:20px}
+.lb .stage{display:grid;place-items:center;min-height:0;touch-action:pan-y}
+.lb img{max-height:100%;max-width:100%;border-radius:14px;object-fit:contain}
+.lb .nav{display:flex;justify-content:center;gap:12px}
+.lb .nav button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:999px;padding:10px 18px;font-weight:700}
+.hint{font-size:13px;opacity:.75;text-align:center;margin-top:8px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;transition:all .25s;z-index:30;pointer-events:none}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+.burst{position:fixed;pointer-events:none;z-index:40;font-size:22px;animation:fly .9s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(30deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">@cerita.project · 5 t/m 15 november</div>
+      <h1>Jouw posts van <em>week 5</em></h1>
+    </div>
+    <div class="ring" aria-live="polite">
+      <svg width="96" height="96" viewBox="0 0 96 96" aria-hidden="true">
+        <circle cx="48" cy="48" r="40" fill="none" stroke="var(--line)" stroke-width="10"></circle>
+        <circle id="arc" cx="48" cy="48" r="40" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition:stroke-dashoffset .6s"></circle>
+      </svg>
+      <b><span><span id="cnt">0</span>/21<small>geplaatst</small></span></b>
+    </div>
+  </header>
+
+  <section class="next" id="next"></section>
+
+  <div class="tools" role="group" aria-label="Filter">
+    <button class="pill" data-f="all" aria-pressed="true">Alles</button>
+    <button class="pill" data-f="todo" aria-pressed="false">Nog posten</button>
+    <button class="pill" data-f="done" aria-pressed="false">Geplaatst ✅</button>
+    <button class="pill" data-f="verhaal" aria-pressed="false">📖 Echte verhalen</button>
+  </div>
+
+  <nav class="days" id="days" aria-label="Dagen"></nav>
+  <main id="list"></main>
+
+  <details>
+    <summary>📌 Reactie om te pinnen</summary>
+    <div class="in">
+      <div class="pin" id="pintext">op zoek naar een plek om te praten met jongeren die het snappen? 💗 ik bouw een app met veilige steungroepen per leeftijd, de wachtlijst staat in mijn bio</div>
+      <button class="btn" id="copypin">📋 Kopieer reactie</button>
+    </div>
+  </details>
+  <details>
+    <summary>💡 Tips om meer views te krijgen</summary>
+    <div class="in"><ul>
+      <li>Kies bij elke post een <b>trending geluid</b> (het pijltje ↗️).</li>
+      <li>Reageer in het <b>eerste uur</b> op elke reactie. Dan laat TikTok je post aan meer mensen zien.</li>
+      <li>Zet de vaste reactie bovenaan (pinnen).</li>
+      <li>Weinig tijd? Post dan alleen de posts van <b>20:30</b>.</li>
+      <li>Haal posts van week 2, 3 en 4 die nog ingepland staan voor deze dagen eruit.</li>
+      <li>Maandag 16 november: stuur me je statistieken en het aantal op de wachtlijst, dan maak ik week 6.</li>
+    </ul></div>
+  </details>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Slide groot bekijken">
+  <div class="top"><span id="lbt"></span><button class="x" id="lbx" aria-label="Sluiten">✕</button></div>
+  <div class="stage" id="stage"><img id="lbi" alt=""></div>
+  <div><div class="nav"><button id="lbp">← Vorige</button><button id="lbn">Volgende →</button></div>
+  <div class="hint">Houd de foto ingedrukt om hem op te slaan</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const POSTS = [{"day": "Donderdag 5 november", "time": "20:30", "n": "01", "hook": "6 signalen dat je eigenlijk gewoon een knuffel nodig hebt", "title": "Soms heb je gewoon een knuffel nodig🤍", "text": "Stuur dit naar iemand van wie je een knuffel wilt🫂 Op zoek naar een plek om te praten met jongeren die het snappen? Daar bouw ik een app voor, link in bio.", "tags": "#herkenbaar #mentalehealth #steungroep #nietalleen #voorjou", "dir": "01-do-5-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-05"}, {"day": "Vrijdag 6 november", "time": "07:15", "n": "02", "hook": "6 signalen dat je mentaal moe bent (niet lui)", "title": "Je bent niet lui, je bent moe🤍", "text": "Mentale vermoeidheid zie je niet aan de buitenkant. Sla dit op voor een dag dat je denkt dat je lui bent🔖", "tags": "#mentaalmoe #herkenbaar #mentalehealth #school #voorjou", "dir": "02-vr-6-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-06"}, {"day": "Vrijdag 6 november", "time": "20:30", "n": "03", "hook": "aan het meisje dat altijd de sterke vriendin is", "title": "Voor de sterke vriendin🤍", "text": "Tag jouw sterke vriendin en vraag hoe het écht gaat. Ook zij verdient iemand die luistert.", "tags": "#vriendschap #sterkevriendin #herkenbaar #mentalehealth #fyp", "dir": "03-vr-6-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-06"}, {"day": "Zaterdag 7 november", "time": "07:15", "n": "04", "hook": "6 signalen dat je je eenzaam voelt tussen mensen", "title": "Eenzaam tussen mensen🤍", "text": "Je kunt omringd zijn door mensen en je toch alleen voelen. Zoek je een steungroep? In de app vind je jongeren die het snappen, link in bio.", "tags": "#eenzaam #steungroep #herkenbaar #mentalehealth #voorjou", "dir": "04-za-7-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-07"}, {"day": "Zaterdag 7 november", "time": "20:30", "n": "05", "hook": "‘ik sliep met mijn vinger op de mute-knop’", "title": "Uit een echt verhaal🤍", "text": "Een meisje van 21 over opgroeien met angst thuis. Haar hele verhaal staat in de app. Maak jij dit mee? Veilig Thuis (0800-2000) of de Kindertelefoon (0800-0432).", "tags": "#echtverhaal #thuis #herkenbaar #mentalehealth #fyp", "dir": "05-za-7-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg"], "kind": "verhaal", "date": "2026-11-07"}, {"day": "Zondag 8 november", "time": "07:15", "n": "06", "hook": "6 signalen dat je te streng bent voor jezelf", "title": "Je mag ook lief zijn voor jezelf🤍", "text": "Wat zou jij tegen een vriendin zeggen die dit voelt? Zeg dat vandaag ook tegen jezelf.", "tags": "#zelfliefde #perfectionisme #herkenbaar #jezelfzijn #voorjou", "dir": "06-zo-8-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-08"}, {"day": "Zondag 8 november", "time": "20:30", "n": "07", "hook": "6 dingen die je vanavond mag doen als je opziet tegen maandag", "title": "Voor je zondagavond🌙", "text": "Zie je op tegen maandag? Je hoeft niet alles vanavond op te lossen. Wat doe jij op zondagavond?", "tags": "#zondagavond #zelfzorg #herkenbaar #mentalehealth #fyp", "dir": "07-zo-8-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "vraag", "date": "2026-11-08"}, {"day": "Maandag 9 november", "time": "07:15", "n": "08", "hook": "6 signalen dat je een overdenker bent", "title": "Overdenkers, waar zijn jullie?🫠", "text": "Hoeveel herken jij er? Zet je score in de reacties👇", "tags": "#overdenken #piekeren #herkenbaar #mentalehealth #voorjou", "dir": "08-ma-9-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-09"}, {"day": "Maandag 9 november", "time": "20:30", "n": "09", "hook": "‘anders zijn is juist leuk’", "title": "Anders is niet erg💗", "text": "Ze werd jarenlang gepest omdat ze 'anders' was. Nu is ze er trots op. Meer echte verhalen lees je in de app.", "tags": "#anderszijn #pesten #echtverhaal #jezelfzijn #fyp", "dir": "09-ma-9-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg"], "kind": "verhaal", "date": "2026-11-09"}, {"day": "Dinsdag 10 november", "time": "07:15", "n": "10", "hook": "6 signalen dat je niet oké bent, maar 'goed' zegt", "title": "'Goed' is soms het makkelijkste antwoord🤍", "text": "Herken je dit? Je mag zeggen hoe het écht gaat. In de app kan dat ook anoniem, link in bio.", "tags": "#hetgaatgoed #herkenbaar #mentalehealth #praten #voorjou", "dir": "10-di-10-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-10"}, {"day": "Dinsdag 10 november", "time": "20:30", "n": "11", "hook": "6 dingen die je merkt als je in een goede steungroep zit", "title": "Waarom een steungroep helpt🤍", "text": "Op zoek naar een steungroep of een plek om te praten? Ik bouw een app met veilige groepen per leeftijd, met coaches die meekijken. Zet je op de wachtlijst via de link in bio.", "tags": "#steungroep #supportgroep #praten #mentalehealth #fyp", "dir": "11-di-10-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "vraag", "date": "2026-11-10"}, {"day": "Woensdag 11 november", "time": "07:15", "n": "12", "hook": "6 signalen dat je een people pleaser bent", "title": "Voor de people pleasers🤍", "text": "Ja zeggen terwijl je nee bedoelt? Welke herken jij?", "tags": "#peoplepleaser #grenzen #herkenbaar #mentalehealth #voorjou", "dir": "12-wo-11-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-11"}, {"day": "Woensdag 11 november", "time": "20:30", "n": "13", "hook": "‘het wordt echt beter’", "title": "Het wordt echt beter🤍", "text": "Een meisje dat er niet meer wilde zijn, vertelt hoe ze er weer bovenop kwam. Haar hele verhaal staat in de app. Zie jij het even niet meer zitten? Bel of chat anoniem met 113 (0800-0113).", "tags": "#hoop #herstel #echtverhaal #mentalehealth #fyp", "dir": "13-wo-11-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg"], "kind": "verhaal", "date": "2026-11-11"}, {"day": "Donderdag 12 november", "time": "07:15", "n": "14", "hook": "6 signalen dat je eigenlijk gewoon gehoord wilt worden (deel 2)", "title": "Soms wil je gewoon gehoord worden (deel 2)🤍", "text": "Jullie vonden deel 1 zo herkenbaar, dus hier is deel 2. Welke herken jij?", "tags": "#gehoordworden #herkenbaar #mentalehealth #steungroep #voorjou", "dir": "14-do-12-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-12"}, {"day": "Donderdag 12 november", "time": "20:30", "n": "15", "hook": "6 signalen dat je een masker draagt", "title": "Je mag je masker af en toe afzetten🤍", "text": "Stuur dit naar die ene persoon bij wie je je masker af mag zetten🤍", "tags": "#masker #herkenbaar #jezelfzijn #mentalehealth #voorjou", "dir": "15-do-12-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-12"}, {"day": "Vrijdag 13 november", "time": "07:15", "n": "16", "hook": "6 signalen dat je overprikkeld bent", "title": "Als alles even te veel is🤍", "text": "Overprikkeling zie je niet aan de buitenkant. Wat helpt jou?", "tags": "#overprikkeld #hsp #herkenbaar #mentalehealth #voorjou", "dir": "16-vr-13-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-13"}, {"day": "Vrijdag 13 november", "time": "20:30", "n": "17", "hook": "‘ik ben meer dan mijn verleden’", "title": "Uit een echt verhaal🤍", "text": "Een meisje van 14 dat er altijd voor anderen is, en leert ook voor zichzelf te zorgen. Haar hele verhaal staat in de app. Maak jij je zorgen om een vriend(in)? Bel samen met 113 (0800-0113).", "tags": "#echtverhaal #vriendschap #herkenbaar #mentalehealth #fyp", "dir": "17-vr-13-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg"], "kind": "verhaal", "date": "2026-11-13"}, {"day": "Zaterdag 14 november", "time": "07:15", "n": "18", "hook": "6 signalen dat je bang bent om 'te veel' te zijn", "title": "Jij bent niet te veel🤍", "text": "Welke herken jij? Stuur dit naar iemand die dit moet horen.", "tags": "#teveel #herkenbaar #jezelfzijn #mentalehealth #voorjou", "dir": "18-za-14-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-14"}, {"day": "Zaterdag 14 november", "time": "20:30", "n": "19", "hook": "wat ik had willen horen toen ik 13 was", "title": "Voor je jongere zelf🤍", "text": "Wat had jij willen horen toen je 13 was? Zet het in de reacties, misschien heeft iemand het vandaag nodig.", "tags": "#jongerezelf #herkenbaar #mentalehealth #steungroep #fyp", "dir": "19-za-14-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "vraag", "date": "2026-11-14"}, {"day": "Zondag 15 november", "time": "07:15", "n": "20", "hook": "6 signalen dat je eigenlijk heel sterk bent", "title": "Je bent sterker dan je denkt🤍", "text": "Stuur dit naar iemand die vergeet hoe sterk hij of zij is.", "tags": "#sterk #hoop #herkenbaar #mentalehealth #voorjou", "dir": "20-zo-15-nov-0715", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "signalen", "date": "2026-11-15"}, {"day": "Zondag 15 november", "time": "20:30", "n": "21", "hook": "we zijn al met meer dan 120🥹", "title": "Meer dan 120🥹", "text": "Dankjewel dat jullie er zijn. Een app met echte verhalen en veilige steungroepen per leeftijd. Zet je op de wachtlijst via de link in bio.", "tags": "#ceritaproject #steungroep #wachtlijst #mentalehealth #fyp", "dir": "21-zo-15-nov-2030", "slides": ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"], "kind": "mijlpaal", "date": "2026-11-15"}];
+const KIND = {signalen:"🔍 herken je dit", verhaal:"📖 echt verhaal", vraag:"💬 voor jou", mijlpaal:"🥹 mijlpaal"};
+const KEY="cerita-week5-done";
+let done = new Set();
+try{ done = new Set(JSON.parse(localStorage.getItem(KEY)||"[]")) }catch(e){}
+const save=()=>{ try{ localStorage.setItem(KEY, JSON.stringify([...done])) }catch(e){} };
+let filter="all";
+const $=s=>document.querySelector(s);
+const src=(p,f)=>`week-5/${p.dir}/${f}`;
+const when=p=>new Date(`${p.date}T${p.time}:00+01:00`);
+const fullCap=p=>`${p.title}\n${p.text}\n\n${p.tags}`;
+
+function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),1600)}
+async function copy(t,msg){try{await navigator.clipboard.writeText(t);toast(msg)}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?msg:"Kopiëren lukte niet, houd de tekst ingedrukt")}}
+function burst(x,y){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;["💗","✨","🤍","🎉","💗","✨"].forEach((e,i)=>{const s=document.createElement("span");s.className="burst";s.textContent=e;s.style.left=x+"px";s.style.top=y+"px";const a=(i/6)*Math.PI*2;s.style.setProperty("--dx",Math.cos(a)*70+"px");s.style.setProperty("--dy",Math.sin(a)*70-30+"px");document.body.appendChild(s);setTimeout(()=>s.remove(),950)})}
+
+const byDay=[];POSTS.forEach(p=>{let d=byDay.find(x=>x.date===p.date);if(!d)byDay.push(d={date:p.date,day:p.day,posts:[]});d.posts.push(p)});
+const todayStr=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Amsterdam"}).format(new Date());
+
+function renderDays(){
+  $("#days").innerHTML=byDay.map(d=>{const [wd,n]=d.day.split(" ");return `<button class="day ${d.date===todayStr?"today":""}" data-go="${d.date}" aria-label="${d.day}"><span>${wd.slice(0,2)}</span><b>${n}</b><i>${d.posts.map(p=>`<u class="${done.has(p.n)?"done":""}"></u>`).join("")}</i></button>`}).join("");
+}
+function visible(p){return filter==="all"||(filter==="todo"&&!done.has(p.n))||(filter==="done"&&done.has(p.n))||(filter==="verhaal"&&p.kind==="verhaal")}
+function renderList(){
+  let html="";
+  byDay.forEach(d=>{const ps=d.posts.filter(visible);if(!ps.length)return;
+    html+=`<div class="dayhead" id="d-${d.date}"><h3>${d.day}</h3>${d.date===todayStr?'<span class="tag">vandaag</span>':""}</div>`;
+    ps.forEach(p=>{html+=`<article class="post ${done.has(p.n)?"done":""}" data-n="${p.n}">
+      <div class="phead"><span class="time">${p.time}</span><span class="kind k-${p.kind}">${KIND[p.kind]}</span><span class="num">post ${p.n} · ${p.slides.length} slides</span></div>
+      <div class="hook">${p.hook}</div>
+      <div class="carousel"><div class="track">${p.slides.map((f,i)=>`<button data-lb="${p.n}" data-i="${i}" aria-label="Slide ${i+1} groot bekijken"><img loading="lazy" src="${src(p,f)}" alt="Slide ${i+1} van ${p.hook}"><em>${i+1}/${p.slides.length}</em></button>`).join("")}</div>
+      <div class="dots">${p.slides.map((_,i)=>`<u class="${i?"":"on"}"></u>`).join("")}</div></div>
+      <div class="cap"><b>${p.title}</b><p>${p.text}</p><div class="tags">${p.tags}</div></div>
+      <div class="acts"><button class="btn" data-copy="cap">📋 Bijschrift</button><button class="btn" data-copy="tags"># Hashtags</button><button class="btn done-btn" data-done aria-pressed="${done.has(p.n)}">${done.has(p.n)?"✅ Geplaatst":"○ Geplaatst?"}</button></div>
+    </article>`})});
+  $("#list").innerHTML=html||`<div class="empty">${filter==="done"?"Nog niks geplaatst. Je eerste post wacht op je 💗":"Alles is geplaatst! Wat goed van je 🎉"}</div>`;
+  document.querySelectorAll(".track").forEach(t=>t.addEventListener("scroll",()=>{const w=t.firstElementChild.getBoundingClientRect().width+8;const i=Math.round(t.scrollLeft/w);t.parentElement.querySelectorAll(".dots u").forEach((u,j)=>u.classList.toggle("on",j===i))},{passive:true}));
+}
+function renderRing(){const c=done.size;$("#cnt").textContent=c;$("#arc").style.strokeDashoffset=251.3*(1-c/21)}
+function renderNext(){
+  const now=new Date();
+  const open=POSTS.filter(p=>!done.has(p.n));
+  if(!open.length){$("#next").innerHTML=`<div style="font-size:44px">🎉</div><div><div class="lbl">Klaar!</div><h2>Alle 21 posts staan online</h2><div>Stuur me maandag je statistieken, dan maak ik week 6.</div></div>`;return}
+  const late=open.filter(p=>when(p)<=now);
+  const p=late.length?late[late.length-1]:open[0];
+  const diff=when(p)-now;
+  let cd;
+  if(diff<=0){cd=late.length>1?`⏰ Nu posten · nog ${late.length-1} eerdere open`:"⏰ Nu posten!"}
+  else{const h=Math.floor(diff/36e5),m=Math.floor(diff%36e5/6e4);cd=h>=24?`over ${Math.floor(h/24)} dag${h>=48?"en":""} · ${p.day.split(" ")[0].toLowerCase()} ${p.time}`:`over ${h?h+" u ":""}${m} min · om ${p.time}`}
+  $("#next").innerHTML=`<img src="${src(p,p.slides[0])}" alt=""><div><div class="lbl">Volgende post</div><h2>${p.hook}</h2><div class="cd">${cd}</div><button data-jump="${p.n}">Bekijk deze post ↓</button></div>`;
+}
+function renderAll(){renderDays();renderList();renderRing();renderNext()}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.f){filter=b.dataset.f;document.querySelectorAll(".pill").forEach(x=>x.setAttribute("aria-pressed",x===b));renderList();return}
+  if(b.dataset.go){const el=document.getElementById("d-"+b.dataset.go);if(!el){filter="all";document.querySelectorAll(".pill").forEach(x=>x.setAttribute("aria-pressed",x.dataset.f==="all"));renderList()}document.getElementById("d-"+b.dataset.go)?.scrollIntoView({behavior:"smooth"});return}
+  if(b.dataset.jump){let el=document.querySelector(`.post[data-n="${b.dataset.jump}"]`);if(!el){filter="all";renderList();el=document.querySelector(`.post[data-n="${b.dataset.jump}"]`)}el.scrollIntoView({behavior:"smooth",block:"start"});return}
+  if(b.dataset.lb){openLb(b.dataset.lb,+b.dataset.i);return}
+  const art=b.closest(".post");if(!art)return;const p=POSTS.find(x=>x.n===art.dataset.n);
+  if(b.dataset.copy==="cap")copy(fullCap(p),"Bijschrift gekopieerd 📋");
+  if(b.dataset.copy==="tags")copy(p.tags,"Hashtags gekopieerd #");
+  if("done" in b.dataset){const r=b.getBoundingClientRect();if(done.has(p.n))done.delete(p.n);else{done.add(p.n);burst(r.left+r.width/2,r.top);toast(done.size===21?"Alles geplaatst! 🎉":"Top, post "+p.n+" staat online 💗")}save();const y=scrollY;renderAll();scrollTo(0,y)}
+});
+$("#copypin").addEventListener("click",()=>copy($("#pintext").textContent,"Reactie gekopieerd 📌"));
+
+/* lightbox */
+let lbP=null,lbI=0;
+function showLb(){$("#lbi").src=src(lbP,lbP.slides[lbI]);$("#lbi").alt=`Slide ${lbI+1}`;$("#lbt").textContent=`Post ${lbP.n} · slide ${lbI+1} van ${lbP.slides.length}`}
+function openLb(n,i){lbP=POSTS.find(x=>x.n===n);lbI=i;showLb();$("#lb").hidden=false;$("#lbx").focus()}
+const step=d=>{lbI=(lbI+d+lbP.slides.length)%lbP.slides.length;showLb()};
+$("#lbx").onclick=()=>$("#lb").hidden=true;$("#lbp").onclick=()=>step(-1);$("#lbn").onclick=()=>step(1);
+document.addEventListener("keydown",e=>{if($("#lb").hidden)return;if(e.key==="Escape")$("#lb").hidden=true;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
+let sx=null;$("#stage").addEventListener("touchstart",e=>sx=e.touches[0].clientX,{passive:true});
+$("#stage").addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)step(dx<0?1:-1);sx=null});
+
+renderAll();setInterval(renderNext,30000);
+setTimeout(()=>document.querySelector(`.day[data-go="${todayStr}"]`)?.scrollIntoView({inline:"center",block:"nearest"}),50);
+</script>
