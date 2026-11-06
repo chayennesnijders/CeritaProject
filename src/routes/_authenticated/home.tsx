@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FounderStory } from "@/components/FounderStory";
+import { ParentHome } from "@/components/ParentHome";
+import { ThemeDayCard } from "@/components/ThemeDayCard";
 import { celebrate } from "@/lib/celebrate";
 import { useThemeOfMonth } from "@/lib/use-theme-month";
 import { AutoInstallGuide } from "@/components/InstallGuide";
@@ -57,6 +59,9 @@ function HomePage() {
     month: "long",
   }).format(new Date());
 
+  // Parents and carers have their own home (no groups, chats or young people's content).
+  if (p?.is_parent && uid) return <ParentHome uid={uid} day={day} name={p.display_name} />;
+
   return (
     <div className="space-y-6 pt-2">
       <div>
@@ -69,6 +74,7 @@ function HomePage() {
         <Affirmation day={day} />
       </div>
       <ModerationNotice />
+      <ThemeDayCard day={day} audience="jongeren" />
       {me?.isOwner && <FounderStory day={day} />}
 
       {/* Everything new in one line instead of a card per kind; the bell shows the details. */}

@@ -398,6 +398,27 @@ export type Database = {
         }
         Relationships: []
       }
+      parent_checks: {
+        Row: {
+          user_id: string
+          day: string
+          kind: string
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          day: string
+          kind: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          day?: string
+          kind?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       buddy_settings: {
         Row: {
           id: number
@@ -1990,6 +2011,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          is_parent: boolean
           quiet_end: number | null
           quiet_start: number | null
           age_group: Database["public"]["Enums"]["age_group"]
@@ -2005,6 +2027,7 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          is_parent?: boolean
           quiet_end?: number | null
           quiet_start?: number | null
           age_group?: Database["public"]["Enums"]["age_group"]
@@ -2020,6 +2043,7 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          is_parent?: boolean
           quiet_end?: number | null
           quiet_start?: number | null
           age_group?: Database["public"]["Enums"]["age_group"]
@@ -2575,6 +2599,7 @@ export type Database = {
       my_letters: { Args: never; Returns: { id: string; body: string | null; open_at: string; opened_at: string | null; created_at: string }[] }
       open_letter: { Args: { _letter: string }; Returns: undefined }
       event_counts: { Args: never; Returns: { event_id: string; going: number }[] }
+      become_parent: { Args: never; Returns: undefined }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }
       buddy_take_turn: { Args: { _user: string }; Returns: number }

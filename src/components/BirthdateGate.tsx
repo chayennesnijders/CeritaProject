@@ -20,8 +20,10 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
   const [date, setDate] = useState("");
   const [busy, setBusy] = useState(false);
   const [tooYoung, setTooYoung] = useState(false);
+  const [parentStep, setParentStep] = useState(false);
 
-  if (!me?.profile || me.profile.birthdate)
+  // Parents have no birthdate on purpose: they never join the young people's groups or chats.
+  if (!me?.profile || me.profile.birthdate || me.profile.is_parent)
     return (
       <ConsentGate>
         <UsernameGate>{children}</UsernameGate>
@@ -47,6 +49,17 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
     toast.success("Dank je wel! 🎉");
     qc.invalidateQueries({ queryKey: ["me"] });
   }
+  async function becomeParent() {
+    setBusy(true);
+    const { error } = await supabase.rpc("become_parent");
+    setBusy(false);
+    if (error) {
+      toast.error(error.message || "Dat lukte niet. Probeer het opnieuw.");
+      return;
+    }
+    toast.success("Welkom! 💛");
+    qc.invalidateQueries({ queryKey: ["me"] });
+  }
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
@@ -57,7 +70,29 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 bg-background px-6 text-center">
       <img src="/cerita-logo.webp" alt="CeritaProject" className="size-28 rounded-3xl" />
-      {tooYoung ? (
+      {parentStep ? (
+        <>
+          <h1 className="text-2xl">Welkom, ouder of verzorger 💛</h1>
+          <div className="space-y-2 text-left text-sm text-muted-foreground">
+            <p>Je krijgt een eigen omgeving voor ouders, met elke dag:</p>
+            <ul className="list-inside list-disc space-y-1">
+              <li>een klein opdrachtje voor jezelf</li>
+              <li>een tip om je kind te laten merken dat je er bent</li>
+              <li>je eigen stemming bijhouden en rustmomenten</li>
+            </ul>
+            <p>
+              Je ziet niets van de groepen, chats of gegevens van jongeren, ook niet van je eigen kind.
+              Zo blijft het voor iedereen een veilige plek.
+            </p>
+          </div>
+          <Button disabled={busy} onClick={becomeParent} className="h-12 w-64 rounded-full">
+            {busy ? "Bezig…" : "Ja, ik ben ouder of verzorger"}
+          </Button>
+          <button onClick={() => setParentStep(false)} className="text-sm text-muted-foreground underline">
+            Terug
+          </button>
+        </>
+      ) : tooYoung ? (
         <>
           <h1 className="text-2xl">Nog even geduld 💛</h1>
           <p className="text-sm text-muted-foreground">
@@ -88,6 +123,9 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
           <Button disabled={!date || busy} onClick={save} className="h-12 w-64 rounded-full">
             {busy ? "Bezig…" : "Verder"}
           </Button>
+          <button onClick={() => setParentStep(true)} className="text-sm font-semibold text-primary underline">
+            Ik ben ouder of verzorger
+          </button>
           <p className="max-w-xs text-xs text-muted-foreground">
             Let op: je kunt je geboortedatum daarna niet zelf meer veranderen. Klopt hij niet? Vraag
             het een beheerder.

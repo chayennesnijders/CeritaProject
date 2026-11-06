@@ -345,6 +345,13 @@ export const PARENTS: LegalPage = {
       ],
     },
     {
+      title: "Een eigen omgeving voor ouders",
+      text: [
+        "Ook als ouder of verzorger kunt u een account maken op app.ceritaproject.nl. Kies bij het aanmelden voor ‘Ik ben ouder of verzorger’. U krijgt dan elke dag een klein opdrachtje voor uzelf, een tip om uw kind te laten merken dat u er bent, en u kunt uw eigen stemming bijhouden.",
+        "Ouders zien niets van de groepen, chats of gegevens van jongeren, ook niet van hun eigen kind. Zo blijft de app voor jongeren een veilige plek.",
+      ],
+    },
+    {
       title: "Hoe houden we jongeren veilig?",
       bullets: [
         "Leeftijdsgroepen: jongeren van 13–15 zien alleen leeftijdsgenoten. Ze komen niet in contact met volwassen leden.",

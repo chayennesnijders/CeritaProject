@@ -12,7 +12,8 @@ import { InboxBell, PetLink, ShopLink, StreakChip, WorkMenu } from "@/components
 import { CareHelpDialog } from "@/components/CareHelpDialog";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
-import { Home, Users, Compass, MessageCircle, User } from "lucide-react";
+import { Home, Users, Compass, MessageCircle, User, CalendarHeart, Wind } from "lucide-react";
+import { parentMayOpen } from "@/lib/parent";
 import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
 import { useAdminNews } from "@/lib/use-admin-news";
@@ -23,6 +24,14 @@ const tabs = [
   { to: "/community", label: "Community", icon: Users },
   { to: "/ontdekken", label: "Ontdekken", icon: Compass },
   { to: "/berichten", label: "Berichten", icon: MessageCircle },
+  { to: "/profiel", label: "Profiel", icon: User },
+] as const;
+
+/** Parents and carers get their own, smaller menu: no groups, stories or messages. */
+const parentTabs = [
+  { to: "/home", label: "Home", icon: Home },
+  { to: "/stemming", label: "Stemming", icon: CalendarHeart },
+  { to: "/rust", label: "Rust", icon: Wind },
   { to: "/profiel", label: "Profiel", icon: User },
 ] as const;
 
@@ -48,7 +57,8 @@ export function AppShell() {
   // Leden vanaf 28 zien de community niet meer; de rest van de app blijft beschikbaar.
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
   // 28+ has no community; coaches of any age keep Berichten for their chats with members.
-  const visibleTabs = tabs.filter((t) => {
+  const isParent = !!me?.profile?.is_parent;
+  const visibleTabs = isParent ? parentTabs : tabs.filter((t) => {
     if (band !== "no_community") return true;
     if (t.to === "/community") return false;
     if (t.to === "/berichten") return !!me?.isCoach;
@@ -61,8 +71,8 @@ export function AppShell() {
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <BirthdayPopup />
       <CareHelpDialog />
-      <WelcomeTour />
-      <WeeklyRulesPopup uid={me?.user.id} />
+      {!isParent && <WelcomeTour />}
+      {!isParent && <WeeklyRulesPopup uid={me?.user.id} />}
       <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-4 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
           <img src="/cerita-beer.png" alt="" className="size-11 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
@@ -73,17 +83,21 @@ export function AppShell() {
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
-          <StreakChip uid={me?.user.id} />
-          <InboxBell />
-          <PetLink uid={me?.user.id} />
-          <ShopLink />
+          {!isParent && (
+            <>
+              <StreakChip uid={me?.user.id} />
+              <InboxBell />
+              <PetLink uid={me?.user.id} />
+              <ShopLink />
+            </>
+          )}
           <WorkMenu uid={me?.user.id} isAdmin={!!me?.isStaff} adminCount={unread.reports + (me?.isAdmin ? news.unread : 0)} />
         </div>
       </header>
       <NowPlayingBar />
       <main className={`flex-1 px-5 ${playing ? "pb-72" : "pb-28"}`}>
         <div key={page} className="animate-in fade-in duration-300 motion-reduce:animate-none">
-          <Outlet />
+          {isParent && !parentMayOpen(page) ? <ForYoungPeople /> : <Outlet />}
         </div>
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
@@ -112,6 +126,23 @@ export function AppShell() {
     </CallProvider>
     </BirthdateGate>
     </AppLock>
+  );
+}
+
+/** What a parent sees on a page that is only for young people. */
+function ForYoungPeople() {
+  return (
+    <div className="mt-6 space-y-3 rounded-3xl bg-card p-6 text-center shadow-soft">
+      <p className="text-3xl">🔒</p>
+      <h1 className="text-xl">Dit deel is voor jongeren</h1>
+      <p className="text-sm text-muted-foreground">
+        Groepen, chats en verhalen zijn alleen voor jongeren, zodat het voor hen een veilige plek blijft. In jouw
+        omgeving vind je alles voor ouders.
+      </p>
+      <Link to="/home" className="inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+        Naar mijn startscherm
+      </Link>
+    </div>
   );
 }
 

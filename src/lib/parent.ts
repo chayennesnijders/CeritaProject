@@ -1,0 +1,100 @@
+/**
+ * The parents' corner: each day one small assignment for the parent's own wellbeing and one tip to
+ * show their child they are there. Parents have their own account type (profiles.is_parent): no
+ * birthdate, no groups, no chats, and never any view of a child's data.
+ */
+
+/** Small, doable things for the parent themselves. */
+export const PARENT_SELF = [
+  "Drink vandaag je koffie of thee zonder telefoon. Vijf minuten alleen voor jou.",
+  "Schrijf drie dingen op die vandaag goed gingen, hoe klein ook.",
+  "Ga tien minuten naar buiten. Een rondje om het huis telt ook.",
+  "Vraag vandaag zelf om hulp bij iets, al is het maar een klein ding.",
+  "Zeg vandaag één keer ‘nee’ tegen iets wat je eigenlijk niet wilt.",
+  "Adem drie keer heel langzaam uit voordat je reageert op iets wat je irriteert.",
+  "Bel of app iemand bij wie je je even niet sterk hoeft voor te doen.",
+  "Ga vanavond een half uur eerder naar bed.",
+  "Doe vandaag iets wat je vroeger leuk vond, al is het maar tien minuten.",
+  "Merk op wanneer je vandaag streng bent tegen jezelf. Zeg dan: ‘ik doe mijn best’.",
+  "Eet vandaag één maaltijd rustig aan tafel, zonder scherm.",
+  "Schrijf op wat je zorgen geeft. Zet erachter: kan ik hier nu iets aan doen?",
+  "Luister naar een liedje dat je vrolijk maakt, en zing gerust mee.",
+  "Bedenk één ding waar je als ouder trots op bent.",
+  "Leg je telefoon een uur in een andere kamer.",
+  "Rek je even uit: armen omhoog, schouders los, nek rustig draaien.",
+  "Stuur iemand een berichtje om te bedanken.",
+  "Plan deze week één moment dat alleen van jou is, en zet het in je agenda.",
+  "Vergeef jezelf één fout van deze week. Iedereen maakt ze.",
+  "Doe vandaag het rustmoment in de app: twee minuten ademhalen.",
+  "Kijk vandaag even naar de lucht. Gewoon kijken, nergens aan denken.",
+  "Zeg hardop tegen jezelf: ‘ik hoef niet alles alleen te doen’.",
+  "Ruim één klein hoekje op. Een opgeruimde plek geeft rust in je hoofd.",
+  "Vraag je partner, vriend of familielid: ‘hoe gaat het écht met jou?’",
+  "Drink vandaag genoeg water. Zet een glas klaar waar je het ziet.",
+  "Schrijf een kort briefje aan jezelf van over een jaar.",
+  "Ga vandaag een keer zitten zonder iets te doen. Vijf minuten is genoeg.",
+  "Lees iets wat niets met werk of opvoeden te maken heeft.",
+  "Merk op hoe je je vandaag voelt, en vul het in bij je stemming.",
+  "Vier vandaag iets kleins: een klusje af, een moeilijk gesprek gevoerd.",
+] as const;
+
+/** Small ways to show a child you are there. Works for 12-year-olds and for young adults alike. */
+export const PARENT_FOR_CHILD = [
+  "Vraag niet ‘hoe was school?’, maar ‘wat was vandaag het leukste moment?’",
+  "Zeg vandaag zomaar dat je trots bent, zonder dat er een reden is.",
+  "Luister vijf minuten zonder advies te geven. Alleen knikken en doorvragen.",
+  "Stuur een berichtje overdag: ‘ik denk aan je 💛’.",
+  "Vraag je kind om je iets te leren: een spel, een liedje, een app.",
+  "Rijd, wandel of kook samen. Naast elkaar praat vaak makkelijker dan tegenover elkaar.",
+  "Vraag: ‘is er iets waar je je zorgen over maakt?’ en accepteer ook ‘nee’.",
+  "Geef een compliment over wie je kind is, niet over een cijfer.",
+  "Zeg sorry als je eerder boos of kortaf was. Zo leer je je kind dat dat mag.",
+  "Laat je kind vanavond kiezen wat jullie eten of kijken.",
+  "Vraag naar een vriend of vriendin: ‘hoe gaat het eigenlijk met …?’",
+  "Vertel iets over toen jij zo oud was, ook iets wat niet goed ging.",
+  "Leg je telefoon weg als je kind iets vertelt. Laat zien dat het belangrijk is.",
+  "Vraag: ‘wat kan ik doen waardoor jij je beter voelt deze week?’",
+  "Klop aan voordat je de kamer binnengaat. Respect voor privacy bouwt vertrouwen.",
+  "Zeg: ‘je kunt mij altijd alles vertellen, ook als je denkt dat ik boos word.’",
+  "Plan een kwartier één-op-één tijd, zonder broers of zussen.",
+  "Vraag naar muziek of een serie die je kind leuk vindt, en kijk of luister mee.",
+  "Merk een emotie op zonder oordeel: ‘je lijkt een beetje moe vandaag.’",
+  "Vraag niet waarom, maar wat: ‘wat maakte het zo lastig?’",
+  "Laat een briefje achter in een tas of op het kussen.",
+  "Vraag: ‘bij wie kun jij terecht als het niet goed gaat?’",
+  "Vertel je kind wat je vandaag zelf moeilijk vond, en hoe je ermee omging.",
+  "Lach samen ergens om. Zoek een grappig filmpje en kijk het samen.",
+  "Vraag na een ruzie later rustig: ‘zullen we het nog eens proberen?’",
+  "Bied hulp aan zonder het over te nemen: ‘wil je dat ik meedenk, of alleen luister?’",
+  "Zeg goedenacht met een vast zinnetje, ook als je kind al groot is.",
+  "Vraag je kind wat het fijn vindt aan zichzelf.",
+  "Laat merken dat een slecht cijfer niets verandert aan hoeveel je van je kind houdt.",
+  "Vraag: ‘wat zou je willen dat ik beter snap van jouw leven?’",
+] as const;
+
+/** Day number since 1 Jan 2026 for a YYYY-MM-DD date, so everyone sees the same item on the same day. */
+export function dayNumber(day: string): number {
+  const [y, m, d] = day.split("-").map(Number) as [number, number, number];
+  return Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(2026, 0, 1)) / 86_400_000);
+}
+
+const pick = <T,>(list: readonly T[], day: string, shift = 0) =>
+  list[(((dayNumber(day) + shift) % list.length) + list.length) % list.length]!;
+
+/** Today's assignment for the parent and today's tip for their child. */
+export function parentDay(day: string) {
+  return { self: pick(PARENT_SELF, day), child: pick(PARENT_FOR_CHILD, day, 7) };
+}
+
+/** Pages a parent may open. Everything else in the app is for young people. */
+export const PARENT_PAGES = ["/home", "/stemming", "/rust", "/dankbaar", "/brieven", "/profiel", "/meldingen", "/beheer", "/zoeken"] as const;
+export const parentMayOpen = (path: string) =>
+  PARENT_PAGES.some((p) => path === p || path.startsWith(`${p}/`));
+
+/** Help lines for parents themselves (the young people's lines are elsewhere). */
+export const PARENT_HELP = [
+  { name: "De Luisterlijn", what: "als je even met iemand wilt praten, dag en nacht", phone: "088-0767000" },
+  { name: "113 Zelfmoordpreventie", what: "als jij of je kind aan zelfmoord denkt", phone: "0800-0113" },
+  { name: "Veilig Thuis", what: "bij zorgen over geweld of onveiligheid thuis", phone: "0800-2000" },
+  { name: "Je huisarts of het CJG", what: "voor advies over opvoeden en hulp in de buurt", phone: null },
+] as const;

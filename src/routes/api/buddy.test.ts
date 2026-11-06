@@ -8,6 +8,7 @@ const state = {
   settings: { enabled: true, model: "gpt-5-mini", daily_limit: 3, context_messages: 6, max_reply_tokens: 500, extra_instructions: "" } as Record<string, unknown> | null,
   accepted: true,
   birthdate: "2010-01-01",
+  isParent: false,
   conversationOwner: "u1",
   used: 1,
   lastMessage: null as null | { role: string; content: string; created_at: string },
@@ -20,7 +21,7 @@ function query(table: string) {
   const result = () => {
     if (table === "buddy_settings") return { data: state.settings };
     if (table === "buddy_prefs") return { data: state.accepted ? { accepted_at: "2026-11-01" } : null };
-    if (table === "profiles") return { data: { birthdate: state.birthdate } };
+    if (table === "profiles") return { data: { birthdate: state.birthdate, is_parent: state.isParent } };
     if (table === "buddy_conversations" && c.op === "select") return { data: { id: "c1", user_id: state.conversationOwner } };
     if (table === "buddy_conversations" && c.op === "insert") return { data: { id: "c-new" }, error: null };
     if (table === "buddy_messages" && c.op === "select" && c.filters.some(([k]) => k === "limit:1")) return { data: state.lastMessage };
@@ -83,7 +84,7 @@ const ask = (body: unknown, token: string | null = "t") =>
 
 beforeEach(() => {
   calls.length = 0;
-  Object.assign(state, { user: { id: "u1" }, accepted: true, conversationOwner: "u1", used: 1, lastMessage: null, birthdate: "2010-01-01" });
+  Object.assign(state, { isParent: false, user: { id: "u1" }, accepted: true, conversationOwner: "u1", used: 1, lastMessage: null, birthdate: "2010-01-01" });
   state.settings = { enabled: true, model: "gpt-5-mini", daily_limit: 3, context_messages: 6, max_reply_tokens: 500, extra_instructions: "" };
   ai.reply = ["Hé, ", "vertel!\nKEUZES: Ja | Nee"];
   ai.moderation = null;
@@ -96,6 +97,11 @@ describe("POST /api/buddy", () => {
     expect((await ask({ message: "hoi" }, null)).status).toBe(401);
     state.user = null;
     expect((await ask({ message: "hoi" })).status).toBe(401);
+  });
+
+  it("is not for parents' accounts", async () => {
+    state.isParent = true;
+    expect((await ask({ message: "hoi" })).status).toBe(403);
   });
 
   it("refuses empty and too long messages", async () => {

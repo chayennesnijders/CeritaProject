@@ -25,6 +25,7 @@ import { ContactAdminsButton } from "@/components/ContactAdminsButton";
 import { LegalLinks } from "@/components/LegalPage";
 import { Camera, Moon, Sun } from "lucide-react";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
+import { parentMayOpen } from "@/lib/parent";
 
 export const Route = createFileRoute("/_authenticated/profiel")({
   head: () => ({
@@ -205,7 +206,7 @@ function ProfilePage() {
           <h1 className="truncate text-2xl">{p.display_name}</h1>
           {p.username && <p className="text-sm text-muted-foreground">@{p.username}</p>}
           <p className="text-xs text-muted-foreground">
-            {p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
+            {p.is_parent ? "Ouder of verzorger" : p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
             {me?.isAdmin ? " · Beheerder" : me?.isModerator ? " · Moderator" : ""}
           </p>
         </div>
@@ -231,7 +232,9 @@ function ProfilePage() {
 
       <section className="space-y-3">
         <h2 className="text-lg">Voor jou</h2>
-        {SHORTCUT_GROUPS.map((g) => (
+        {SHORTCUT_GROUPS.map((g) => ({ ...g, items: g.items.filter((s) => !p.is_parent || parentMayOpen(s.to)) }))
+          .filter((g) => g.items.length > 0)
+          .map((g) => (
           <div key={g.title} className={`rounded-3xl p-3 ${g.tint}`}>
             <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-foreground/70">
               {g.emoji} {g.title}

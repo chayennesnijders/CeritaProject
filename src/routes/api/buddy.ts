@@ -51,8 +51,9 @@ export const Route = createFileRoute("/api/buddy")({
         const [{ data: settings }, { data: prefs }, { data: profile }] = await Promise.all([
           db.from("buddy_settings").select("*").eq("id", 1).maybeSingle(),
           db.from("buddy_prefs").select("accepted_at").eq("user_id", user.id).maybeSingle(),
-          db.from("profiles").select("birthdate").eq("id", user.id).maybeSingle(),
+          db.from("profiles").select("birthdate, is_parent").eq("id", user.id).maybeSingle(),
         ]);
+        if (profile?.is_parent) return json({ error: "CeritaBuddy is er voor jongeren." }, 403);
         if (!settings?.enabled) return json({ error: "CeritaBuddy staat even uit. Probeer het later nog eens." }, 503);
         if (!prefs?.accepted_at) return json({ error: "Lees eerst de uitleg over CeritaBuddy.", code: "consent" }, 403);
 
