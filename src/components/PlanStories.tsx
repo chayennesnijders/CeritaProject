@@ -4,7 +4,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ARTICLE_CATEGORIES, categoryLabel, useArticleImage } from "@/lib/articles";
-import { dayKey, dutchMoment, planDays, storyPhotoBank } from "@/lib/story-import";
+import { dayKey, dutchMoment, planDays } from "@/lib/story-import";
+import { PhotoBankPicker } from "@/components/StoryPhotoBank";
+import { rememberInBank, useRefreshPhotoBank } from "@/lib/use-photo-bank";
 import { celebrate } from "@/lib/celebrate";
 import { Button } from "@/components/ui/button";
 
@@ -16,31 +18,6 @@ type Row = {
   min_age: number;
   image_url: string | null;
 };
-
-/** All photos the stories already have, with viewable links, to reuse as a banner. */
-function usePhotoBank(enabled: boolean) {
-  return useQuery({
-    queryKey: ["story-photo-bank"],
-    enabled,
-    staleTime: 50 * 60 * 1000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("articles")
-        .select("image_url, body, is_published")
-        .eq("kind", "verhaal");
-      const bank = storyPhotoBank(data ?? []);
-      const stored = bank.map((b) => b.path).filter((p) => !/^https?:\/\//.test(p));
-      const signed = stored.length
-        ? ((await supabase.storage.from("article-images").createSignedUrls(stored, 3600)).data ??
-          [])
-        : [];
-      const url = new Map(signed.map((x) => [x.path, x.signedUrl]));
-      return bank
-        .map((b) => ({ ...b, src: /^https?:\/\//.test(b.path) ? b.path : url.get(b.path) }))
-        .filter((b): b is typeof b & { src: string } => !!b.src);
-    },
-  });
-}
 
 /**
  * Beheer → Verhalen: stories that are ready but still hidden (e.g. corrected by Claude and added
@@ -96,7 +73,7 @@ function PlanCard({ row, suggestedDay }: { row: Row; suggestedDay: string }) {
   const [preview, setPreview] = useState<string | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
-  const { data: bank } = usePhotoBank(picking);
+  const refreshBank = useRefreshPhotoBank();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const { data: existing } = useArticleImage(row.image_url);
@@ -117,6 +94,8 @@ function PlanCard({ row, suggestedDay }: { row: Row; suggestedDay: string }) {
         return;
       }
       image_url = path;
+      // A new photo also lands in the photo bank, so it can be found again later.
+      await rememberInBank(path, small);
     }
     const at = dutchMoment(day, time);
     const { data, error } = await supabase
@@ -141,7 +120,7 @@ function PlanCard({ row, suggestedDay }: { row: Row; suggestedDay: string }) {
     qc.invalidateQueries({ queryKey: ["stories-to-plan"] });
     qc.invalidateQueries({ queryKey: ["admin-articles"] });
     qc.invalidateQueries({ queryKey: ["articles"] });
-    qc.invalidateQueries({ queryKey: ["story-photo-bank"] });
+    void refreshBank();
   }
 
   return (
@@ -174,49 +153,19 @@ function PlanCard({ row, suggestedDay }: { row: Row; suggestedDay: string }) {
           onClick={() => setPicking(!picking)}
           className="inline-block rounded-full bg-muted px-3 py-1.5 text-xs font-semibold"
         >
-          📚 {picking ? "Sluiten" : "Uit eerdere verhalen"}
+          📚 {picking ? "Sluiten" : "Uit de fotobank"}
         </button>
       </div>
       {picking && (
-        <div className="space-y-1">
-          {!bank ? (
-            <p className="text-xs text-muted-foreground">Foto's laden…</p>
-          ) : bank.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Er zijn nog geen foto's.</p>
-          ) : (
-            <>
-              <p className="text-[11px] text-muted-foreground">
-                Tik op een foto. Foto's met 👁️ staan al bij een verhaal dat live of ingepland is.
-              </p>
-              <div className="grid max-h-72 grid-cols-3 gap-1.5 overflow-y-auto">
-                {bank.map((b) => (
-                  <button
-                    key={b.path}
-                    onClick={() => {
-                      setChosen(b.path);
-                      setPhoto(null);
-                      setPreview(b.src);
-                      setPicking(false);
-                    }}
-                    className={`relative overflow-hidden rounded-lg ${chosen === b.path ? "ring-2 ring-primary" : ""}`}
-                  >
-                    <img
-                      src={b.src}
-                      alt=""
-                      loading="lazy"
-                      className="aspect-[3/2] w-full object-cover"
-                    />
-                    {b.inUse && (
-                      <span className="absolute right-1 top-1 rounded-full bg-black/60 px-1 text-[10px]">
-                        👁️
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        <PhotoBankPicker
+          chosen={chosen}
+          onPick={(path, src) => {
+            setChosen(path);
+            setPhoto(null);
+            setPreview(src);
+            setPicking(false);
+          }}
+        />
       )}
       <p className="font-display text-lg leading-snug">{row.title}</p>
       <div className={`whitespace-pre-wrap ${open ? "" : "line-clamp-4"}`}>{row.body}</div>

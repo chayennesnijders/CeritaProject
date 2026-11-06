@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { guessCategory, parseStories, storyPhotoBank } from "./story-import";
+import { guessCategory, parseStories } from "./story-import";
 
 const notes = `Mijn eerste dag op de nieuwe school
 Ik was zo zenuwachtig. Iedereen leek elkaar al te kennen en ik stond alleen bij het hek.
@@ -49,20 +49,5 @@ describe("planning", () => {
   it("turns a Dutch time into the right moment (winter and summer time)", () => {
     expect(dutchMoment("2026-11-03", "08:00")).toBe("2026-11-03T07:00:00.000Z");
     expect(dutchMoment("2026-07-03", "08:00")).toBe("2026-07-03T06:00:00.000Z");
-  });
-});
-
-describe("storyPhotoBank", () => {
-  it("lists banners and photos from the text once, free ones first", () => {
-    const bank = storyPhotoBank([
-      { image_url: "a.jpg", body: "Hoi\n\n[[foto:b.jpg]]\n\n[[foto:a.jpg]]", is_published: true },
-      { image_url: null, body: "[[foto: c.jpg ]]", is_published: false },
-      { image_url: "b.jpg", body: "Tekst", is_published: false },
-    ]);
-    expect(bank).toEqual([
-      { path: "b.jpg", inUse: false },
-      { path: "c.jpg", inUse: false },
-      { path: "a.jpg", inUse: true },
-    ]);
   });
 });

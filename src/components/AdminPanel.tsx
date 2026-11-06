@@ -39,6 +39,7 @@ import { BuddyAdmin } from "@/components/BuddyAdmin";
 import { LessonsAdmin } from "@/components/LessonsAdmin";
 import { ParentsAdmin } from "@/components/ParentsAdmin";
 import { DedupeStoryPhotos } from "@/components/DedupeStoryPhotos";
+import { StoryPhotoBank } from "@/components/StoryPhotoBank";
 
 const TABS = [
   { id: "start", label: "🏠 Start" },
@@ -334,6 +335,7 @@ export function AdminPanel() {
 
       {tab === "verhalen" && (
         <div className="space-y-5">
+          <StoryPhotoBank />
           <PlanStories />
           <DedupeStoryPhotos />
           <ArticleComposer />

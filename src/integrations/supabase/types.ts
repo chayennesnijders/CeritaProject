@@ -398,6 +398,12 @@ export type Database = {
         }
         Relationships: []
       }
+      story_photos: {
+        Row: { path: string; hash: string | null; hidden: boolean; created_by: string | null; created_at: string }
+        Insert: { path: string; hash?: string | null; hidden?: boolean; created_by?: string | null; created_at?: string }
+        Update: { path?: string; hash?: string | null; hidden?: boolean; created_by?: string | null; created_at?: string }
+        Relationships: []
+      }
       guide_progress: {
         Row: {
           user_id: string

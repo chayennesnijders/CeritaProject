@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ARTICLE_CATEGORIES, categoryLabel, type ArticleCategory } from "@/lib/articles";
 import { KINDS, kindInfo, type StoryKind } from "@/lib/discover";
+import { PhotoBankPicker } from "@/components/StoryPhotoBank";
+import { rememberInBank, useRefreshPhotoBank } from "@/lib/use-photo-bank";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -27,6 +29,9 @@ export function ArticleComposer() {
   const [emoji, setEmoji] = useState("📖");
   const [category, setCategory] = useState<ArticleCategory>("in-je-hoofd");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [fromBank, setFromBank] = useState<{ path: string; src: string } | null>(null);
+  const [picking, setPicking] = useState(false);
+  const refreshBank = useRefreshPhotoBank();
   const [sixteen, setSixteen] = useState(false);
   const [kind, setKind] = useState<StoryKind>("verhaal");
   const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null);
@@ -50,7 +55,7 @@ export function ArticleComposer() {
 
   async function save() {
     setBusy(true);
-    let image_url: string | null = null;
+    let image_url: string | null = fromBank?.path ?? null;
     if (photo) {
       const small = await shrinkImage(photo, 1920);
       const ext = small.name.split(".").pop() || "jpg";
@@ -62,6 +67,8 @@ export function ArticleComposer() {
         return;
       }
       image_url = path;
+      await rememberInBank(path, small);
+      void refreshBank();
     }
     const { error } = await supabase.from("articles").insert({
       title,
@@ -81,6 +88,7 @@ export function ArticleComposer() {
     setTitle("");
     setBody("");
     setPhoto(null);
+    setFromBank(null);
     setSixteen(false);
     refresh();
   }
@@ -178,10 +186,43 @@ export function ArticleComposer() {
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+          onChange={(e) => {
+            setPhoto(e.target.files?.[0] ?? null);
+            setFromBank(null);
+          }}
         />
-        {photo ? `📷 ${photo.name}` : "📷 Foto toevoegen (optioneel)"}
+        {photo ? `📷 ${photo.name}` : "📷 Nieuwe foto (optioneel)"}
       </label>
+      <button
+        type="button"
+        onClick={() => setPicking(!picking)}
+        className="w-full rounded-full border border-dashed border-muted-foreground/40 px-4 py-2.5 text-sm text-muted-foreground"
+      >
+        📚 {picking ? "Fotobank sluiten" : fromBank ? "Andere foto uit de fotobank" : "Of kies uit de fotobank"}
+      </button>
+      {fromBank && !picking && (
+        <div className="relative">
+          <img src={fromBank.src} alt="" className="aspect-[3/2] w-full rounded-2xl object-cover" />
+          <button
+            type="button"
+            onClick={() => setFromBank(null)}
+            aria-label="Foto niet gebruiken"
+            className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-black/60 text-white"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      {picking && (
+        <PhotoBankPicker
+          chosen={fromBank?.path ?? null}
+          onPick={(path, src) => {
+            setFromBank({ path, src });
+            setPhoto(null);
+            setPicking(false);
+          }}
+        />
+      )}
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
