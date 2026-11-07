@@ -49,8 +49,8 @@ class Scene:
         im = self.bg.copy().convert("RGBA")
         d = ImageDraw.Draw(im)
         if self.kind == "nacht":
-            im.alpha_composite(self.glow, (W - 700, 60))
-            d.ellipse((W - 420, 300, W - 260, 460), fill=(255, 236, 244, 255))
+            im.alpha_composite(self.glow, (W - 660, -110))
+            d.ellipse((W - 380, 110, W - 240, 250), fill=(255, 236, 244, 255))
             for x, y, r, ph, sp in self.stars:
                 a = int(120 + 135 * (0.5 + 0.5 * math.sin(t * sp + ph)))
                 d.ellipse((x - r, y - r, x + r, y + r), fill=(255, 255, 255, a))

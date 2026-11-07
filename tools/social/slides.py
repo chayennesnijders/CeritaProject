@@ -38,7 +38,7 @@ def _dots(d, W, H, i, n, color):
 def cover(size, hook, sub, riti="blij", n=1):
     W, H = SIZES[size]; im = Image.new("RGBA", (W, H), PINK + (255,)); d = ImageDraw.Draw(im)
     for k in range(9):  # soft hearts pattern
-        heart(d, 120 + (k % 3) * 420, 230 + (k // 3) * (H // 3), 3.2, (255, 255, 255, 55))
+        heart(d, 110 + (k % 3) * 430, int(H * 0.55) + (k // 3) * int(H * 0.13), 2.6, (255, 255, 255, 55))
     d.text((70, 70), "CeritaProject", font=font(38, 700), fill=INK)
     rh = int(H * (0.30 if size == "916" else 0.28)); r = pose(riti, rh)
     box_top, box_h = (300 if size == "916" else 190), int(H * 0.42)
