@@ -15,17 +15,20 @@ export function WaitlistAdmin() {
   const [q, setQ] = useState("");
   const [confirm, setConfirm] = useState<string | null>(null);
   const [confirmCleanup, setConfirmCleanup] = useState(false);
-  const { data: rows = [], error } = useQuery({
+  const [who, setWho] = useState<"alle" | "jongere" | "ouder">("alle");
+  const { data: all = [], error } = useQuery({
     queryKey: ["waitlist"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("waitlist")
-        .select("id, email, age, store, parent_ok, source, created_at, mailed_at")
+        .select("id, email, age, store, parent_ok, source, created_at, mailed_at, kind")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+  // Young people and parents share the list; the choice above filters everything below.
+  const rows = who === "alle" ? all : all.filter((r) => (r.kind ?? "jongere") === who);
   const week = Date.now() - 7 * 86400000;
   const recent = rows.filter((r) => new Date(r.created_at).getTime() > week).length;
   const toMail = (store: string) =>
@@ -83,9 +86,26 @@ export function WaitlistAdmin() {
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
       <h2 className="text-lg">📝 Wachtlijst</h2>
+      <div className="grid grid-cols-3 gap-1 rounded-full bg-muted p-1 text-xs font-semibold">
+        {(
+          [
+            ["alle", `Alle (${all.length})`],
+            ["jongere", `🧑 Jongeren (${all.filter((r) => (r.kind ?? "jongere") === "jongere").length})`],
+            ["ouder", `👨‍👩‍👧 Ouders (${all.filter((r) => r.kind === "ouder").length})`],
+          ] as const
+        ).map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => setWho(k)}
+            className={`rounded-full px-2 py-2 ${who === k ? "bg-primary text-primary-foreground" : ""}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       {error ? (
         <p className="text-sm text-destructive">
-          Laden lukte niet. Is update-32 al in Supabase geplakt?
+          Laden lukte niet. Zijn update-32 en update-60 al in Supabase geplakt?
         </p>
       ) : (
         <>
@@ -216,7 +236,7 @@ export function WaitlistAdmin() {
                   )}
                 </div>
                 <p className="text-muted-foreground">
-                  {r.age} jaar · {storeLabel(r.store)}
+                  {r.kind === "ouder" ? "👨‍👩‍👧 ouder" : `${r.age} jaar`} · {storeLabel(r.store)}
                   {` · ${sourceLabel(r.source)}`} ·{" "}
                   {new Date(r.created_at).toLocaleDateString("nl-NL")}
                   {r.mailed_at ? " · ✉️ gemaild" : ""}

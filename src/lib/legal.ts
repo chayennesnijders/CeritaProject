@@ -141,7 +141,7 @@ export const PRIVACY: LegalPage = {
     {
       title: "De wachtlijst",
       text: [
-        "Zet je je op de wachtlijst (app.ceritaproject.nl/wachtlijst)? Dan bewaren we je e-mailadres, je leeftijd en wat voor telefoon je hebt. We gebruiken dat alleen om je één keer te mailen wanneer je de app kunt downloaden. Daarna halen we je van de lijst. Ben je jonger dan 16? Dan vragen we of je ouder of verzorger het goed vindt.",
+        "Zet je je op de wachtlijst (app.ceritaproject.nl/wachtlijst)? Dan bewaren we je e-mailadres, je leeftijd en wat voor telefoon je hebt. We gebruiken dat alleen om je één keer te mailen wanneer je de app kunt downloaden. Daarna halen we je van de lijst. Ben je jonger dan 16? Dan vragen we of je ouder of verzorger het goed vindt. Meld je je aan als ouder of verzorger? Dan vragen we geen leeftijd, alleen je e-mailadres en wat voor telefoon je hebt.",
         `Wil je eerder van de lijst af? Mail naar ${ORG.email}.`,
       ],
     },

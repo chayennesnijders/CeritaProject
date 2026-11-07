@@ -138,7 +138,7 @@ export function ParentHome({
       label: "Voor jezelf",
       emoji: done("zelf") ? "✅" : "🌿",
       status: done("zelf") ? "Gedaan!" : "Opdracht van vandaag",
-      tint: "bg-[#e3f1e8] dark:bg-[#1f3a2c]",
+      tint: "bg-card",
       attention: !done("zelf"),
       onClick: () => goTo("vandaag", () => setTab("zelf")),
     },
@@ -146,11 +146,11 @@ export function ParentHome({
       label: "Voor je kind",
       emoji: done("kind") ? "✅" : "💛",
       status: done("kind") ? "Gedaan!" : "Tip van vandaag",
-      tint: "bg-[#fdf3d6] dark:bg-[#3d3420]",
+      tint: "bg-card",
       attention: !done("kind"),
       onClick: () => goTo("vandaag", () => setTab("kind")),
     },
-    { label: "Vraag", emoji: "💬", status: "Om aan je kind te stellen", tint: "bg-[#fde4ea] dark:bg-[#4a2c35]", onClick: () => goTo("vraag") },
+    { label: "Vraag", emoji: "💬", status: "Om aan je kind te stellen", tint: "bg-card", onClick: () => goTo("vraag") },
     ...(corner
       ? []
       : [
@@ -158,27 +158,27 @@ export function ParentHome({
             label: "Je gevoel",
             emoji: mood ? mood.emoji : "🙂",
             status: mood ? "Ingevuld" : "Hoe gaat het?",
-            tint: "bg-[#ece6fb] dark:bg-[#2f2747]",
+            tint: "bg-card",
             attention: !mood,
             onClick: () => goTo("gevoel"),
           } satisfies GridTile,
-          { label: "Dagboek", emoji: "📔", status: "Alleen voor jou", tint: "bg-[#f6ead9] dark:bg-[#3a2d26]", to: "/dagboek" } satisfies GridTile,
-          { label: "Diertje", emoji: "🐾", status: "Verzorg het", tint: "bg-[#fde4ea] dark:bg-[#4a2c35]", to: "/diertje" } satisfies GridTile,
+          { label: "Dagboek", emoji: "📔", status: "Alleen voor jou", tint: "bg-card", to: "/dagboek" } satisfies GridTile,
+          { label: "Diertje", emoji: "🐾", status: "Verzorg het", tint: "bg-card", to: "/diertje" } satisfies GridTile,
         ]),
     {
       label: "Handleiding",
       emoji: checkIn ? "💬" : "📘",
       status: checkIn ? "Hoe ging je plan?" : next?.status === "verder" ? `Verder (${next.pct}%)` : `${GUIDES.length} trainingen`,
-      tint: "bg-[#e6eefb] dark:bg-[#22304a]",
+      tint: "bg-card",
       attention: !!checkIn,
       to: "/handleidingen",
     },
-    { label: "Rust", emoji: "🫧", status: "2 minuten ademen", tint: "bg-[#e6eefb] dark:bg-[#22304a]", to: "/rust" },
+    { label: "Rust", emoji: "🫧", status: "2 minuten ademen", tint: "bg-card", to: "/rust" },
     {
       label: "Hulp",
       emoji: "📞",
       status: "Bel met één tik",
-      tint: "bg-[#fde4e4] dark:bg-[#4a2626]",
+      tint: "bg-secondary text-secondary-foreground",
       onClick: () => goTo("hulp", () => setHelpOpen(true)),
     },
   ];
@@ -293,7 +293,7 @@ export function ParentHome({
             </button>
           ))}
         </div>
-        <div key={tab} className={`animate-in fade-in p-5 transition-colors duration-300 ${done(tab) ? "bg-[#e5f4e4] dark:bg-[#1f3a2c]" : ""}`}>
+        <div key={tab} className={`animate-in fade-in p-5 transition-colors duration-300 ${done(tab) ? "bg-accent" : ""}`}>
           <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
             {tab === "zelf"
               ? "Jouw opdracht van vandaag"
@@ -305,7 +305,7 @@ export function ParentHome({
           <button
             onClick={() => void toggle(tab)}
             aria-pressed={done(tab)}
-            className={`mt-4 w-full rounded-full px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95 ${done(tab) ? "bg-[#2d6a4f] text-white" : "bg-primary text-primary-foreground"}`}
+            className={`mt-4 w-full rounded-full px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95 ${done(tab) ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"}`}
           >
             {done(tab) ? "✓ Gedaan (tik om terug te zetten)" : "Gedaan"}
           </button>

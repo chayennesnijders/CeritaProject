@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countBySource, waitlistProblem, type WaitlistForm } from "./waitlist";
+import { WAITLIST_PERKS, countBySource, waitlistProblem, type WaitlistForm } from "./waitlist";
 
 const ok: WaitlistForm = {
   email: "noor@example.nl",
@@ -23,6 +23,19 @@ describe("waitlist", () => {
     expect(waitlistProblem({ ...ok, age: null })).toMatch(/oud/);
     expect(waitlistProblem({ ...ok, store: null })).toMatch(/telefoon/);
     expect(waitlistProblem({ ...ok, privacyOk: false })).toMatch(/mail/);
+  });
+});
+
+describe("waitlist for parents", () => {
+  it("needs no age or parent's okay, but still e-mail, phone and consent", () => {
+    const parent: WaitlistForm = { ...ok, kind: "ouder", age: null };
+    expect(waitlistProblem(parent)).toBeNull();
+    expect(waitlistProblem({ ...parent, store: null })).toMatch(/telefoon/);
+    expect(waitlistProblem({ ...parent, privacyOk: false })).toMatch(/mail/);
+    expect(waitlistProblem({ ...parent, email: "x" })).toMatch(/e-mailadres/);
+  });
+  it("tells parents plainly they see nothing of young people", () => {
+    expect(WAITLIST_PERKS.ouder.some((p) => /niets van hen/.test(p.text))).toBe(true);
   });
 });
 

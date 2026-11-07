@@ -2170,7 +2170,8 @@ export type Database = {
       }
       waitlist: {
         Row: {
-          age: number
+          age: number | null
+          kind: string
           created_at: string
           email: string
           id: string
@@ -2180,7 +2181,8 @@ export type Database = {
           store: string
         }
         Insert: {
-          age: number
+          age: number | null
+          kind?: string
           created_at?: string
           email: string
           id?: string
@@ -2190,7 +2192,8 @@ export type Database = {
           store: string
         }
         Update: {
-          age?: number
+          age?: number | null
+          kind?: string
           created_at?: string
           email?: string
           id?: string
@@ -2633,7 +2636,9 @@ export type Database = {
         Returns: { mood: string; total: number }[]
       }
       join_waitlist: {
-        Args: { _email: string; _age: number; _store: string; _parent_ok: boolean; _source?: string }
+        Args:
+          | { _email: string; _age: number; _store: string; _parent_ok: boolean; _source?: string }
+          | { _email: string; _age: number | null; _store: string; _parent_ok: boolean; _source: string; _kind: string }
         Returns: boolean
       }
       waitlist_count: { Args: never; Returns: number }

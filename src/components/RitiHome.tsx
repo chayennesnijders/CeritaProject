@@ -102,7 +102,6 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
       label: pet?.name ?? "Diertje",
       status: !pet ? "Adopteer er een" : careLeft ? `Nog ${careLeft}× aandacht` : "Superblij 💖",
       badge: !pet || careLeft > 0,
-      tint: "from-[#fde4ea] to-[#fbd0dc] dark:from-[#4a2c35] dark:to-[#3a222a]",
     },
     {
       to: "/community",
@@ -110,7 +109,6 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
       label: "Groepen",
       status: unread.groupTotal ? `${unread.groupTotal} nieuw` : "Praat mee",
       badge: unread.groupTotal > 0,
-      tint: "from-[#e3f1e8] to-[#cfe8d8] dark:from-[#1f3a2c] dark:to-[#173023]",
     },
     {
       to: "/ontdekken",
@@ -118,7 +116,6 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
       label: "Verhalen",
       status: newStories ? `${newStories} nieuw` : "Lees of swipe",
       badge: false,
-      tint: "from-[#e6eefb] to-[#d3e1f7] dark:from-[#22304a] dark:to-[#1a263b]",
     },
     {
       to: "/dagboek",
@@ -126,7 +123,6 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
       label: "Dagboek",
       status: challengeDone ? "Opdracht ✓" : "Opdracht wacht",
       badge: !challengeDone,
-      tint: "from-[#f6ead9] to-[#efdcc2] dark:from-[#3a2d26] dark:to-[#2e231d]",
     },
   ];
   const small = [
@@ -138,8 +134,8 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
 
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#fde4ea] via-[#fbeee6] to-card px-5 pb-5 pt-4 text-center shadow-soft dark:from-[#3d2630] dark:via-[#2c2226]">
-        <h1 className="text-2xl text-foreground">
+      <section className="relative overflow-hidden rounded-[2rem] bg-secondary px-5 pb-5 pt-4 text-center text-secondary-foreground shadow-soft">
+        <h1 className="text-2xl">
           {hi.text}
           {name ? `, ${name}` : ""} <span className="inline-block animate-bounce">{hi.emoji}</span>
         </h1>
@@ -234,9 +230,9 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
           <Link
             key={t.to}
             to={t.to}
-            className={`group relative flex items-center gap-3 rounded-3xl bg-gradient-to-br p-3.5 shadow-soft transition-transform active:scale-95 ${t.tint}`}
+            className={`group relative flex items-center gap-3 rounded-3xl bg-card p-3.5 shadow-soft transition-transform active:scale-95`}
           >
-            {t.badge && <span aria-hidden className="absolute right-3 top-3 size-2.5 rounded-full bg-primary ring-2 ring-background" />}
+            {t.badge && <span aria-hidden className="absolute right-3 top-3 size-2.5 rounded-full bg-primary ring-2 ring-card" />}
             <span className="shrink-0 text-4xl transition-transform group-hover:scale-110">{t.emoji}</span>
             <span className="min-w-0">
               <span className="block truncate font-semibold">{t.label}</span>
@@ -251,7 +247,7 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
           <Link
             key={s.to}
             to={s.to}
-            className={`flex flex-col items-center gap-1 rounded-2xl py-2 text-xs font-semibold transition-transform active:scale-95 ${s.to === "/hulp" ? "bg-[#fde4e4] dark:bg-[#4a2626]" : "bg-card shadow-soft"}`}
+            className={`flex flex-col items-center gap-1 rounded-2xl py-2 text-xs font-semibold transition-transform active:scale-95 ${s.to === "/hulp" ? "bg-primary text-primary-foreground shadow-soft" : "bg-card shadow-soft"}`}
           >
             <span className="text-2xl">{s.emoji}</span>
             {s.label}

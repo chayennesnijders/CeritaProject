@@ -8,14 +8,18 @@ import { Input } from "@/components/ui/input";
 import {
   MIN_AGE,
   PARENT_AGE,
+  WAITLIST_PERKS,
   WAITLIST_STORES,
   waitlistProblem,
+  type WaitlistKind,
   type WaitlistStore,
 } from "@/lib/waitlist";
 
 export const Route = createFileRoute("/wachtlijst")({
-  validateSearch: (s: Record<string, unknown>): { bron?: string } =>
-    typeof s["bron"] === "string" ? { bron: s["bron"].slice(0, 40) } : {},
+  validateSearch: (s: Record<string, unknown>): { bron?: string; voor?: "ouders" } => ({
+    ...(typeof s["bron"] === "string" ? { bron: s["bron"].slice(0, 40) } : {}),
+    ...(s["voor"] === "ouders" ? { voor: "ouders" as const } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Wachtlijst — CeritaProject" },
@@ -38,9 +42,14 @@ export const Route = createFileRoute("/wachtlijst")({
 const AGES = Array.from({ length: 27 - 12 + 1 }, (_, i) => i + 12); // 12 … 27, plus "28+"
 const SHARE_URL = "https://app.ceritaproject.nl/wachtlijst?bron=vriend";
 
-/** Public waiting list (no account needed): e-mail, age and which phone, to hear when the app is out. */
+/**
+ * Public waiting list (no account needed): e-mail, age and which phone, to hear when the app is out.
+ * Parents and carers use the same list (no age) and see what the app has for them.
+ */
 function WaitlistPage() {
-  const { bron } = Route.useSearch();
+  const { bron, voor } = Route.useSearch();
+  const [kind, setKind] = useState<WaitlistKind>(voor === "ouders" ? "ouder" : "jongere");
+  const isParent = kind === "ouder";
   const [email, setEmail] = useState("");
   const [age, setAge] = useState<number | null>(null);
   const [store, setStore] = useState<WaitlistStore | null>(null);
@@ -56,8 +65,8 @@ function WaitlistPage() {
     void supabase.rpc("waitlist_count").then(({ data }) => setCount(data ?? null));
   }, [done]);
 
-  const problem = waitlistProblem({ email, age, store, parentOk, privacyOk });
-  const tooYoung = age !== null && age < MIN_AGE;
+  const problem = waitlistProblem({ kind, email, age, store, parentOk, privacyOk });
+  const tooYoung = !isParent && age !== null && age < MIN_AGE;
 
   async function join() {
     if (problem || trap) {
@@ -68,10 +77,11 @@ function WaitlistPage() {
     setError(null);
     const { error: err } = await supabase.rpc("join_waitlist", {
       _email: email.trim(),
-      _age: age!,
+      _age: isParent ? null : age!,
       _store: store!,
-      _parent_ok: parentOk,
+      _parent_ok: !isParent && parentOk,
       _source: bron ?? "",
+      _kind: kind,
     });
     setBusy(false);
     if (err) setError(err.message.includes("vanaf 13") ? problem : err.message);
@@ -80,11 +90,14 @@ function WaitlistPage() {
 
   const [copied, setCopied] = useState(false);
   async function share() {
-    const text = "Er komt een app aan voor jongeren: CeritaProject 💗 Zet je ook op de wachtlijst!";
+    const text = isParent
+      ? "Er komt een app aan: CeritaProject 💗 Een veilige plek voor jongeren, met ook een eigen stuk voor ouders. Zet je ook op de wachtlijst!"
+      : "Er komt een app aan voor jongeren: CeritaProject 💗 Zet je ook op de wachtlijst!";
+    const url = isParent ? `${SHARE_URL}&voor=ouders` : SHARE_URL;
     try {
-      if (navigator.share) await navigator.share({ title: "CeritaProject", text, url: SHARE_URL });
+      if (navigator.share) await navigator.share({ title: "CeritaProject", text, url });
       else {
-        await navigator.clipboard.writeText(`${text} ${SHARE_URL}`);
+        await navigator.clipboard.writeText(`${text} ${url}`);
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
       }
@@ -104,14 +117,16 @@ function WaitlistPage() {
           />
           {done
             ? "Joepie, je staat erop! Ik laat het je weten zodra de app er is. 🎉"
-            : "Hoi! Ik ben Riti. Er komt een app aan, en ik wil jou als eerste laten weten wanneer hij er is."}
+            : isParent
+              ? "Hallo! Ik ben Riti. Er komt een app aan voor jongeren, met ook een eigen stuk voor ouders en verzorgers."
+              : "Hoi! Ik ben Riti. Er komt een app aan, en ik wil jou als eerste laten weten wanneer hij er is."}
         </div>
       </div>
 
       <h1 className="mt-6 text-4xl">
         {done ? "Je staat op de wachtlijst 💗" : "Er komt een app aan 💗"}
       </h1>
-      {count !== null && count >= 25 && (
+      {!isParent && count !== null && count >= 25 && (
         <p className="mt-2 inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
           ✨ Al {count} jongeren staan op de wachtlijst
         </p>
@@ -131,10 +146,16 @@ function WaitlistPage() {
           <div className="rounded-3xl bg-primary p-5 text-center text-primary-foreground shadow-soft">
             <p className="text-lg font-bold">Ken jij iemand die dit ook nodig heeft?</p>
             <p className="mt-1 text-sm opacity-90">
-              Stuur de wachtlijst door aan een vriend(in). 🤍
+              {isParent
+                ? "Stuur de wachtlijst door aan andere ouders, of aan een jongere. 🤍"
+                : "Stuur de wachtlijst door aan een vriend(in). 🤍"}
             </p>
             <Button onClick={share} variant="secondary" className="mt-3 h-12 w-full rounded-full">
-              {copied ? "Link gekopieerd ✓" : "Deel met een vriend(in)"}
+              {copied
+                ? "Link gekopieerd ✓"
+                : isParent
+                  ? "Deel de wachtlijst"
+                  : "Deel met een vriend(in)"}
             </Button>
           </div>
           <p className="text-center text-sm">
@@ -149,12 +170,54 @@ function WaitlistPage() {
         </section>
       ) : (
         <>
-          <ul className="mt-4 space-y-1.5 text-sm">
-            <li>📖 Lees echte verhalen van jongeren die hetzelfde meemaken</li>
-            <li>💬 Klets veilig met leeftijdsgenoten, in groepen per leeftijd</li>
-            <li>🎓 Praat met een coach, of stel anoniem een vraag</li>
-            <li>🌱 Je eigen dagboek, stemmingen en een diertje om voor te zorgen</li>
-          </ul>
+          <div
+            role="radiogroup"
+            aria-label="Ik ben"
+            className="mt-4 grid grid-cols-2 gap-1 rounded-full bg-muted p-1"
+          >
+            {(
+              [
+                ["jongere", "🧑 Jongere (13–27)"],
+                ["ouder", "👨‍👩‍👧 Ouder / verzorger"],
+              ] as const
+            ).map(([k, label]) => (
+              <button
+                key={k}
+                type="button"
+                role="radio"
+                aria-checked={kind === k}
+                onClick={() => {
+                  setKind(k);
+                  setError(null);
+                }}
+                className={`rounded-full px-2 py-2.5 text-sm font-semibold transition-colors ${kind === k ? "bg-primary text-primary-foreground shadow-soft" : ""}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <section
+            key={kind}
+            className="mt-4 rounded-3xl bg-secondary p-5 text-secondary-foreground animate-in fade-in"
+          >
+            <p className="font-semibold">
+              {isParent ? "Wat is er voor ouders?" : "Wat is er voor jou?"}
+            </p>
+            <ul className="mt-2 space-y-2 text-sm">
+              {WAITLIST_PERKS[kind].map((x) => (
+                <li key={x.text} className="flex gap-2">
+                  <span>{x.emoji}</span>
+                  <span>{x.text}</span>
+                </li>
+              ))}
+            </ul>
+            {isParent && (
+              <Link to="/ouders" className="mt-3 inline-block text-sm font-semibold underline">
+                Meer info voor ouders
+              </Link>
+            )}
+          </section>
 
           <section className="mt-5 space-y-4 rounded-3xl bg-card p-5 shadow-soft">
             <label className="block space-y-1.5">
@@ -171,22 +234,24 @@ function WaitlistPage() {
               />
             </label>
 
-            <label className="block space-y-1.5">
-              <span className="text-sm font-semibold">Hoe oud ben je?</span>
-              <select
-                value={age ?? ""}
-                onChange={(e) => setAge(e.target.value ? Number(e.target.value) : null)}
-                className="h-12 w-full rounded-2xl border border-input bg-background px-3"
-              >
-                <option value="">Kies je leeftijd</option>
-                {AGES.map((a) => (
-                  <option key={a} value={a}>
-                    {a === 12 ? "12 of jonger" : `${a} jaar`}
-                  </option>
-                ))}
-                <option value={28}>28 of ouder</option>
-              </select>
-            </label>
+            {!isParent && (
+              <label className="block space-y-1.5">
+                <span className="text-sm font-semibold">Hoe oud ben je?</span>
+                <select
+                  value={age ?? ""}
+                  onChange={(e) => setAge(e.target.value ? Number(e.target.value) : null)}
+                  className="h-12 w-full rounded-2xl border border-input bg-background px-3"
+                >
+                  <option value="">Kies je leeftijd</option>
+                  {AGES.map((a) => (
+                    <option key={a} value={a}>
+                      {a === 12 ? "12 of jonger" : `${a} jaar`}
+                    </option>
+                  ))}
+                  <option value={28}>28 of ouder</option>
+                </select>
+              </label>
+            )}
             {tooYoung && (
               <p className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
                 De app is vanaf 13 jaar. Kom terug als je 13 bent! 💛 Wil je nu met iemand praten?
@@ -216,7 +281,7 @@ function WaitlistPage() {
                   </p>
                 </div>
 
-                {age !== null && age < PARENT_AGE && (
+                {!isParent && age !== null && age < PARENT_AGE && (
                   <label className="flex items-start gap-2 text-sm">
                     <input
                       type="checkbox"
