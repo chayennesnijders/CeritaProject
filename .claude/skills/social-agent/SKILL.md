@@ -22,6 +22,7 @@ Always pass `if_version` (from your read) when writing an existing document.
 ## Weekly run (every Sunday)
 
 1. **Read everything**: `list` weeks, posts, signups, learnings, agent/status (use `out_dir` if large). Work out last week and next week (Mon–Sun, Europe/Amsterdam).
+   - **Never replace a planned week**: if `posts/<next week>-*` already exist, skip steps 4–6 for those posts (no new videos), only refresh `weeks/<next>.trends` when you found newer trends, and update `agent/status` (last_run, next_run, a short message). Repo needed but missing? Attach it with `add_repo` (chayennesnijders/CeritaProject) and check out branch `claude/app-namaak-2w4ifo`.
 2. **Evaluate last week** (write it to `weeks/<last>.evaluation` in 4–8 plain sentences):
    - Sign-ups per platform vs. the week before; which platform grew.
    - Per posted post: score = (likes + 2·comments + 3·shares + 3·saves + 5·follows) / views, per platform. Rank formats, hooks, topics, posting times.
