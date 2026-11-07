@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useActsAsParent } from "@/lib/parent-view";
+import { TesterCard } from "@/components/TesterCard";
 import { FounderStory } from "@/components/FounderStory";
 import { ParentHome } from "@/components/ParentHome";
 import { ThemeDayCard } from "@/components/ThemeDayCard";
@@ -78,6 +79,7 @@ function HomePage() {
       </div>
       <ModerationNotice />
       <ThemeDayCard day={day} audience="jongeren" />
+      <TesterCard uid={uid} />
       {p?.also_parent && (
         <Link to="/ouderhoek" className="flex items-center gap-3 rounded-3xl bg-secondary p-4 text-secondary-foreground shadow-soft">
           <span className="text-2xl">👶</span>

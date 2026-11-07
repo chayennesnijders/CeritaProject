@@ -6,6 +6,7 @@ import { ChevronDown, Phone, Shuffle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Riti } from "@/components/Riti";
 import { ThemeDayCard } from "@/components/ThemeDayCard";
+import { TesterCard } from "@/components/TesterCard";
 import { celebrate } from "@/lib/celebrate";
 import { MOODS, dutchHour, greeting, moodById, type MoodId } from "@/lib/home";
 import {
@@ -199,6 +200,7 @@ export function ParentHome({
       )}
 
       <ThemeDayCard day={day} audience="ouders" />
+      <TesterCard uid={uid} />
 
       {/* Assignment for yourself and tip for your child, one at a time */}
       <section className="overflow-hidden rounded-3xl bg-card shadow-soft">

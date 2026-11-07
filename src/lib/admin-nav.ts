@@ -19,6 +19,7 @@ export const ADMIN_PAGES = {
   buddy: { emoji: "🤖", label: "CeritaBuddy" },
   lessen: { emoji: "🏫", label: "Lessen & scholen" },
   ouders: { emoji: "👪", label: "Ouderportaal" },
+  testers: { emoji: "🧪", label: "Testers" },
   livegang: { emoji: "🚀", label: "Livegang" },
   logboek: { emoji: "🗒️", label: "Logboek" },
   team: { emoji: "🧑‍🤝‍🧑", label: "Team" },
@@ -29,7 +30,7 @@ export const ADMIN_GROUPS: { title: string; pages: AdminPage[] }[] = [
   { title: "Moderatie", pages: ["inbox", "berichten", "vragen"] },
   { title: "Inhoud", pages: ["verhalen", "luisteren", "muziek", "thema", "agenda", "buddy"] },
   { title: "Community", pages: ["groepen", "nieuws"] },
-  { title: "Organisatie", pages: ["ouders", "lessen", "overzicht", "impact", "livegang", "logboek", "team"] },
+  { title: "Organisatie", pages: ["testers", "ouders", "lessen", "overzicht", "impact", "livegang", "logboek", "team"] },
 ];
 
 /** The groups with only the pages this person may open (empty groups left out). */

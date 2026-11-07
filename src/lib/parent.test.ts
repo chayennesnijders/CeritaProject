@@ -36,6 +36,7 @@ describe("parent day", () => {
     expect(parentMayOpen("/ceritabuddy")).toBe(false);
     expect(parentMayOpen("/homeless")).toBe(false);
     expect(parentMayOpen("/handleidingen/gesprek-beginnen")).toBe(true);
+    expect(parentMayOpen("/testlijst")).toBe(true);
   });
 });
 

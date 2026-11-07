@@ -410,6 +410,12 @@ export type Database = {
         Update: { user_id?: string; child_ages?: string[]; updated_at?: string }
         Relationships: []
       }
+      tester_progress: {
+        Row: { user_id: string; role: string; checks: Json; notes: Json; started_at: string; updated_at: string }
+        Insert: { user_id: string; role: string; checks?: Json; notes?: Json; started_at?: string; updated_at?: string }
+        Update: { user_id?: string; role?: string; checks?: Json; notes?: Json; started_at?: string; updated_at?: string }
+        Relationships: []
+      }
       guide_progress: {
         Row: {
           user_id: string

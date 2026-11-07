@@ -87,7 +87,7 @@ export function parentDay(day: string) {
 }
 
 /** Pages a parent may open. Everything else in the app is for young people. */
-export const PARENT_PAGES = ["/home", "/ouderhoek", "/stemming", "/rust", "/dankbaar", "/brieven", "/profiel", "/meldingen", "/beheer", "/zoeken", "/handleidingen"] as const;
+export const PARENT_PAGES = ["/home", "/ouderhoek", "/stemming", "/rust", "/dankbaar", "/brieven", "/profiel", "/meldingen", "/beheer", "/zoeken", "/handleidingen", "/testlijst"] as const;
 export const parentMayOpen = (path: string) =>
   PARENT_PAGES.some((p) => path === p || path.startsWith(`${p}/`));
 
