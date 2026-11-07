@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMyTesterRow } from "@/lib/use-tester";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
@@ -16,7 +18,11 @@ export const Route = createFileRoute("/_authenticated/testen")({
 
 const PHONES = ["Android", "iPhone"];
 
-/** Test week: tick off the checklist (kept on this phone) and send the closing questions to the admins. */
+/**
+ * Test week: tick off the checklist and answer the closing questions. Everything is saved right away
+ * in tester_progress, so the admins follow it live in Beheer → Testers; the answers are also sent
+ * as one message at the end. Ticks from before (kept only on the phone) are carried over once.
+ */
 function TestPage() {
   const { data: me } = useMe();
   const uid = me?.user.id;
@@ -28,15 +34,58 @@ function TestPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const qc = useQueryClient();
+  const { data: server } = useMyTesterRow(uid);
 
+  type Notes = Record<string, string>;
+  const notesNow = (over: Partial<{ phone: string; score: number | null; why: string; answers: Record<string, string>; sent: boolean }> = {}): Notes => {
+    const a = { phone, score, why, answers, sent, ...over };
+    return {
+      ...a.answers,
+      ...(a.phone ? { telefoon: a.phone } : {}),
+      ...(a.score !== null ? { cijfer: String(a.score) } : {}),
+      ...(a.why.trim() ? { waarom: a.why } : {}),
+      ...(a.sent ? { verstuurd: "ja" } : {}),
+    };
+  };
+  async function store(checks: Record<string, boolean>, notes: Notes) {
+    if (!uid) return;
+    const clean = Object.fromEntries(Object.entries(checks).filter(([, v]) => v));
+    await supabase.from("tester_progress").upsert({
+      user_id: uid,
+      role: "jongere",
+      checks: clean,
+      notes,
+      updated_at: new Date().toISOString(),
+    });
+    void qc.invalidateQueries({ queryKey: ["tester-progress", uid] });
+  }
+
+  // First load: the saved list wins, plus any ticks that were only kept on this phone before.
+  const loaded = useRef(false);
   useEffect(() => {
-    if (!key) return;
+    if (!key || !server || loaded.current) return;
+    loaded.current = true;
+    let local: Record<string, boolean> = {};
     try {
-      setDone(JSON.parse(localStorage.getItem(key) ?? "{}") as Record<string, boolean>);
+      local = JSON.parse(localStorage.getItem(key) ?? "{}") as Record<string, boolean>;
     } catch {
-      /* starts empty */
+      /* nothing on this phone */
     }
-  }, [key]);
+    const remote = (server.row?.checks ?? {}) as Record<string, boolean>;
+    const merged = { ...remote, ...Object.fromEntries(Object.entries(local).filter(([, v]) => v)) };
+    setDone(merged);
+    const n = (server.row?.notes ?? {}) as Notes;
+    const { telefoon, cijfer, waarom, verstuurd, ...rest } = n;
+    if (telefoon) setPhone(telefoon);
+    if (cijfer) setScore(Number(cijfer));
+    if (waarom) setWhy(waarom);
+    if (verstuurd) setSent(true);
+    setAnswers(rest);
+    const newTicks = Object.keys(merged).some((id) => merged[id] && !remote[id]);
+    if (server.installed && newTicks) void store(merged, n);
+  }, [key, server]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function toggle(id: string) {
     const next = { ...done, [id]: !done[id] };
     setDone(next);
@@ -47,7 +96,18 @@ function TestPage() {
     }
     const count = Object.values(next).filter(Boolean).length;
     if (next[id] && count === TEST_ITEM_COUNT) celebrate("groot");
+    void store(next, notesNow());
   }
+
+  // Answers are saved a moment after typing stops, so the admins see them as they come in.
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function saveAnswersSoon(over: Parameters<typeof notesNow>[0]) {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => void store(done, notesNow(over)), 800);
+  }
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
   const count = Object.values(done).filter(Boolean).length;
 
   async function send() {
@@ -64,6 +124,7 @@ function TestPage() {
       return;
     }
     setSent(true);
+    void store(done, notesNow({ sent: true }));
     celebrate("groot", { set: "hartjes" });
   }
 
@@ -91,7 +152,8 @@ function TestPage() {
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          Vink af wat je hebt gedaan. Tik op → om er meteen heen te gaan. Werkt iets niet of is iets
+          Vink af wat je hebt gedaan. Alles wordt meteen bewaard, en de makers van de app zien wat je
+          afvinkt en schrijft. Tik op → om er meteen heen te gaan. Werkt iets niet of is iets
           raar? Maak een screenshot en{" "}
           <Link to="/contact" className="font-semibold text-primary underline">
             stuur het naar ons
@@ -146,7 +208,10 @@ function TestPage() {
                 {PHONES.map((p) => (
                   <button
                     key={p}
-                    onClick={() => setPhone(p)}
+                    onClick={() => {
+                      setPhone(p);
+                      saveAnswersSoon({ phone: p });
+                    }}
                     className={`flex-1 rounded-full py-2 text-sm font-semibold ${phone === p ? "bg-primary text-primary-foreground" : "bg-muted"}`}
                   >
                     {p}
@@ -162,7 +227,11 @@ function TestPage() {
                   rows={2}
                   maxLength={400}
                   value={answers[q.id] ?? ""}
-                  onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                  onChange={(e) => {
+                    const next = { ...answers, [q.id]: e.target.value };
+                    setAnswers(next);
+                    saveAnswersSoon({ answers: next });
+                  }}
                   className="rounded-2xl"
                 />
               </label>
@@ -175,7 +244,10 @@ function TestPage() {
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                   <button
                     key={n}
-                    onClick={() => setScore(n)}
+                    onClick={() => {
+                      setScore(n);
+                      saveAnswersSoon({ score: n });
+                    }}
                     className={`rounded-xl py-2 text-sm font-semibold ${score === n ? "bg-primary text-primary-foreground" : "bg-muted"}`}
                   >
                     {n}
@@ -187,7 +259,10 @@ function TestPage() {
                 rows={2}
                 maxLength={300}
                 value={why}
-                onChange={(e) => setWhy(e.target.value)}
+                onChange={(e) => {
+                  setWhy(e.target.value);
+                  saveAnswersSoon({ why: e.target.value });
+                }}
                 placeholder="Waarom dit cijfer?"
                 className="rounded-2xl"
               />

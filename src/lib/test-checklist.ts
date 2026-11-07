@@ -1,7 +1,10 @@
 /**
- * The checklist for testers (Beheer → Testers shows it live). Parents and young people each get
- * their own list; item ids are stable, so progress survives text changes.
+ * The checklist for testers (Beheer → Testers shows it live). Parents use /testlijst; young people
+ * use the existing test week at /testen (src/lib/test-week.ts). Item ids are stable, so progress
+ * survives text changes.
  */
+import { TEST_CHECKLIST, TEST_QUESTIONS } from "@/lib/test-week";
+
 export type TesterRole = "ouder" | "jongere";
 export type TestItem = { id: string; title: string; hint: string };
 export type TestPhase = { id: string; title: string; when: string; items: TestItem[] };
@@ -54,52 +57,13 @@ const PARENT: TestPhase[] = [
   },
 ];
 
-const YOUTH: TestPhase[] = [
-  {
-    id: "start",
-    title: "Beginnen",
-    when: "Dag 1 · ongeveer 5 minuten",
-    items: [
-      { id: "j-s1", title: "Account gemaakt met ‘Ik ben jongere’", hint: "Op app.ceritaproject.nl → Account maken, met je geboortedatum." },
-      { id: "j-s2", title: "E-mail bevestigd en @gebruikersnaam gekozen", hint: "Kies liever niet je echte achternaam." },
-      { id: "j-s3", title: "App op je beginscherm gezet", hint: "iPhone: Safari → Deel → Zet op beginscherm. Android: Chrome → ⋮ → Toevoegen aan startscherm." },
-      { id: "j-s4", title: "Meldingen aangezet", hint: "Via Profiel → Meldingen. Zo zie je of berichten binnenkomen." },
-    ],
-  },
-  {
-    id: "dag",
-    title: "Elke dag",
-    when: "Een paar minuten · vink af als het een paar dagen gelukt is",
-    items: [
-      { id: "j-d1", title: "Ingevuld hoe je je voelt", hint: "Bovenaan je startscherm." },
-      { id: "j-d2", title: "Je dagopdracht of diertje gedaan", hint: "Houd je 🔥 reeks vol." },
-      { id: "j-d3", title: "Een verhaal gelezen of geswipet", hint: "Ontdekken → Swipen door verhalen." },
-    ],
-  },
-  {
-    id: "week1",
-    title: "Week 1",
-    when: "Wanneer het je uitkomt",
-    items: [
-      { id: "j-w1", title: "Lid geworden van een groep en iets geplaatst", hint: "Bij Community. Een reactie op iemand telt ook." },
-      { id: "j-w2", title: "Een privéchat gehad met een andere tester", hint: "Via Berichten. Stuur ook eens een foto of spraakbericht." },
-      { id: "j-w3", title: "Een spelletje gespeeld in een chat", hint: "Via het plusje in de chat." },
-      { id: "j-w4", title: "Een gesprek gehad met CeritaBuddy", hint: "De AI-gesprekspartner. Lees eerst de uitleg." },
-      { id: "j-w5", title: "Iemand een compliment gegeven", hint: "Via Profiel → Complimenten." },
-    ],
-  },
-  {
-    id: "week2",
-    title: "Week 2",
-    when: "Nog een stapje verder",
-    items: [
-      { id: "j-v1", title: "Een anonieme vraag gesteld", hint: "Via Profiel → Coaches. Niemand ziet dat hij van jou is." },
-      { id: "j-v2", title: "Je veiligheidsplan bekeken of ingevuld", hint: "Via Profiel → Veiligheidsplan. Alleen jij ziet het." },
-      { id: "j-v3", title: "Een rustmoment gedaan", hint: "Via Profiel → Rust." },
-      { id: "j-v4", title: "Een screenshot gestuurd van iets wat raar deed", hint: "Of: niets geks gezien. Dan mag je hem ook afvinken." },
-    ],
-  },
-];
+/** Young testers use the existing test week at /testen; its checklist is shown live here too. */
+const YOUTH: TestPhase[] = TEST_CHECKLIST.map((g, n) => ({
+  id: `j${n}`,
+  title: g.title,
+  when: "",
+  items: g.items.map((i) => ({ id: i.id, title: i.text, hint: "" })),
+}));
 
 const PARENT_QUESTIONS: TestQuestion[] = [
   { id: "q1", question: "Wat gebruikte je het meest, en wat sloeg je over?", placeholder: "Bijvoorbeeld: de vraag voor mijn kind elke avond…" },
@@ -108,12 +72,10 @@ const PARENT_QUESTIONS: TestQuestion[] = [
   { id: "q4", question: "Nog iets anders? (fijn, onhandig, ideeën)", placeholder: "Alles is welkom" },
 ];
 
-const YOUTH_QUESTIONS: TestQuestion[] = [
-  { id: "q1", question: "Wat gebruikte je het meest, en wat sloeg je over?", placeholder: "Bijvoorbeeld: de groepen wel, CeritaBuddy niet…" },
-  { id: "q2", question: "Voelde de app veilig? Waarom wel of niet?", placeholder: "Alles wat je opviel" },
-  { id: "q3", question: "Wat zou je missen als de app er niet meer was?", placeholder: "Of: niks, en waarom" },
-  { id: "q4", question: "Nog iets anders? (fijn, onhandig, ideeën)", placeholder: "Alles is welkom" },
-];
+const YOUTH_QUESTIONS: TestQuestion[] = TEST_QUESTIONS.map((q) => ({ id: q.id, question: q.label, placeholder: "" }));
+
+/** Where a tester ticks their list. */
+export const testPath = (role: TesterRole) => (role === "ouder" ? "/testlijst" : "/testen");
 
 export const testPhases = (role: TesterRole) => (role === "ouder" ? PARENT : YOUTH);
 export const testQuestions = (role: TesterRole) => (role === "ouder" ? PARENT_QUESTIONS : YOUTH_QUESTIONS);

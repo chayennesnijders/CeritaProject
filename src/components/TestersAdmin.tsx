@@ -13,7 +13,10 @@ type Row = {
   started_at: string;
   updated_at: string;
 };
-const LINK = "app.ceritaproject.nl/testlijst";
+const LINKS = [
+  { label: "Jongeren", url: "app.ceritaproject.nl/testen" },
+  { label: "Ouders", url: "app.ceritaproject.nl/testlijst" },
+] as const;
 
 /** Beheer → Testers: everyone's checklist live (refreshes every 15 seconds), with their answers. */
 export function TestersAdmin() {
@@ -70,20 +73,25 @@ export function TestersAdmin() {
           </span>
         </div>
         <p className="text-sm text-muted-foreground">
-          Testers openen hun lijst via <b>{LINK}</b> (ingelogd). Ouders krijgen vanzelf de ouderlijst, jongeren de
-          jongerenlijst. Dit overzicht ververst elke 15 seconden.
+          Jongeren vinken af op <b>{LINKS[0].url}</b>, ouders op <b>{LINKS[1].url}</b> (allebei ingelogd). Elk vinkje en
+          antwoord komt hier meteen binnen; dit overzicht ververst elke 15 seconden.
         </p>
-        <button
-          onClick={() =>
-            void navigator.clipboard
-              .writeText(`https://${LINK}`)
-              .then(() => toast.success("Link gekopieerd"))
-              .catch(() => toast.error("Kopiëren lukte niet"))
-          }
-          className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground"
-        >
-          <Copy className="size-3.5" /> Kopieer de link voor testers
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {LINKS.map((l) => (
+            <button
+              key={l.url}
+              onClick={() =>
+                void navigator.clipboard
+                  .writeText(`https://${l.url}`)
+                  .then(() => toast.success(`Link voor ${l.label.toLowerCase()} gekopieerd`))
+                  .catch(() => toast.error("Kopiëren lukte niet"))
+              }
+              className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground"
+            >
+              <Copy className="size-3.5" /> Link {l.label.toLowerCase()}
+            </button>
+          ))}
+        </div>
       </section>
 
       <div className="grid grid-cols-2 gap-3">
@@ -123,15 +131,17 @@ export function TestersAdmin() {
                   <span className="block truncate font-semibold">{data.names.get(r.user_id) ?? "Onbekend"}</span>
                   <span className="block text-xs text-muted-foreground">
                     {p.done}/{p.total} · bezig {lastSeen(r.updated_at)}
+                    {r.notes["cijfer"] ? ` · cijfer ${r.notes["cijfer"]}/10` : ""}
+                    {r.notes["verstuurd"] ? " · ✅ verstuurd" : ""}
                     {answered ? ` · ${answered} ${answered === 1 ? "antwoord" : "antwoorden"} 💬` : ""}
                   </span>
                 </span>
                 <span className="text-sm font-bold tabular-nums">{p.pct}%</span>
                 <ChevronDown className={`size-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
               </button>
-              <div className="mt-2 grid grid-cols-4 gap-1" aria-hidden>
+              <div className="mt-2 flex gap-1" aria-hidden>
                 {p.phases.map((ph) => (
-                  <span key={ph.id} className="h-1.5 overflow-hidden rounded-full bg-muted" title={`${ph.title}: ${ph.done}/${ph.total}`}>
+                  <span key={ph.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted" title={`${ph.title}: ${ph.done}/${ph.total}`}>
                     <span
                       className={`block h-full rounded-full ${ph.done === ph.total ? "bg-[#2d6a4f]" : "bg-primary"}`}
                       style={{ width: `${(ph.done / ph.total) * 100}%` }}
@@ -159,6 +169,17 @@ export function TestersAdmin() {
                           ))}
                       </ul>
                     </div>
+                  )}
+                  {(r.notes["telefoon"] || r.notes["cijfer"]) && (
+                    <p className="text-xs">
+                      {r.notes["telefoon"] ? <>📱 {r.notes["telefoon"]} </> : null}
+                      {r.notes["cijfer"] ? (
+                        <>
+                          · ⭐ blijft de app gebruiken: <b>{r.notes["cijfer"]}/10</b>
+                          {r.notes["waarom"] ? ` (“${r.notes["waarom"]}”)` : ""}
+                        </>
+                      ) : null}
+                    </p>
                   )}
                   {testQuestions(role).map((q) => (
                     <div key={q.id}>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +83,8 @@ function TestListPage() {
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
+  // Young testers have their own test week at /testen.
+  if (role === "jongere") return <Navigate to="/testen" replace />;
   if (isLoading || !uid) return <p className="pt-6 text-sm text-muted-foreground">Laden…</p>;
   if (data && !data.installed)
     return (
