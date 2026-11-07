@@ -85,14 +85,11 @@ export function AppShell() {
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
-          {!isParent && (
-            <>
-              <StreakChip uid={me?.user.id} />
-              <InboxBell />
-              <PetLink uid={me?.user.id} />
-              <ShopLink />
-            </>
-          )}
+          {/* Parents also have a diary and a pet (their own, private), so they keep the streak and the paw. */}
+          <StreakChip uid={me?.user.id} />
+          {!isParent && <InboxBell />}
+          <PetLink uid={me?.user.id} />
+          {!isParent && <ShopLink />}
           <WorkMenu uid={me?.user.id} isAdmin={!!me?.isStaff} adminCount={unread.reports + (me?.isAdmin ? news.unread : 0)} />
         </div>
       </header>

@@ -338,6 +338,8 @@ export function ParentHome({
         <Tile to="/rust" emoji="🫧" title="Rustmoment" sub="2 minuten ademen" />
         {!corner && <Tile to="/dankbaar" emoji="🫙" title="Dankbaar potje" sub="Wat ging er goed?" />}
         {!corner && <Tile to="/stemming" emoji="📅" title="Stemming" sub="Jouw kalender" />}
+        {!corner && <Tile to="/dagboek" emoji="📔" title="Dagboek" sub="Schrijf het van je af" />}
+        {!corner && <Tile to="/diertje" emoji="🐾" title="Je diertje" sub="Verzorg het elke dag" />}
       </div>
 
       {/* Help, folded in */}
