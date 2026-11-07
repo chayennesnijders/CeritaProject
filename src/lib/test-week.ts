@@ -104,7 +104,7 @@ export type TestAnswers = {
 /** The message sent to the admins (max 2000 characters, the limit of admin_messages). */
 export function feedbackMessage(a: TestAnswers, done: number) {
   const lines = [
-    "🧪 Testfeedback",
+    done < TEST_ITEM_COUNT ? "🧪 Testfeedback (tussendoor, nog niet alles afgevinkt)" : "🧪 Testfeedback",
     `Telefoon: ${a.phone || "?"}`,
     `Checklist: ${done} van ${TEST_ITEM_COUNT} gedaan`,
     `Cijfer (blijf je de app gebruiken?): ${a.score ?? "?"}/10${a.why.trim() ? ` · ${a.why.trim()}` : ""}`,
@@ -112,4 +112,9 @@ export function feedbackMessage(a: TestAnswers, done: number) {
   ];
   const text = lines.join("\n");
   return text.length > 2000 ? `${text.slice(0, 1997)}…` : text;
+}
+
+/** Something worth sending: a phone, a score or any written answer (the checklist need not be done). */
+export function hasAnyAnswer(a: TestAnswers): boolean {
+  return !!a.phone || a.score !== null || !!a.why.trim() || Object.values(a.answers).some((v) => v.trim());
 }

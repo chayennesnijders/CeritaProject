@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { celebrate } from "@/lib/celebrate";
-import { TEST_CHECKLIST, TEST_ITEM_COUNT, TEST_QUESTIONS, feedbackMessage } from "@/lib/test-week";
+import { TEST_CHECKLIST, TEST_ITEM_COUNT, TEST_QUESTIONS, feedbackMessage, hasAnyAnswer } from "@/lib/test-week";
 import { Riti } from "@/components/Riti";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -195,11 +195,18 @@ function TestPage() {
       </section>
 
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-soft">
-        <h2 className="text-lg">2. Na een week: jouw mening</h2>
+        <h2 className="text-lg">2. Jouw mening</h2>
+        <p className="-mt-2 text-xs text-muted-foreground">
+          Je mag dit nu al invullen en sturen, ook als je nog niet alles hebt afgevinkt. Later nog iets erbij? Dan stuur
+          je het gewoon nog een keer.
+        </p>
         {sent ? (
-          <p className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
-            Dankjewel! 💗 Je antwoorden zijn verstuurd. Hier maken we de app beter mee.
-          </p>
+          <div className="space-y-2 rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
+            <p>Dankjewel! 💗 Je antwoorden zijn verstuurd. Hier maken we de app beter mee.</p>
+            <button onClick={() => setSent(false)} className="font-semibold underline">
+              Iets aanpassen of toevoegen
+            </button>
+          </div>
         ) : (
           <>
             <div className="space-y-1.5">
@@ -268,11 +275,15 @@ function TestPage() {
               />
             </div>
             <Button
-              disabled={busy || score === null}
+              disabled={busy || !hasAnyAnswer({ phone, score, why, answers })}
               onClick={send}
               className="h-12 w-full rounded-full"
             >
-              {busy ? "Versturen…" : "Verstuur mijn antwoorden 💗"}
+              {busy
+                ? "Versturen…"
+                : count < TEST_ITEM_COUNT
+                  ? "Stuur mijn antwoorden alvast 💗"
+                  : "Verstuur mijn antwoorden 💗"}
             </Button>
           </>
         )}

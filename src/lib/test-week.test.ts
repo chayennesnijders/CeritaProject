@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TEST_CHECKLIST, TEST_ITEM_COUNT, feedbackMessage } from "./test-week";
+import { TEST_CHECKLIST, TEST_ITEM_COUNT, feedbackMessage, hasAnyAnswer } from "./test-week";
 
 describe("test week", () => {
   it("has unique checklist ids", () => {
@@ -20,5 +20,14 @@ describe("test week", () => {
       0,
     );
     expect(long.length).toBeLessThanOrEqual(2000);
+  });
+  it("can be sent before everything is ticked off", () => {
+    const empty = { phone: "", score: null, why: "", answers: {} };
+    expect(hasAnyAnswer(empty)).toBe(false);
+    expect(hasAnyAnswer({ ...empty, answers: { leukst: "  " } })).toBe(false);
+    expect(hasAnyAnswer({ ...empty, answers: { leukst: "de groepen" } })).toBe(true);
+    expect(hasAnyAnswer({ ...empty, score: 7 })).toBe(true);
+    expect(feedbackMessage({ ...empty, score: 7 }, 3)).toMatch(/tussendoor/);
+    expect(feedbackMessage({ ...empty, score: 7 }, TEST_ITEM_COUNT)).not.toMatch(/tussendoor/);
   });
 });
