@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
-import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, OUTFITS, PET_COLORS, isUnlocked, unlocksAt, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
+import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, outfitsFor, colorsFor, unlocksFor, isUnlocked, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
 import { useEffect, useRef } from "react";
 import { PetAvatar, growthStage, STAGE_LABELS } from "@/components/PetAvatar";
 import { PetGames } from "@/components/PetGames";
@@ -101,7 +101,9 @@ function PetPage() {
 
   // Every pet has its own level: points go to the pet you are looking at (pets.active_ref, update 59).
   const viewedXp = activeRef === "main" ? pet?.xp : companions.find((c) => c.id === activeRef)?.xp;
-  useLevelUpToast(pet && viewedXp != null ? levelFor(viewedXp).level : null, activeRef);
+  // Which set of new things this pet has: 0 for the first pet, 1, 2, … for extra pets in order.
+  const slot = activeRef === "main" ? 0 : companions.findIndex((c) => c.id === activeRef) + 1;
+  useLevelUpToast(pet && viewedXp != null ? levelFor(viewedXp).level : null, activeRef, slot);
   // Start on the pet that was chosen last time (also where points from games go).
   const synced = useRef(false);
   useEffect(() => {
@@ -353,7 +355,7 @@ function PetPage() {
         <p className="mt-3 text-xs text-muted-foreground">Elke ochtend om 7:00 begint een nieuw lijstje en komt het popupje vanzelf tevoorschijn. Taken van gisteren die niet af zijn, zijn gewoon weg — zonder straf.</p>
       </div>
       )}
-      {panel === "aankleden" && <Wardrobe level={level} backgroundLevel={mainLevel} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} />}
+      {panel === "aankleden" && <Wardrobe level={level} backgroundLevel={mainLevel} slot={slot} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} />}
       {panel === "spelletjes" && (
         <div className="rounded-3xl bg-card p-5 shadow-soft">
           <p className="font-semibold">Spelletjes</p>
@@ -442,7 +444,7 @@ function Adopt({ uid, onDone, companion = false }: { uid: string; onDone: () => 
   );
 }
 
-function useLevelUpToast(level: number | null, petRef: string) {
+function useLevelUpToast(level: number | null, petRef: string, slot: number) {
   useEffect(() => {
     if (level == null) return;
     // Per pet, so switching to a younger pet is never seen as "going down" or a level-up.
@@ -453,27 +455,32 @@ function useLevelUpToast(level: number | null, petRef: string) {
       const extra = level >= 3 && level % 2 === 1 ? ["🐾 een nieuw diertje"] : [];
       const grew = growthStage(level) > growthStage(prev);
       if (grew) extra.unshift(`🌱 je diertje is gegroeid: nu een ${STAGE_LABELS[growthStage(level)]!.toLowerCase()}`);
-      const items = [...extra, ...unlocksAt(level).map((i) => `${i.emoji} ${i.label}`)].join(", ");
+      const items = [...extra, ...unlocksFor(slot, level).map((i) => `${i.emoji} ${i.label}`)].join(", ");
       celebrate("groot");
       toast.success(`Level ${level}! 🎉`, { description: items ? `Nieuw voor je diertje: ${items}` : "Goed bezig!" });
     }
-  }, [level, petRef]);
+  }, [level, petRef, slot]);
 }
 
-function Wardrobe({ level, backgroundLevel, pet, onChoose }: {
+function Wardrobe({ level, backgroundLevel, slot, pet, onChoose }: {
   level: number;
+  /** Which pet (0 = first): every pet has its own outfits and colours. */
+  slot: number;
   /** The background is shared by all your pets, so it follows your first pet's level. */
   backgroundLevel: number;
   pet: { background: string; outfit: string; color: string };
   onChoose: (field: "background" | "outfit" | "color", id: string) => void;
 }) {
   const [tab, setTab] = useState<"background" | "outfit" | "color">("outfit");
-  const lists: Record<"background" | "outfit" | "color", Unlockable[]> = { background: BACKGROUNDS, outfit: OUTFITS, color: PET_COLORS };
+  const colors = colorsFor(slot);
+  const lists: Record<"background" | "outfit" | "color", Unlockable[]> = { background: BACKGROUNDS, outfit: outfitsFor(slot), color: colors };
   const tabs = [["outfit", "👕 Kleding"], ["color", "🎨 Kleur"], ["background", "🖼️ Achtergrond"]] as const;
   return (
     <div className="rounded-3xl bg-card p-5 shadow-soft">
       <p className="font-semibold">Aankleden</p>
-      <p className="text-xs text-muted-foreground">Bij elk nieuw level komen er dingetjes bij.</p>
+      <p className="text-xs text-muted-foreground">
+        Bij elk nieuw level komen er dingetjes bij.{slot > 0 ? " Dit diertje heeft zijn eigen kleding en kleuren!" : ""}
+      </p>
       <div className="mt-3 flex gap-2">
         {tabs.map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`rounded-full px-3 py-1 text-xs font-semibold ${tab === id ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{label}</button>
@@ -486,12 +493,12 @@ function Wardrobe({ level, backgroundLevel, pet, onChoose }: {
           return (
             <button key={item.id} disabled={!open} onClick={() => onChoose(tab, item.id)}
               className={`rounded-2xl p-3 text-center ${active ? "bg-accent ring-2 ring-primary" : "bg-muted"} ${open ? "" : "opacity-50"}`}>
-              {tab === "color" && open && (item as (typeof PET_COLORS)[number]).body ? (
+              {tab === "color" && open && (item as (typeof colors)[number]).body ? (
                 <span
                   aria-hidden
                   className="mx-auto block size-8 rounded-full border-2 border-white shadow-soft"
                   style={{
-                    background: `radial-gradient(circle at 50% 70%, ${(item as (typeof PET_COLORS)[number]).belly} 0 38%, ${(item as (typeof PET_COLORS)[number]).body} 39%)`,
+                    background: `radial-gradient(circle at 50% 70%, ${(item as (typeof colors)[number]).belly} 0 38%, ${(item as (typeof colors)[number]).body} 39%)`,
                   }}
                 />
               ) : (

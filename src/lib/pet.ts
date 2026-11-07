@@ -107,10 +107,71 @@ export const PET_COLORS: (Unlockable & { body: string | null; belly: string | nu
   { id: "goud", label: "Goud", emoji: "✨", level: 6, body: "#E2B653", belly: "#F8E7B5" },
 ];
 
+/**
+ * Every new pet brings new things: pet 1 (your first) uses OUTFITS and PET_COLORS, pet 2 and pet 3
+ * each have their own outfits and colours, and after that the sets take turns again.
+ */
+type PetColor = Unlockable & { body: string | null; belly: string | null };
+const EIGEN: PetColor = PET_COLORS[0]!;
+const GEEN: Unlockable = OUTFITS[0]!;
+export const OUTFIT_SETS: Unlockable[][] = [
+  OUTFITS,
+  [
+    GEEN,
+    { id: "bloemen", label: "Bloemenkrans", emoji: "🌼", level: 2 },
+    { id: "koptelefoon", label: "Koptelefoon", emoji: "🎧", level: 3 },
+    { id: "cape", label: "Cape", emoji: "🦸", level: 4 },
+    { id: "vlinder", label: "Vlinderdas", emoji: "🦋", level: 5 },
+    { id: "ster", label: "Sterrenspeld", emoji: "⭐", level: 6 },
+  ],
+  [
+    GEEN,
+    { id: "bandana", label: "Bandana", emoji: "🧡", level: 2 },
+    { id: "muts", label: "Muts", emoji: "🧶", level: 3 },
+    { id: "hoed", label: "Hoge hoed", emoji: "🎩", level: 4 },
+    { id: "ketting", label: "Parelketting", emoji: "📿", level: 5 },
+    { id: "tiara", label: "Tiara", emoji: "💎", level: 6 },
+  ],
+];
+export const COLOR_SETS: PetColor[][] = [
+  PET_COLORS,
+  [
+    EIGEN,
+    { id: "perzik", label: "Perzik", emoji: "🍑", level: 1, body: "#F9C4A0", belly: "#FEEADB" },
+    { id: "aqua", label: "Aqua", emoji: "💧", level: 1, body: "#8EDBD9", belly: "#DFF6F5" },
+    { id: "koraal", label: "Koraal", emoji: "🪸", level: 1, body: "#F49A8C", belly: "#FDE2DD" },
+    { id: "bos", label: "Bosgroen", emoji: "🌲", level: 2, body: "#7FB08A", belly: "#D7EBDB" },
+    { id: "bes", label: "Bes", emoji: "🫐", level: 3, body: "#8F7AC9", belly: "#E1DAF3" },
+    { id: "oceaan", label: "Oceaan", emoji: "🌊", level: 4, body: "#4F8FC4", belly: "#CFE3F3" },
+    { id: "zilver", label: "Zilver", emoji: "🪙", level: 6, body: "#C9CED6", belly: "#F1F3F6" },
+  ],
+  [
+    EIGEN,
+    { id: "citroen", label: "Citroen", emoji: "🍋", level: 1, body: "#F5E27A", belly: "#FDF8D8" },
+    { id: "pistache", label: "Pistache", emoji: "🥝", level: 1, body: "#C4DE95", belly: "#EEF6E0" },
+    { id: "poeder", label: "Poederroze", emoji: "🎀", level: 1, body: "#EBC3CF", belly: "#FAEDF1" },
+    { id: "kers", label: "Kers", emoji: "🍒", level: 2, body: "#D9636E", belly: "#F6D3D6" },
+    { id: "turquoise", label: "Turquoise", emoji: "🐚", level: 3, body: "#45B7B0", belly: "#CDEEEB" },
+    { id: "chocolade", label: "Chocolade", emoji: "🍫", level: 4, body: "#8A5A44", belly: "#E2CBBE" },
+    { id: "parel", label: "Parel", emoji: "🫧", level: 6, body: "#EDE6F2", belly: "#FFFFFF" },
+  ],
+];
+
+/** Which set a pet uses: 0 for your first pet, then 1, 2, 0, 1, … for the extra pets in order. */
+export const petSet = (slot: number) => ((slot % OUTFIT_SETS.length) + OUTFIT_SETS.length) % OUTFIT_SETS.length;
+export const outfitsFor = (slot: number) => OUTFIT_SETS[petSet(slot)]!;
+export const colorsFor = (slot: number) => COLOR_SETS[petSet(slot)]!;
+const ALL_COLORS = COLOR_SETS.flat();
+
+/** What a pet unlocks at a level (its own outfits and colours, plus the shared backgrounds and games). */
+export function unlocksFor(slot: number, level: number) {
+  return [...BACKGROUNDS, ...outfitsFor(slot), ...colorsFor(slot), ...PET_GAMES].filter((i) => i.level === level);
+}
+
 export type PetLook = { body: string; belly: string; ear: string };
 /** The species' own look, with the chosen colour on top (ears and paws keep their own colour). */
 export function colouredLook(base: PetLook, colorId: string | null | undefined): PetLook {
-  const c = PET_COLORS.find((x) => x.id === colorId);
+  const c = ALL_COLORS.find((x) => x.id === colorId);
   if (!c || !c.body || !c.belly) return base;
   return { ...base, body: c.body, belly: c.belly };
 }

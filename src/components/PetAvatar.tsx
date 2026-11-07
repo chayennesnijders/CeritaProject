@@ -76,6 +76,7 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
           <ellipse cx="100" cy="190" rx="56" ry="7" fill="#000" opacity=".12" />
           <Ears species={species} l={l} />
           {species === "draak" && <path d="M160 160 Q190 150 186 120 Q178 140 156 146 Z" fill={l.body} />}
+          {outfit === "cape" && (<><path d="M40 78 Q100 58 160 78 L192 190 Q100 206 8 190 Z" fill="#C2334B" /><path d="M8 190 Q100 206 192 190 L188 180 Q100 196 12 180 Z" fill="#F2C744" /></>)}
           <path d="M100 40 C150 40 172 90 170 135 C168 178 140 188 100 188 C60 188 32 178 30 135 C28 90 50 40 100 40 Z" fill={l.body} />
           <ellipse cx="100" cy="148" rx="44" ry="34" fill={l.belly} />
           {species === "panda" && (<><ellipse cx="76" cy={eyeY} rx="15" ry="18" fill="#2B2B2B" /><ellipse cx="124" cy={eyeY} rx="15" ry="18" fill="#2B2B2B" /></>)}
@@ -146,6 +147,16 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
           {outfit === "pet" && (<g><path d="M58 64 Q100 20 142 64 Z" fill="#3B6FD8" /><path d="M120 62 Q160 60 168 72 L124 68 Z" fill="#2A54A8" /><circle cx="100" cy="36" r="4" fill="#2A54A8" /></g>)}
           {outfit === "bril" && (<g><rect x="60" y="84" width="34" height="24" rx="10" fill="#1d1d1d" opacity=".92" /><rect x="106" y="84" width="34" height="24" rx="10" fill="#1d1d1d" opacity=".92" /><path d="M94 94 L106 94" stroke="#1d1d1d" strokeWidth="4" /></g>)}
           {outfit === "sjaal" && (<g><path d="M44 134 Q100 156 156 134 L158 148 Q100 172 42 148 Z" fill="#D94A4A" /><path d="M120 150 L128 182 L142 178 L134 146 Z" fill="#B83A3A" /></g>)}
+          {outfit === "bloemen" && (<g>{[[62, 56, "#F7A8C4"], [80, 44, "#FFD166"], [100, 40, "#F7A8C4"], [120, 44, "#9AD0F5"], [138, 56, "#FFD166"]].map(([x, y, c]) => (
+            <g key={`${x}`}><circle cx={x as number} cy={y as number} r="8" fill={c as string} /><circle cx={x as number} cy={y as number} r="3" fill="#fff" /></g>))}</g>)}
+          {outfit === "koptelefoon" && (<g><path d="M42 96 Q42 30 100 30 Q158 30 158 96" stroke="#3B3B4F" strokeWidth="8" fill="none" /><rect x="30" y="86" width="20" height="34" rx="8" fill="#E36F8C" /><rect x="150" y="86" width="20" height="34" rx="8" fill="#E36F8C" /></g>)}
+          {outfit === "vlinder" && (<g transform="translate(100 146)"><path d="M0 0 L-20 -12 Q-26 0 -20 12 Z M0 0 L20 -12 Q26 0 20 12 Z" fill="#7A6FF0" /><circle r="5" fill="#5A4FD0" /></g>)}
+          {outfit === "ster" && (<path d="M132 44 L136 54 L147 55 L139 62 L141 73 L132 67 L123 73 L125 62 L117 55 L128 54 Z" fill="#F2C744" stroke="#D9A920" strokeWidth="1.5" />)}
+          {outfit === "bandana" && (<g><path d="M48 132 Q100 150 152 132 L100 170 Z" fill="#F08A3C" /><circle cx="86" cy="146" r="3" fill="#fff" /><circle cx="110" cy="150" r="3" fill="#fff" /><circle cx="100" cy="160" r="2.5" fill="#fff" /></g>)}
+          {outfit === "muts" && (<g><path d="M52 66 Q100 4 148 66 Z" fill="#5BA4D9" /><rect x="50" y="60" width="100" height="14" rx="7" fill="#3E86BD" /><circle cx="100" cy="22" r="10" fill="#fff" /></g>)}
+          {outfit === "hoed" && (<g><rect x="70" y="10" width="60" height="42" rx="4" fill="#2B2B3A" /><rect x="56" y="48" width="88" height="10" rx="5" fill="#2B2B3A" /><rect x="70" y="38" width="60" height="7" fill="#E36F8C" /></g>)}
+          {outfit === "ketting" && (<g>{Array.from({ length: 9 }, (_, i) => { const t = (i / 8) * Math.PI; return <circle key={i} cx={100 - Math.cos(t) * 46} cy={134 + Math.sin(t) * 14} r="4.5" fill="#FBF7F0" stroke="#D9CFC0" strokeWidth="1" />; })}</g>)}
+          {outfit === "tiara" && (<g><path d="M66 54 Q100 36 134 54 L130 42 L118 48 L110 28 L100 44 L90 28 L82 48 L70 42 Z" fill="#F7D774" stroke="#C99A1E" strokeWidth="2" /><circle cx="100" cy="40" r="4.5" fill="#E36F8C" /><circle cx="84" cy="46" r="3" fill="#8FD3F5" /><circle cx="116" cy="46" r="3" fill="#8FD3F5" /></g>)}
           {outfit === "kroon" && (<path d="M72 50 L76 22 L90 38 L100 16 L110 38 L124 22 L128 50 Z" fill="#F2C744" stroke="#D9A920" strokeWidth="2" />)}
         </svg>
       </div>

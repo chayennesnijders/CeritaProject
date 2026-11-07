@@ -128,6 +128,64 @@ export function ParentHome({
   const q = questions[question % questions.length]!;
 
   const pct = Math.round((progress.done / progress.total) * 100);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const goTo = (id: string, then?: () => void) => {
+    then?.();
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
+  const gridTiles: GridTile[] = [
+    {
+      label: "Voor jezelf",
+      emoji: done("zelf") ? "✅" : "🌿",
+      status: done("zelf") ? "Gedaan!" : "Opdracht van vandaag",
+      tint: "bg-[#e3f1e8] dark:bg-[#1f3a2c]",
+      attention: !done("zelf"),
+      onClick: () => goTo("vandaag", () => setTab("zelf")),
+    },
+    {
+      label: "Voor je kind",
+      emoji: done("kind") ? "✅" : "💛",
+      status: done("kind") ? "Gedaan!" : "Tip van vandaag",
+      tint: "bg-[#fdf3d6] dark:bg-[#3d3420]",
+      attention: !done("kind"),
+      onClick: () => goTo("vandaag", () => setTab("kind")),
+    },
+    { label: "Vraag", emoji: "💬", status: "Om aan je kind te stellen", tint: "bg-[#fde4ea] dark:bg-[#4a2c35]", onClick: () => goTo("vraag") },
+    ...(corner
+      ? []
+      : [
+          {
+            label: "Je gevoel",
+            emoji: mood ? mood.emoji : "🙂",
+            status: mood ? "Ingevuld" : "Hoe gaat het?",
+            tint: "bg-[#ece6fb] dark:bg-[#2f2747]",
+            attention: !mood,
+            onClick: () => goTo("gevoel"),
+          } satisfies GridTile,
+          { label: "Dagboek", emoji: "📔", status: "Alleen voor jou", tint: "bg-[#f6ead9] dark:bg-[#3a2d26]", to: "/dagboek" } satisfies GridTile,
+          { label: "Diertje", emoji: "🐾", status: "Verzorg het", tint: "bg-[#fde4ea] dark:bg-[#4a2c35]", to: "/diertje" } satisfies GridTile,
+        ]),
+    {
+      label: "Handleiding",
+      emoji: checkIn ? "💬" : "📘",
+      status: checkIn ? "Hoe ging je plan?" : next?.status === "verder" ? `Verder (${next.pct}%)` : `${GUIDES.length} trainingen`,
+      tint: "bg-[#e6eefb] dark:bg-[#22304a]",
+      attention: !!checkIn,
+      to: "/handleidingen",
+    },
+    { label: "Rust", emoji: "🫧", status: "2 minuten ademen", tint: "bg-[#e6eefb] dark:bg-[#22304a]", to: "/rust" },
+    {
+      label: "Hulp",
+      emoji: "📞",
+      status: "Bel met één tik",
+      tint: "bg-[#fde4e4] dark:bg-[#4a2626]",
+      onClick: () => goTo("hulp", () => setHelpOpen(true)),
+    },
+  ];
+  const tileCls =
+    "group relative flex flex-col items-center rounded-3xl px-1.5 py-3 text-center shadow-soft transition-transform active:scale-95";
+  const chipCls =
+    "shrink-0 rounded-full bg-card px-3.5 py-2 text-sm font-semibold shadow-soft transition-transform active:scale-95";
   const guideLink: string = checkIn || !next ? "/handleidingen" : `/handleidingen/${next.guide.slug}`;
 
   return (
@@ -180,6 +238,24 @@ export function ParentHome({
         </div>
       </section>
 
+      {/* Everything you can do, at a glance. Tiles for today's parts scroll down to them. */}
+      <section className="space-y-2">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Wat kun je doen?</h2>
+        <div className="grid grid-cols-3 gap-2.5">
+          {gridTiles.map((t) =>
+            t.to ? (
+              <Link key={t.label} to={t.to} className={`${tileCls} ${t.tint}`}>
+                <GridTileBody t={t} />
+              </Link>
+            ) : (
+              <button key={t.label} onClick={t.onClick} className={`${tileCls} ${t.tint}`}>
+                <GridTileBody t={t} />
+              </button>
+            ),
+          )}
+        </div>
+      </section>
+
       {/* Ask once for the age of the child(ren), so tips fit */}
       {ages?.installed && (!ages.set || editAges) && (
         <section className="space-y-3 rounded-3xl border-2 border-primary bg-card p-5 shadow-soft">
@@ -203,7 +279,7 @@ export function ParentHome({
       <TesterCard uid={uid} />
 
       {/* Assignment for yourself and tip for your child, one at a time */}
-      <section className="overflow-hidden rounded-3xl bg-card shadow-soft">
+      <section id="vandaag" className="scroll-mt-20 overflow-hidden rounded-3xl bg-card shadow-soft">
         <div className="grid grid-cols-2 gap-1 bg-muted p-1" role="tablist">
           {(["zelf", "kind"] as const).map((k) => (
             <button
@@ -248,7 +324,7 @@ export function ParentHome({
       </section>
 
       {/* A question to ask your child */}
-      <section className="space-y-3 rounded-3xl bg-secondary p-5 text-secondary-foreground shadow-soft">
+      <section id="vraag" className="scroll-mt-20 space-y-3 rounded-3xl bg-secondary p-5 text-secondary-foreground shadow-soft">
         <p className="text-[11px] font-bold uppercase tracking-wider">
           {q.together ? "🧸 Samen doen" : "💬 Vraag het je kind eens"}
           {q.band && bands.length > 1 ? ` · ${bandInfo(q.band).label}` : ""}
@@ -273,7 +349,7 @@ export function ParentHome({
 
       {/* Your mood */}
       {!corner && (
-        <section className="rounded-3xl bg-card p-4 shadow-soft">
+        <section id="gevoel" className="scroll-mt-20 rounded-3xl bg-card p-4 shadow-soft">
           <div className="flex items-center gap-2">
             <Riti size={56} expression={mood ? "blij" : "neutraal"} />
             <div className="min-w-0 flex-1">
@@ -332,18 +408,25 @@ export function ParentHome({
         </Link>
       )}
 
-      {/* Quick links */}
-      <div className="grid grid-cols-2 gap-3">
-        <Tile to="/handleidingen" emoji="📘" title="Handleidingen" sub={`${GUIDES.length} trainingen`} />
-        <Tile to="/rust" emoji="🫧" title="Rustmoment" sub="2 minuten ademen" />
-        {!corner && <Tile to="/dankbaar" emoji="🫙" title="Dankbaar potje" sub="Wat ging er goed?" />}
-        {!corner && <Tile to="/stemming" emoji="📅" title="Stemming" sub="Jouw kalender" />}
-        {!corner && <Tile to="/dagboek" emoji="📔" title="Dagboek" sub="Schrijf het van je af" />}
-        {!corner && <Tile to="/diertje" emoji="🐾" title="Je diertje" sub="Verzorg het elke dag" />}
-      </div>
+      {/* The rest, small */}
+      {!corner && (
+        <section className="space-y-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Ook voor jou</h2>
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            <Link to="/dankbaar" className={chipCls}>🫙 Dankbaar potje</Link>
+            <Link to="/stemming" className={chipCls}>📅 Mijn stemmingen</Link>
+            <Link to="/brieven" className={chipCls}>💌 Brief aan jezelf</Link>
+          </div>
+        </section>
+      )}
 
       {/* Help, folded in */}
-      <details className="group rounded-3xl bg-card p-4 shadow-soft">
+      <details
+        id="hulp"
+        open={helpOpen}
+        onToggle={(e) => setHelpOpen(e.currentTarget.open)}
+        className="group scroll-mt-20 rounded-3xl bg-card p-4 shadow-soft"
+      >
         <summary className="flex cursor-pointer list-none items-center gap-3">
           <span className="text-2xl">📞</span>
           <span className="flex-1">
@@ -384,12 +467,23 @@ function Chip({ on, label }: { on: boolean; label: string }) {
   );
 }
 
-function Tile({ to, emoji, title, sub }: { to: string; emoji: string; title: string; sub: string }) {
+type GridTile = {
+  label: string;
+  emoji: string;
+  status: string;
+  tint: string;
+  attention?: boolean;
+  to?: string;
+  onClick?: () => void;
+};
+
+function GridTileBody({ t }: { t: GridTile }) {
   return (
-    <Link to={to} className="rounded-3xl bg-card p-4 text-center shadow-soft transition-transform active:scale-95">
-      <span className="block text-2xl">{emoji}</span>
-      <span className="block text-sm font-semibold">{title}</span>
-      <span className="block text-[11px] text-muted-foreground">{sub}</span>
-    </Link>
+    <>
+      {t.attention && <span aria-hidden className="absolute right-2 top-2 size-2.5 rounded-full bg-primary ring-2 ring-background" />}
+      <span className="text-3xl transition-transform group-hover:-rotate-6 group-hover:scale-110">{t.emoji}</span>
+      <span className="mt-1 w-full truncate text-sm font-semibold">{t.label}</span>
+      <span className="w-full truncate text-[11px] leading-tight text-muted-foreground">{t.status}</span>
+    </>
   );
 }

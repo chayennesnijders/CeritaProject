@@ -7,6 +7,20 @@ const URL_TO_SHARE = "https://app.ceritaproject.nl";
 const TEXT =
   "Ik zit op CeritaProject, een app waar jongeren met elkaar praten over hoe het écht gaat. Je komt in groepen met leeftijdsgenoten, en het is gratis. Doe je mee?";
 
+/** Share the invitation (the phone's share sheet, or copy when there is none). */
+export async function shareInvite() {
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: "CeritaProject", text: TEXT, url: URL_TO_SHARE });
+      return;
+    }
+    await navigator.clipboard.writeText(`${TEXT} ${URL_TO_SHARE}`);
+    toast.success("Gekopieerd! Plak het in een appje naar je vriend(in).");
+  } catch {
+    /* sharing cancelled */
+  }
+}
+
 /** Testers asked for "more people": a friendly way to invite a friend (they join their own age group). */
 export function InviteFriendCard() {
   const [hidden, setHidden] = useState(true);
@@ -27,18 +41,7 @@ export function InviteFriendCard() {
     }
     setHidden(true);
   };
-  async function share() {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "CeritaProject", text: TEXT, url: URL_TO_SHARE });
-        return;
-      }
-      await navigator.clipboard.writeText(`${TEXT} ${URL_TO_SHARE}`);
-      toast.success("Gekopieerd! Plak het in een appje naar je vriend(in).");
-    } catch {
-      /* sharing cancelled */
-    }
-  }
+  const share = shareInvite;
 
   return (
     <section className="flex items-center gap-3 rounded-3xl bg-secondary p-4 text-secondary-foreground shadow-soft">

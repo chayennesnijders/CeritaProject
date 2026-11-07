@@ -12,7 +12,7 @@ describe("virtueel diertje", () => {
   });
 });
 
-import { BACKGROUNDS, OUTFITS, PET_COLORS, PET_SPECIES, colouredLook, isUnlocked, unlocksAt } from "./pet";
+import { BACKGROUNDS, OUTFITS, PET_COLORS, PET_SPECIES, colorsFor, colouredLook, isUnlocked, outfitsFor, unlocksAt, unlocksFor } from "./pet";
 describe("upgrades", () => {
   it("level 1 heeft alleen de basis", () => {
     const all = [...BACKGROUNDS, ...OUTFITS].filter((i) => isUnlocked(i, 1)).map((i) => i.id);
@@ -72,5 +72,25 @@ describe("pet colours and species", () => {
     expect(PET_COLORS.filter((c) => c.level === 1)).toHaveLength(4);
     expect(new Set(PET_COLORS.map((c) => c.id)).size).toBe(PET_COLORS.length);
     expect(PET_SPECIES.map((s) => s.id)).toEqual(expect.arrayContaining(["vos", "muis", "hamster", "eenhoorn"]));
+  });
+});
+
+describe("new things with every new pet", () => {
+  it("gives the second and third pet their own outfits and colours, then takes turns", () => {
+    const ids = (l: { id: string }[]) => l.map((i) => i.id).filter((id) => id !== "geen" && id !== "eigen");
+    const a = ids(outfitsFor(0));
+    const b = ids(outfitsFor(1));
+    const c = ids(outfitsFor(2));
+    expect(b.some((id) => a.includes(id))).toBe(false);
+    expect(c.some((id) => a.includes(id) || b.includes(id))).toBe(false);
+    expect(ids(colorsFor(1)).some((id) => ids(colorsFor(0)).includes(id))).toBe(false);
+    expect(outfitsFor(3)).toBe(outfitsFor(0));
+    expect(unlocksFor(1, 3).map((i) => i.id)).toEqual(expect.arrayContaining(["koptelefoon", "bes"]));
+    expect(unlocksFor(0, 2).map((i) => i.id)).toEqual(unlocksAt(2).map((i) => i.id));
+  });
+  it("colours from any set still colour the pet", () => {
+    const base = { body: "#111111", belly: "#222222", ear: "#333333" };
+    expect(colouredLook(base, "aqua").body).not.toBe(base.body);
+    expect(colouredLook(base, "kers").body).not.toBe(base.body);
   });
 });
