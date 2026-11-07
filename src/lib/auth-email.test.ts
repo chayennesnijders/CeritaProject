@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mailsFor, verifyHook, verifyUrl, type HookPayload } from "./auth-email.server";
+import { appConfirmUrl, mailsFor, verifyHook, verifyUrl, type HookPayload } from "./auth-email.server";
 
 const secretBytes = new TextEncoder().encode("super-geheim-testsleutel-123456");
 const secret = `v1,whsec_${btoa(String.fromCharCode(...secretBytes))}`;
@@ -89,6 +89,12 @@ describe("mailsFor", () => {
       "https://app.test",
     );
     expect(mails.map((m) => m.to)).toEqual(["nieuw@example.test", "oud@example.test"]);
+  });
+
+  it("links to our own confirm page, so mail scanners cannot use up the code", () => {
+    expect(appConfirmUrl("https://app.test/", "abc", "recovery")).toBe("https://app.test/bevestig?token_hash=abc&type=recovery");
+    const [mail] = mailsFor(base("recovery"), "https://x.supabase.co", "https://app.test");
+    expect(JSON.stringify(mail?.element.props)).toContain("https://app.test/bevestig?token_hash=hash&type=recovery");
   });
 
   it("ignores unknown types", () => {

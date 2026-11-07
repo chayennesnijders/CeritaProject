@@ -1,4 +1,6 @@
-type Look = { body: string; belly: string; ear: string };
+import { colouredLook, type PetLook } from "@/lib/pet";
+
+type Look = PetLook;
 const LOOKS: Record<string, Look> = {
   kat: { body: "#E8A87C", belly: "#FBE3D0", ear: "#F4B6C2" },
   hond: { body: "#A9744F", belly: "#F1DCC4", ear: "#6B4226" },
@@ -6,6 +8,10 @@ const LOOKS: Record<string, Look> = {
   draak: { body: "#8CCB9B", belly: "#E6F5DA", ear: "#5E9E6E" },
   beer: { body: "#8B5E3C", belly: "#D9B48F", ear: "#5C3A21" },
   panda: { body: "#FAFAFA", belly: "#FFFFFF", ear: "#2B2B2B" },
+  vos: { body: "#E8833A", belly: "#FFF4EA", ear: "#3B2A20" },
+  muis: { body: "#B9B4C2", belly: "#EDEAF2", ear: "#F4B6C2" },
+  hamster: { body: "#E9B26B", belly: "#FFF3DE", ear: "#F4B6C2" },
+  eenhoorn: { body: "#FAF6FF", belly: "#FFFFFF", ear: "#F4B6C2" },
 };
 
 function Ears({ species, l }: { species: string; l: Look }) {
@@ -23,6 +29,18 @@ function Ears({ species, l }: { species: string; l: Look }) {
     case "draak":
       return (<><path d="M70 50 L78 20 L90 46 Z" fill={l.ear} /><path d="M130 50 L122 20 L110 46 Z" fill={l.ear} />
         <path d="M94 40 L100 22 L106 40 Z" fill={l.ear} /></>);
+    case "vos":
+      return (<><path d="M44 70 L54 14 L88 48 Z" fill={l.body} /><path d="M54 56 L58 28 L76 48 Z" fill={l.ear} />
+        <path d="M156 70 L146 14 L112 48 Z" fill={l.body} /><path d="M146 56 L142 28 L124 48 Z" fill={l.ear} /></>);
+    case "muis":
+      return (<><circle cx="50" cy="52" r="30" fill={l.body} /><circle cx="50" cy="52" r="19" fill={l.ear} />
+        <circle cx="150" cy="52" r="30" fill={l.body} /><circle cx="150" cy="52" r="19" fill={l.ear} /></>);
+    case "hamster":
+      return (<><circle cx="62" cy="50" r="13" fill={l.body} /><circle cx="62" cy="50" r="7" fill={l.ear} />
+        <circle cx="138" cy="50" r="13" fill={l.body} /><circle cx="138" cy="50" r="7" fill={l.ear} /></>);
+    case "eenhoorn":
+      return (<><path d="M60 58 L66 30 L82 50 Z" fill={l.body} /><path d="M65 52 L68 38 L76 50 Z" fill={l.ear} />
+        <path d="M140 58 L134 30 L118 50 Z" fill={l.body} /><path d="M135 52 L132 38 L124 50 Z" fill={l.ear} /></>);
     default:
       return (<><circle cx="58" cy="52" r="20" fill={l.ear} /><circle cx="142" cy="52" r="20" fill={l.ear} /></>);
   }
@@ -38,10 +56,12 @@ export function growthStage(level: number): 1 | 2 | 3 | 4 {
 }
 export const STAGE_LABELS = ["", "Baby", "Kind", "Tiener", "Volwassen"] as const;
 
-export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", level = 1 }: {
+export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", level = 1, color = "eigen" }: {
   outfit?: string; species: string; mood: "slaap" | "blij" | "super"; jumping: boolean; onTap: () => void; level?: number;
+  /** A colour from PET_COLORS; "eigen" keeps the species' own colour. */
+  color?: string | null;
 }) {
-  const l: Look = LOOKS[species] ?? LOOKS["kat"]!;
+  const l: Look = colouredLook(LOOKS[species] ?? LOOKS["kat"]!, color);
   const sleeping = mood === "slaap";
   const eyeY = 96;
   const stage = growthStage(level);
@@ -91,9 +111,29 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
             <path d="M36 120 Q-4 96 10 56 Q34 84 52 96 Z" fill={l.ear} opacity=".9" />
             <path d="M164 120 Q204 96 190 56 Q166 84 148 96 Z" fill={l.ear} opacity=".9" />
           </>)}
+          {stage >= 3 && species === "vos" && (<>
+            <path d="M162 156 Q198 140 188 100 Q180 128 158 140 Z" fill={l.body} />
+            <path d="M188 100 Q184 116 176 124 Q190 116 188 100 Z" fill="#FFFFFF" />
+          </>)}
+          {stage >= 3 && species === "muis" && (
+            <path d="M162 168 Q196 168 190 136" stroke={l.ear} strokeWidth="5" fill="none" strokeLinecap="round" />
+          )}
+          {(species === "muis" || species === "vos") && stage >= 3 && (
+            <path d="M54 110 L28 104 M54 118 L26 120 M146 110 L172 104 M146 118 L174 120" stroke="#2B1A12" strokeWidth="2.5" strokeLinecap="round" />
+          )}
+          {species === "eenhoorn" && (<>
+            <path d="M92 44 L100 4 L108 44 Z" fill="#F2C744" stroke="#D9A920" strokeWidth="2" />
+            <path d="M95 34 L105 30 M94 24 L104 20" stroke="#D9A920" strokeWidth="2" />
+            <path d="M112 42 Q140 40 150 64 Q132 54 120 58 Q136 66 140 84 Q122 70 110 66 Z" fill="#E7A6E0" />
+          </>)}
+          {species === "hamster" && (<>
+            <ellipse cx="54" cy="122" rx="18" ry="13" fill={l.belly} />
+            <ellipse cx="146" cy="122" rx="18" ry="13" fill={l.belly} />
+          </>)}
           <ellipse cx="60" cy="118" rx="10" ry="6" fill="#F49AB0" opacity=".6" />
           <ellipse cx="140" cy="118" rx="10" ry="6" fill="#F49AB0" opacity=".6" />
-          {(species === "hond" || species === "beer" || species === "panda") && <ellipse cx="100" cy="112" rx="8" ry="6" fill="#2B1A12" />}
+          {(species === "hond" || species === "beer" || species === "panda" || species === "vos") && <ellipse cx="100" cy="112" rx="8" ry="6" fill="#2B1A12" />}
+          {(species === "muis" || species === "hamster" || species === "eenhoorn") && <ellipse cx="100" cy="112" rx="6" ry="4.5" fill="#E36F8C" />}
           {species === "kat" && <path d="M95 110 L105 110 L100 116 Z" fill="#E36F8C" />}
           {sleeping ? (
             <circle cx="100" cy="126" r="4" fill="#2B1A12" />

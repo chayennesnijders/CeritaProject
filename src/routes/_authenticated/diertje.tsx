@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
-import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, OUTFITS, isUnlocked, unlocksAt, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
+import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, OUTFITS, PET_COLORS, isUnlocked, unlocksAt, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
 import { useEffect, useRef } from "react";
 import { PetAvatar, growthStage, STAGE_LABELS } from "@/components/PetAvatar";
 import { PetGames } from "@/components/PetGames";
@@ -133,9 +133,11 @@ function PetPage() {
   ];
 
   const bg = BACKGROUNDS.find((b) => b.id === pet.background) ?? BACKGROUNDS[0]!;
-  async function choose(field: "background" | "outfit", id: string) {
-    if (field === "outfit" && companion) await supabase.from("companions").update({ outfit: id }).eq("id", companion.id);
-    else await supabase.from("pets").update({ [field]: id } as { background?: string; outfit?: string }).eq("user_id", uid!);
+  async function choose(field: "background" | "outfit" | "color", id: string) {
+    // Outfit and colour belong to the pet you are looking at (also an extra pet); the background is shared.
+    if (field !== "background" && companion)
+      await supabase.from("companions").update({ [field]: id } as { outfit?: string; color?: string }).eq("id", companion.id);
+    else await supabase.from("pets").update({ [field]: id } as { background?: string; outfit?: string; color?: string }).eq("user_id", uid!);
     burst("✨"); refresh();
   }
 
@@ -225,7 +227,7 @@ function PetPage() {
 
         {/* relative z-10: the scene (clouds, fence) is absolutely positioned and would otherwise cover the ears. */}
         <div className="relative z-10" onPointerDown={startHug} onPointerUp={endHug} onPointerLeave={endHug} onPointerCancel={endHug}>
-          <PetAvatar outfit={active.outfit} species={active.species} mood={mood} jumping={jumping} onTap={() => burst("💕")} level={level} />
+          <PetAvatar outfit={active.outfit} color={active.color} species={active.species} mood={mood} jumping={jumping} onTap={() => burst("💕")} level={level} />
         </div>
         {ball > 0 && <span key={ball} className="pet-ball pointer-events-none absolute bottom-24 left-0 text-4xl">🎾</span>}
         {fx.map((f) => (
@@ -329,7 +331,7 @@ function PetPage() {
         <p className="mt-3 text-xs text-muted-foreground">Elke ochtend om 7:00 begint een nieuw lijstje en komt het popupje vanzelf tevoorschijn. Taken van gisteren die niet af zijn, zijn gewoon weg — zonder straf.</p>
       </div>
       )}
-      {panel === "aankleden" && <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit }} onChoose={choose} />}
+      {panel === "aankleden" && <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} />}
       {panel === "spelletjes" && (
         <div className="rounded-3xl bg-card p-5 shadow-soft">
           <p className="font-semibold">Spelletjes</p>
@@ -437,12 +439,12 @@ function useLevelUpToast(level: number | null) {
 
 function Wardrobe({ level, pet, onChoose }: {
   level: number;
-  pet: { background: string; outfit: string };
-  onChoose: (field: "background" | "outfit", id: string) => void;
+  pet: { background: string; outfit: string; color: string };
+  onChoose: (field: "background" | "outfit" | "color", id: string) => void;
 }) {
-  const [tab, setTab] = useState<"background" | "outfit">("outfit");
-  const lists: Record<"background" | "outfit", Unlockable[]> = { background: BACKGROUNDS, outfit: OUTFITS };
-  const tabs = [["outfit", "👕 Kleding"], ["background", "🖼️ Achtergrond"]] as const;
+  const [tab, setTab] = useState<"background" | "outfit" | "color">("outfit");
+  const lists: Record<"background" | "outfit" | "color", Unlockable[]> = { background: BACKGROUNDS, outfit: OUTFITS, color: PET_COLORS };
+  const tabs = [["outfit", "👕 Kleding"], ["color", "🎨 Kleur"], ["background", "🖼️ Achtergrond"]] as const;
   return (
     <div className="rounded-3xl bg-card p-5 shadow-soft">
       <p className="font-semibold">Aankleden</p>
@@ -459,7 +461,17 @@ function Wardrobe({ level, pet, onChoose }: {
           return (
             <button key={item.id} disabled={!open} onClick={() => onChoose(tab, item.id)}
               className={`rounded-2xl p-3 text-center ${active ? "bg-accent ring-2 ring-primary" : "bg-muted"} ${open ? "" : "opacity-50"}`}>
-              <p className="text-2xl">{open ? item.emoji : "🔒"}</p>
+              {tab === "color" && open && (item as (typeof PET_COLORS)[number]).body ? (
+                <span
+                  aria-hidden
+                  className="mx-auto block size-8 rounded-full border-2 border-white shadow-soft"
+                  style={{
+                    background: `radial-gradient(circle at 50% 70%, ${(item as (typeof PET_COLORS)[number]).belly} 0 38%, ${(item as (typeof PET_COLORS)[number]).body} 39%)`,
+                  }}
+                />
+              ) : (
+                <p className="text-2xl">{open ? item.emoji : "🔒"}</p>
+              )}
               <p className="text-xs">{open ? item.label : `Level ${item.level}`}</p>
             </button>
           );

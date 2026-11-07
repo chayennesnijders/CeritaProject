@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AccountVerwijderenRouteImport } from './routes/account-verwijderen'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BevestigRouteImport } from './routes/bevestig'
 import { Route as ContactOnsRouteImport } from './routes/contact-ons'
 import { Route as HuisregelsRouteImport } from './routes/huisregels'
 import { Route as HulpRouteImport } from './routes/hulp'
@@ -86,6 +87,11 @@ const AccountVerwijderenRoute = AccountVerwijderenRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BevestigRoute = BevestigRouteImport.update({
+  id: '/bevestig',
+  path: '/bevestig',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactOnsRoute = ContactOnsRouteImport.update({
@@ -386,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account-verwijderen': typeof AccountVerwijderenRoute
   '/auth': typeof AuthRoute
+  '/bevestig': typeof BevestigRoute
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
@@ -446,6 +453,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-verwijderen': typeof AccountVerwijderenRoute
   '/auth': typeof AuthRoute
+  '/bevestig': typeof BevestigRoute
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
@@ -508,6 +516,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/account-verwijderen': typeof AccountVerwijderenRoute
   '/auth': typeof AuthRoute
+  '/bevestig': typeof BevestigRoute
   '/contact-ons': typeof ContactOnsRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
@@ -570,6 +579,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account-verwijderen'
     | '/auth'
+    | '/bevestig'
     | '/contact-ons'
     | '/huisregels'
     | '/hulp'
@@ -630,6 +640,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account-verwijderen'
     | '/auth'
+    | '/bevestig'
     | '/contact-ons'
     | '/huisregels'
     | '/hulp'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/account-verwijderen'
     | '/auth'
+    | '/bevestig'
     | '/contact-ons'
     | '/huisregels'
     | '/hulp'
@@ -753,6 +765,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AccountVerwijderenRoute: typeof AccountVerwijderenRoute
   AuthRoute: typeof AuthRoute
+  BevestigRoute: typeof BevestigRoute
   ContactOnsRoute: typeof ContactOnsRoute
   HuisregelsRoute: typeof HuisregelsRoute
   HulpRoute: typeof HulpRoute
@@ -800,6 +813,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bevestig': {
+      id: '/bevestig'
+      path: '/bevestig'
+      fullPath: '/bevestig'
+      preLoaderRoute: typeof BevestigRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact-ons': {
@@ -1280,6 +1300,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AccountVerwijderenRoute: AccountVerwijderenRoute,
   AuthRoute: AuthRoute,
+  BevestigRoute: BevestigRoute,
   ContactOnsRoute: ContactOnsRoute,
   HuisregelsRoute: HuisregelsRoute,
   HulpRoute: HulpRoute,

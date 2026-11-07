@@ -12,14 +12,14 @@ describe("virtueel diertje", () => {
   });
 });
 
-import { BACKGROUNDS, OUTFITS, isUnlocked, unlocksAt } from "./pet";
+import { BACKGROUNDS, OUTFITS, PET_COLORS, PET_SPECIES, colouredLook, isUnlocked, unlocksAt } from "./pet";
 describe("upgrades", () => {
   it("level 1 heeft alleen de basis", () => {
     const all = [...BACKGROUNDS, ...OUTFITS].filter((i) => isUnlocked(i, 1)).map((i) => i.id);
     expect(all).toEqual(["kamer", "geen"]);
   });
   it("bij level 2 komen er dingen bij", () => {
-    expect(unlocksAt(2).map((i) => i.id)).toEqual(["tuin", "strik", "memory"]);
+    expect(unlocksAt(2).map((i) => i.id)).toEqual(["tuin", "strik", "mint", "memory"]);
   });
 });
 
@@ -55,5 +55,22 @@ d2("dagelijkse refresh om 07:00", () => {
     e2(todoPopupKey("main", "2026-10-15")).toBe("cerita-todo-popup-main-2026-10-15");
     e2(todoPopupKey("main", "2026-10-15")).not.toBe(todoPopupKey("main", "2026-10-16"));
     e2(todoPopupKey("main", "2026-10-15")).not.toBe(todoPopupKey("abc-123", "2026-10-15"));
+  });
+});
+
+describe("pet colours and species", () => {
+  it("keeps the species' look for 'eigen' and colours body and belly otherwise", () => {
+    const base = { body: "#111111", belly: "#222222", ear: "#333333" };
+    expect(colouredLook(base, "eigen")).toEqual(base);
+    expect(colouredLook(base, undefined)).toEqual(base);
+    expect(colouredLook(base, "onbekend")).toEqual(base);
+    const pink = colouredLook(base, "roze");
+    expect(pink.ear).toBe("#333333");
+    expect(pink.body).not.toBe(base.body);
+  });
+  it("has four free colours and unique ids, and the new species", () => {
+    expect(PET_COLORS.filter((c) => c.level === 1)).toHaveLength(4);
+    expect(new Set(PET_COLORS.map((c) => c.id)).size).toBe(PET_COLORS.length);
+    expect(PET_SPECIES.map((s) => s.id)).toEqual(expect.arrayContaining(["vos", "muis", "hamster", "eenhoorn"]));
   });
 });

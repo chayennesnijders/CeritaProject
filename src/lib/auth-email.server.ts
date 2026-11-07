@@ -63,13 +63,25 @@ export function verifyUrl(
   return `${supabaseUrl.replace(/\/+$/, "")}/auth/v1/verify?${q}`;
 }
 
+/**
+ * The link in our emails: first our own page (/bevestig), which uses the one-time code only when the
+ * member taps the button. Mail apps that open links to check them (Outlook, Hotmail, some Gmail)
+ * would otherwise use the code up, so the link "did nothing" for the member.
+ */
+export function appConfirmUrl(siteUrl: string, tokenHash: string, type: string) {
+  const q = new URLSearchParams({ token_hash: tokenHash, type });
+  return `${siteUrl.replace(/\/+$/, "")}/bevestig?${q}`;
+}
+
 type Mail = { to: string; subject: string; element: React.ReactElement };
 
 /** Turns one hook call into the emails to send (email_change can mean two: old and new address). */
 export function mailsFor(p: HookPayload, supabaseUrl: string, siteUrl: string): Mail[] {
   const d = p.email_data;
   const type = d.email_action_type;
-  const url = (hash: string) => verifyUrl(supabaseUrl, hash, type, d.redirect_to || siteUrl);
+  // supabaseUrl stays part of the signature (verifyUrl is kept for direct Supabase links).
+  void supabaseUrl;
+  const url = (hash: string) => appConfirmUrl(siteUrl, hash, type);
   switch (type) {
     case "signup":
       return [

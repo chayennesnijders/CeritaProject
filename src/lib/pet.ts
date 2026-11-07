@@ -7,6 +7,10 @@ export const PET_SPECIES = [
   { id: "draak", emoji: "🐲", label: "Draakje" },
   { id: "beer", emoji: "🐻", label: "Beertje" },
   { id: "panda", emoji: "🐼", label: "Panda" },
+  { id: "vos", emoji: "🦊", label: "Vosje" },
+  { id: "muis", emoji: "🐭", label: "Muisje" },
+  { id: "hamster", emoji: "🐹", label: "Hamster" },
+  { id: "eenhoorn", emoji: "🦄", label: "Eenhoorn" },
 ] as const;
 
 export const CARE_ACTIONS = [
@@ -91,11 +95,31 @@ export const OUTFITS: Unlockable[] = [
   { id: "kroon", label: "Kroontje", emoji: "👑", level: 6 },
 ];
 
+/** Colours for your pet ("eigen" = the species' own colour). Four free, the rest come with levels. */
+export const PET_COLORS: (Unlockable & { body: string | null; belly: string | null })[] = [
+  { id: "eigen", label: "Eigen kleur", emoji: "🐾", level: 1, body: null, belly: null },
+  { id: "roze", label: "Roze", emoji: "🌸", level: 1, body: "#F7B6CF", belly: "#FDE7F0" },
+  { id: "blauw", label: "Hemelsblauw", emoji: "🩵", level: 1, body: "#9CCBF0", belly: "#E3F2FD" },
+  { id: "lila", label: "Lila", emoji: "💜", level: 1, body: "#C7AEEA", belly: "#F0E8FB" },
+  { id: "mint", label: "Mint", emoji: "🌿", level: 2, body: "#A8E0C4", belly: "#E6F7EE" },
+  { id: "geel", label: "Zonnig", emoji: "🌻", level: 3, body: "#F7D774", belly: "#FDF4D3" },
+  { id: "nacht", label: "Nacht", emoji: "🌙", level: 4, body: "#4B5A8A", belly: "#9AA6CC" },
+  { id: "goud", label: "Goud", emoji: "✨", level: 6, body: "#E2B653", belly: "#F8E7B5" },
+];
+
+export type PetLook = { body: string; belly: string; ear: string };
+/** The species' own look, with the chosen colour on top (ears and paws keep their own colour). */
+export function colouredLook(base: PetLook, colorId: string | null | undefined): PetLook {
+  const c = PET_COLORS.find((x) => x.id === colorId);
+  if (!c || !c.body || !c.belly) return base;
+  return { ...base, body: c.body, belly: c.belly };
+}
+
 export const isUnlocked = (item: Unlockable, level: number) => level >= item.level;
 
 /** Items that became available exactly at this level (for the level-up message). */
 export function unlocksAt(level: number) {
-  return [...BACKGROUNDS, ...OUTFITS, ...PET_GAMES].filter((i) => i.level === level);
+  return [...BACKGROUNDS, ...OUTFITS, ...PET_COLORS, ...PET_GAMES].filter((i) => i.level === level);
 }
 
 /** Extra pets you may collect: one more every 2 levels (level 3, 5, 7, ...). */

@@ -1164,6 +1164,7 @@ export type Database = {
       }
       companions: {
         Row: {
+          color: string
           created_at: string
           id: string
           name: string
@@ -1172,6 +1173,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          color?: string
           created_at?: string
           id?: string
           name: string
@@ -1180,6 +1182,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          color?: string
           created_at?: string
           id?: string
           name?: string
@@ -1903,6 +1906,7 @@ export type Database = {
       }
       pets: {
         Row: {
+          color: string
           background: string
           created_at: string
           house: string
@@ -1913,6 +1917,7 @@ export type Database = {
           xp: number
         }
         Insert: {
+          color?: string
           background?: string
           created_at?: string
           house?: string
@@ -1923,6 +1928,7 @@ export type Database = {
           xp?: number
         }
         Update: {
+          color?: string
           background?: string
           created_at?: string
           house?: string
