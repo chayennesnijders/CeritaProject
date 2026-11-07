@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { pushToUser } from "@/lib/push.functions";
 import { eventTime, minutesUntil } from "@/lib/events";
+import { reminderPush, shouldRemind } from "@/lib/daily-reminder";
+import { dutchHourNow } from "@/lib/quiet-hours";
+import { shiftDay, streakDays } from "@/lib/streak";
 
 // Called every 15 minutes by the database scheduler: tells members when a letter to themselves may be
-// opened, reminds them of a meetup they signed up for in the hour before it starts, and tells coaches
-// about new questions.
+// opened, reminds them of a meetup they signed up for in the hour before it starts, tells coaches
+// about new questions, and sends the opt-in daily reminder for your pet.
 export const Route = createFileRoute("/api/public/member-reminders")({
   server: {
     handlers: {
@@ -94,6 +97,44 @@ export const Route = createFileRoute("/api/public/member-reminders")({
               link: "/coach",
               tag: "coach-vragen",
             });
+        }
+        // Daily pet reminder (opt-in): at the member's hour, only if nothing was done today.
+        const hourNow = dutchHourNow();
+        const { data: wantReminder, error: reminderError } = await supabaseAdmin
+          .from("profiles")
+          .select("id, reminder_hour, reminded_on")
+          .eq("daily_reminder", true)
+          .eq("reminder_hour", hourNow)
+          .or(`reminded_on.is.null,reminded_on.lt.${today}`)
+          .limit(500);
+        if (!reminderError) {
+          const since = shiftDay(today, -90);
+          for (const m of wantReminder ?? []) {
+            // Mark first, so a slow push never makes a second reminder today.
+            await supabaseAdmin.from("profiles").update({ reminded_on: today }).eq("id", m.id);
+            const [care, diary] = await Promise.all([
+              supabaseAdmin.from("pet_care").select("care_date").eq("user_id", m.id).gte("care_date", since),
+              supabaseAdmin.from("diary_entries").select("created_at").eq("user_id", m.id).gte("created_at", since),
+            ]);
+            const days = new Set<string>([
+              ...(care.data ?? []).map((c) => c.care_date),
+              ...(diary.data ?? []).map((d) =>
+                new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam" }).format(new Date(d.created_at)),
+              ),
+            ]);
+            if (
+              !shouldRemind({
+                enabled: true,
+                hour: m.reminder_hour,
+                remindedOn: m.reminded_on,
+                today,
+                hourNow,
+                didSomethingToday: days.has(today),
+              })
+            )
+              continue;
+            sent += await pushToUser(m.id, { ...reminderPush(streakDays(days, shiftDay(today, -1))), tag: "dag-herinnering" });
+          }
         }
         return Response.json({ sent });
       },

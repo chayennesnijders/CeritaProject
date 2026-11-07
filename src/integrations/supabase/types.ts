@@ -2062,6 +2062,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          daily_reminder: boolean
+          reminder_hour: number
+          reminded_on: string | null
           is_parent: boolean
           also_parent: boolean
           quiet_end: number | null
@@ -2079,6 +2082,9 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          daily_reminder?: boolean
+          reminder_hour?: number
+          reminded_on?: string | null
           is_parent?: boolean
           also_parent?: boolean
           quiet_end?: number | null
@@ -2096,6 +2102,9 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          daily_reminder?: boolean
+          reminder_hour?: number
+          reminded_on?: string | null
           is_parent?: boolean
           also_parent?: boolean
           quiet_end?: number | null

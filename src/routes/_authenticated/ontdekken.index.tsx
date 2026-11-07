@@ -37,8 +37,11 @@ export const Route = createFileRoute("/_authenticated/ontdekken/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { soort?: "artikelen" } =>
-    s["soort"] === "artikelen" ? { soort: "artikelen" } : {},
+  // ?bewaard=true opens straight on your saved stories (Profiel → Bewaarde verhalen).
+  validateSearch: (s: Record<string, unknown>): { soort?: "artikelen"; bewaard?: boolean } => ({
+    ...(s["soort"] === "artikelen" ? { soort: "artikelen" as const } : {}),
+    ...(s["bewaard"] === true || s["bewaard"] === "true" ? { bewaard: true } : {}),
+  }),
   component: OntdekkenPage,
 });
 
@@ -47,11 +50,11 @@ const NO_FILTER: StoryFilter = { query: "", category: null, onlySaved: false, on
 function OntdekkenPage() {
   const { data: me } = useMe();
   const nav = useNavigate();
-  const { soort } = Route.useSearch();
+  const { soort, bewaard } = Route.useSearch();
   const k = kindForTab(soort);
   const { stories: all, isLoading, counts, saved, read } = useDiscover(me?.user.id);
   const stories = ofKind(all, k.kind);
-  const [f, setF] = useState<StoryFilter>(NO_FILTER);
+  const [f, setF] = useState<StoryFilter>(bewaard ? { ...NO_FILTER, onlySaved: true } : NO_FILTER);
   const [sort, setSort] = useState<"nieuw" | "herkend">("nieuw");
   const today = storyOfTheDay(stories, useChallengeDay());
   const shown = sortStories(filterStories(stories, f, saved, read), sort, counts);

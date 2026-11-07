@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useActsAsParent } from "@/lib/parent-view";
 import { TesterCard } from "@/components/TesterCard";
+import { StayInTouchCard } from "@/components/StayInTouchCard";
+import { InviteFriendCard } from "@/components/InviteFriendCard";
 import { FounderStory } from "@/components/FounderStory";
 import { ParentHome } from "@/components/ParentHome";
 import { ThemeDayCard } from "@/components/ThemeDayCard";
@@ -110,6 +112,7 @@ function HomePage() {
       )}
 
       <MoodCheckIn uid={uid} day={day} name={p?.display_name ?? ""} />
+      <StayInTouchCard />
       <Link
         to="/ceritabuddy"
         className="flex items-center gap-3 rounded-3xl bg-ink p-4 text-ink-foreground shadow-soft transition-transform active:scale-[0.98]"
@@ -148,6 +151,7 @@ function HomePage() {
         <NewToListen />
       </section>
 
+      <InviteFriendCard />
       <Link to="/vragen" className="flex items-center gap-3 rounded-3xl border-2 border-primary bg-card p-4 shadow-soft">
         <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary text-2xl">🎓</span>
         <span className="min-w-0 flex-1">

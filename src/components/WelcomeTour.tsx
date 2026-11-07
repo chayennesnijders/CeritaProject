@@ -32,6 +32,15 @@ export function WelcomeTour() {
       setOpen(true);
     }
   }, [me?.user]);
+  // "Rondleiding opnieuw bekijken" in Profiel starts it again from the first step.
+  useEffect(() => {
+    const again = () => {
+      setI(0);
+      setOpen(true);
+    };
+    window.addEventListener("cerita-rondleiding", again);
+    return () => window.removeEventListener("cerita-rondleiding", again);
+  }, []);
   const steps = STEPS.filter((s) => !s.target || typeof document === "undefined" || document.querySelector(`[data-tour="${s.target}"]`));
   const s = steps[Math.min(i, steps.length - 1)]!;
   useLayoutEffect(() => {

@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { enablePush, pushMessage } from "@/lib/push-client";
+import { REMINDER_HOURS } from "@/lib/daily-reminder";
 import { UserAvatar } from "@/components/UserAvatar";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ContactAdminsButton } from "@/components/ContactAdminsButton";
@@ -77,6 +78,7 @@ const SHORTCUT_GROUPS = [
     emoji: "✨",
     tint: "bg-[#f6ead9] dark:bg-[#3a2d26]",
     items: [
+      { to: "/ontdekken", emoji: "⭐", label: "Bewaarde verhalen" },
       { to: "/brieven", emoji: "💌", label: "Brief aan jezelf" },
       { to: "/complimenten", emoji: "💐", label: "Compli\u00admenten" },
       { to: "/thema", emoji: "✨", label: "Thema" },
@@ -247,6 +249,7 @@ function ProfilePage() {
                 <Link
                   key={s.to}
                   to={s.to}
+                  search={s.to === "/ontdekken" ? { bewaard: true } : {}}
                   className="group flex flex-col items-center gap-1 rounded-2xl bg-card px-1 py-2.5 text-center shadow-soft transition-transform active:scale-90"
                 >
                   <span className="text-2xl transition-transform group-hover:-rotate-6 group-hover:scale-110">
@@ -381,12 +384,58 @@ function ProfilePage() {
               Pushmeldingen aanzetten
             </Button>
           </div>
+          <div className="flex items-start justify-between gap-3 rounded-2xl bg-muted p-3">
+            <div>
+              <p className="text-sm font-semibold">🐰 Dagelijks seintje voor je diertje</p>
+              <p className="text-xs text-muted-foreground">
+                Alleen als je je diertje of dagboek die dag nog niet hebt gezien. Je stille uren gaan voor.
+              </p>
+              {p.daily_reminder && (
+                <select
+                  id="profiel-herinnering-uur"
+                  value={p.reminder_hour ?? 19}
+                  onChange={async (e) => {
+                    const { error } = await supabase.from("profiles").update({ reminder_hour: Number(e.target.value) }).eq("id", p.id);
+                    toast[error ? "error" : "success"](error ? "Opslaan lukte niet" : "Opgeslagen");
+                    qc.invalidateQueries({ queryKey: ["me"] });
+                  }}
+                  className="mt-2 rounded-full border bg-background px-3 py-1 text-xs font-semibold"
+                  aria-label="Tijd van het seintje"
+                >
+                  {REMINDER_HOURS.map((h) => (
+                    <option key={h} value={h}>
+                      om {h}:00
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <Switch
+              checked={!!p.daily_reminder}
+              onCheckedChange={async (v) => {
+                const { error } = await supabase.from("profiles").update({ daily_reminder: v }).eq("id", p.id);
+                toast[error ? "error" : "success"](error ? "Opslaan lukte niet" : v ? "Seintje staat aan 🐰" : "Seintje staat uit");
+                qc.invalidateQueries({ queryKey: ["me"] });
+              }}
+              aria-label="Dagelijks seintje voor je diertje"
+            />
+          </div>
           <Button
             variant="ghost"
             className="w-full rounded-full text-sm"
             onClick={() => setInstallOpen(true)}
           >
             📲 Hoe zet ik de app op mijn beginscherm?
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full rounded-full text-sm"
+            onClick={() => {
+              void nav({ to: "/home" });
+              setTimeout(() => window.dispatchEvent(new Event("cerita-rondleiding")), 400);
+            }}
+          >
+            🧭 Rondleiding opnieuw bekijken
           </Button>
           <InstallGuide open={installOpen} onOpenChange={setInstallOpen} />
           <QuietHours

@@ -617,6 +617,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
         "54": await exists("story_photos"),
         "55": await exists("parent_settings"),
         "56": await exists("tester_progress"),
+        "57": await exists("profiles", "daily_reminder"),
         "53": await supabaseAdmin.rpc("parent_portal_stats").then((r) => !r.error || r.error.code !== "PGRST202"),
       },
       playlists: playlists
