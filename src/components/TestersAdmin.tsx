@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronDown, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lastSeen, testItems, testProgress, testQuestions, type TesterRole } from "@/lib/test-checklist";
+import { feedbackExport, lastSeen, testItems, testProgress, testQuestions, type TesterRole } from "@/lib/test-checklist";
 
 type Row = {
   user_id: string;
@@ -22,6 +22,7 @@ const LINKS = [
 export function TestersAdmin() {
   const [filter, setFilter] = useState<"alle" | TesterRole>("alle");
   const [open, setOpen] = useState<string | null>(null);
+  const [exportText, setExportText] = useState<string | null>(null);
   const { data, isLoading, dataUpdatedAt } = useQuery({
     queryKey: ["testers-admin"],
     refetchInterval: 15_000,
@@ -92,6 +93,44 @@ export function TestersAdmin() {
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="space-y-2 rounded-3xl bg-card p-5 shadow-soft">
+        <h3 className="font-semibold">📋 Alle antwoorden in één tekst</h3>
+        <p className="text-xs text-muted-foreground">
+          Zonder namen: testers krijgen een nummer. Handig om rustig te lezen, of om te plakken in een gesprek met Claude
+          om de app aan te passen. Ook eerder verstuurde testberichten komen erbij.
+        </p>
+        <button
+          onClick={async () => {
+            const { data: msgs } = await supabase
+              .from("admin_messages")
+              .select("body")
+              .like("body", "🧪 Testfeedback%")
+              .order("created_at", { ascending: true });
+            const text = feedbackExport(data.rows, (msgs ?? []).map((m) => m.body));
+            setExportText(text);
+            try {
+              await navigator.clipboard.writeText(text);
+              toast.success("Gekopieerd: plak het waar je wilt");
+            } catch {
+              toast("Selecteer de tekst hieronder en kopieer hem");
+            }
+          }}
+          className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+        >
+          <Copy className="size-4" /> Kopieer alle antwoorden
+        </button>
+        {exportText && (
+          <textarea
+            readOnly
+            value={exportText}
+            onFocus={(e) => e.currentTarget.select()}
+            rows={8}
+            aria-label="Alle antwoorden"
+            className="w-full rounded-2xl border bg-background p-3 text-xs"
+          />
+        )}
       </section>
 
       <div className="grid grid-cols-2 gap-3">

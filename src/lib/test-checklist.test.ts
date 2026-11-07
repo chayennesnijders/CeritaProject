@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lastSeen, testItems, testPath, testPhases, testProgress, testQuestions } from "./test-checklist";
+import { feedbackExport, lastSeen, testItems, testPath, testPhases, testProgress, testQuestions } from "./test-checklist";
 import { TEST_FORM } from "./test-week";
 
 describe("tester checklist", () => {
@@ -32,5 +32,25 @@ describe("tester checklist", () => {
     expect(lastSeen("2026-11-07T09:00:00Z", now)).toBe("3 uur geleden");
     expect(lastSeen("2026-11-06T10:00:00Z", now)).toBe("gisteren");
     expect(lastSeen("2026-11-04T12:00:00Z", now)).toBe("3 dagen geleden");
+  });
+});
+
+describe("feedback export", () => {
+  it("lists every tester by number with their answers, never names", () => {
+    const text = feedbackExport(
+      [
+        { role: "jongere", checks: {}, notes: { telefoon: "iPhone", leukst: "de groepen", indruk: "gezellig", verstuurd: "ja" } },
+        { role: "ouder", checks: { "o-s1": true }, notes: { q2: "’s avonds" } },
+      ],
+      ["🧪 Testfeedback\nleukst: diertje"],
+    );
+    expect(text).toContain("2 testers, zonder namen");
+    expect(text).toContain("Tester 1 (jongere)");
+    expect(text).toContain("de groepen");
+    expect(text).toContain("Tester 2 (ouder) · 1/");
+    expect(text).toContain("Nog niet gedaan:");
+    expect(text).toContain("leukst: diertje");
+    expect(text).toContain("(eerdere vraag “indruk”) gezellig");
+    expect(text).toContain("✅ verstuurd");
   });
 });

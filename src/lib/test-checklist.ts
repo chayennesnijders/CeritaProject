@@ -113,3 +113,39 @@ export function lastSeen(iso: string, now = Date.now()): string {
   const d = Math.round(h / 24);
   return d === 1 ? "gisteren" : `${d} dagen geleden`;
 }
+
+/**
+ * All test answers as one plain text, without names (testers get a number), to read or share
+ * elsewhere. Earlier feedback that was only sent as a message is added at the end.
+ */
+export function feedbackExport(
+  rows: readonly { role: string; checks: Record<string, boolean>; notes: Record<string, string> }[],
+  messages: readonly string[] = [],
+): string {
+  const out: string[] = [`Testresultaten CeritaProject (${rows.length} testers, zonder namen)`];
+  rows.forEach((r, n) => {
+    const role: TesterRole = r.role === "ouder" ? "ouder" : "jongere";
+    const p = testProgress(role, r.checks, r.notes);
+    out.push("", `— Tester ${n + 1} (${role}) · ${p.done}/${p.total}${role === "jongere" ? " vragen" : " afgevinkt"}`);
+    if (role === "ouder") {
+      const notDone = testItems(role).filter((i) => !r.checks[i.id]).map((i) => i.title);
+      if (notDone.length) out.push(`Nog niet gedaan: ${notDone.join("; ")}`);
+    }
+    const known = new Set(testQuestions(role).map((q) => q.id));
+    for (const q of testQuestions(role)) {
+      const a = (r.notes[q.id] ?? "").trim();
+      if (a) out.push(`${q.question} ${a}`);
+    }
+    // Answers to questions from an earlier version of the list.
+    for (const [k, v] of Object.entries(r.notes)) {
+      if (!known.has(k) && k !== "verstuurd" && v.trim()) out.push(`(eerdere vraag “${k}”) ${v.trim()}`);
+    }
+    if (r.notes["verstuurd"]) out.push("✅ verstuurd");
+  });
+  const older = messages.map((m) => m.trim()).filter(Boolean);
+  if (older.length) {
+    out.push("", "=== Verstuurde testberichten (ook van vóór de live lijst) ===");
+    older.forEach((m) => out.push("", m));
+  }
+  return out.join("\n");
+}
