@@ -9,6 +9,9 @@ Formats and their fields:
   cards    bg, messages[3], cta?         "pick 1, 2 or 3" cards
   words    bg, hook, text, pose?, cta?   hook, then word by word, Riti pops in
   overlay  src, captions[], pill?        yellow captions on an existing video (keeps its sound)
+  slides   cover{hook, sub?, pose?}, slides[3-8]{title, body, pose?}, end{cta?, help?}
+           carousel: <id>-916-<k>.png (TikTok photo mode, Snapchat Story), <id>-45-<k>.png
+           (Instagram carousel) and <id>.mp4 slideshow (YouTube Shorts, Snapchat Spotlight)
 bg: nacht | regen | zonsondergang | lucht.  pose: blij, troostend, trots, denkend, verdrietig, riti.
 Every video is 1080x1920, silent unless overlay (add trending sound in the app), no copyrighted material.
 """
@@ -21,6 +24,7 @@ from make import Scene, text_layer, brand, font, W, H, FPS  # noqa: E402
 from riti_anim import Sky  # noqa: E402
 import interact  # noqa: E402
 import overlay  # noqa: E402
+import slides  # noqa: E402
 
 BGS = {"nacht", "regen", "zonsondergang", "lucht"}
 POSES = {"blij", "troostend", "trots", "denkend", "verdrietig", "riti", "boos"}
@@ -59,7 +63,8 @@ def check(post):
     if f == "pause" and not (6 <= len(post.get("messages", [])) <= 10): raise ValueError(f"{post['id']}: pause needs 6-10 messages")
     if f == "cards" and len(post.get("messages", [])) != 3: raise ValueError(f"{post['id']}: cards needs exactly 3 messages")
     if f == "words" and post.get("pose", "troostend") not in POSES: raise ValueError(f"{post['id']}: unknown pose")
-    if f not in {"quote", "pause", "cards", "words", "overlay"}: raise ValueError(f"{post.get('id')}: unknown format {f}")
+    if f == "slides" and not (3 <= len(post.get("slides", [])) <= 8 and post.get("cover", {}).get("hook")): raise ValueError(f"{post['id']}: slides needs a cover hook and 3-8 slides")
+    if f not in {"quote", "pause", "cards", "words", "overlay", "slides"}: raise ValueError(f"{post.get('id')}: unknown format {f}")
 
 
 def render(post, outdir):
@@ -70,6 +75,7 @@ def render(post, outdir):
     elif f == "cards": interact.pick_card(out, post["messages"], bg, 15, post.get("cta", "Zet je nummer in de comments"))
     elif f == "words": interact.word_reveal(out, post["hook"], post["text"], bg, post.get("pose", "troostend"), post.get("secs", 11), post.get("cta", "Tik 2x als je dit nodig had"))
     elif f == "overlay": overlay.run({"src": post["src"], "out": out, "captions": post["captions"], "pill": post.get("pill")})
+    elif f == "slides": slides.render(outdir, post["id"], post["cover"], post["slides"], post.get("end", {}))
     size = os.path.getsize(out)
     if size > 15 * 1024 * 1024:  # the dashboard stores videos up to 15 MB: re-encode smaller
         tmp = out + ".tmp.mp4"
