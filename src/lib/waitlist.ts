@@ -70,6 +70,7 @@ const SOURCE_LABELS: Record<string, string> = {
   story: "📱 Story",
   whatsapp: "💬 WhatsApp",
   instagram: "📸 Instagram",
+  snapchat: "👻 Snapchat",
   vriend: "🤝 Doorgestuurd door een vriend(in)",
 };
 export function sourceLabel(source: string | null | undefined) {
