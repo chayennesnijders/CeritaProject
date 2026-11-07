@@ -537,8 +537,6 @@ function Chat({
           </p>
         )}
       </form>
-      {/* Room for the home bar, so the composer never covers the end of the conversation. */}
-      <div aria-hidden className="h-[env(safe-area-inset-bottom,0px)]" />
     </div>
   );
 }

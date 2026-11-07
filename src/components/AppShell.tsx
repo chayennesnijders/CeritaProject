@@ -113,7 +113,10 @@ export function AppShell() {
         </div>
       )}
       <NowPlayingBar />
-      <main className={`flex-1 px-5 ${playing ? "pb-72" : "pb-28"}`}>
+      {/* Room under every page for the menu bar plus the iPhone home bar, so the last block never hides behind it. */}
+      <main
+        className={`flex-1 px-5 ${playing ? "pb-[calc(18rem+env(safe-area-inset-bottom,0px))]" : "pb-[calc(9rem+env(safe-area-inset-bottom,0px))]"}`}
+      >
         <div key={page} className="animate-in fade-in duration-300 motion-reduce:animate-none">
           {isParent && !parentMayOpen(page) ? <ForYoungPeople /> : <Outlet />}
         </div>
