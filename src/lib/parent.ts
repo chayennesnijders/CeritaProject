@@ -131,8 +131,8 @@ export const PARENT_QUESTIONS = [
 ] as const;
 
 /** A different question each time (never the same one twice in a row). */
-export function nextQuestion(current: number, random = Math.random): number {
-  const n = PARENT_QUESTIONS.length;
+export function nextQuestion(current: number, random = Math.random, n: number = PARENT_QUESTIONS.length): number {
+  if (n <= 1) return 0;
   return (current + 1 + Math.floor(random() * (n - 1))) % n;
 }
 

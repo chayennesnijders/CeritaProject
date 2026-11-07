@@ -404,6 +404,12 @@ export type Database = {
         Update: { path?: string; hash?: string | null; hidden?: boolean; created_by?: string | null; created_at?: string }
         Relationships: []
       }
+      parent_settings: {
+        Row: { user_id: string; child_ages: string[]; updated_at: string }
+        Insert: { user_id: string; child_ages?: string[]; updated_at?: string }
+        Update: { user_id?: string; child_ages?: string[]; updated_at?: string }
+        Relationships: []
+      }
       guide_progress: {
         Row: {
           user_id: string

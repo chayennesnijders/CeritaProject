@@ -8,6 +8,7 @@ import { challengeDay } from "@/lib/challenges";
 import { GUIDES, GUIDES_SOON } from "@/lib/guides";
 import { PARENT_FOR_CHILD, PARENT_SELF } from "@/lib/parent";
 import { THEME_DAYS } from "@/lib/theme-days";
+import { CHILD_BANDS } from "@/lib/child-age";
 
 type GuideStat = { guide: string; started: number; completed: number; goed: number; lastig: number; niet: number };
 type Stats = {
@@ -17,6 +18,7 @@ type Stats = {
   active_7_days: number;
   tasks_7_days: { zelf: number; kind: number };
   guides: GuideStat[];
+  child_ages?: Record<string, number>;
 };
 
 const SIGNUP_TEXT =
@@ -85,6 +87,31 @@ export function ParentsAdmin() {
             👶 {stats.young_parents} jonge {stats.young_parents === 1 ? "ouder" : "ouders"} (13–27) gebruikt de ouderhoek
             naast de eigen groepen.
           </p>
+
+          {stats.child_ages && (
+            <section className="space-y-2 rounded-3xl bg-card p-5 shadow-soft">
+              <h3 className="font-semibold">👶 Leeftijd van hun kinderen</h3>
+              <p className="text-xs text-muted-foreground">
+                Ouders kiezen een leeftijdsgroep (geen naam of geboortedatum), zodat hun tips passen. Een ouder met
+                meer kinderen telt bij meer groepen.
+              </p>
+              {CHILD_BANDS.map((b) => {
+                const n = stats.child_ages?.[b.id] ?? 0;
+                const max = Math.max(1, ...Object.values(stats.child_ages ?? {}));
+                return (
+                  <div key={b.id} className="flex items-center gap-2 text-sm">
+                    <span className="w-28 shrink-0">
+                      {b.emoji} {b.label}
+                    </span>
+                    <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+                      <span className="block h-full rounded-full bg-primary" style={{ width: `${(n / max) * 100}%` }} />
+                    </span>
+                    <span className="w-6 text-right tabular-nums">{n}</span>
+                  </div>
+                );
+              })}
+            </section>
+          )}
 
           <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
             <h3 className="font-semibold">📘 Handleidingen</h3>

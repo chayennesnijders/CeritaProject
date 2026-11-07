@@ -12,13 +12,14 @@ import {
   nextQuestion,
   PARENT_HELP,
   PARENT_MOOD_REPLY,
-  PARENT_QUESTIONS,
   parentDay,
   telHref,
   todayProgress,
   weekDots,
 } from "@/lib/parent";
 import { GUIDES, needsCheckIn, nextGuideFor } from "@/lib/guides";
+import { bandInfo, bandsLabel, childQuestions, childTip } from "@/lib/child-age";
+import { ChildAgePicker, useChildAges } from "@/components/ChildAgePicker";
 
 type CheckKind = "zelf" | "kind";
 
@@ -41,6 +42,11 @@ export function ParentHome({
   const qc = useQueryClient();
   const hi = greeting(dutchHour());
   const today = parentDay(day);
+  const { data: ages } = useChildAges(uid);
+  const bands = ages?.bands ?? [];
+  const tip = childTip(day, bands);
+  const questions = childQuestions(bands);
+  const [editAges, setEditAges] = useState(false);
   const weekAgo = new Date(new Date(day).getTime() - 6 * 86_400_000).toISOString().slice(0, 10);
 
   const { data: guideRows = [] } = useQuery({
@@ -117,7 +123,8 @@ export function ParentHome({
   const mood = moodById(data?.mood ?? null);
   const reply = mood ? PARENT_MOOD_REPLY[mood.id] : null;
 
-  const [question, setQuestion] = useState(() => (Math.abs(Date.parse(day) / 86_400_000) | 0) % PARENT_QUESTIONS.length);
+  const [question, setQuestion] = useState(() => Math.abs(Date.parse(day) / 86_400_000) | 0);
+  const q = questions[question % questions.length]!;
 
   const pct = Math.round((progress.done / progress.total) * 100);
   const guideLink: string = checkIn || !next ? "/handleidingen" : `/handleidingen/${next.guide.slug}`;
@@ -172,6 +179,25 @@ export function ParentHome({
         </div>
       </section>
 
+      {/* Ask once for the age of the child(ren), so tips fit */}
+      {ages?.installed && (!ages.set || editAges) && (
+        <section className="space-y-3 rounded-3xl border-2 border-primary bg-card p-5 shadow-soft">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
+              {editAges ? "Leeftijd aanpassen" : "Eén vraag aan jou"}
+            </p>
+            <h2 className="text-lg leading-snug">Hoe oud is je kind?</h2>
+            <p className="text-sm text-muted-foreground">Dan passen je tips en vragen bij de leeftijd van je kind.</p>
+          </div>
+          <ChildAgePicker uid={uid} initial={bands} first={!ages.set} onDone={() => setEditAges(false)} />
+          {editAges && (
+            <button onClick={() => setEditAges(false)} className="w-full text-center text-xs text-muted-foreground underline">
+              Annuleren
+            </button>
+          )}
+        </section>
+      )}
+
       <ThemeDayCard day={day} audience="ouders" />
 
       {/* Assignment for yourself and tip for your child, one at a time */}
@@ -191,9 +217,13 @@ export function ParentHome({
         </div>
         <div key={tab} className={`animate-in fade-in p-5 transition-colors duration-300 ${done(tab) ? "bg-[#e5f4e4] dark:bg-[#1f3a2c]" : ""}`}>
           <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
-            {tab === "zelf" ? "Jouw opdracht van vandaag" : "Tip voor je kind vandaag"}
+            {tab === "zelf"
+              ? "Jouw opdracht van vandaag"
+              : tip.band
+                ? `Tip voor je kind van ${bandInfo(tip.band).label} ${bandInfo(tip.band).emoji}`
+                : "Tip voor je kind vandaag"}
           </p>
-          <p className="mt-1 text-lg leading-snug">{tab === "zelf" ? today.self : today.child}</p>
+          <p className="mt-1 text-lg leading-snug">{tab === "zelf" ? today.self : tip.text}</p>
           <button
             onClick={() => void toggle(tab)}
             aria-pressed={done(tab)}
@@ -201,23 +231,40 @@ export function ParentHome({
           >
             {done(tab) ? "✓ Gedaan (tik om terug te zetten)" : "Gedaan"}
           </button>
-          <p className="mt-2 text-center text-[11px] text-muted-foreground">Morgen om 00:00 staat er een nieuwe klaar.</p>
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            Morgen om 00:00 staat er een nieuwe klaar.
+            {tab === "kind" && ages?.installed && ages.set && !editAges && (
+              <>
+                {" "}
+                <button onClick={() => setEditAges(true)} className="font-semibold text-primary underline">
+                  {bands.length ? `Leeftijd: ${bandsLabel(bands)} ✏️` : "Leeftijd van je kind kiezen"}
+                </button>
+              </>
+            )}
+          </p>
         </div>
       </section>
 
       {/* A question to ask your child */}
       <section className="space-y-3 rounded-3xl bg-secondary p-5 text-secondary-foreground shadow-soft">
-        <p className="text-[11px] font-bold uppercase tracking-wider">💬 Vraag het je kind eens</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider">
+          {q.together ? "🧸 Samen doen" : "💬 Vraag het je kind eens"}
+          {q.band && bands.length > 1 ? ` · ${bandInfo(q.band).label}` : ""}
+        </p>
         <p key={question} className="animate-in fade-in text-lg font-semibold leading-snug">
-          “{PARENT_QUESTIONS[question]}”
+          {q.together ? q.text : `“${q.text}”`}
         </p>
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs opacity-80">Tip: stel de vraag terloops, bijvoorbeeld in de auto of tijdens het eten.</p>
+          <p className="text-xs opacity-80">
+            {q.together
+              ? "Een paar minuten samen spelen is al genoeg."
+              : "Tip: stel de vraag terloops, bijvoorbeeld in de auto of tijdens het eten."}
+          </p>
           <button
-            onClick={() => setQuestion((q) => nextQuestion(q))}
+            onClick={() => setQuestion((i) => nextQuestion(i % questions.length, Math.random, questions.length))}
             className="flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground active:scale-95"
           >
-            <Shuffle className="size-3.5" /> Andere vraag
+            <Shuffle className="size-3.5" /> {q.together ? "Iets anders" : "Andere vraag"}
           </button>
         </div>
       </section>
