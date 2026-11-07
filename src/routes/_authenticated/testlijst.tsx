@@ -98,7 +98,7 @@ function TestListPage() {
     <div className="space-y-4 pt-2">
       <header className="space-y-2">
         <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
-          🧪 Testlijst · {role === "ouder" ? "voor ouders" : "voor jongeren"} · 2 weken
+          🧪 Testlijst · {role === "ouder" ? "voor ouders" : "voor jongeren"} · 1 week
         </p>
         <h1 className="text-3xl leading-tight">Jouw testlijst</h1>
         <p className="text-sm text-muted-foreground">
@@ -166,7 +166,7 @@ function TestListPage() {
       })}
 
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-soft">
-        <h2 className="text-lg">Na twee weken: jouw mening</h2>
+        <h2 className="text-lg">Na een week: jouw mening</h2>
         <p className="-mt-2 text-xs text-muted-foreground">Kort mag. Je kunt het ook stukje bij beetje invullen.</p>
         {testQuestions(role).map((q) => (
           <label key={q.id} className="block space-y-1">
