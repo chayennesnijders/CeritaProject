@@ -1,9 +1,9 @@
 /**
- * The checklist for testers (Beheer → Testers shows it live). Parents use /testlijst; young people
- * use the existing test week at /testen (src/lib/test-week.ts). Item ids are stable, so progress
- * survives text changes.
+ * What testers fill in (Beheer → Testers shows it live). Parents tick a checklist at /testlijst;
+ * young people answer the questions at /testen (src/lib/test-week.ts), so for them progress means
+ * questions answered. Item ids are stable, so progress survives text changes.
  */
-import { TEST_CHECKLIST, TEST_QUESTIONS } from "@/lib/test-week";
+import { answeredCount, TEST_FORM } from "@/lib/test-week";
 
 export type TesterRole = "ouder" | "jongere";
 export type TestItem = { id: string; title: string; hint: string };
@@ -55,13 +55,6 @@ const PARENT: TestPhase[] = [
   },
 ];
 
-/** Young testers use the existing test week at /testen; its checklist is shown live here too. */
-const YOUTH: TestPhase[] = TEST_CHECKLIST.map((g, n) => ({
-  id: `j${n}`,
-  title: g.title,
-  when: "",
-  items: g.items.map((i) => ({ id: i.id, title: i.text, hint: "" })),
-}));
 
 const PARENT_QUESTIONS: TestQuestion[] = [
   { id: "q1", question: "Wat gebruikte je het meest, en wat sloeg je over?", placeholder: "Bijvoorbeeld: de vraag voor mijn kind elke avond…" },
@@ -70,17 +63,35 @@ const PARENT_QUESTIONS: TestQuestion[] = [
   { id: "q4", question: "Nog iets anders? (fijn, onhandig, ideeën)", placeholder: "Alles is welkom" },
 ];
 
-const YOUTH_QUESTIONS: TestQuestion[] = TEST_QUESTIONS.map((q) => ({ id: q.id, question: q.label, placeholder: "" }));
+const YOUTH_QUESTIONS: TestQuestion[] = TEST_FORM.map((q) => ({ id: q.id, question: q.label, placeholder: "" }));
 
 /** Where a tester ticks their list. */
 export const testPath = (role: TesterRole) => (role === "ouder" ? "/testlijst" : "/testen");
 
-export const testPhases = (role: TesterRole) => (role === "ouder" ? PARENT : YOUTH);
+/** Young testers have no checklist any more, only questions. */
+export const testPhases = (role: TesterRole): TestPhase[] => (role === "ouder" ? PARENT : []);
 export const testQuestions = (role: TesterRole) => (role === "ouder" ? PARENT_QUESTIONS : YOUTH_QUESTIONS);
 export const testItems = (role: TesterRole) => testPhases(role).flatMap((p) => p.items);
 
-/** Progress over a role's list; checks for unknown ids (an older list) are ignored. */
-export function testProgress(role: TesterRole, checks: Record<string, boolean | undefined>) {
+/**
+ * Progress: for parents the ticked items (unknown ids from an older list are ignored), for young
+ * people the questions answered.
+ */
+export function testProgress(
+  role: TesterRole,
+  checks: Record<string, boolean | undefined>,
+  notes: Record<string, string> = {},
+) {
+  if (role === "jongere") {
+    const done = answeredCount(notes);
+    const total = TEST_FORM.length;
+    return {
+      phases: [{ id: "vragen", title: "Vragen beantwoord", done, total }],
+      done,
+      total,
+      pct: Math.round((done / total) * 100),
+    };
+  }
   const phases = testPhases(role).map((p) => ({
     id: p.id,
     title: p.title,

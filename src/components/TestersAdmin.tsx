@@ -55,7 +55,7 @@ export function TestersAdmin() {
   const roleOf = (r: Row): TesterRole => (r.role === "ouder" ? "ouder" : "jongere");
   const stats = (role: TesterRole) => {
     const list = data.rows.filter((r) => roleOf(r) === role);
-    const avg = list.length ? Math.round(list.reduce((a, r) => a + testProgress(role, r.checks).pct, 0) / list.length) : 0;
+    const avg = list.length ? Math.round(list.reduce((a, r) => a + testProgress(role, r.checks, r.notes).pct, 0) / list.length) : 0;
     const active = list.filter((r) => Date.now() - Date.parse(r.updated_at) < 86_400_000).length;
     return { count: list.length, avg, active };
   };
@@ -120,7 +120,7 @@ export function TestersAdmin() {
       <div className="space-y-2">
         {rows.map((r) => {
           const role = roleOf(r);
-          const p = testProgress(role, r.checks);
+          const p = testProgress(role, r.checks, r.notes);
           const isOpen = open === r.user_id;
           const answered = testQuestions(role).filter((q) => (r.notes[q.id] ?? "").trim()).length;
           return (
@@ -131,6 +131,7 @@ export function TestersAdmin() {
                   <span className="block truncate font-semibold">{data.names.get(r.user_id) ?? "Onbekend"}</span>
                   <span className="block text-xs text-muted-foreground">
                     {p.done}/{p.total} · bezig {lastSeen(r.updated_at)}
+                    {role === "jongere" ? " vragen" : ""}
                     {r.notes["cijfer"] ? ` · cijfer ${r.notes["cijfer"]}/10` : ""}
                     {r.notes["verstuurd"] ? " · ✅ verstuurd" : ""}
                     {answered ? ` · ${answered} ${answered === 1 ? "antwoord" : "antwoorden"} 💬` : ""}
