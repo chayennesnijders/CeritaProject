@@ -35,6 +35,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthdate, setBirthdate] = useState("");
+  // Young people (13–27) or a parent/carer: parents get their own environment and no birthdate.
+  const [who, setWho] = useState<"jongere" | "ouder">("jongere");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -91,11 +93,16 @@ function AuthPage() {
         return;
       }
       if (mode === "up") {
-        const g = ageGroupFor(new Date(birthdate));
-        if (g === "too_young") { toast.error("Je moet minimaal 13 jaar zijn."); return; }
+        const parent = who === "ouder";
+        if (!parent && ageGroupFor(new Date(birthdate)) === "too_young") { toast.error("Je moet minimaal 13 jaar zijn."); return; }
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: window.location.origin + "/home", data: { display_name: name, birthdate } },
+          options: {
+            emailRedirectTo: window.location.origin + "/home",
+            // A parent signs up without a birthdate; after confirming the e-mail the app turns the account
+            // into a parent account (become_parent), see BirthdateGate.
+            data: parent ? { display_name: name, wants_parent: true } : { display_name: name, birthdate },
+          },
         });
         if (error) throw error;
         if (data.user && !data.user.identities?.length) {
@@ -136,8 +143,35 @@ function AuthPage() {
           <form onSubmit={submit} className="mt-8 space-y-4">
             {mode === "up" && (
               <>
+                <div role="radiogroup" aria-label="Wie ben jij?" className="grid grid-cols-2 gap-2">
+                  {([
+                    ["jongere", "🙋 Ik ben jongere", "13 tot 27 jaar"],
+                    ["ouder", "👪 Ik ben ouder", "of verzorger"],
+                  ] as const).map(([id, label, sub]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      role="radio"
+                      aria-checked={who === id}
+                      onClick={() => setWho(id)}
+                      className={`rounded-2xl border-2 p-3 text-left transition ${who === id ? "border-primary bg-primary/10" : "border-input"}`}
+                    >
+                      <span className="block text-sm font-semibold">{label}</span>
+                      <span className="block text-xs text-muted-foreground">{sub}</span>
+                    </button>
+                  ))}
+                </div>
+                {who === "ouder" && (
+                  <p className="rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
+                    Je krijgt een eigen omgeving voor ouders, met elke dag een tip voor jou en je kind en handleidingen
+                    voor lastige gesprekken. Je ziet nooit iets van jongeren, ook niet van je eigen kind. Ben je zelf
+                    tussen de 13 en 27? Kies dan ‘jongere’: je kunt de ouderhoek later aanzetten.
+                  </p>
+                )}
                 <div><Label htmlFor="n">Naam (mag een bijnaam zijn)</Label><Input id="n" required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-12 rounded-2xl" /><p className="mt-1 text-xs text-muted-foreground">Na het aanmelden kies je ook een eigen @gebruikersnaam.</p></div>
-                <div><Label htmlFor="b">Geboortedatum</Label><Input id="b" type="date" required value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="mt-1 h-12 rounded-2xl" /></div>
+                {who === "jongere" && (
+                  <div><Label htmlFor="b">Geboortedatum</Label><Input id="b" type="date" required value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="mt-1 h-12 rounded-2xl" /></div>
+                )}
               </>
             )}
             <div><Label htmlFor="e">E-mail</Label><Input id="e" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 h-12 rounded-2xl" /></div>

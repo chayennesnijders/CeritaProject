@@ -20,7 +20,13 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
   const [date, setDate] = useState("");
   const [busy, setBusy] = useState(false);
   const [tooYoung, setTooYoung] = useState(false);
-  const [parentStep, setParentStep] = useState(false);
+  // Chose "Ik ben ouder" when signing up: go straight to the parent step.
+  const [parentStep, setParentStep] = useState(() => !!me?.user.user_metadata?.["wants_parent"]);
+  const [wantsParentSeen, setWantsParentSeen] = useState(false);
+  if (!wantsParentSeen && !parentStep && me?.user.user_metadata?.["wants_parent"]) {
+    setWantsParentSeen(true);
+    setParentStep(true);
+  }
 
   // Parents have no birthdate on purpose: they never join the young people's groups or chats.
   if (!me?.profile || me.profile.birthdate || me.profile.is_parent)
