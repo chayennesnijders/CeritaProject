@@ -106,8 +106,8 @@ function TestPage() {
       </div>
 
       <p className="rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
-        Je hoeft niet alles uitgeprobeerd te hebben: vertel gewoon wat je tot nu toe vindt. Je antwoorden worden meteen
-        bewaard, en de makers van de app lezen ze. Sla over wat je niet weet.
+        Je gebruikt de app al een tijdje: vertel eerlijk wat je ervan vindt. Je antwoorden worden meteen bewaard, en de
+        makers van de app lezen ze. Sla over wat je niet weet.
       </p>
 
       <div className="sticky top-[3.75rem] z-10 -mx-1 space-y-1.5 rounded-2xl bg-background/95 px-1 py-2 backdrop-blur">

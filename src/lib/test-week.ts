@@ -1,6 +1,6 @@
 /**
- * The test questions for young testers (/testen): a short list they can fill in and send today,
- * without first having to try everything. Answers are saved live in tester_progress.notes (by
+ * The test questions for young testers (/testen), who already use the app (almost) every day: a
+ * short list they can fill in and send today. Answers are saved live in tester_progress.notes (by
  * question id) and sent to the admins as one message.
  */
 export type TestFormQuestion =
@@ -12,15 +12,15 @@ export type TestFormQuestion =
 export const TEST_FORM: readonly TestFormQuestion[] = [
   { id: "telefoon", kind: "choice", label: "Wat voor telefoon heb je?", options: ["Android", "iPhone"] },
   {
-    id: "gebruikt",
-    kind: "choice",
-    label: "Hoe vaak heb je de app al gebruikt?",
-    options: ["Net voor het eerst", "Een paar keer", "Bijna elke dag"],
+    id: "wanneer",
+    kind: "multi",
+    label: "Wanneer open je de app meestal? Tik alles aan wat klopt.",
+    options: ["’s Ochtends", "Na school of werk", "’s Avonds", "Vlak voor het slapen", "Als ik me rot voel", "Als ik een melding krijg"],
   },
   {
-    id: "geprobeerd",
+    id: "meest",
     kind: "multi",
-    label: "Wat heb je al geprobeerd? Tik alles aan wat klopt.",
+    label: "Wat gebruik je het meest? Tik alles aan wat klopt.",
     options: [
       "Groepen",
       "Privéchat",
@@ -34,13 +34,14 @@ export const TEST_FORM: readonly TestFormQuestion[] = [
       "Spelletje in de chat",
     ],
   },
-  { id: "indruk", kind: "text", label: "Je eerste indruk in een paar woorden?", placeholder: "Bijvoorbeeld: gezellig, rustig, druk…" },
-  { id: "leukst", kind: "text", label: "Wat vond je het leukst?", placeholder: "Wat je maar wilt" },
-  { id: "onduidelijk", kind: "text", label: "Wat was onduidelijk of moeilijk?", placeholder: "Ook kleine dingen helpen" },
-  { id: "werkt-niet", kind: "text", label: "Werkte er iets niet, of deed iets raar?", placeholder: "Wat deed je, en wat gebeurde er?" },
-  { id: "veilig", kind: "choice", label: "Voelt de app veilig?", options: ["Ja", "Een beetje", "Nee", "Weet ik nog niet"] },
+  { id: "drie-woorden", kind: "text", label: "De app in drie woorden?", placeholder: "Bijvoorbeeld: gezellig, rustig, veilig" },
+  { id: "leukst", kind: "text", label: "Wat vind je het fijnst aan de app?", placeholder: "Wat je maar wilt" },
+  { id: "werkt-niet", kind: "text", label: "Wat werkt niet, of doet raar?", placeholder: "Wat deed je, en wat gebeurde er?" },
+  { id: "onduidelijk", kind: "text", label: "Wat is onduidelijk of irritant?", placeholder: "Ook kleine dingen helpen" },
+  { id: "veilig", kind: "choice", label: "Voelt de app veilig?", options: ["Ja", "Een beetje", "Nee", "Weet ik niet"] },
   { id: "veilig-waarom", kind: "text", label: "Waarom voelt het zo?", placeholder: "Alles wat je opviel" },
-  { id: "mis", kind: "text", label: "Wat mis je nog?", placeholder: "Iets wat je graag in de app zou willen" },
+  { id: "missen", kind: "text", label: "Wat zou je missen als de app er niet meer was?", placeholder: "Of: niks, en waarom" },
+  { id: "mis", kind: "text", label: "Wat mis je nog in de app?", placeholder: "Iets wat je graag zou willen" },
   { id: "cijfer", kind: "score", label: "Hoe groot is de kans dat je de app blijft gebruiken? (1–10)" },
   { id: "waarom", kind: "text", label: "Waarom dit cijfer?", placeholder: "Kort mag" },
 ];
