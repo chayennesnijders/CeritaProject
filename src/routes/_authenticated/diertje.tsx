@@ -63,7 +63,7 @@ function PetPage() {
   const [ball, setBall] = useState(0);
   const stageRef = useRef<HTMLDivElement>(null);
   const hugTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { data: companions = [] } = useQuery({
+  const { data: companions = [], isLoading: companionsLoading } = useQuery({
     queryKey: ["pet-companions", uid],
     enabled: !!uid,
     queryFn: async () => (await supabase.from("companions").select("*").eq("user_id", uid!).order("created_at")).data ?? [],
@@ -99,24 +99,46 @@ function PetPage() {
   }
   const refresh = () => { qc.invalidateQueries({ queryKey: ["pet", uid] }); qc.invalidateQueries({ queryKey: ["pet-care", uid] }); qc.invalidateQueries({ queryKey: ["pet-todos", uid] }); qc.invalidateQueries({ queryKey: ["pet-lists", uid] }); qc.invalidateQueries({ queryKey: ["pet-companions", uid] }); };
 
-  useLevelUpToast(pet ? levelFor(pet.xp).level : null);
+  // Every pet has its own level: points go to the pet you are looking at (pets.active_ref, update 59).
+  const viewedXp = activeRef === "main" ? pet?.xp : companions.find((c) => c.id === activeRef)?.xp;
+  useLevelUpToast(pet && viewedXp != null ? levelFor(viewedXp).level : null, activeRef);
+  // Start on the pet that was chosen last time (also where points from games go).
+  const synced = useRef(false);
+  useEffect(() => {
+    if (synced.current || !pet || companionsLoading) return;
+    synced.current = true;
+    const saved = pet.active_ref ?? "main";
+    if (saved !== "main" && companions.some((c) => c.id === saved)) setActiveRef(saved);
+  }, [pet, companions, companionsLoading]);
+  function choosePet(ref: string) {
+    setActiveRef(ref);
+    setListId(null);
+    // A Supabase query only runs once it is awaited or .then()-ed.
+    void supabase
+      .from("pets")
+      .update({ active_ref: ref })
+      .eq("user_id", uid!)
+      .then(({ error }) => error && console.warn("active pet not saved", error.message));
+  }
   if (isLoading || !uid) return <p className="pt-6 text-muted-foreground">Laden…</p>;
   if (!pet) return <Adopt uid={uid} onDone={refresh} />;
 
   const doneToday = care.filter((c) => c.care_date === today).map((c) => c.action);
-  const { level, progress } = levelFor(pet.xp);
+  const mainLevel = levelFor(pet.xp).level;
   const careDays = new Set(care.map((c) => c.care_date));
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const offset = (new Date(now.getFullYear(), now.getMonth(), 1).getDay() + 6) % 7;
 
   const companion = companions.find((c) => c.id === activeRef);
   const active = companion ?? pet;
+  const { level, progress } = levelFor(companion ? companion.xp ?? 0 : pet.xp);
   const petLists = lists.filter((l) => l.pet_ref === (companion ? companion.id : "main"));
   const currentList = petLists.find((l) => l.id === listId) ?? petLists[0];
   const listTodos = todos.filter((t) => t.list_id === currentList?.id && t.todo_date === today);
   const todayTasks = todos.filter((t) => t.todo_date === today && petLists.some((l) => l.id === t.list_id)).length;
   const canCare = careUnlocked(todayTasks);
-  const freeSlots = extraPetSlots(level) - companions.length;
+  // New pets are unlocked by your first pet's level.
+  const freeSlots = extraPetSlots(mainLevel) - companions.length;
   const nextPetLevel = 3 + companions.length * 2;
   const doneTodos = todos.filter((t) => t.done && t.todo_date === today && petLists.some((l) => l.id === t.list_id)).length;
   const happiness = doneToday.length + doneTodos;
@@ -201,7 +223,7 @@ function PetPage() {
       <h1 className="text-3xl">Mijn diertjes</h1>
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 py-1.5">
         {[{ id: "main", species: pet.species, name: pet.name }, ...companions].map((c) => (
-          <button key={c.id} onClick={() => { setActiveRef(c.id); setListId(null); }}
+          <button key={c.id} onClick={() => choosePet(c.id)}
             className={`shrink-0 rounded-2xl px-3 py-2 text-center ${activeRef === c.id ? "bg-accent ring-2 ring-primary" : "bg-card shadow-soft"}`}>
             <p className="text-2xl">{speciesEmoji(c.species)}</p><p className="max-w-16 truncate text-xs">{c.name}</p>
           </button>
@@ -331,7 +353,7 @@ function PetPage() {
         <p className="mt-3 text-xs text-muted-foreground">Elke ochtend om 7:00 begint een nieuw lijstje en komt het popupje vanzelf tevoorschijn. Taken van gisteren die niet af zijn, zijn gewoon weg — zonder straf.</p>
       </div>
       )}
-      {panel === "aankleden" && <Wardrobe level={level} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} />}
+      {panel === "aankleden" && <Wardrobe level={level} backgroundLevel={mainLevel} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} />}
       {panel === "spelletjes" && (
         <div className="rounded-3xl bg-card p-5 shadow-soft">
           <p className="font-semibold">Spelletjes</p>
@@ -420,10 +442,11 @@ function Adopt({ uid, onDone, companion = false }: { uid: string; onDone: () => 
   );
 }
 
-function useLevelUpToast(level: number | null) {
+function useLevelUpToast(level: number | null, petRef: string) {
   useEffect(() => {
     if (level == null) return;
-    const key = "cerita-pet-level";
+    // Per pet, so switching to a younger pet is never seen as "going down" or a level-up.
+    const key = petRef === "main" ? "cerita-pet-level" : `cerita-pet-level-${petRef}`;
     const prev = Number(localStorage.getItem(key) ?? level);
     localStorage.setItem(key, String(level));
     if (level > prev) {
@@ -434,11 +457,13 @@ function useLevelUpToast(level: number | null) {
       celebrate("groot");
       toast.success(`Level ${level}! 🎉`, { description: items ? `Nieuw voor je diertje: ${items}` : "Goed bezig!" });
     }
-  }, [level]);
+  }, [level, petRef]);
 }
 
-function Wardrobe({ level, pet, onChoose }: {
+function Wardrobe({ level, backgroundLevel, pet, onChoose }: {
   level: number;
+  /** The background is shared by all your pets, so it follows your first pet's level. */
+  backgroundLevel: number;
   pet: { background: string; outfit: string; color: string };
   onChoose: (field: "background" | "outfit" | "color", id: string) => void;
 }) {
@@ -456,7 +481,7 @@ function Wardrobe({ level, pet, onChoose }: {
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {lists[tab].map((item) => {
-          const open = isUnlocked(item, level);
+          const open = isUnlocked(item, tab === "background" ? backgroundLevel : level);
           const active = pet[tab] === item.id;
           return (
             <button key={item.id} disabled={!open} onClick={() => onChoose(tab, item.id)}
