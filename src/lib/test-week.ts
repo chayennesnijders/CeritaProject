@@ -56,6 +56,10 @@ export const answeredCount = (a: TestFormAnswers) => TEST_FORM.filter((q) => fil
 /** Something worth sending: at least one answer. */
 export const hasAnyAnswer = (a: TestFormAnswers) => answeredCount(a) > 0;
 
+/** The questions still open, in order (all must be answered before sending). */
+export const openQuestions = (a: TestFormAnswers) => TEST_FORM.filter((q) => !filled(a[q.id]));
+export const allAnswered = (a: TestFormAnswers) => openQuestions(a).length === 0;
+
 /** Multi-choice answers are stored as "A, B, C". */
 export const splitMulti = (v: string | undefined) => (v ? v.split(", ").filter(Boolean) : []);
 export const joinMulti = (list: readonly string[]) => list.join(", ");

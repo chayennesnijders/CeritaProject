@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { answeredCount, feedbackMessage, hasAnyAnswer, joinMulti, splitMulti, TEST_FORM } from "./test-week";
+import { allAnswered, answeredCount, feedbackMessage, hasAnyAnswer, joinMulti, openQuestions, splitMulti, TEST_FORM } from "./test-week";
 
 describe("test questions for young testers", () => {
   it("has unique question ids and options where needed", () => {
@@ -25,5 +25,12 @@ describe("test questions for young testers", () => {
     expect(m).toMatch(/het diertje/);
     expect(m).toMatch(/Android/);
     expect(feedbackMessage({ mis: "a".repeat(5000) }).length).toBeLessThanOrEqual(2000);
+  });
+  it("needs every question answered before sending", () => {
+    const all = Object.fromEntries(TEST_FORM.map((q) => [q.id, "x"]));
+    expect(allAnswered(all)).toBe(true);
+    const { leukst: _skip, ...missing } = all;
+    expect(allAnswered(missing)).toBe(false);
+    expect(openQuestions({ ...missing, mis: " " }).map((q) => q.id)).toEqual(["leukst", "mis"]);
   });
 });

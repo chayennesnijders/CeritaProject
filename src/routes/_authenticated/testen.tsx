@@ -8,8 +8,9 @@ import { celebrate } from "@/lib/celebrate";
 import {
   answeredCount,
   feedbackMessage,
-  hasAnyAnswer,
+  allAnswered,
   joinMulti,
+  openQuestions,
   splitMulti,
   TEST_FORM,
   type TestFormAnswers,
@@ -36,6 +37,7 @@ function TestPage() {
   const [answers, setAnswers] = useState<TestFormAnswers>({});
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [showMissing, setShowMissing] = useState(false);
 
   // Start from what was saved before (also when the app was closed in between).
   const loaded = useRef(false);
@@ -74,6 +76,13 @@ function TestPage() {
 
   async function send() {
     if (!uid) return;
+    const open = openQuestions(answers);
+    if (open.length) {
+      setShowMissing(true);
+      document.getElementById(`vraag-${open[0]!.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast(`Nog ${open.length} ${open.length === 1 ? "vraag" : "vragen"} open. Beantwoord alles, dan kun je versturen.`);
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.from("admin_messages").insert({
       user_id: uid,
@@ -106,13 +115,13 @@ function TestPage() {
       </div>
 
       <p className="rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
-        Je gebruikt de app al een tijdje: vertel eerlijk wat je ervan vindt. Je antwoorden worden meteen bewaard, en de
-        makers van de app lezen ze. Sla over wat je niet weet.
+        Je gebruikt de app al een tijdje: vertel eerlijk wat je ervan vindt. Beantwoord alle vragen; kort mag. Je
+        antwoorden worden meteen bewaard, en de makers van de app lezen ze.
       </p>
 
       <div className="sticky top-[3.75rem] z-10 -mx-1 space-y-1.5 rounded-2xl bg-background/95 px-1 py-2 backdrop-blur">
         <div className="flex items-baseline justify-between text-sm font-semibold">
-          <span>{sent ? "Verstuurd 💗" : done === 0 ? "Begin waar je wilt" : "Goed bezig"}</span>
+          <span>{sent ? "Verstuurd 💗" : done === TEST_FORM.length ? "Alles beantwoord ✓" : done === 0 ? "Begin waar je wilt" : "Goed bezig"}</span>
           <span className="tabular-nums text-muted-foreground">
             {done} / {TEST_FORM.length} beantwoord
           </span>
@@ -134,12 +143,19 @@ function TestPage() {
       ) : (
         <>
           {TEST_FORM.map((q, n) => (
-            <section key={q.id} className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
+            <section
+              key={q.id}
+              id={`vraag-${q.id}`}
+              className={`space-y-2 rounded-3xl bg-card p-4 shadow-soft transition ${showMissing && !(answers[q.id] ?? "").trim() ? "ring-2 ring-destructive" : ""}`}
+            >
               <p className="text-sm font-semibold">
                 <span className="mr-1 text-muted-foreground tabular-nums">{n + 1}.</span>
                 {q.label}
                 {(answers[q.id] ?? "").trim() && <span className="ml-1 text-[#2d6a4f]">✓</span>}
               </p>
+              {showMissing && !(answers[q.id] ?? "").trim() && (
+                <p className="text-xs font-semibold text-destructive">Deze vraag moet nog beantwoord worden</p>
+              )}
               {q.kind === "choice" && (
                 <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={q.label}>
                   {q.options.map((o) => (
@@ -206,14 +222,17 @@ function TestPage() {
           ))}
 
           <Button
-            disabled={busy || !hasAnyAnswer(answers)}
+            disabled={busy}
             onClick={send}
-            className="h-12 w-full rounded-full"
+            className={`h-12 w-full rounded-full ${allAnswered(answers) ? "" : "opacity-60"}`}
           >
             {busy ? "Versturen…" : "Verstuur mijn antwoorden 💗"}
           </Button>
-          {!hasAnyAnswer(answers) && (
-            <p className="-mt-2 text-center text-xs text-muted-foreground">Beantwoord minstens één vraag om te versturen.</p>
+          {!allAnswered(answers) && (
+            <p className="-mt-2 text-center text-xs text-muted-foreground">
+              Nog {openQuestions(answers).length} {openQuestions(answers).length === 1 ? "vraag" : "vragen"} open. Versturen
+              kan als alles beantwoord is.
+            </p>
           )}
         </>
       )}
