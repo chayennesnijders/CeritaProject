@@ -11,10 +11,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
+import { useActsAsParent } from "@/lib/parent-view";
+import { parentDay } from "@/lib/parent";
+import { useChallengeDay } from "@/lib/challenges";
 import { useSignedImage } from "@/lib/articles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Mic, Square } from "lucide-react";
 import { recordWav, transcribeAudio } from "@/lib/speech";
 
@@ -47,6 +49,7 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   const [busy, setBusy] = useState(false);
 
   const { data: challenge } = useTodayChallenge();
+  const day = useChallengeDay();
 
   const { data: entries } = useQuery({
     queryKey: ["diary", me?.profile?.id],
@@ -104,72 +107,90 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
     refresh();
   }
 
+  const asParent = useActsAsParent();
+  const prompt = asParent ? parentDay(day).self : null;
+  const name = me?.profile?.display_name ?? "";
+  const todayLabel = new Date().toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
+  const canSave = !busy && !!(text.trim() || photo || audio);
+
   return (
     <>
       {confirmDialog}
-    <div className="space-y-5 pt-2">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl">Mijn dagboek</h1>
-        <span className="text-xs text-muted-foreground">🔒 Alleen voor jou</span>
-      </div>
-      <Link to="/brieven" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
-        <span className="text-2xl">💌</span>
-        <span className="flex-1">
-          <span className="block text-sm font-semibold">Brief aan jezelf</span>
-          <span className="block text-xs text-muted-foreground">Schrijf iets dat je pas over een paar maanden mag lezen</span>
-        </span>
-        <span className="text-primary">→</span>
-      </Link>
+      <div className="space-y-6 pt-2">
+        {/* De kaft */}
+        <section className="diary-cover relative overflow-hidden rounded-[1.75rem] px-6 pb-6 pt-5 text-[#2b1420]">
+          <span className="diary-band" aria-hidden />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] opacity-70">🔒 Alleen voor jou</p>
+          <h1 className="mt-1 font-hand text-5xl leading-none">Dagboek{name ? ` van ${name}` : ""}</h1>
+          <p className="mt-2 font-hand text-xl opacity-80">
+            {entries?.length ? `${entries.length} ${entries.length === 1 ? "pagina" : "pagina's"} vol` : "Nog helemaal leeg en van jou"}
+          </p>
+          <img src="/riti/blij.webp" alt="" className="pointer-events-none absolute -bottom-3 right-12 w-24 rotate-6 drop-shadow" />
+        </section>
 
-      {challenge && (
-        <section className="rounded-3xl bg-warm p-5 text-blush shadow-soft">
-          <p className="text-xs uppercase tracking-widest opacity-75">Opdracht van de dag</p>
-          <p className="mt-2 font-display text-xl">{challenge.title}</p>
-          {challenge.description && <p className="mt-1 text-sm opacity-85">{challenge.description}</p>}
-          {isDrawingChallenge(challenge.title) && (
-            <button onClick={() => setDrawing(true)} className="mt-3 rounded-full bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-soft active:scale-95">
-              🎨 Teken hier
-            </button>
+        {/* Opdracht (jongeren) of zinnetje voor jezelf (ouders) als geeltje */}
+        {(prompt || challenge) && (
+          <section className="post-it relative mx-2 rounded-sm px-5 pb-4 pt-6">
+            <span className="washi" aria-hidden />
+            <p className="font-hand text-lg opacity-70">{prompt ? "Iets voor jou vandaag" : "Opdracht van de dag"}</p>
+            <p className="font-hand text-2xl leading-7">{prompt ?? challenge?.title}</p>
+            {!prompt && challenge?.description && <p className="mt-1 text-sm opacity-80">{challenge.description}</p>}
+            {!prompt && challenge && isDrawingChallenge(challenge.title) && (
+              <button onClick={() => setDrawing(true)} className="mt-3 rounded-full bg-white/70 px-4 py-1.5 text-sm font-semibold shadow-soft active:scale-95">
+                🎨 Teken hier
+              </button>
+            )}
+          </section>
+        )}
+
+        {/* De pagina van vandaag */}
+        <section className="diary-sheet diary-spiral rounded-r-2xl rounded-l-md pb-4 pl-14 pr-4 pt-3">
+          <p className="font-hand text-2xl leading-8 first-letter:uppercase">{todayLabel}</p>
+          <label htmlFor="diary-text" className="sr-only">Wat wil je vandaag opschrijven?</label>
+          <textarea
+            id="diary-text"
+            placeholder={asParent ? "Hoe gaat het met jóu vandaag? Niemand leest mee…" : "Lief dagboek… Niemand leest mee."}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={8}
+            className="block w-full resize-none border-0 bg-transparent p-0 font-hand text-2xl leading-8 text-inherit outline-none placeholder:text-[oklch(0.6_0.03_40)] focus-visible:ring-0"
+          />
+          {audio && (
+            <div className="mt-2 flex items-center justify-between rounded-full bg-[oklch(0.93_0.03_80)] px-4 py-1.5 text-sm">
+              <span>🎙️ Spraakmemo klaar ({Math.round(audio.size / 1024)} kb)</span>
+              <button className="text-xs underline" onClick={() => setAudio(null)}>Weg</button>
+            </div>
+          )}
+          {photo && (
+            <div className="mt-3">
+              <PhotoPreview file={photo} onRemove={() => setPhoto(null)} onDrawMore={photo.name === "tekening.png" ? () => setDrawing(true) : undefined} />
+            </div>
           )}
         </section>
-      )}
 
-      <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
-        <h2 className="text-lg">{challenge ? "Doe de opdracht of schrijf vrij" : "Schrijf over alles en nog wat"}</h2>
-        <Textarea
-          placeholder="Waar denk je vandaag aan? Niemand leest mee."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={5}
-          className="rounded-2xl"
-        />
-        <MicButton onText={(t) => setText((prev) => (prev.trim() ? `${prev.trim()} ${t}` : t))} />
-        <MemoButton onAudio={setAudio} />
-        {audio && (
-          <div className="flex items-center justify-between rounded-full bg-secondary px-4 py-2 text-sm text-secondary-foreground">
-            <span>🎙️ Spraakmemo klaar ({Math.round(audio.size / 1024)} kb)</span>
-            <button className="text-xs underline" onClick={() => setAudio(null)}>Weg</button>
-          </div>
-        )}
-        {photo ? (
-          <PhotoPreview file={photo} onRemove={() => setPhoto(null)} onDrawMore={photo.name === "tekening.png" ? () => setDrawing(true) : undefined} />
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setDrawing(true)}
-              className={`flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold ${challenge && isDrawingChallenge(challenge.title) ? "bg-primary text-primary-foreground" : "border border-dashed border-muted-foreground/40 text-muted-foreground"}`}
-            >
-              🎨 Tekenen
-            </button>
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-muted-foreground/40 px-4 py-2.5 text-sm text-muted-foreground">
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
-              📷 Foto
-            </label>
-          </div>
-        )}
+        {/* Gereedschap als stickers */}
+        <div className="flex flex-wrap justify-center gap-2">
+          <MicButton onText={(t) => setText((prev) => (prev.trim() ? `${prev.trim()} ${t}` : t))} />
+          <MemoButton onAudio={setAudio} />
+          {!photo && (
+            <>
+              <button
+                onClick={() => setDrawing(true)}
+                style={{ ["--r" as string]: "2deg" }}
+                className={`diary-tool rounded-full px-4 py-2 text-sm font-semibold shadow-soft ${!prompt && challenge && isDrawingChallenge(challenge.title) ? "bg-primary text-primary-foreground" : "bg-card"}`}
+              >
+                🎨 Tekenen
+              </button>
+              <label style={{ ["--r" as string]: "-3deg" }} className="diary-tool cursor-pointer rounded-full bg-card px-4 py-2 text-sm font-semibold shadow-soft">
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+                📷 Foto
+              </label>
+            </>
+          )}
+        </div>
         <DrawingPad
           open={drawing}
-          title={challenge && isDrawingChallenge(challenge.title) ? challenge.title : undefined}
+          title={!prompt && challenge && isDrawingChallenge(challenge.title) ? challenge.title : undefined}
           start={photo?.name === "tekening.png" ? photo : null}
           onClose={() => setDrawing(false)}
           onDone={(file) => {
@@ -178,27 +199,95 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
           }}
         />
         <div className="flex gap-2">
-          {challenge && (
-            <Button disabled={busy || (!text.trim() && !photo && !audio)} onClick={() => save(challenge.id)} className="flex-1 rounded-full">
+          {challenge && !prompt && (
+            <Button disabled={!canSave} onClick={() => save(challenge.id)} className="flex-1 rounded-full">
               {busy ? "Bezig…" : "Opslaan bij opdracht"}
             </Button>
           )}
-          <Button disabled={busy || (!text.trim() && !photo && !audio)} variant={challenge ? "outline" : "default"} onClick={() => save(null)} className="flex-1 rounded-full">
-            {busy ? "Bezig…" : "Opslaan"}
+          <Button disabled={!canSave} variant={challenge && !prompt ? "outline" : "default"} onClick={() => save(null)} className="flex-1 rounded-full">
+            {busy ? "Bezig…" : "Bewaar deze pagina"}
           </Button>
         </div>
-      </section>
 
+        <Link to="/brieven" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+          <span className="text-2xl">💌</span>
+          <span className="flex-1">
+            <span className="block text-sm font-semibold">Brief aan jezelf</span>
+            <span className="block text-xs text-muted-foreground">Schrijf iets dat je pas over een paar maanden mag lezen</span>
+          </span>
+          <span className="text-primary">→</span>
+        </Link>
 
-      <section className="space-y-3">
-        <h2 className="text-lg">Eerdere pagina's</h2>
-        {entries?.map((e) => (
-          <DiaryEntry key={e.id} entry={e} onDelete={() => remove(e.id)} />
-        ))}
-        {entries?.length === 0 && <p className="text-sm text-muted-foreground">Nog leeg. Schrijf je eerste pagina hierboven.</p>}
-      </section>
-    </div>
+        <DiaryBook entries={entries ?? []} onDelete={remove} />
+      </div>
     </>
+  );
+}
+
+type Entry = { id: string; body: string | null; photo_path: string | null; audio_path: string | null; created_at: string; challenge: { title: string } | null };
+
+/** Earlier pages, read one at a time like a book: arrows or swipe to turn the page, a list to jump. */
+function DiaryBook({ entries, onDelete }: { entries: Entry[]; onDelete: (id: string) => void }) {
+  const [i, setI] = useState(0); // 0 = newest page
+  const [dir, setDir] = useState<"next" | "prev">("next");
+  const [toc, setToc] = useState(false);
+  const [touchX, setTouchX] = useState<number | null>(null);
+  useEffect(() => {
+    if (i > 0 && i >= entries.length) setI(Math.max(0, entries.length - 1));
+  }, [entries.length, i]);
+  if (entries.length === 0)
+    return <p className="text-center font-hand text-2xl text-muted-foreground">Je eerste pagina komt hier te staan.</p>;
+  const n = entries.length;
+  const go = (to: number) => {
+    if (to < 0 || to >= n) return;
+    setDir(to > i ? "prev" : "next");
+    setI(to);
+  };
+  const entry = entries[Math.min(i, n - 1)]!;
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="font-hand text-3xl">Eerdere pagina's</h2>
+        <button onClick={() => setToc((v) => !v)} className="text-sm font-semibold text-primary underline">
+          {toc ? "Sluit inhoud" : "Inhoud"}
+        </button>
+      </div>
+      {toc && (
+        <ol className="diary-sheet max-h-72 space-y-0 overflow-y-auto rounded-xl pl-14 pr-4">
+          {entries.map((e, k) => (
+            <li key={e.id}>
+              <button onClick={() => { go(k); setToc(false); }} className={`flex w-full justify-between font-hand text-xl leading-8 ${k === i ? "font-bold" : ""}`}>
+                <span className="first-letter:uppercase">{new Date(e.created_at).toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "long" })}</span>
+                <span className="opacity-60">p. {n - k}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+      <div
+        className="relative"
+        onTouchStart={(e) => setTouchX(e.touches[0]?.clientX ?? null)}
+        onTouchEnd={(e) => {
+          const end = e.changedTouches[0]?.clientX;
+          if (touchX !== null && end !== undefined && Math.abs(end - touchX) > 50) go(end < touchX ? i - 1 : i + 1);
+          setTouchX(null);
+        }}
+      >
+        <span className="diary-ribbon z-10" aria-hidden />
+        <div key={entry.id} className={dir === "next" ? "page-next" : "page-prev"}>
+          <DiaryEntry entry={entry} page={n - i} onDelete={() => onDelete(entry.id)} />
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={() => go(i + 1)} disabled={i >= n - 1} className="rounded-full bg-card px-4 py-2 text-sm font-semibold shadow-soft disabled:opacity-40">
+          ← Eerder
+        </button>
+        <span className="font-hand text-xl">pagina {n - i} van {n}</span>
+        <button onClick={() => go(i - 1)} disabled={i <= 0} className="rounded-full bg-card px-4 py-2 text-sm font-semibold shadow-soft disabled:opacity-40">
+          Later →
+        </button>
+      </div>
+    </section>
   );
 }
 
@@ -231,15 +320,15 @@ function MicButton({ onText }: { onText: (t: string) => void }) {
 
   if (rec) {
     return (
-      <Button type="button" variant="destructive" onClick={stop} disabled={busy} className="w-full rounded-full">
-        <Square className="size-4" /> {busy ? "Bezig met omzetten…" : "Stop opname (spreek rustig een paar seconden)"}
+      <Button type="button" variant="destructive" onClick={stop} disabled={busy} className="rounded-full">
+        <Square className="size-4" /> {busy ? "Omzetten…" : "Stop opname"}
       </Button>
     );
   }
   return (
-    <Button type="button" variant="outline" onClick={start} className="w-full rounded-full">
-      <Mic className="size-4" /> Spreek in plaats van typen
-    </Button>
+    <button type="button" onClick={start} style={{ ["--r" as string]: "-2deg" }} className="diary-tool inline-flex items-center gap-1.5 rounded-full bg-card px-4 py-2 text-sm font-semibold shadow-soft">
+      <Mic className="size-4" /> Inspreken
+    </button>
   );
 }
 
@@ -269,47 +358,50 @@ function MemoButton({ onAudio }: { onAudio: (f: File) => void }) {
 
   if (rec) {
     return (
-      <Button type="button" variant="destructive" onClick={stop} className="w-full rounded-full">
-        <Square className="size-4" /> Stop spraakmemo
+      <Button type="button" variant="destructive" onClick={stop} className="rounded-full">
+        <Square className="size-4" /> Stop memo
       </Button>
     );
   }
   return (
-    <Button type="button" variant="outline" onClick={start} className="w-full rounded-full">
-      <Mic className="size-4" /> Spraakmemo opnemen (blijft geluid)
-    </Button>
+    <button type="button" onClick={start} style={{ ["--r" as string]: "3deg" }} className="diary-tool inline-flex items-center gap-1.5 rounded-full bg-card px-4 py-2 text-sm font-semibold shadow-soft">
+      🔴 Spraakmemo
+    </button>
   );
 }
 
-function DiaryEntry({ entry, onDelete }: {
-  entry: { id: string; body: string | null; photo_path: string | null; audio_path: string | null; created_at: string; challenge: { title: string } | null };
-  onDelete: () => void;
-}) {
+function DiaryEntry({ entry, page, onDelete }: { entry: Entry; page: number; onDelete: () => void }) {
   const { data: src } = useSignedImage("diary-photos", entry.photo_path);
   const { data: audioSrc } = useSignedImage("diary-audio", entry.audio_path);
   const date = new Date(entry.created_at);
   return (
-    <article className="diary-page overflow-hidden rounded-2xl border-2 border-ink/80 shadow-soft">
-      <header className="flex items-center justify-between border-b-2 border-dashed border-ink/30 px-4 py-2.5 pl-11">
-        <p className="font-hand text-xl font-semibold">
+    <article className="diary-sheet diary-spiral min-h-[22rem] rounded-r-2xl rounded-l-md pb-4 pl-14 pr-4 pt-3">
+      <header className="flex items-baseline justify-between gap-2 pr-6">
+        <p className="font-hand text-2xl font-semibold leading-8 first-letter:uppercase">
           {date.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
-        <button className="text-xs text-destructive underline" onClick={onDelete}>Weg</button>
+        <span className="shrink-0 font-hand text-lg opacity-60">{date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</span>
       </header>
-      <div className="space-y-1 px-4 py-3 pl-11">
-        {entry.challenge && (
-          <p className="mb-2 inline-block rounded-full bg-secondary px-2 py-0.5 text-[11px] text-secondary-foreground">Opdracht: {entry.challenge.title}</p>
-        )}
-        {entry.body && <p className="font-hand whitespace-pre-wrap text-2xl leading-8">{entry.body}</p>}
-        {audioSrc && (
-          <div className="flex items-center gap-2 rounded-full bg-secondary px-3 py-2">
-            <span className="text-lg">🎙️</span>
-            <audio controls src={audioSrc} className="h-8 w-full min-w-0" />
-          </div>
-        )}
-        {src && <img src={src} alt="" className="mt-2 w-full rounded-xl border border-ink/20 object-cover" />}
-        <p className="pt-1 text-right text-[11px] text-muted-foreground">{date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</p>
-      </div>
+      {entry.challenge && (
+        <p className="post-it my-2 inline-block rounded-sm px-3 py-1 font-hand text-lg leading-6">📌 {entry.challenge.title}</p>
+      )}
+      {entry.body && <p className="whitespace-pre-wrap font-hand text-2xl leading-8">{entry.body}</p>}
+      {audioSrc && (
+        <div className="my-2 flex items-center gap-2 rounded-full bg-[oklch(0.93_0.03_80)] px-3 py-1.5">
+          <span className="text-lg">🎙️</span>
+          <audio controls src={audioSrc} className="h-8 w-full min-w-0" />
+        </div>
+      )}
+      {src && (
+        <figure className="polaroid relative mx-auto mt-4 w-4/5">
+          <span className="washi" aria-hidden />
+          <img src={src} alt="" className="w-full object-cover" />
+        </figure>
+      )}
+      <footer className="mt-4 flex items-center justify-between">
+        <button className="text-xs text-destructive underline" onClick={onDelete}>Pagina eruit scheuren</button>
+        <span className="font-hand text-lg opacity-60">— {page} —</span>
+      </footer>
     </article>
   );
 }

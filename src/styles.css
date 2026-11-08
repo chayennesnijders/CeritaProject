@@ -162,3 +162,36 @@
 @keyframes riti-jump { 0% { transform: translateY(0) scale(1,1) rotate(0) } 20% { transform: translateY(0) scale(1.1,.88) rotate(0) } 50% { transform: translateY(-25%) scale(.94,1.08) rotate(-6deg) } 70% { transform: translateY(-8%) scale(1,1) rotate(5deg) } 85% { transform: translateY(0) scale(1.06,.94) rotate(0) } 100% { transform: translateY(0) scale(1,1) rotate(0) } }
 @keyframes riti-rock { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(3deg) } }
 @keyframes riti-wave { 0%,100% { transform: rotate(0) } 25% { transform: rotate(20deg) } 75% { transform: rotate(-12deg) } }
+
+/* Dagboek: kaft, gelinieerd papier met spiraal, geeltjes, plakband, polaroids en omslaan */
+@utility diary-sheet {
+  position: relative;
+  background-color: oklch(0.985 0.012 85);
+  color: oklch(0.25 0.03 40);
+  background-image:
+    linear-gradient(to right, transparent 46px, oklch(0.72 0.14 355 / 0.55) 46px, oklch(0.72 0.14 355 / 0.55) 48px, transparent 48px),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, oklch(0.78 0.04 230 / 0.55) 31px, oklch(0.78 0.04 230 / 0.55) 32px);
+  background-attachment: local;
+  box-shadow: 0 1px 0 oklch(0.9 0.02 80), 0 2px 0 oklch(0.95 0.015 80), 0 3px 0 oklch(0.88 0.02 80), 0 14px 30px -12px oklch(0.3 0.05 40 / 0.35);
+}
+.diary-spiral::before {
+  content: ""; position: absolute; left: 12px; top: 18px; bottom: 18px; width: 16px;
+  background-image: radial-gradient(circle at 8px 8px, oklch(0.55 0.03 40) 0 4px, oklch(0.92 0.01 80) 4.5px 6px, transparent 6.5px);
+  background-size: 16px 32px; background-repeat: repeat-y; pointer-events: none;
+}
+.diary-cover {
+  background: radial-gradient(120% 120% at 20% 10%, oklch(0.84 0.1 355), oklch(0.72 0.12 355));
+  box-shadow: inset -10px 0 0 oklch(0.62 0.12 355 / 0.35), 0 14px 30px -14px oklch(0.3 0.08 355 / 0.5);
+}
+.diary-band { position: absolute; top: 0; bottom: 0; right: 34px; width: 14px; background: oklch(0.3 0.04 30); border-radius: 3px; box-shadow: 2px 0 0 oklch(0 0 0 / 0.15) }
+.post-it { background: oklch(0.94 0.12 95); color: oklch(0.3 0.05 60); box-shadow: 0 10px 18px -10px oklch(0.3 0.05 60 / 0.6); transform: rotate(-1.5deg) }
+.washi { position: absolute; height: 22px; width: 90px; background: oklch(0.85 0.09 355 / 0.75); top: -10px; left: 50%; transform: translateX(-50%) rotate(-4deg); }
+.polaroid { background: white; padding: 10px 10px 34px; box-shadow: 0 10px 20px -10px oklch(0.3 0.05 40 / 0.5); transform: rotate(1.5deg) }
+.diary-ribbon { position: absolute; top: -6px; right: 10px; width: 18px; height: 70px; background: oklch(0.62 0.15 20); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%) }
+.diary-tool { transform: rotate(var(--r, -2deg)); transition: transform .15s }
+.diary-tool:active { transform: rotate(0) scale(.95) }
+@keyframes page-turn-next { from { transform: perspective(1200px) rotateY(-70deg); opacity: .2 } to { transform: none; opacity: 1 } }
+@keyframes page-turn-prev { from { transform: perspective(1200px) rotateY(70deg); opacity: .2 } to { transform: none; opacity: 1 } }
+.page-next { animation: page-turn-next .45s ease-out; transform-origin: left center }
+.page-prev { animation: page-turn-prev .45s ease-out; transform-origin: right center }
+@media (prefers-reduced-motion: reduce) { .page-next, .page-prev { animation: none } }
