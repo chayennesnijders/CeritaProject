@@ -17,6 +17,9 @@ Dashboard (the agent's memory and the owner's view): **https://claude.ai/artifac
 - `learnings/<l-NNN>` — `{date, week, text, evidence, confidence:"laag"|"middel"|"hoog", platform?}` — the growing memory. Add new ones, raise or lower confidence of old ones with evidence; never silently delete.
 - `agent/status` — `{week, last_run, next_run, message}`: the message the owner reads first.
 - `strategy/current` — `{title, start, until, check, summary, reason}`: the **fixed course** shown at the top of the dashboard (3 weeks at a time).
+- `doubts/<id>` — `{text, created, answer?, answered_at?}`: the owner's **twijfelbak** (readable only by the owner; you act as the owner). Personal — never quote it anywhere else.
+- `focus/<YYYY-Www>` — `{week, tasks:[{text, why, done}]}`: 3 focus tasks outside social media for that week; the owner ticks `done`.
+- `proof/<id>` — `{text, date, source}`: the **bewijslijst** of real wins; the owner can add items too.
 
 Always pass `if_version` (from your read) when writing an existing document.
 
@@ -43,7 +46,11 @@ Always pass `if_version` (from your read) when writing an existing document.
    - Write a short `why` per post (which learning or trend it uses).
 5. **Render**: write `plan.json` (`{"posts":[{id, format, bg, ...}]}`, ids `<week>-<n>`) in a scratch folder and run `python3 tools/social/render.py plan.json <outdir>` from the repo root (needs python3 with Pillow + numpy, and ffmpeg). Look at one frame of every video (ffmpeg `-ss 3 -frames:v 1`) and fix unreadable or overlapping text before uploading.
 6. **Publish**: upload the files with `Artifact` (`url`, `asset: true`, `file_paths`, at most 25 per call — about 5 calls for a week of 14 posts), then one `ArtifactData` `batch`: 14 posts (`set`, status "gepland"; slide posts get `kind:"slides"`, `slides`, `slides_ig` and the slideshow as `video`), `weeks/<next>` (focus, summary, trends, playbook — refresh the playbook rules with what you learned), the evaluation on `weeks/<last>` (`update`), new/updated learnings, and `agent/status` with `last_run`, `next_run` (next Sunday 09:40 Europe/Amsterdam) and a friendly 3–5 sentence Dutch message: what you learned, what's new this week, what the owner should do (download the Weekpakket and schedule it in one go, tap Geplaatst, fill in stats and sign-ups Friday/Saturday).
-7. **Report** in 3–5 lines what you did, with the dashboard link.
+7. **Rust & focus** (same batch as step 6 where possible):
+   - **Twijfelbak**: answer every doubt without `answer` (`update` with `answer` + `answered_at`), in 2–5 warm, honest sentences. Use the numbers where they help; if it's about strategy before the check date, explain kindly why we wait and what is being tested; if it's about the project's worth, point to the bewijslijst; if it sounds heavier than doubt (sleep, mood, not coping), gently suggest talking to someone close, a coach or the huisarts. Never dismiss, never alarm.
+   - **Focus**: write `focus/<next week>` with exactly 3 concrete tasks outside social media, each doable in about an hour, with a one-line `why`: usually one for sign-ups offline (schools, youth workers, libraries, posters with QR), one for the product or testers, partners or funding, and one for rest/life outside the project. Look at last week's focus: unfinished tasks may return once, without blame.
+   - **Bewijslijst**: add 1–3 `proof` items from real wins this week (sign-ups, a good post, finished focus tasks, a tester quote the owner entered). Only true, checkable things — never invent.
+8. **Report** in 3–5 lines what you did, with the dashboard link.
 
 ## Rules that always apply
 
