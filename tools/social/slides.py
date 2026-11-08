@@ -1,5 +1,6 @@
-"""Carousel slides for CeritaProject: 9:16 (TikTok photo mode, Snapchat Story), 4:5 (Instagram carousel)
-and a slideshow video (YouTube Shorts, Snapchat Spotlight). Brand: crème, ink black, logo pink, Riti."""
+"""Carousel slides for CeritaProject: 3:4 (TikTok photo mode — shown whole, no cropping), 9:16 (Snapchat
+Story), 4:5 (Instagram carousel) and a slideshow video (YouTube Shorts, Snapchat Spotlight).
+Brand: crème, ink black, logo pink, Riti. On 3:4 the right edge stays clear for TikTok's buttons."""
 import os
 from PIL import Image, ImageDraw
 from make import font, wrap, FPS
@@ -7,7 +8,8 @@ from riti_anim import pose, heart
 import interact
 
 CREAM, INK, PINK, COCOA, MUTED = (251, 243, 234), (35, 27, 23), (241, 166, 192), (107, 74, 53), (122, 97, 82)
-SIZES = {"916": (1080, 1920), "45": (1080, 1350)}
+SIZES = {"34": (1080, 1440), "916": (1080, 1920), "45": (1080, 1350)}
+RIGHT = {"34": 150}  # extra clear space on the right (TikTok puts its like/comment buttons there)
 
 
 def _text(d, text, x, y, size, weight, color, maxw, lh=1.18, center=False, W=1080):
@@ -41,9 +43,10 @@ def cover(size, hook, sub, riti="blij", n=1):
         heart(d, 110 + (k % 3) * 430, int(H * 0.55) + (k // 3) * int(H * 0.13), 2.6, (255, 255, 255, 55))
     d.text((70, 70), "CeritaProject", font=font(38, 700), fill=INK)
     rh = int(H * (0.30 if size == "916" else 0.28)); r = pose(riti, rh)
-    box_top, box_h = (300 if size == "916" else 190), int(H * 0.42)
-    s = _fit(hook, W - 160, box_h, 104 if size == "916" else 92, 820)
-    _text(d, hook, 80, box_top, s, 820, INK, W - 160)
+    box_top, box_h = {"916": 300, "34": 210}.get(size, 190), int(H * 0.42)
+    mw = W - 160 - RIGHT.get(size, 0)
+    s = _fit(hook, mw, box_h, {"916": 104, "34": 96}.get(size, 92), 820)
+    _text(d, hook, 80, box_top, s, 820, INK, mw)
     im.alpha_composite(r, ((W - r.width) // 2, H - rh - 150))
     pill = sub or "Swipe →"; f = font(40, 700); bw = f.getlength(pill) + 70
     d.rounded_rectangle(((W - bw) / 2, H - 130, (W + bw) / 2, H - 52), 40, fill=INK)
@@ -53,21 +56,23 @@ def cover(size, hook, sub, riti="blij", n=1):
 
 def content(size, i, n, title, body, riti=None):
     W, H = SIZES[size]; im = Image.new("RGBA", (W, H), CREAM + (255,)); d = ImageDraw.Draw(im)
-    tall = size == "916"
-    d.ellipse((W - 520, H - 620, W + 180, H + 80), fill=(246, 214, 224, 255))  # soft pink shape behind Riti
-    ts = _fit(title, W - 160, int(H * 0.22), 100 if tall else 84, 820)
-    bs = _fit(body, W - 160, int(H * 0.26), 66 if tall else 56, 560, minsize=40, lh=1.3)
-    th = len(wrap(title, font(ts, 820), W - 160)) * int(ts * 1.18)
-    bh = len(wrap(body, font(bs, 560), W - 160)) * int(bs * 1.3)
+    tall = size == "916"; left = size == "34"  # on 3:4 Riti sits left, away from TikTok's buttons
+    mw = W - 160 - RIGHT.get(size, 0)
+    if left: d.ellipse((-180, H - 560, 460, H + 80), fill=(246, 214, 224, 255))
+    else: d.ellipse((W - 520, H - 620, W + 180, H + 80), fill=(246, 214, 224, 255))  # soft pink shape behind Riti
+    ts = _fit(title, mw, int(H * 0.22), 100 if tall else 88 if left else 84, 820)
+    bs = _fit(body, mw, int(H * 0.26), 66 if tall else 58 if left else 56, 560, minsize=40, lh=1.3)
+    th = len(wrap(title, font(ts, 820), mw)) * int(ts * 1.18)
+    bh = len(wrap(body, font(bs, 560), mw)) * int(bs * 1.3)
     block = 150 + th + 40 + bh
-    top = max(110, int(H * (0.40 if tall else 0.42)) - block // 2)
+    top = max(100, int(H * (0.40 if tall else 0.38 if left else 0.42)) - block // 2)
     d.ellipse((80, top, 200, top + 120), fill=PINK); f = font(60, 820); t = str(i)
     d.text((140 - f.getlength(t) / 2, top + 22), t, font=f, fill=INK)
-    y = _text(d, title, 80, top + 150, ts, 820, INK, W - 160)
-    _text(d, body, 80, y + 40, bs, 560, COCOA, W - 160, lh=1.3)
+    y = _text(d, title, 80, top + 150, ts, 820, INK, mw)
+    _text(d, body, 80, y + 40, bs, 560, COCOA, mw, lh=1.3)
     r = pose(riti or "blij", 400 if tall else 300)
-    im.alpha_composite(r, (W - r.width - 40, H - r.height - 110))
-    d.text((80, H - 92), "CeritaProject", font=font(32, 700), fill=MUTED)
+    im.alpha_composite(r, (50 if left else W - r.width - 40, H - r.height - 110))
+    if not left: d.text((80, H - 92), "CeritaProject", font=font(32, 700), fill=MUTED)
     _dots(d, W, H, i, n, INK + (255,))
     return im
 
@@ -97,10 +102,10 @@ def build(cov, slides, end_cfg):
 
 
 def render(outdir, pid, cov, slides, end_cfg, per=2.8, fade=0.4):
-    """Writes <pid>-916-<k>.png, <pid>-45-<k>.png and the slideshow <pid>.mp4; returns the paths."""
+    """Writes <pid>-34-<k>.png (TikTok), <pid>-916-<k>.png, <pid>-45-<k>.png and the slideshow <pid>.mp4."""
     if end_cfg.get("help") and not end_cfg.get("help_line"):
         end_cfg = {**end_cfg, "help_line": "Blijft het zwaar? Praat met iemand die je vertrouwt of bel 113 (0800-0113). Jonger dan 18? Kindertelefoon 0800-0432."}
-    sets = build(cov, slides, end_cfg); paths = {"916": [], "45": []}
+    sets = build(cov, slides, end_cfg); paths = {k: [] for k in SIZES}
     for size, imgs in sets.items():
         for k, im in enumerate(imgs, 1):
             p = os.path.join(outdir, f"{pid}-{size}-{k}.png"); im.convert("RGB").save(p, optimize=True); paths[size].append(p)

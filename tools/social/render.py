@@ -10,7 +10,7 @@ Formats and their fields:
   words    bg, hook, text, pose?, cta?   hook, then word by word, Riti pops in
   overlay  src, captions[], pill?        yellow captions on an existing video (keeps its sound)
   slides   cover{hook, sub?, pose?}, slides[3-8]{title, body, pose?}, end{cta?, help?}
-           carousel: <id>-916-<k>.png (TikTok photo mode, Snapchat Story), <id>-45-<k>.png
+           carousel: <id>-34-<k>.png (TikTok photo mode, 3:4), <id>-916-<k>.png (Snapchat Story), <id>-45-<k>.png
            (Instagram carousel) and <id>.mp4 slideshow (YouTube Shorts, Snapchat Spotlight)
 bg: nacht | regen | zonsondergang | lucht.  pose: blij, troostend, trots, denkend, verdrietig, riti.
 Every video is 1080x1920, silent unless overlay (add trending sound in the app), no copyrighted material.

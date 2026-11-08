@@ -55,7 +55,7 @@ Always pass `if_version` (from your read) when writing an existing document.
 
 ## Platform focus
 
-Read `settings/main.platforms` first. With only `tiktok`: every post gets only `captions.tiktok` and `times.tiktok`; video posts upload only the mp4; slide posts upload only the 9:16 PNGs (photo mode) — skip the 4:5 slides and the slideshow video; trends and the playbook are TikTok's; sign-ups come from `?bron=tiktok`. Don't suggest adding platforms back before the strategy check, and only then if the numbers clearly support it and it wouldn't add stress.
+Read `settings/main.platforms` first. With only `tiktok`: every post gets only `captions.tiktok` and `times.tiktok`; video posts upload only the mp4; slide posts upload only the **3:4 PNGs** (`<id>-34-<k>.png`, TikTok photo mode shows 3:4 whole; 9:16 got shrunk and cropped) and store them in `slides` with `slide_ratio: "3:4"` — skip the 9:16 and 4:5 slides and the slideshow video; trends and the playbook are TikTok's; sign-ups come from `?bron=tiktok`. Don't suggest adding platforms back before the strategy check, and only then if the numbers clearly support it and it wouldn't add stress.
 
 ## Rules that always apply
 
