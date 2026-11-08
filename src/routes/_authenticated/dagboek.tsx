@@ -149,11 +149,22 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
           <label htmlFor="diary-text" className="sr-only">Wat wil je vandaag opschrijven?</label>
           <textarea
             id="diary-text"
+            ref={(el) => {
+              if (!el) return;
+              // Grow with the text in whole lines, so it never scrolls inside and stays on the ruled lines.
+              el.style.height = "auto";
+              el.style.height = `${Math.max(256, Math.ceil(el.scrollHeight / 32) * 32)}px`;
+            }}
             placeholder={asParent ? "Hoe gaat het met jóu vandaag? Niemand leest mee…" : "Lief dagboek… Niemand leest mee."}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              const el = e.currentTarget;
+              el.style.height = "auto";
+              el.style.height = `${Math.max(256, Math.ceil(el.scrollHeight / 32) * 32)}px`;
+            }}
             rows={8}
-            className="block w-full resize-none border-0 bg-transparent p-0 font-hand text-2xl leading-8 text-inherit outline-none placeholder:text-[oklch(0.6_0.03_40)] focus-visible:ring-0"
+            className="block w-full resize-none overflow-hidden border-0 bg-transparent p-0 font-hand text-2xl leading-8 text-inherit outline-none placeholder:text-[oklch(0.6_0.03_40)] focus-visible:ring-0"
           />
           {audio && (
             <div className="mt-2 flex items-center justify-between rounded-full bg-[oklch(0.93_0.03_80)] px-4 py-1.5 text-sm">
@@ -253,7 +264,7 @@ function DiaryBook({ entries, onDelete }: { entries: Entry[]; onDelete: (id: str
         </button>
       </div>
       {toc && (
-        <ol className="diary-sheet max-h-72 space-y-0 overflow-y-auto rounded-xl pl-14 pr-4">
+        <ol className="diary-sheet max-h-72 space-y-0 overflow-y-auto rounded-xl pb-3 pl-14 pr-4 pt-3">
           {entries.map((e, k) => (
             <li key={e.id}>
               <button onClick={() => { go(k); setToc(false); }} className={`flex w-full justify-between font-hand text-xl leading-8 ${k === i ? "font-bold" : ""}`}>
@@ -383,13 +394,15 @@ function DiaryEntry({ entry, page, onDelete }: { entry: Entry; page: number; onD
         <span className="shrink-0 font-hand text-lg opacity-60">{date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</span>
       </header>
       {entry.challenge && (
-        <p className="post-it my-2 inline-block rounded-sm px-3 py-1 font-hand text-lg leading-6">📌 {entry.challenge.title}</p>
+        <p className="post-it inline-block max-w-full truncate rounded-sm px-3 py-1 font-hand text-lg leading-6">📌 {entry.challenge.title}</p>
       )}
       {entry.body && <p className="whitespace-pre-wrap font-hand text-2xl leading-8">{entry.body}</p>}
       {audioSrc && (
-        <div className="my-2 flex items-center gap-2 rounded-full bg-[oklch(0.93_0.03_80)] px-3 py-1.5">
-          <span className="text-lg">🎙️</span>
-          <audio controls src={audioSrc} className="h-8 w-full min-w-0" />
+        <div className="flex h-16 items-center">
+          <div className="flex w-full items-center gap-2 rounded-full bg-[oklch(0.93_0.03_80)] px-3">
+            <span className="text-lg">🎙️</span>
+            <audio controls src={audioSrc} className="h-8 w-full min-w-0" />
+          </div>
         </div>
       )}
       {src && (
