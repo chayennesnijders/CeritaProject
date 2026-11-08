@@ -76,7 +76,17 @@ class Scene:
                 d.line((x, yy, x - l * 0.12, yy + l), fill=(200, 215, 240, 110), width=3)
         return im
 
+import re as _re
+_EMOJI = _re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F\u200D]")
+
+
+def clean(text):
+    """Drop emoji: the video font has none, so they would render as empty boxes."""
+    return _re.sub(r"\s{2,}", " ", _EMOJI.sub("", text)).strip()
+
+
 def wrap(text, f, maxw):
+    text = clean(text)
     lines = []
     for para in text.split("\n"):
         words, cur = para.split(), ""

@@ -21,6 +21,13 @@ describe("guides", () => {
     expect(text).toContain("0800-0113");
     expect(text).toContain("112");
   });
+  it("the codeword guide promises no questions and still points to 112", () => {
+    const g = guideBySlug("codewoord")!;
+    const text = JSON.stringify(g);
+    expect(text).toContain("112");
+    expect(text).toContain("0800-0432");
+    expect(text).toMatch(/geen vragen/i);
+  });
   it("count progress", () => {
     const g = GUIDES[0]!;
     expect(guidePercent(g, 0, false)).toBe(0);

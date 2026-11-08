@@ -553,4 +553,136 @@ export const EXTRA_GUIDES: Guide[] = [
       niet: "Kies één klein moment om je kind te laten merken dat je het hebt onthouden en dat het er mag zijn, bijvoorbeeld door te vragen hoe het met een vriend of vriendin gaat. Meer hoeft niet.",
     },
   },
+  {
+    slug: "codewoord",
+    emoji: "🔑",
+    title: "Een geheim codewoord afspreken met je kind",
+    summary:
+      "Een gewone zin die je kind je kan appen als het ergens weg wil, zonder uitleg en zonder gezichtsverlies. Je spreekt samen een codewoord af en weet precies wat je doet als het binnenkomt.",
+    minutes: 8,
+    forWho: "Ouders en verzorgers van kinderen van 10 tot 18 jaar",
+    outcomes: [
+      "Je hebt samen met je kind een codewoord gekozen",
+      "Je weet precies wat je doet als het binnenkomt",
+      "Je kind weet dat het je altijd kan bereiken, ook voor een vriend(in)",
+      "Je weet wanneer je toch meteen 112 belt",
+    ],
+    steps: [
+      {
+        kind: "uitleg",
+        title: "Waarom een codewoord?",
+        text: [
+          "Soms zit je kind ergens waar het weg wil: een feestje dat uit de hand loopt, een afspraak die niet goed voelt, iemand die drinkt en wil rijden. Hardop zeggen ‘ik wil naar huis’ voelt dan vaak onmogelijk, bang voor wat anderen denken.",
+          "Een codewoord lost dat op. Je kind appt een zin die heel gewoon klinkt. Jij weet: ik moet mijn kind hier weghalen. Niemand die meekijkt, snapt het.",
+        ],
+        tip: "Het werkt alleen als je kind erop kan vertrouwen dat er geen preek of straf volgt. Die belofte is het belangrijkste deel van de afspraak.",
+      },
+      {
+        kind: "keuze",
+        title: "Een goed codewoord",
+        situation: "Je wilt samen een codewoord kiezen.",
+        question: "Welk codewoord werkt het best?",
+        options: [
+          {
+            text: "‘HELP, kom me halen!’",
+            verdict: "liever niet",
+            feedback: "Iedereen die meekijkt, snapt het meteen. Dan durft je kind het juist niet te sturen.",
+          },
+          {
+            text: "Een gewone zin die je kind zelf kiest, zoals ‘Heb jij de vuilnis buitengezet?’",
+            verdict: "goed",
+            feedback: "Het klinkt doodnormaal en je kind heeft het zelf bedacht, dus het onthoudt het en voelt zich er eigenaar van.",
+          },
+          {
+            text: "Een moeilijke code met cijfers die jij bedenkt",
+            verdict: "kan beter",
+            feedback: "Op een spannend moment vergeet je kind een ingewikkelde code. Kies iets simpels dat je kind zelf bedenkt.",
+          },
+        ],
+      },
+      {
+        kind: "checklist",
+        title: "De afspraak",
+        text: "Spreek samen deze dingen af. Vink aan wat jullie hebben besproken.",
+        items: [
+          "We hebben een codewoord gekozen dat normaal klinkt",
+          "Als het binnenkomt, bel ik meteen en verzin ik een reden om mijn kind op te halen",
+          "Onderweg stel ik geen vragen, tenzij mijn kind zelf wil praten",
+          "Er volgt geen straf en geen preek voor het gebruiken van het codewoord",
+          "Het codewoord mag ook gebruikt worden om een vriend(in) te helpen",
+          "We weten wie we bellen als ik niet bereikbaar ben (een ander vertrouwd persoon)",
+        ],
+        after: "Sla het codewoord op in je telefoon, zodat je het herkent als het binnenkomt.",
+      },
+      {
+        kind: "gesprek",
+        title: "Zo kun je het voorstellen",
+        text: "Tik op een zin van de ouder om te zien waarom die werkt.",
+        lines: [
+          { who: "ouder", text: "Ik wil iets met je afspreken, gewoon voor de zekerheid. Geen zorgen, er is niks aan de hand.", why: "Je maakt meteen duidelijk dat het geen verhoor is." },
+          { who: "kind", text: "Oké… wat dan?" },
+          { who: "ouder", text: "Als je ooit ergens bent waar je weg wil, app je me een zin die heel gewoon klinkt. Dan bel ik je en verzin ik een reden om je op te halen.", why: "Je legt het simpel uit, zonder voorbeelden die eng klinken." },
+          { who: "kind", text: "En dan ga je me de hele weg uithoren." },
+          { who: "ouder", text: "Nee. Onderweg vraag ik niks. Alleen als jij wilt praten. En je krijgt er nooit straf voor.", why: "Dit is de belofte die het codewoord laat werken." },
+          { who: "ouder", text: "Welke zin wil jij? Kies maar iets wat niemand zou snappen.", why: "Je kind kiest zelf, dus het onthoudt het en voelt zich er eigenaar van." },
+        ],
+      },
+      {
+        kind: "keuze",
+        title: "Het codewoord komt binnen",
+        situation: "Het is zaterdagavond. Je kind appt: ‘Heb jij de vuilnis buitengezet?’",
+        question: "Wat doe je?",
+        options: [
+          {
+            text: "Terugappen: ‘Huh? Waarom vraag je dat?’",
+            verdict: "liever niet",
+            feedback: "Je kind heeft je nu nodig, zonder uitleg. Bel meteen.",
+          },
+          {
+            text: "Meteen bellen: ‘Je moet nu naar huis komen, oma is ziek. Ik kom je halen.’",
+            verdict: "goed",
+            feedback: "Je geeft je kind een reden om weg te gaan zonder gezichtsverlies. Precies zoals afgesproken.",
+          },
+          {
+            text: "Ophalen, en in de auto meteen vragen wat er aan de hand was",
+            verdict: "kan beter",
+            feedback: "Ophalen is goed, maar je had beloofd geen vragen te stellen. Laat je kind zelf kiezen of en wanneer het erover wil praten.",
+          },
+        ],
+      },
+      {
+        kind: "uitleg",
+        title: "Wanneer je wél meteen hulp inschakelt",
+        text: [
+          "Is er direct gevaar, is iemand gewond of heeft iemand te veel gedronken of gebruikt? Bel dan meteen 112, ook als je kind het codewoord stuurde.",
+          "Wil je kind later toch praten over wat er gebeurde, en maak je je zorgen? Je kunt anoniem advies vragen bij de Kindertelefoon (0800-0432, voor je kind) of bij 113 (0800-0113) als het gaat om gedachten aan de dood.",
+          "Soms gebruikt een kind het codewoord niet voor zichzelf, maar voor een vriend(in) die niemand heeft om te bellen. Zeg dat dat altijd mag.",
+        ],
+        tip: "Vertel je kind dat het codewoord ook werkt als het zelf iets doms heeft gedaan. Juist dan is het belangrijk dat je kind belt.",
+      },
+      {
+        kind: "plan",
+        title: "Wat ga jij deze week doen?",
+        text: "Kies één ding.",
+        actions: [
+          "Vandaag het codewoord voorstellen, bijvoorbeeld in de auto of tijdens het koken",
+          "Samen een zin kiezen en die opslaan in mijn telefoon",
+          "Afspreken wie we bellen als ik niet bereikbaar ben",
+          "Mijn kind vertellen dat het codewoord ook voor een vriend(in) mag",
+        ],
+      },
+    ],
+    cheatsheet: [
+      "Een gewone zin die je kind zelf kiest, bijvoorbeeld ‘Heb jij de vuilnis buitengezet?’",
+      "Komt het binnen: meteen bellen, een reden verzinnen en je kind ophalen.",
+      "Onderweg geen vragen, en nooit straf voor het gebruiken.",
+      "Het mag ook voor een vriend(in).",
+      "Bij direct gevaar of als iemand gewond is: altijd 112.",
+    ],
+    followUp: {
+      goed: "Fijn dat jullie een codewoord hebben. Noem het af en toe nog eens terloops, bijvoorbeeld voor een feestje: ‘Je weet ons woord nog, hè?’ Dan blijft het vers.",
+      lastig: "Misschien vond je kind het ongemakkelijk of kinderachtig. Dat is normaal. Laat het even rusten en zeg alleen: ‘Het aanbod staat. Als je ooit wilt, app me gewoon iets geks.’ Ook dat werkt.",
+      niet: "Het kwam er nog niet van. Kies één rustig moment deze week, bijvoorbeeld samen in de auto, en zeg alleen de eerste zin uit het voorbeeldgesprek. Meer hoeft niet.",
+    },
+  },
 ];

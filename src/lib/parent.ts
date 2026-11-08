@@ -44,6 +44,7 @@ export const PARENT_FOR_CHILD = [
   "Zeg vandaag zomaar dat je trots bent, zonder dat er een reden is.",
   "Luister vijf minuten zonder advies te geven. Alleen knikken en doorvragen.",
   "Stuur een berichtje overdag: ‘ik denk aan je 💛’.",
+  "Spreek een geheim codewoord af: een gewone zin die je kind kan appen als het ergens weg wil. Jij belt, haalt op, en stelt geen vragen.",
   "Vraag je kind om je iets te leren: een spel, een liedje, een app.",
   "Rijd, wandel of kook samen. Naast elkaar praat vaak makkelijker dan tegenover elkaar.",
   "Vraag: ‘is er iets waar je je zorgen over maakt?’ en accepteer ook ‘nee’.",
