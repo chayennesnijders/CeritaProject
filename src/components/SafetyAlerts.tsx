@@ -1,7 +1,8 @@
+import { memberBand } from "@/lib/member-band";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useMe, bandLabel } from "@/lib/auth";
+import { useMe } from "@/lib/auth";
 import { HelpLines } from "@/components/HelpLines";
 import { Button } from "@/components/ui/button";
 
@@ -42,11 +43,11 @@ export function SafetyAlerts() {
       if (error)
         return {
           rows: [],
-          people: {} as Record<string, { display_name: string; age_group: string }>,
+          people: {} as Record<string, { display_name: string; age_group: string; birthdate: string | null; is_parent: boolean }>,
         };
       const ids = [...new Set((rows ?? []).map((r) => r.author_id).filter(Boolean))] as string[];
       const { data: people } = ids.length
-        ? await supabase.from("profiles").select("id, display_name, age_group").in("id", ids)
+        ? await supabase.from("profiles").select("id, display_name, age_group, birthdate, is_parent").in("id", ids)
         : { data: [] };
       return { rows: rows ?? [], people: Object.fromEntries((people ?? []).map((p) => [p.id, p])) };
     },
@@ -101,7 +102,7 @@ export function SafetyAlerts() {
               {who?.display_name ?? "Lid"}
               {who?.age_group && (
                 <span className="ml-1 rounded-full bg-card px-1.5 text-[10px]">
-                  {bandLabel(who.age_group)}
+                  {memberBand(who)}
                 </span>
               )}
             </p>

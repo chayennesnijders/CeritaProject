@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { bandLabel } from "@/lib/auth";
+import { memberBandChip } from "@/lib/member-band";
 import { ageOn } from "@/lib/consent";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
@@ -32,7 +32,7 @@ export function MemberProfileDialog({
       const [profile, groups, roles, coach] = await Promise.all([
         supabase
           .from("profiles")
-          .select("id, display_name, username, avatar_url, bio, birthdate, age_group, created_at")
+          .select("id, display_name, username, avatar_url, bio, birthdate, age_group, is_parent, created_at")
           .eq("id", userId!)
           .maybeSingle(),
         supabase
@@ -93,7 +93,7 @@ export function MemberProfileDialog({
                 <span className="rounded-full bg-muted px-2.5 py-1">🎂 {age} jaar</span>
               )}
               <span className="rounded-full bg-muted px-2.5 py-1">
-                👥 Groep {bandLabel(p.age_group)}
+                {memberBandChip(p)}
               </span>
               <span className="rounded-full bg-muted px-2.5 py-1">
                 📅 Lid sinds{" "}

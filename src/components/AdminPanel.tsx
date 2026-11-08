@@ -1,3 +1,4 @@
+import { memberBand } from "@/lib/member-band";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlanStories } from "@/components/PlanStories";
 import { nameWithUsername } from "@/lib/username";
@@ -99,7 +100,7 @@ export function AdminPanel() {
         supabase.from("conversations").select("*").order("last_message_at", { ascending: false }),
         supabase.from("member_warnings").select("*").order("created_at", { ascending: false }).limit(50),
         supabase.from("member_timeouts").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("profiles").select("id, display_name, username, age_group").order("display_name"),
+        supabase.from("profiles").select("id, display_name, username, age_group, birthdate, is_parent").order("display_name"),
       ]);
       const reports = r.data ?? [];
       const log = l.data ?? [];
@@ -264,7 +265,7 @@ export function AdminPanel() {
                   .map((m) => (
                     <button key={m.id} onClick={() => { setWarnTarget(m.id); setMemberQuery(""); }} className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm ${warnTarget === m.id ? "bg-primary/20" : "bg-muted"}`}>
                       <span className="font-semibold">{m.display_name}</span>
-                      <span className="text-xs text-muted-foreground">{m.username ? `@${m.username}` : <span className="font-semibold text-destructive">nog geen @gebruikersnaam</span>} · {bandLabel(m.age_group)}</span>
+                      <span className="text-xs text-muted-foreground">{m.username ? `@${m.username}` : <span className="font-semibold text-destructive">nog geen @gebruikersnaam</span>} · {memberBand(m)}</span>
                     </button>
                   ))}
               </div>

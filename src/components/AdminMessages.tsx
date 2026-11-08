@@ -1,9 +1,9 @@
+import { memberBand } from "@/lib/member-band";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { bandLabel } from "@/lib/auth";
 import { MESSAGE_STATUS, topicInfo } from "@/lib/admin-messages";
 import { answerAdminMessage } from "@/lib/push.functions";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export function AdminMessages() {
       const { data: people } = ids.length
         ? await supabase
             .from("profiles")
-            .select("id, display_name, username, age_group")
+            .select("id, display_name, username, age_group, birthdate, is_parent")
             .in("id", ids)
         : { data: [] };
       return { rows: rows ?? [], people: Object.fromEntries((people ?? []).map((p) => [p.id, p])) };
@@ -145,7 +145,7 @@ export function AdminMessages() {
                   )}
                   {who?.age_group && (
                     <span className="ml-1 rounded-full bg-muted px-1.5 text-[10px] font-semibold">
-                      {bandLabel(who.age_group)}
+                      {memberBand(who)}
                     </span>
                   )}
                 </p>
