@@ -7,8 +7,10 @@ script.json: {"voice": "<audio or video file>", "out": "<file.mp4>",
               "pink": ["CERITAPROJECT", "ALLEEN", "ENIGE"]}
 Each line gets a scene from SCENES; the timing comes from the voice itself (speech vs. silence), so
 the owner reads the script out loud and the captions follow her. An end card (wachtlijst) is added.
+Optional: "at" on every line (seconds) uses those times instead of listening for pauses (handy when the
+recording has background sound), "cut" stops the voice early, "end_line" changes the text on the end card.
 Scenes: alone, head, crossroads, phone, spotlight, school, night, home, friend, breathe,
-        cerita, meeting, ikook, talk, hands, crowd.
+        cerita, meeting, ikook, talk, hands, crowd, idea, message, ab, a, b, both, texts, warm.
 """
 import json, math, os, random, re, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -380,7 +382,87 @@ def sc_crowd(lt, dur, t):
         heart(d, s(80 + k * 100), s(1400 - ((lt * 300 + k * 110) % 1100)), 1.3 * SS, (255, 255, 255, 220))
     return im
 
-def end_card(lt):
+def badge(d, letter, x=110, y=170):
+    d.ellipse(box(x - 70, y - 70, x + 70, y + 70), fill=PINK + (255,), outline=INK, width=s(6))
+    f = font(s(90), 850); d.text((s(x) - f.getlength(letter) / 2, s(y - 58)), letter, font=f, fill=INK)
+
+def _ab(lt, t, pick):
+    im = BG["warm"].copy(); d = ImageDraw.Draw(im)
+    for k, (cx, L) in enumerate(((290, "A"), (790, "B"))):
+        on = pick in (L, "both"); a = ease_back(clamp((lt - k * 0.2) / 0.4))
+        if a <= 0: continue
+        sc = a * ((1.0 if pick == "both" else 1.12) + 0.03 * math.sin(t * 5) if on else (0.85 if pick else 1.0))
+        w, h = 340 * sc, 480 * sc; cy = 820
+        d.rounded_rectangle(box(cx - w / 2 + 10, cy - h / 2 + 10, cx + w / 2 + 10, cy + h / 2 + 10), s(40), fill=INK + (255,))
+        d.rounded_rectangle(box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), s(40), fill=(PINK if on else (255, 250, 244)) + (255,), outline=INK, width=s(6))
+        f = font(max(1, int(s(260) * sc)), 850); d.text((s(cx) - f.getlength(L) / 2, s(cy) - s(170) * sc), L, font=f, fill=INK)
+    if not pick:
+        f = font(s(80), 850); d.text((s(540) - f.getlength("of") / 2, s(780)), "of", font=f, fill=COCOA)
+    for k in range(5):
+        ph = (lt * 0.7 + k * 0.2) % 1
+        d.text((s(120 + k * 210), s(1350 - ph * 300)), "?", font=font(s(64), 850), fill=COCOA + (int(255 * (1 - ph)),))
+    return im
+def sc_ab(lt, dur, t): return _ab(lt, t, None)
+def sc_a(lt, dur, t): return _ab(lt, t, "A")
+def sc_b(lt, dur, t): return _ab(lt, t, "B")
+def sc_both(lt, dur, t): return _ab(lt, t, "both")
+
+def sc_texts(lt, dur, t):
+    """Option A: lots of messages, little real attention."""
+    im = BG["grey"].copy(); d = ImageDraw.Draw(im)
+    MAIN.x, MAIN.y, MAIN.sc = 540, 1380, 1.5
+    MAIN.draw(d, t, mood="neutral", arms="phone")
+    n = min(8, 1 + int(lt * 4))
+    for k in range(n):
+        x, y = 160 + (k % 2) * 520 + (k * 37) % 90, 300 + (k // 2) * 150
+        d.rounded_rectangle(box(x, y, x + 300, y + 100), s(40), fill=(255, 255, 255, 235), outline=INK, width=s(4))
+        f = font(s(44), 750); txt = ("hey", "wyd", "haha", "?", "hey", "ok", "lol", "hey")[k]
+        d.text((s(x + 30), s(y + 22)), txt, font=f, fill=(120, 110, 105))
+    badge(d, "A")
+    return im
+
+def sc_warm(lt, dur, t):
+    """Option B: a real conversation that feels good."""
+    im = BG["warm"].copy(); d = ImageDraw.Draw(im)
+    f = CREW[2]; f.x, f.y, f.sc = 720, 1320, 1.35; f.draw(d, t, mood="happy", look=-0.6)
+    MAIN.x, MAIN.y, MAIN.sc = 360, 1320, 1.35; MAIN.draw(d, t, mood="happy", look=0.6)
+    for k in range(6):
+        ph = (lt * 0.6 + k / 6) % 1
+        heart(d, s(540 + 60 * math.sin(t * 2 + k)), s(1000 - ph * 600), (1.2 + ph) * SS, (236, 110, 150, int(255 * (1 - ph))))
+    badge(d, "B")
+    return im
+
+def sc_message(lt, dur, t):
+    im = BG["warm"].copy(); d = ImageDraw.Draw(im)
+    f = CREW[1]; f.x, f.y, f.sc = 820, 1340, 1.1
+    got = lt > 1.2
+    f.draw(d, t, mood="happy" if got else "neutral", arms="wave" if got else "down")
+    MAIN.x, MAIN.y, MAIN.sc = 300, 1340, 1.3; MAIN.draw(d, t, mood="happy", arms="phone")
+    ph = clamp((lt - 0.2) / 1.0)
+    if ph < 1:
+        x, y = lerp(330, 790, ph), 820 - math.sin(ph * math.pi) * 260
+        bubble(d, x, y, 150, 100, icon="heart", a=1)
+    else:
+        bubble(d, 820, 820, 150, 100, icon="smile", a=ease_back(clamp((lt - 1.2) / 0.3)))
+    return im
+
+def sc_idea(lt, dur, t):
+    im = BG["warm"].copy(); d = ImageDraw.Draw(im)
+    MAIN.x, MAIN.y, MAIN.sc = 540, 1380, 1.5
+    MAIN.draw(d, t, mood="happy", arms="wave")
+    a = ease_back(clamp(lt / 0.5)); cx, cy = 540, 560
+    glow = Image.new("RGBA", im.size, (0, 0, 0, 0)); gd = ImageDraw.Draw(glow)
+    r = (170 + 20 * math.sin(t * 4)) * a; gd.ellipse(box(cx - r, cy - r, cx + r, cy + r), fill=(250, 214, 120, 120))
+    im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(s(25)))); d = ImageDraw.Draw(im)
+    if a > 0.02:
+        d.ellipse(box(cx - 80 * a, cy - 90 * a, cx + 80 * a, cy + 60 * a), fill=(252, 226, 140, 255), outline=INK, width=s(6))
+        d.rounded_rectangle(box(cx - 40 * a, cy + 50 * a, cx + 40 * a, cy + 110 * a), s(10), fill=(190, 180, 175, 255), outline=INK, width=s(5))
+        for k in range(8):
+            ang = k / 8 * 6.283; r0, r1 = 120 * a, (150 + 15 * math.sin(t * 6 + k)) * a
+            d.line((s(cx + r0 * math.cos(ang)), s(cy - 15 + r0 * math.sin(ang)), s(cx + r1 * math.cos(ang)), s(cy - 15 + r1 * math.sin(ang))), fill=INK, width=s(6))
+    return im
+
+def end_card(lt, line="Je bent niet de enige."):
     im = BG["ink"].copy(); d = ImageDraw.Draw(im)
     a = ease_back(clamp(lt / 0.5))
     if a > 0.01:
@@ -388,7 +470,7 @@ def end_card(lt):
         im.alpha_composite(r, (s(540) - r.width // 2, s(560) - r.height // 2))
     b = clamp((lt - 0.4) / 0.4)
     f = font(s(100), 850); d.text((s(540) - f.getlength("CeritaProject") / 2, s(900)), "CeritaProject", font=f, fill=PINK + (int(255 * b),))
-    f2 = font(s(54), 750); t2 = "Je bent niet de enige."; d.text((s(540) - f2.getlength(t2) / 2, s(1040)), t2, font=f2, fill=CREAM + (int(255 * b),))
+    t2 = line; f2 = font(s(54 if len(t2) < 34 else 44), 750); d.text((s(540) - f2.getlength(t2) / 2, s(1040)), t2, font=f2, fill=CREAM + (int(255 * b),))
     c = clamp((lt - 0.9) / 0.4)
     if c > 0:
         f3 = font(s(48), 750); t3 = "zet je op de wachtlijst · link in bio"; bw = f3.getlength(t3) + s(90)
@@ -398,7 +480,8 @@ def end_card(lt):
 
 SCENES = {"alone": sc_alone, "head": sc_head, "crossroads": sc_crossroads, "phone": sc_phone, "spotlight": sc_spotlight,
           "school": sc_school, "night": sc_night, "home": sc_home, "friend": sc_friend, "breathe": sc_breathe,
-          "cerita": sc_cerita, "meeting": sc_meeting, "ikook": sc_ikook, "talk": sc_talk, "hands": sc_hands, "crowd": sc_crowd}
+          "cerita": sc_cerita, "ab": sc_ab, "a": sc_a, "b": sc_b, "both": sc_both, "texts": sc_texts, "warm": sc_warm,
+          "message": sc_message, "idea": sc_idea, "meeting": sc_meeting, "ikook": sc_ikook, "talk": sc_talk, "hands": sc_hands, "crowd": sc_crowd}
 
 # ---------- timing from the voice ----------
 def speech_segments(wav, total):
@@ -441,6 +524,14 @@ def plan(lines, segs):
         for c, x in zip(cs, cw):
             caps.append((at_speech(segs, p0 + (p1 - p0) * cacc / ct), c)); cacc += x
         acc += w
+    if all("at" in l for l in lines):  # times taken from the video's own captions
+        shots, caps = [], []
+        for i, l in enumerate(lines):
+            a = l["at"]; b = lines[i + 1]["at"] if i + 1 < len(lines) else segs[-1][1]
+            if shots and shots[-1][2] == l["scene"]: shots[-1][1] = b
+            else: shots.append([a, b, l["scene"]])
+            cs = chunks(l["text"]); cw = [len(c) for c in cs]; ct = sum(cw); cacc = 0
+            for c, x in zip(cs, cw): caps.append((a + (b - a) * cacc / ct, c)); cacc += x
     for i in range(len(shots) - 1): shots[i][1] = shots[i + 1][0]
     shots[0][0] = 0.0
     return shots, caps
@@ -478,12 +569,13 @@ def render(script, preview=None):
     tmp = os.path.join(tempfile.gettempdir(), f"vo_{os.getpid()}.wav")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", voice, "-vn", "-ac", "1", "-ar", "16000", tmp], check=True)
     total = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", tmp]))
-    segs = speech_segments(tmp, total)
+    if script.get("cut"): total = min(total, float(script["cut"]))  # stop the voice here (e.g. drop an off-app call to action)
+    segs = speech_segments(tmp, total) if not all("at" in l for l in script["lines"]) else [(0.0, total)]
     vo_end = min(total, segs[-1][1] + 0.4)
     shots, caps = plan(script["lines"], segs)
     TOTAL = vo_end + END_CARD
     def frame(t):
-        if t >= vo_end: return end_card(t - vo_end)
+        if t >= vo_end: return end_card(t - vo_end, script.get("end_line", "Je bent niet de enige."))
         for a, b, name in shots:
             if a <= t < b or (name == shots[-1][2] and t >= a): im = SCENES[name](t - a, b - a, t); break
         caption(im, t, caps, vo_end, pink)
@@ -493,7 +585,7 @@ def render(script, preview=None):
             frame(t).resize((W, H), Image.LANCZOS).convert("RGB").save(f"{os.path.splitext(out)[0]}_{t:05.2f}.png")
         return shots, caps
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-           "-i", voice, "-map", "0:v", "-map", "1:a", "-af", f"apad=whole_dur={TOTAL}", "-t", str(TOTAL),
+           "-i", voice, "-map", "0:v", "-map", "1:a", "-af", f"atrim=0:{vo_end},afade=t=out:st={max(0, vo_end - 0.3)}:d=0.3,apad=whole_dur={TOTAL}", "-t", str(TOTAL),
            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "19", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for n in range(int(TOTAL * FPS)):
