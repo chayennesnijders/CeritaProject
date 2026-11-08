@@ -16,6 +16,7 @@ Dashboard (the agent's memory and the owner's view): **https://claude.ai/artifac
 - `signups/<YYYY-Www>` — `{tiktok, instagram, snapchat, youtube, other}` entered by the owner from Beheer → Wachtlijst (sources `?bron=tiktok` etc.).
 - `learnings/<l-NNN>` — `{date, week, text, evidence, confidence:"laag"|"middel"|"hoog", platform?}` — the growing memory. Add new ones, raise or lower confidence of old ones with evidence; never silently delete.
 - `agent/status` — `{week, last_run, next_run, message}`: the message the owner reads first.
+- `settings/main` — `{platforms: [...]}`: **which platforms are active** (now only `["tiktok"]`). Plan, write captions, render uploads and ask for stats/sign-ups only for these platforms; other platforms stay out until the owner adds them back here.
 - `strategy/current` — `{title, start, until, check, summary, reason}`: the **fixed course** shown at the top of the dashboard (3 weeks at a time).
 - `doubts/<id>` — `{text, created, answer?, answered_at?}`: the owner's **twijfelbak** (readable only by the owner; you act as the owner). Personal — never quote it anywhere else.
 - `focus/<YYYY-Www>` — `{week, tasks:[{text, why, done}]}`: 3 focus tasks outside social media for that week; the owner ticks `done`.
@@ -51,6 +52,10 @@ Always pass `if_version` (from your read) when writing an existing document.
    - **Focus**: write `focus/<next week>` with exactly 3 concrete tasks outside social media, each doable in about an hour, with a one-line `why`: usually one for sign-ups offline (schools, youth workers, libraries, posters with QR), one for the product or testers, partners or funding, and one for rest/life outside the project. Look at last week's focus: unfinished tasks may return once, without blame.
    - **Bewijslijst**: add 1–3 `proof` items from real wins this week (sign-ups, a good post, finished focus tasks, a tester quote the owner entered). Only true, checkable things — never invent.
 8. **Report** in 3–5 lines what you did, with the dashboard link.
+
+## Platform focus
+
+Read `settings/main.platforms` first. With only `tiktok`: every post gets only `captions.tiktok` and `times.tiktok`; video posts upload only the mp4; slide posts upload only the 9:16 PNGs (photo mode) — skip the 4:5 slides and the slideshow video; trends and the playbook are TikTok's; sign-ups come from `?bron=tiktok`. Don't suggest adding platforms back before the strategy check, and only then if the numbers clearly support it and it wouldn't add stress.
 
 ## Rules that always apply
 
