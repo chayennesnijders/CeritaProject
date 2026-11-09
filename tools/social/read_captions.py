@@ -1,6 +1,6 @@
 """Read the burned-in captions of an existing video (white or pink text) with their start times.
 
-Usage:  python3 tools/social/read_captions.py video.mp4 [y0 y1]
+Usage:  python3 tools/social/read_captions.py video.mp4 [y0 y1] [--white]
 Prints JSON [[start_seconds, "text"], ...]. Needs ffmpeg and tesseract (apt-get install tesseract-ocr tesseract-ocr-nld).
 Used to turn the owner's older talking videos into animations: the lines give both the words and the timing.
 """
@@ -12,8 +12,12 @@ FPS = 10
 WORD = re.compile(r"[A-Za-zÀ-ÿ0-9]+[A-Za-zÀ-ÿ0-9'’-]*[,.?!:]?")
 
 
+WHITE_ONLY = False  # set with --white when the background itself is pink (a pink shirt)
+
+
 def mask(fr):
     white = fr.min(axis=3) > 232
+    if WHITE_ONLY: return white
     pink = (fr[..., 0] > 200) & (fr[..., 1] < 170) & (fr[..., 2] > 150)
     return white | pink
 
@@ -57,5 +61,6 @@ def read(video, y0=None, y1=None):
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
+    args = [a for a in sys.argv[1:] if a != "--white"]
+    WHITE_ONLY = "--white" in sys.argv
     print(json.dumps(read(args[0], *(int(x) for x in args[1:3])), ensure_ascii=False))
