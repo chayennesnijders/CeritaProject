@@ -62,7 +62,7 @@ Older talking videos from the owner (captions burned in): read the words and tim
 
 ## Platform focus
 
-Read `settings/main.platforms` first. With only `tiktok`: every post gets only `captions.tiktok` and `times.tiktok`; video posts upload only the mp4; slide posts upload only the **3:4 PNGs** (`<id>-34-<k>.png`, TikTok photo mode shows 3:4 whole; 9:16 got shrunk and cropped) and store them in `slides` with `slide_ratio: "3:4"` — skip the 9:16 and 4:5 slides and the slideshow video; trends and the playbook are TikTok's; sign-ups come from `?bron=tiktok`. Don't suggest adding platforms back before the strategy check, and only then if the numbers clearly support it and it wouldn't add stress.
+Read `settings/main` first: `platforms` (where we post) and `slides_on` (which of those also get the slide posts). Now: TikTok gets both daily posts (slides + video); Instagram (Reels), YouTube (Shorts) and Snapchat (Spotlight) get **only the daily video** — the same video, same day, 1 post per day there. So: every video post gets `captions` and `times` for all four platforms (Instagram: ask to save/send, 3–5 hashtags; YouTube: title-like, "Wachtlijst: link in mijn kanaal", `#shorts`; Snapchat: short + one topic hashtag + "Wachtlijst: link in profiel"; heavy topics keep the 113 / Kindertelefoon line on every platform). Slide posts get only `captions.tiktok`/`times.tiktok`, upload only the **3:4 PNGs** (`<id>-34-<k>.png`) as `slides` with `slide_ratio: "3:4"`, and skip the 9:16/4:5 slides and slideshow video. Sign-ups come per platform from `?bron=`. Don't add slides to the other platforms or more posts per day before the strategy check, and only then if the numbers clearly support it and it wouldn't add stress.
 
 ## Rules that always apply
 
