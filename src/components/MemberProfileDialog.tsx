@@ -1,5 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useMe } from "@/lib/auth";
 import { memberBandChip } from "@/lib/member-band";
 import { ageOn } from "@/lib/consent";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -55,7 +58,30 @@ export function MemberProfileDialog({
       };
     },
   });
+  const { data: me } = useMe();
+  const qc = useQueryClient();
+  const [confirmParent, setConfirmParent] = useState(false);
+  const [busy, setBusy] = useState(false);
   const p = data?.profile;
+  // Owner only: an account made by a parent by mistake as a young person's account.
+  const canMakeParent =
+    !!me?.isOwner && !!p && !p.is_parent && !data.roles.some((r) => r in ROLE_LABELS) && !data.coach;
+
+  async function makeParent() {
+    if (!p) return;
+    setBusy(true);
+    const { data: name, error } = await supabase.rpc("admin_make_parent" as never, { _user: p.id } as never);
+    setBusy(false);
+    setConfirmParent(false);
+    if (error) {
+      const missing = error.code === "PGRST202" || /admin_make_parent/.test(error.message);
+      toast.error(missing ? "Dit werkt pas nadat update-61 in Supabase is geplakt." : error.message);
+      return;
+    }
+    toast.success(`${(name as unknown as string) ?? "Dit lid"} is nu een ouder-account 👪`);
+    qc.invalidateQueries({ queryKey: ["admin-member", p.id] });
+    qc.invalidateQueries({ queryKey: ["admin"] });
+  }
   const today = new Date().toISOString().slice(0, 10);
   const age = p?.birthdate ? ageOn(p.birthdate, today) : null;
 
@@ -138,6 +164,46 @@ export function MemberProfileDialog({
                 </ul>
               )}
             </div>
+
+            {canMakeParent && (
+              <div className="rounded-2xl border border-dashed p-3 text-sm">
+                {!confirmParent ? (
+                  <button
+                    type="button"
+                    className="font-semibold text-primary underline-offset-2 hover:underline"
+                    onClick={() => setConfirmParent(true)}
+                  >
+                    👪 Omzetten naar ouder-account
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <p>
+                      <b>{p.display_name}</b> omzetten naar een ouder-account? Dit lid gaat uit alle
+                      groepen, de geboortedatum wordt gewist en het ziet daarna alleen nog de
+                      ouderomgeving. Dit kun je niet zelf terugdraaien.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={makeParent}
+                        className="rounded-full bg-primary px-4 py-1.5 font-semibold text-primary-foreground disabled:opacity-60"
+                      >
+                        {busy ? "Bezig…" : "Ja, omzetten"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setConfirmParent(false)}
+                        className="rounded-full bg-muted px-4 py-1.5 font-semibold"
+                      >
+                        Annuleren
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </DialogContent>
