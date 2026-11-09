@@ -19,7 +19,7 @@ import {
   weekDots,
 } from "@/lib/parent";
 import { GUIDES, needsCheckIn, nextGuideFor } from "@/lib/guides";
-import { bandInfo, bandsLabel, childQuestions, childTip } from "@/lib/child-age";
+import { bandInfo, bandsLabel, childQuestions, childTips } from "@/lib/child-age";
 import { ChildAgePicker, useChildAges } from "@/components/ChildAgePicker";
 
 type CheckKind = "zelf" | "kind";
@@ -45,7 +45,7 @@ export function ParentHome({
   const today = parentDay(day);
   const { data: ages } = useChildAges(uid);
   const bands = ages?.bands ?? [];
-  const tip = childTip(day, bands);
+  const tips = childTips(day, bands);
   const questions = childQuestions(bands);
   const [editAges, setEditAges] = useState(false);
   const weekAgo = new Date(new Date(day).getTime() - 6 * 86_400_000).toISOString().slice(0, 10);
@@ -294,14 +294,23 @@ export function ParentHome({
           ))}
         </div>
         <div key={tab} className={`animate-in fade-in p-5 transition-colors duration-300 ${done(tab) ? "bg-accent" : ""}`}>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
-            {tab === "zelf"
-              ? "Jouw opdracht van vandaag"
-              : tip.band
-                ? `Tip voor je kind van ${bandInfo(tip.band).label} ${bandInfo(tip.band).emoji}`
-                : "Tip voor je kind vandaag"}
-          </p>
-          <p className="mt-1 text-lg leading-snug">{tab === "zelf" ? today.self : tip.text}</p>
+          {tab === "zelf" ? (
+            <>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Jouw opdracht van vandaag</p>
+              <p className="mt-1 text-lg leading-snug">{today.self}</p>
+            </>
+          ) : (
+            <div className="space-y-4">
+              {tips.map((t) => (
+                <div key={t.band ?? "alle"}>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                    {t.band ? `Tip voor je kind van ${bandInfo(t.band).label} ${bandInfo(t.band).emoji}` : "Tip voor je kind vandaag"}
+                  </p>
+                  <p className="mt-1 text-lg leading-snug">{t.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
           <button
             onClick={() => void toggle(tab)}
             aria-pressed={done(tab)}

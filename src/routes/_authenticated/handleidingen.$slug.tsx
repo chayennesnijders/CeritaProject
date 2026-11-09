@@ -70,7 +70,8 @@ function GuideRunner({ guide, uid }: { guide: Guide; uid: string }) {
     if (loaded.current || isLoading) return;
     loaded.current = true;
     if (saved) {
-      setStep(saved.completed_at ? total : Math.min(saved.step, total));
+      // Finished guides open on the summary, unless the parent is doing it again (step went back to 0).
+      setStep(saved.completed_at && saved.step >= total ? total : Math.min(saved.step, total));
       setPlan(saved.plan);
     }
   }, [saved, isLoading, total]);
@@ -90,7 +91,7 @@ function GuideRunner({ guide, uid }: { guide: Guide; uid: string }) {
   const go = (next: number) => {
     setStep(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const finishing = next === total && !saved?.completed_at;
+    const finishing = next === total && step === total - 1;
     if (finishing) celebrate("groot", { set: "hartjes" });
     void save(next, next === total);
   };
@@ -177,12 +178,17 @@ function GuideRunner({ guide, uid }: { guide: Guide; uid: string }) {
             {step === total - 1 ? "Afronden 🎉" : "Volgende →"}
           </button>
         ) : (
-          <Link
-            to="/handleidingen"
+          <>
+            <button onClick={() => go(0)} className="rounded-full border px-4 py-3 text-sm font-semibold">
+              🔁 Opnieuw doen
+            </button>
+            <Link
+              to="/handleidingen"
             className="flex-1 rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
           >
-            Naar alle handleidingen
-          </Link>
+              Naar alle handleidingen
+            </Link>
+          </>
         )}
       </div>
     </div>

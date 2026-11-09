@@ -178,6 +178,17 @@ export function childTip(day: string, bands: readonly ChildBand[]): { text: stri
   return { text: pick.text, band: chosen[pick.band]! };
 }
 
+/** Today's tips: one for every chosen age group (in age order), or one general tip when none is chosen. */
+export function childTips(day: string, bands: readonly ChildBand[]): { text: string; band: ChildBand | null }[] {
+  const chosen = sorted(bands);
+  if (!chosen.length) return [childTip(day, [])];
+  const n = dayNumber(day);
+  return chosen.map((b) => {
+    const list = BAND_TIPS[b];
+    return { text: list[((n % list.length) + list.length) % list.length]!, band: b };
+  });
+}
+
 /** The questions (or things to do together) for the chosen age groups. */
 export function childQuestions(bands: readonly ChildBand[]): { text: string; band: ChildBand | null; together: boolean }[] {
   const chosen = sorted(bands);

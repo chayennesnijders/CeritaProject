@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BAND_QUESTIONS, BAND_TIPS, bandsLabel, CHILD_BANDS, childQuestions, childTip, isChildBand } from "./child-age";
+import { BAND_QUESTIONS, BAND_TIPS, bandsLabel, CHILD_BANDS, childQuestions, childTip, childTips, isChildBand } from "./child-age";
 import { PARENT_FOR_CHILD, PARENT_QUESTIONS } from "./parent";
 
 describe("tips by the child's age", () => {
@@ -22,6 +22,15 @@ describe("tips by the child's age", () => {
     expect(BAND_TIPS["4-9"]).toContain(t.text);
     expect(childTip("2026-11-07", ["4-9"])).toEqual(t);
     expect(childTip("2026-11-08", ["4-9"]).text).not.toBe(t.text);
+  });
+  it("gives one tip per chosen age group, every day", () => {
+    const t = childTips("2026-11-09", ["16-18", "0-3"]);
+    expect(t.map((x) => x.band)).toEqual(["0-3", "16-18"]);
+    expect(BAND_TIPS["0-3"]).toContain(t[0]!.text);
+    expect(BAND_TIPS["16-18"]).toContain(t[1]!.text);
+    expect(childTips("2026-11-10", ["16-18", "0-3"])[0]!.text).not.toBe(t[0]!.text);
+    expect(childTips("2026-11-09", [])).toHaveLength(1);
+    expect(childTips("2026-11-09", [])[0]!.band).toBeNull();
   });
   it("takes turns between two children", () => {
     const bands = new Set(
