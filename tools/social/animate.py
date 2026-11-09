@@ -10,7 +10,9 @@ the owner reads the script out loud and the captions follow her. An end card (wa
 Optional: "at" on every line (seconds) uses those times instead of listening for pauses (handy when the
 recording has background sound), "cut" stops the voice early, "end_line" changes the text on the end card.
 Scenes: alone, head, crossroads, phone, spotlight, school, night, home, friend, breathe,
-        cerita, meeting, ikook, talk, hands, crowd, idea, message, ab, a, b, both, texts, warm.
+        cerita, meeting, ikook, talk, hands, crowd, idea, message, ab, a, b, both, texts, warm,
+        house, house_living, house_bed, house_kitchen, house_attic, house_door.
+A line may carry "badge": "1" to show a big number (for lists).
 """
 import json, math, os, random, re, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -462,6 +464,66 @@ def sc_idea(lt, dur, t):
             d.line((s(cx + r0 * math.cos(ang)), s(cy - 15 + r0 * math.sin(ang)), s(cx + r1 * math.cos(ang)), s(cy - 15 + r1 * math.sin(ang))), fill=INK, width=s(6))
     return im
 
+ROOMS = {"attic": (400, 360, 680, 540), "bed": (180, 560, 540, 900), "room": (540, 560, 900, 900),
+         "living": (180, 920, 620, 1290), "kitchen": (620, 920, 900, 1290)}
+HOUSE_FOLK = [Person(90 + i, 0, 0, 0.42) for i in range(3)]
+
+def _house(lt, t, focus):
+    im = BG["warm"].copy(); d = ImageDraw.Draw(im)
+    d.polygon([(s(110), s(560)), (s(540), s(230)), (s(970), s(560))], fill=(226, 132, 160, 255), outline=INK, width=s(8))
+    d.rectangle(box(160, 540, 920, 1300), fill=(255, 246, 236, 255), outline=INK, width=s(8))
+    d.line((s(160), s(910), s(920), s(910)), fill=INK, width=s(8)); d.line((s(540), s(540), s(540), s(910)), fill=INK, width=s(6)); d.line((s(620), s(910), s(620), s(1300)), fill=INK, width=s(6))
+    ax0, ay0, ax1, ay1 = ROOMS["attic"]
+    d.rounded_rectangle(box(ax0, ay0, ax1, ay1), s(12), fill=(120, 96, 90, 255), outline=INK, width=s(6))
+    # attic door (opens on focus "door")
+    op = clamp(lt / 0.8) if focus == "door" else 0
+    dx0, dx1 = 490, 590
+    if op > 0:
+        glow = Image.new("RGBA", im.size, (0, 0, 0, 0)); gd = ImageDraw.Draw(glow)
+        gd.polygon([(s(dx0), s(380)), (s(dx1), s(380)), (s(dx1 + 260 * op), s(900)), (s(dx0 - 260 * op), s(900))], fill=(255, 236, 170, int(140 * op)))
+        im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(s(18)))); d = ImageDraw.Draw(im)
+        d.rectangle(box(dx0, 380, dx1, 540), fill=(255, 236, 170, 255))
+        d.polygon([(s(dx0), s(380)), (s(dx0 + 100 * (1 - op)), s(390)), (s(dx0 + 100 * (1 - op)), s(530)), (s(dx0), s(540))], fill=(160, 110, 80, 255), outline=INK)
+        for k in range(5): heart(d, s(540 + 120 * math.sin(k * 1.7 + t)), s(470 - ((t * 120 + k * 60) % 200)), 1.0 * SS, (255, 255, 255, 220))
+    else:
+        d.rectangle(box(dx0, 380, dx1, 540), fill=(160, 110, 80, 255), outline=INK, width=s(5)); d.ellipse(box(570, 455, 582, 467), fill=INK)
+        if focus == "attic":
+            for k in range(3):
+                ph = (lt * 0.8 + k * 0.33) % 1
+                d.text((s(430 + k * 90), s(330 - ph * 120)), "?", font=font(s(56), 850), fill=COCOA + (int(255 * (1 - ph)),))
+    # bedroom: bed
+    d.rounded_rectangle(box(210, 800, 470, 860), s(16), fill=(170, 196, 226, 255), outline=INK, width=s(5)); d.rounded_rectangle(box(215, 770, 300, 810), s(14), fill=(255, 255, 255, 255), outline=INK, width=s(4))
+    # kitchen: stove + pan
+    d.rectangle(box(760, 1150, 890, 1290), fill=(230, 222, 214, 255), outline=INK, width=s(5)); d.ellipse(box(780, 1120, 870, 1160), fill=(90, 90, 100, 255), outline=INK, width=s(4))
+    # living: sofa
+    d.rounded_rectangle(box(200, 1200, 560, 1280), s(24), fill=(241, 166, 192, 255), outline=INK, width=s(5))
+    # people
+    if focus in ("living", "house", "door", "attic", "room"):
+        for i, p in enumerate(HOUSE_FOLK):
+            p.x, p.y, p.sc = 240 + i * 100, 1240, 0.42; p.draw(d, t, mood="happy", arms="wave" if (i + int(t * 1.5)) % 3 == 0 else "down")
+    pos = {"bed": (380, 880), "kitchen": (700, 1290), "living": (575, 1290), "house": (575, 1290), "door": (720, 900), "attic": (720, 900), "room": (720, 900)}[focus]
+    MAIN.x, MAIN.y, MAIN.sc = pos[0], pos[1], 0.6
+    MAIN.draw(d, t, mood="happy" if focus in ("kitchen", "bed", "door") else "neutral", look=-0.5 if focus in ("door", "attic") else 0)
+    if focus == "kitchen":
+        for k in range(3):
+            ph = (lt * 0.7 + k * 0.33) % 1
+            heart(d, s(825 + 20 * math.sin(t * 3 + k)), s(1100 - ph * 140), 0.9 * SS, (236, 110, 150, int(255 * (1 - ph))))
+    # dim the other rooms
+    key = {"door": "attic"}.get(focus, focus)
+    if key in ROOMS:
+        dim = Image.new("RGBA", im.size, (0, 0, 0, 0)); dd = ImageDraw.Draw(dim)
+        for name, (x0, y0, x1, y1) in ROOMS.items():
+            if name != key: dd.rectangle(box(x0 + 4, y0 + 4, x1 - 4, y1 - 4), fill=(60, 40, 40, 90))
+        im.alpha_composite(dim); d = ImageDraw.Draw(im)
+        x0, y0, x1, y1 = ROOMS[key]; d.rounded_rectangle(box(x0 - 6, y0 - 6, x1 + 6, y1 + 6), s(14), outline=PINK + (255,), width=s(10))
+    return im
+def sc_house(lt, dur, t): return _house(lt, t, "house")
+def sc_house_living(lt, dur, t): return _house(lt, t, "living")
+def sc_house_bed(lt, dur, t): return _house(lt, t, "bed")
+def sc_house_kitchen(lt, dur, t): return _house(lt, t, "kitchen")
+def sc_house_attic(lt, dur, t): return _house(lt, t, "attic")
+def sc_house_door(lt, dur, t): return _house(lt, t, "door")
+
 def end_card(lt, line="Je bent niet de enige."):
     im = BG["ink"].copy(); d = ImageDraw.Draw(im)
     a = ease_back(clamp(lt / 0.5))
@@ -481,7 +543,8 @@ def end_card(lt, line="Je bent niet de enige."):
 SCENES = {"alone": sc_alone, "head": sc_head, "crossroads": sc_crossroads, "phone": sc_phone, "spotlight": sc_spotlight,
           "school": sc_school, "night": sc_night, "home": sc_home, "friend": sc_friend, "breathe": sc_breathe,
           "cerita": sc_cerita, "ab": sc_ab, "a": sc_a, "b": sc_b, "both": sc_both, "texts": sc_texts, "warm": sc_warm,
-          "message": sc_message, "idea": sc_idea, "meeting": sc_meeting, "ikook": sc_ikook, "talk": sc_talk, "hands": sc_hands, "crowd": sc_crowd}
+          "message": sc_message, "idea": sc_idea, "house": sc_house, "house_living": sc_house_living, "house_bed": sc_house_bed,
+          "house_kitchen": sc_house_kitchen, "house_attic": sc_house_attic, "house_door": sc_house_door, "meeting": sc_meeting, "ikook": sc_ikook, "talk": sc_talk, "hands": sc_hands, "crowd": sc_crowd}
 
 # ---------- timing from the voice ----------
 def speech_segments(wav, total):
@@ -528,8 +591,8 @@ def plan(lines, segs):
         shots, caps = [], []
         for i, l in enumerate(lines):
             a = l["at"]; b = lines[i + 1]["at"] if i + 1 < len(lines) else segs[-1][1]
-            if shots and shots[-1][2] == l["scene"]: shots[-1][1] = b
-            else: shots.append([a, b, l["scene"]])
+            if shots and shots[-1][2] == l["scene"] and shots[-1][3] == l.get("badge"): shots[-1][1] = b
+            else: shots.append([a, b, l["scene"], l.get("badge")])
             cs = chunks(l["text"]); cw = [len(c) for c in cs]; ct = sum(cw); cacc = 0
             for c, x in zip(cs, cw): caps.append((a + (b - a) * cacc / ct, c)); cacc += x
     for i in range(len(shots) - 1): shots[i][1] = shots[i + 1][0]
@@ -576,8 +639,12 @@ def render(script, preview=None):
     TOTAL = vo_end + END_CARD
     def frame(t):
         if t >= vo_end: return end_card(t - vo_end, script.get("end_line", "Je bent niet de enige."))
-        for a, b, name in shots:
-            if a <= t < b or (name == shots[-1][2] and t >= a): im = SCENES[name](t - a, b - a, t); break
+        for sh in shots:
+            a, b, name = sh[:3]
+            if a <= t < b or (sh is shots[-1] and t >= a):
+                im = SCENES[name](t - a, b - a, t)
+                if len(sh) > 3 and sh[3]: badge(ImageDraw.Draw(im), str(sh[3]), 540, 230)
+                break
         caption(im, t, caps, vo_end, pink)
         return im
     if preview:
@@ -597,4 +664,4 @@ if __name__ == "__main__":
     sc = json.load(open(sys.argv[1]))
     prev = [float(x) for x in sys.argv[2].split(",")] if len(sys.argv) > 2 else None
     shots, caps = render(sc, prev)
-    print(json.dumps({"shots": [[round(a, 2), round(b, 2), n] for a, b, n in shots]}, ensure_ascii=False))
+    print(json.dumps({"shots": [[round(sh[0], 2), round(sh[1], 2), sh[2]] for sh in shots]}, ensure_ascii=False))

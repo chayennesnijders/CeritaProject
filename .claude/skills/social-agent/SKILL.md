@@ -58,6 +58,8 @@ Always pass `if_version` (from your read) when writing an existing document.
 
 When the owner sends voice recordings: match each to its script in `weeks/<week>.voiceovers` (by order or by what she says), write `{"voice": <file>, "out": <post id>.mp4, "lines": <the script lines>}` and run `python3 tools/social/animate.py script.json` (add `1.5,6,12` as a second argument to render preview frames first). Captions follow her voice automatically; if she said something different from the script, change the line texts to what she actually said. Look at a few frames, upload the mp4s with `Artifact` (`asset: true`), then set each post's `video` to the new asset and `status` to "gepland".
 
+Older talking videos from the owner (captions burned in): read the words and timing with `python3 tools/social/read_captions.py video.mp4 [y0 y1]` (tesseract; check the result against a few frames, it misses short words), give each line an `at` time and a scene, cut anything that sends young people outside the app (WhatsApp groups, DMs), render with `animate.py`, and add the result to `stock`.
+
 ## Platform focus
 
 Read `settings/main.platforms` first. With only `tiktok`: every post gets only `captions.tiktok` and `times.tiktok`; video posts upload only the mp4; slide posts upload only the **3:4 PNGs** (`<id>-34-<k>.png`, TikTok photo mode shows 3:4 whole; 9:16 got shrunk and cropped) and store them in `slides` with `slide_ratio: "3:4"` — skip the 9:16 and 4:5 slides and the slideshow video; trends and the playbook are TikTok's; sign-ups come from `?bron=tiktok`. Don't suggest adding platforms back before the strategy check, and only then if the numbers clearly support it and it wouldn't add stress.
