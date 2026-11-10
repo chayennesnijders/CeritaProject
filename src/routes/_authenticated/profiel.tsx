@@ -54,7 +54,7 @@ const SHORTCUT_GROUPS = [
   {
     title: "Voor je gevoel",
     emoji: "💗",
-    tint: "bg-[#fde4ea] dark:bg-[#4a2c35]",
+    tint: "bg-accent",
     items: [
       { to: "/stemming", emoji: "📅", label: "Stemming" },
       { to: "/rust", emoji: "🫧", label: "Rustmoment" },
@@ -65,7 +65,7 @@ const SHORTCUT_GROUPS = [
   {
     title: "Samen",
     emoji: "🤝",
-    tint: "bg-[#e3f1e8] dark:bg-[#1f3a2c]",
+    tint: "bg-secondary",
     items: [
       { to: "/ceritabuddy", emoji: "💬", label: "Cerita\u00adBuddy" },
       { to: "/vragen", emoji: "🎓", label: "Coaches" },
@@ -76,7 +76,7 @@ const SHORTCUT_GROUPS = [
   {
     title: "Voor later",
     emoji: "✨",
-    tint: "bg-[#f6ead9] dark:bg-[#3a2d26]",
+    tint: "bg-muted",
     items: [
       { to: "/ontdekken", emoji: "⭐", label: "Bewaarde verhalen" },
       { to: "/brieven", emoji: "💌", label: "Brief aan jezelf" },

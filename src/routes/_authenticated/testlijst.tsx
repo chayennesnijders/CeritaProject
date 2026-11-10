@@ -120,7 +120,7 @@ function TestListPage() {
         </div>
         <div className="h-2.5 overflow-hidden rounded-full bg-muted">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${complete ? "bg-[#2d6a4f]" : "bg-primary"}`}
+            className={`h-full rounded-full transition-all duration-500 ${complete ? "bg-secondary" : "bg-primary"}`}
             style={{ width: `${progress.pct}%` }}
           />
         </div>
@@ -132,7 +132,7 @@ function TestListPage() {
           <section key={phase.id} className="space-y-3 rounded-3xl bg-card p-4 shadow-soft">
             <div className="flex items-baseline justify-between gap-2">
               <h2 className="text-lg">{phase.title}</h2>
-              <span className={`text-xs font-bold ${p.done === p.total ? "text-[#2d6a4f]" : "text-muted-foreground"}`}>
+              <span className={`text-xs font-bold ${p.done === p.total ? "text-foreground" : "text-muted-foreground"}`}>
                 {p.done === p.total ? "✓ Klaar" : `${p.done} van ${p.total}`}
               </span>
             </div>
@@ -146,10 +146,10 @@ function TestListPage() {
                     role="checkbox"
                     aria-checked={on}
                     onClick={() => toggle(item.id)}
-                    className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${on ? "border-transparent bg-[#e5f4e4] dark:bg-[#1f3a2c]" : ""}`}
+                    className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${on ? "border-transparent bg-accent" : ""}`}
                   >
                     <span
-                      className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-lg border-2 text-sm font-bold ${on ? "border-[#2d6a4f] bg-[#2d6a4f] text-white" : "border-muted-foreground"}`}
+                      className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-lg border-2 text-sm font-bold ${on ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"}`}
                     >
                       {on ? "✓" : ""}
                     </span>

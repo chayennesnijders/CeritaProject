@@ -21,10 +21,10 @@ type Story = ReturnType<typeof useDiscover>["stories"][number];
 // Soft colour backgrounds for stories without a photo.
 const BACKDROPS = [
   "from-[#f7a8c4] to-[#7a3b69]",
-  "from-[#a8d8f7] to-[#2f4f7a]",
-  "from-[#f7d9a8] to-[#8a4b2a]",
-  "from-[#b8f0c8] to-[#2f6a4a]",
-  "from-[#d4c2f7] to-[#4a3a7a]",
+  "from-[#f6c6d4] to-[#5a2f45]",
+  "from-[#f3dcc4] to-[#6b4a35]",
+  "from-[#fbe3ea] to-[#8f2f55]",
+  "from-[#e9cdb8] to-[#3a2a22]",
 ];
 
 function SwipePage() {
@@ -291,7 +291,7 @@ function StorySlide({
 
 function PauseSlide({ seen }: { seen: number }) {
   return (
-    <div className="grid h-full place-items-center bg-gradient-to-b from-[#2f6a4a] to-[#123322] p-8 text-center">
+    <div className="grid h-full place-items-center bg-gradient-to-b from-[#5a2f45] to-[#231b17] p-8 text-center">
       <div className="max-w-xs space-y-4">
         <p className="text-6xl">🌿</p>
         <h2 className="text-2xl font-bold">Even een adempauze?</h2>
