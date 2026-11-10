@@ -483,7 +483,7 @@ function ThoughtsGame({ onDone }: { onDone: Done }) {
         key={n}
         className="flex min-h-36 animate-in fade-in slide-in-from-right-8 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-100 to-pink-100 text-[#3b2a2f] p-5 text-center duration-300"
       >
-        <p className="font-display text-xl leading-snug text-foreground">💭 "{t.text}"</p>
+        <p className="font-display text-xl leading-snug">💭 "{t.text}"</p>
       </div>
       {picked === null ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
