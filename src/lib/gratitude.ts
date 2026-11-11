@@ -9,14 +9,31 @@ export function shakeJar<T extends { id: string }>(
   return pool[Math.min(pool.length - 1, Math.floor(rand * pool.length))]!;
 }
 
+/** Rotating questions; each day starts at a different one and "Andere vraag" moves to the next. */
 export const GRATITUDE_PROMPTS = [
+  "Waar ben je vandaag dankbaar voor?",
   "Wat maakte je vandaag aan het lachen?",
-  "Wie was er lief voor je?",
+  "Wie was er vandaag lief voor je?",
   "Waar ben je trots op?",
-  "Wat was lekker vandaag?",
-  "Welk klein ding ging goed?",
-  "Waar keek je naar uit?",
-  "Wat vond je mooi om te zien?",
+  "Welk klein ding ging vandaag goed?",
+  "Waar keek je vandaag naar uit?",
+  "Wat vond je vandaag mooi om te zien?",
+  "Welk moment wil je onthouden?",
+  "Wie zou je vandaag willen bedanken?",
+  "Wat deed je vandaag goed voor jezelf?",
+  "Welk geluid, liedje of geur maakte je blij?",
+  "Wat lukte er vandaag, ook al was het klein?",
+  "Wanneer voelde je je vandaag even rustig?",
+  "Wat heb je vandaag geleerd?",
+  "Wie of wat gaf je vandaag een fijn gevoel?",
+  "Waar ben je blij mee aan jezelf?",
+  "Wat was vandaag beter dan je had verwacht?",
+  "Welk berichtje of gesprek deed je goed?",
 ];
-export const promptFor = (day: string) =>
-  GRATITUDE_PROMPTS[Number(day.replace(/-/g, "")) % GRATITUDE_PROMPTS.length]!;
+const dayNumber = (day: string) => {
+  const [y, m, d] = day.split("-").map(Number);
+  return Math.floor(Date.UTC(y!, (m ?? 1) - 1, d ?? 1) / 86_400_000);
+};
+/** The question for a day; `skip` counts how often "Andere vraag" was tapped. */
+export const promptFor = (day: string, skip = 0) =>
+  GRATITUDE_PROMPTS[(dayNumber(day) + skip) % GRATITUDE_PROMPTS.length]!;

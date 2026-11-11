@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { promptFor, shakeJar } from "./gratitude";
+import { GRATITUDE_PROMPTS, promptFor, shakeJar } from "./gratitude";
 import { isSamsungBrowser, platformOf, shouldShowInstall } from "./install";
 import { inboxItems, inboxTotal } from "./inbox";
 import { matches, searchTerm } from "./search";
@@ -11,6 +11,11 @@ describe("gratitude jar", () => {
     expect(shakeJar([{ id: "a" }], "a", 0.9)?.id).toBe("a");
     expect(shakeJar([], null, 0.5)).toBeNull();
     expect(promptFor("2026-10-30")).toBe(promptFor("2026-10-30"));
+  });
+  it("gives a different question every day and on 'Andere vraag'", () => {
+    expect(promptFor("2026-10-31")).not.toBe(promptFor("2026-11-01"));
+    expect(promptFor("2026-11-11", 1)).not.toBe(promptFor("2026-11-11"));
+    expect(promptFor("2026-11-11", GRATITUDE_PROMPTS.length)).toBe(promptFor("2026-11-11"));
   });
 });
 

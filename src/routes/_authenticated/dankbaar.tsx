@@ -32,6 +32,7 @@ function JarPage() {
   const [text, setText] = useState("");
   const [shown, setShown] = useState<{ id: string; body: string; created_at: string } | null>(null);
   const [shaking, setShaking] = useState(false);
+  const [skip, setSkip] = useState(0);
 
   const { data: notes = [] } = useQuery({
     queryKey: ["gratitude", uid],
@@ -80,13 +81,22 @@ function JarPage() {
         </p>
       </div>
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
-        <p className="text-sm font-semibold">{promptFor(today)}</p>
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-sm font-semibold">{promptFor(today, skip)}</p>
+          <button
+            type="button"
+            onClick={() => setSkip((n) => n + 1)}
+            className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+          >
+            🔀 Andere vraag
+          </button>
+        </div>
         <div className="flex gap-2">
           <Input
             value={text}
             maxLength={200}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Bijvoorbeeld: lekker gelachen met Sanne"
+            placeholder="Bijvoorbeeld: samen gelachen met een vriendin"
             className="rounded-2xl"
           />
           <Button disabled={!text.trim()} onClick={add} className="rounded-full">
