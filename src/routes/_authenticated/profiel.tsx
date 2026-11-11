@@ -93,6 +93,8 @@ function ProfilePage() {
   const nav = useNavigate();
   const p = me?.profile;
   const asParent = useActsAsParent();
+  // Teachers only keep their name, photo and settings: no youth shortcuts, badges or birthdate.
+  const isTeacher = !!me?.profile?.is_teacher;
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -211,11 +213,11 @@ function ProfilePage() {
           <h1 className="truncate text-2xl">{p.display_name}</h1>
           {p.username && <p className="text-sm text-muted-foreground">@{p.username}</p>}
           <p className="text-xs text-muted-foreground">
-            {asParent ? "Ouder of verzorger" : p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
+            {isTeacher ? "Leraar" : asParent ? "Ouder of verzorger" : p.birthdate ? `Omgeving ${bandLabel(p.age_group)}` : "Leeftijd nog niet ingevuld"}
             {me?.isAdmin ? " · Beheerder" : me?.isModerator ? " · Moderator" : ""}
           </p>
         </div>
-        <button
+        {!isTeacher && <button
           onClick={() => {
             setOpen("badges");
             setTimeout(
@@ -232,10 +234,10 @@ function ProfilePage() {
           <span className="block text-[11px] font-bold">
             {earned.length}/{BADGES.length}
           </span>
-        </button>
+        </button>}
       </div>
 
-      <section className="space-y-3">
+      {!isTeacher && <section className="space-y-3">
         <h2 className="text-lg">Voor jou</h2>
         {SHORTCUT_GROUPS.map((g) => ({ ...g, items: g.items.filter((s) => !asParent || parentMayOpen(s.to)) }))
           .filter((g) => g.items.length > 0)
@@ -261,7 +263,7 @@ function ProfilePage() {
             </div>
           </div>
         ))}
-      </section>
+      </section>}
 
       <section className="space-y-2">
         <h2 className="text-lg">Instellingen</h2>
@@ -309,7 +311,7 @@ function ProfilePage() {
               className="mt-1 rounded-2xl"
             />
           </div>
-          <div>
+          {!isTeacher && <div>
             <Label>Geboortedatum</Label>
             <Input
               type="date"
@@ -323,11 +325,11 @@ function ProfilePage() {
                 Alleen een beheerder kan dit wijzigen.
               </p>
             )}
-          </div>
+          </div>}
           <Button onClick={saveProfile} className="w-full rounded-full">
             Opslaan
           </Button>
-          {!asParent && (
+          {!asParent && !isTeacher && (
             <div className="flex items-start justify-between gap-3 rounded-2xl bg-muted p-3">
               <div>
                 <p className="text-sm font-semibold">👶 Ik ben zelf ook ouder</p>
@@ -341,6 +343,7 @@ function ProfilePage() {
           )}
         </SettingsSection>
 
+        {!isTeacher && (
         <SettingsSection
           id="badges"
           emoji="🏅"
@@ -351,6 +354,7 @@ function ProfilePage() {
         >
           <MyBadges uid={p.id} />
         </SettingsSection>
+        )}
 
         <SettingsSection
           id="meldingen"

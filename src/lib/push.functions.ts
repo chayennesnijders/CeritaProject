@@ -625,6 +625,7 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
         "61": await supabaseAdmin
           .rpc("admin_make_parent" as never, { _user: "00000000-0000-0000-0000-000000000000" } as never)
           .then((r) => !r.error || r.error.code !== "PGRST202"),
+        "62": await exists("teachers"),
         "53": await supabaseAdmin.rpc("parent_portal_stats").then((r) => !r.error || r.error.code !== "PGRST202"),
       },
       playlists: playlists

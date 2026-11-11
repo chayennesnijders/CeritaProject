@@ -6,6 +6,7 @@ import { shareInvite } from "@/components/InviteFriendCard";
 import { RitiHome } from "@/components/RitiHome";
 import { FounderStory } from "@/components/FounderStory";
 import { ParentHome } from "@/components/ParentHome";
+import { TeacherHome } from "@/components/TeacherHome";
 import { ThemeDayCard } from "@/components/ThemeDayCard";
 import { parentDay } from "@/lib/parent";
 import { celebrate } from "@/lib/celebrate";
@@ -68,6 +69,8 @@ function HomePage() {
     month: "long",
   }).format(new Date());
 
+  // Teachers only see their school's lessons.
+  if (p?.is_teacher && uid) return <TeacherHome uid={uid} name={p.display_name ?? ""} />;
   // Parents and carers have their own home (no groups, chats or young people's content).
   if (asParent && uid) return <ParentHome uid={uid} day={day} name={p?.display_name ?? ""} />;
 

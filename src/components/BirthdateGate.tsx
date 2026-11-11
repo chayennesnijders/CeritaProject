@@ -23,13 +23,21 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
   // Chose "Ik ben ouder" when signing up: go straight to the parent step.
   const [parentStep, setParentStep] = useState(() => !!me?.user.user_metadata?.["wants_parent"]);
   const [wantsParentSeen, setWantsParentSeen] = useState(false);
+  // Signed up through "Ik ben leraar" (/auth?rol=leraar): ask for the school code first.
+  const [teacherStep, setTeacherStep] = useState(() => !!me?.user.user_metadata?.["wants_teacher"]);
+  const [wantsTeacherSeen, setWantsTeacherSeen] = useState(false);
+  const [code, setCode] = useState("");
+  if (!wantsTeacherSeen && !teacherStep && me?.user.user_metadata?.["wants_teacher"]) {
+    setWantsTeacherSeen(true);
+    setTeacherStep(true);
+  }
   if (!wantsParentSeen && !parentStep && me?.user.user_metadata?.["wants_parent"]) {
     setWantsParentSeen(true);
     setParentStep(true);
   }
 
   // Parents have no birthdate on purpose: they never join the young people's groups or chats.
-  if (!me?.profile || me.profile.birthdate || me.profile.is_parent)
+  if (!me?.profile || me.profile.birthdate || me.profile.is_parent || me.profile.is_teacher)
     return (
       <ConsentGate>
         <UsernameGate>{children}</UsernameGate>
@@ -66,6 +74,17 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
     toast.success("Welkom! 💛");
     qc.invalidateQueries({ queryKey: ["me"] });
   }
+  async function becomeTeacher() {
+    setBusy(true);
+    const { data: school, error } = await supabase.rpc("become_teacher", { _code: code });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message || "Dat lukte niet. Probeer het opnieuw.");
+      return;
+    }
+    toast.success(`Welkom bij ${school}! 🎉`);
+    qc.invalidateQueries({ queryKey: ["me"] });
+  }
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
@@ -76,7 +95,39 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 bg-background px-6 text-center">
       <img src="/cerita-logo.webp" alt="CeritaProject" className="size-28 rounded-3xl" />
-      {parentStep ? (
+      {teacherStep ? (
+        <>
+          <h1 className="text-2xl">Welkom, juf of meester 🎓</h1>
+          <div className="space-y-2 text-left text-sm text-muted-foreground">
+            <p>
+              Met een leraar-account zie je de lessen van CeritaProject die je in de klas kunt geven: dia's met
+              aantekeningen, een handleiding en werkbladen.
+            </p>
+            <p>
+              Je ziet niets van de jongeren in de app: geen groepen, chats of profielen. Zo blijft het voor hen een
+              veilige plek.
+            </p>
+            <p className="rounded-2xl bg-muted p-3">
+              Vul de <b>schoolcode</b> in die je school van CeritaProject heeft gekregen. Heb je die niet? Vraag hem bij
+              je teamleider of zorgcoördinator.
+            </p>
+          </div>
+          <Input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Bijv. KX7P-2M9Q"
+            aria-label="Schoolcode"
+            autoComplete="off"
+            className="h-12 w-64 rounded-2xl text-center uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal"
+          />
+          <Button disabled={busy || !code.trim()} onClick={becomeTeacher} className="h-12 w-64 rounded-full">
+            {busy ? "Bezig…" : "Naar mijn lessen"}
+          </Button>
+          <button onClick={() => setTeacherStep(false)} className="text-sm text-muted-foreground underline">
+            Terug
+          </button>
+        </>
+      ) : parentStep ? (
         <>
           <h1 className="text-2xl">Welkom, ouder of verzorger 💛</h1>
           <div className="space-y-2 text-left text-sm text-muted-foreground">
@@ -135,6 +186,9 @@ export function BirthdateGate({ children }: { children: React.ReactNode }) {
           </Button>
           <button onClick={() => setParentStep(true)} className="text-sm font-semibold text-primary underline">
             Ik ben ouder of verzorger
+          </button>
+          <button onClick={() => setTeacherStep(true)} className="text-sm font-semibold text-primary underline">
+            Ik ben leraar
           </button>
           <p className="max-w-xs text-xs text-muted-foreground">
             Let op: je kunt je geboortedatum daarna niet zelf meer veranderen. Klopt hij niet? Vraag

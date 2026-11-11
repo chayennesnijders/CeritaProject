@@ -410,6 +410,12 @@ export type Database = {
         Update: { user_id?: string; child_ages?: string[]; updated_at?: string }
         Relationships: []
       }
+      teachers: {
+        Row: { user_id: string; license_id: string | null; created_at: string }
+        Insert: { user_id: string; license_id?: string | null; created_at?: string }
+        Update: { user_id?: string; license_id?: string | null; created_at?: string }
+        Relationships: []
+      }
       tester_progress: {
         Row: { user_id: string; role: string; checks: Json; notes: Json; started_at: string; updated_at: string }
         Insert: { user_id: string; role: string; checks?: Json; notes?: Json; started_at?: string; updated_at?: string }
@@ -2078,6 +2084,7 @@ export type Database = {
           reminder_hour: number
           reminded_on: string | null
           is_parent: boolean
+          is_teacher: boolean
           also_parent: boolean
           quiet_end: number | null
           quiet_start: number | null
@@ -2098,6 +2105,7 @@ export type Database = {
           reminder_hour?: number
           reminded_on?: string | null
           is_parent?: boolean
+          is_teacher?: boolean
           also_parent?: boolean
           quiet_end?: number | null
           quiet_start?: number | null
@@ -2118,6 +2126,7 @@ export type Database = {
           reminder_hour?: number
           reminded_on?: string | null
           is_parent?: boolean
+          is_teacher?: boolean
           also_parent?: boolean
           quiet_end?: number | null
           quiet_start?: number | null
@@ -2683,6 +2692,7 @@ export type Database = {
       open_letter: { Args: { _letter: string }; Returns: undefined }
       event_counts: { Args: never; Returns: { event_id: string; going: number }[] }
       become_parent: { Args: never; Returns: undefined }
+      become_teacher: { Args: { _code: string }; Returns: string }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }
       parent_portal_stats: { Args: never; Returns: Json }

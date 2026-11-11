@@ -12,8 +12,9 @@ import { InboxBell, PetLink, ShopLink, StreakChip, WorkMenu } from "@/components
 import { CareHelpDialog } from "@/components/CareHelpDialog";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
-import { Home, Users, Compass, MessageCircle, User, CalendarHeart, Wind } from "lucide-react";
+import { Home, Users, Compass, MessageCircle, User, CalendarHeart, Wind, BookOpen } from "lucide-react";
 import { parentMayOpen } from "@/lib/parent";
+import { teacherMayOpen } from "@/lib/teacher";
 import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
 import { useAdminNews } from "@/lib/use-admin-news";
@@ -33,6 +34,12 @@ const parentTabs = [
   { to: "/home", label: "Home", icon: Home },
   { to: "/stemming", label: "Stemming", icon: CalendarHeart },
   { to: "/rust", label: "Rust", icon: Wind },
+  { to: "/profiel", label: "Profiel", icon: User },
+] as const;
+
+/** Teachers only have their lessons and their profile. */
+const teacherTabs = [
+  { to: "/home", label: "Lessen", icon: BookOpen },
   { to: "/profiel", label: "Profiel", icon: User },
 ] as const;
 
@@ -58,9 +65,12 @@ export function AppShell() {
   // Leden vanaf 28 zien de community niet meer; de rest van de app blijft beschikbaar.
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
   // 28+ has no community; coaches of any age keep Berichten for their chats with members.
-  const isParent = useActsAsParent();
+  const isTeacher = !!me?.profile?.is_teacher;
+  const isParent = useActsAsParent() && !isTeacher;
+  // Teachers and parents share the quiet header: no inbox, shop or welcome tour.
+  const isGrownUp = isParent || isTeacher;
   const parentView = useParentView();
-  const visibleTabs = isParent ? parentTabs : tabs.filter((t) => {
+  const visibleTabs = isTeacher ? teacherTabs : isParent ? parentTabs : tabs.filter((t) => {
     if (band !== "no_community") return true;
     if (t.to === "/community") return false;
     if (t.to === "/berichten") return !!me?.isCoach;
@@ -73,8 +83,8 @@ export function AppShell() {
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <BirthdayPopup />
       <CareHelpDialog />
-      {!isParent && <WelcomeTour />}
-      {!isParent && <WeeklyRulesPopup uid={me?.user.id} />}
+      {!isGrownUp && <WelcomeTour />}
+      {!isGrownUp && <WeeklyRulesPopup uid={me?.user.id} />}
       <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-4 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
           <img src="/cerita-beer.png" alt="" className="size-11 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
@@ -86,10 +96,10 @@ export function AppShell() {
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
           {/* Parents also have a diary and a pet (their own, private), so they keep the streak and the paw. */}
-          <StreakChip uid={me?.user.id} />
-          {!isParent && <InboxBell />}
-          <PetLink uid={me?.user.id} />
-          {!isParent && <ShopLink />}
+          {!isTeacher && <StreakChip uid={me?.user.id} />}
+          {!isGrownUp && <InboxBell />}
+          {!isTeacher && <PetLink uid={me?.user.id} />}
+          {!isGrownUp && <ShopLink />}
           <WorkMenu uid={me?.user.id} isAdmin={!!me?.isStaff} adminCount={unread.reports + (me?.isAdmin ? news.unread : 0)} />
         </div>
       </header>
@@ -115,7 +125,7 @@ export function AppShell() {
         className={`flex-1 px-5 ${playing ? "pb-[calc(18rem+env(safe-area-inset-bottom,0px))]" : "pb-[calc(9rem+env(safe-area-inset-bottom,0px))]"}`}
       >
         <div key={page} className="animate-in fade-in duration-300 motion-reduce:animate-none">
-          {isParent && !parentMayOpen(page) ? <ForYoungPeople /> : <Outlet />}
+          {(isTeacher && !teacherMayOpen(page)) || (isParent && !parentMayOpen(page)) ? <ForYoungPeople /> : <Outlet />}
         </div>
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
@@ -154,8 +164,8 @@ function ForYoungPeople() {
       <p className="text-3xl">🔒</p>
       <h1 className="text-xl">Dit deel is voor jongeren</h1>
       <p className="text-sm text-muted-foreground">
-        Groepen, chats en verhalen zijn alleen voor jongeren, zodat het voor hen een veilige plek blijft. In jouw
-        omgeving vind je alles voor ouders.
+        Groepen, chats en verhalen zijn alleen voor jongeren, zodat het voor hen een veilige plek blijft. Op je
+        startscherm vind je alles wat voor jou klaarstaat.
       </p>
       <Link to="/home" className="inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
         Naar mijn startscherm

@@ -33,13 +33,18 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const nav = useNavigate();
-  const [mode, setMode] = useState<"in" | "up" | "forgot" | "resend">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthdate, setBirthdate] = useState("");
   // Young people (13–27) or a parent/carer: parents get their own environment and no birthdate.
-  const [who, setWho] = useState<"jongere" | "ouder">("jongere");
+  // Teachers come from /lessen (?rol=leraar); only then is "Ik ben leraar" offered.
+  const [teacherInvite] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("rol") === "leraar",
+  );
+  const [who, setWho] = useState<"jongere" | "ouder" | "leraar">(teacherInvite ? "leraar" : "jongere");
+  // A teacher coming from /lessen usually has no account yet, so start on "aanmelden".
+  const [mode, setMode] = useState<"in" | "up" | "forgot" | "resend">(teacherInvite ? "up" : "in");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,14 +111,20 @@ function AuthPage() {
       }
       if (mode === "up") {
         const parent = who === "ouder";
-        if (!parent && ageGroupFor(new Date(birthdate)) === "too_young") { setError("CeritaProject is voor jongeren vanaf 13 jaar. Ben je jonger? Praat met de Kindertelefoon: 0800-0432."); return; }
+        const teacher = who === "leraar";
+        if (!parent && !teacher && ageGroupFor(new Date(birthdate)) === "too_young") { setError("CeritaProject is voor jongeren vanaf 13 jaar. Ben je jonger? Praat met de Kindertelefoon: 0800-0432."); return; }
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: window.location.origin + "/home",
             // A parent signs up without a birthdate; after confirming the e-mail the app turns the account
             // into a parent account (become_parent), see BirthdateGate.
-            data: parent ? { display_name: name, wants_parent: true } : { display_name: name, birthdate },
+            // A teacher too; they enter their school code next (become_teacher).
+            data: parent
+              ? { display_name: name, wants_parent: true }
+              : teacher
+                ? { display_name: name, wants_teacher: true }
+                : { display_name: name, birthdate },
           },
         });
         if (error) throw error;
@@ -151,7 +162,7 @@ function AuthPage() {
         : focus === "password"
           ? { face: "troostend", say: "Ik kijk niet hoor 🙈" }
           : mode === "up"
-            ? { face: "blij", say: who === "ouder" ? "Fijn dat je er bent als ouder 💛" : "Leuk dat je erbij komt! 🎉" }
+            ? { face: "blij", say: who === "leraar" ? "Fijn dat je er bent! 🎓" : who === "ouder" ? "Fijn dat je er bent als ouder 💛" : "Leuk dat je erbij komt! 🎉" }
             : mode === "forgot"
               ? { face: "troostend", say: "Geen zorgen, dat overkomt iedereen." }
               : mode === "resend"
@@ -225,6 +236,7 @@ function AuthPage() {
                   {([
                     ["jongere", "🙋 Ik ben jongere", "13 tot 27 jaar"],
                     ["ouder", "👪 Ik ben ouder", "of verzorger"],
+                    ...(teacherInvite ? ([["leraar", "🎓 Ik ben leraar", "met een schoolcode"]] as const) : []),
                   ] as const).map(([id, label, sub]) => (
                     <button
                       key={id}
@@ -239,6 +251,12 @@ function AuthPage() {
                     </button>
                   ))}
                 </div>
+                {who === "leraar" && (
+                  <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
+                    Je krijgt een leraar-account met de lessen van CeritaProject. Na het aanmelden vul je de schoolcode
+                    in. Je ziet niets van de jongeren in de app.
+                  </p>
+                )}
                 {who === "ouder" && (
                   <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
                     Je krijgt een eigen omgeving voor ouders, met elke dag een tip voor jou en je kind en handleidingen

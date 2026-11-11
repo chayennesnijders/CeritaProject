@@ -105,7 +105,20 @@ function LessonsPage() {
           te delen.
         </p>
 
-        <section className="mt-6 rounded-3xl bg-card p-5 shadow-soft">
+        <section className="mt-6 flex flex-wrap items-center gap-3 rounded-3xl bg-ink p-5 text-ink-foreground shadow-soft">
+          <span className="text-2xl">🎓</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Nieuw: je lessen in de app</p>
+            <p className="text-sm opacity-80">
+              Maak een leraar-account met de code van je school. Dan staan je lessen altijd klaar, ook op het digibord.
+            </p>
+          </div>
+          <a href="/auth?rol=leraar" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            Leraar-account maken
+          </a>
+        </section>
+
+        <section className="mt-4 rounded-3xl bg-card p-5 shadow-soft">
           {unlockedAll ? (
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-2xl">🏫</span>
