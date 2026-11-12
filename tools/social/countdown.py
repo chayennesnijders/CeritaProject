@@ -169,6 +169,7 @@ CTA = {
     "countdown": ("DEEL JE ANTWOORD IN DE REACTIES.", "Of schrijf het op in je eigen dagboek in de CeritaProject-app. Daar staat elke dag de vraag voor je klaar."),
     "denk": ("DEEL JE ANTWOORD IN DE REACTIES.", "Of schrijf het op in je eigen dagboek in de CeritaProject-app, waar niemand meeleest."),
     # Personal questions: never invite public confessions in the comments.
+    "verhaal": ("STUUR JE VERHAAL.", "Anoniem, als je dat wilt."),
     "echt": ("SCHRIJF HET OP. VOOR JEZELF.", "In je eigen dagboek in de CeritaProject-app, waar niemand meeleest. Zit je ergens mee? Praat met iemand die je vertrouwt."),
 }
 
@@ -176,14 +177,21 @@ CTA = {
 def slide_cta(c):
     dark = dark_at(4); col = pal(dark)
     im = base(dark); d = frame(im, dark, 4)
-    head, body = CTA[c.get("format", "countdown")]
-    end = block(d, head, 150, 330, col["text"])
-    f = font(42, b"SemiBold")
-    y = end + 60
-    for ln in wrap(body, f, TEXTW):
-        d.text((M, y), ln, font=f, fill=col["sub"]); y += 56
-    d.text((M, y + 30), "Wachtlijst: link in bio", font=font(44, b"Bold"), fill=col["accent"])
-    d.text((M, y + 100), "een initiatief van CeritaProject", font=font(32, b"Medium"), fill=col["sub"])
+    # A post can bring its own ending: "cta": [head, body, highlighted line].
+    head, body, line = c["cta"] if c.get("cta") else (*CTA[c.get("format", "countdown")], "Wachtlijst: link in bio")
+    fb, fl, fi = font(42, b"SemiBold"), font(42, b"Bold"), font(32, b"Medium")
+    body_l, line_l = wrap(body, fb, TEXTW), wrap(line, fl, TEXTW)
+    # Everything under the heading, so the heading gets whatever room is left above "04 / 04".
+    below = 60 + len(body_l) * 56 + 34 + len(line_l) * 56 + 70
+    top, bottom = 300, H - 200
+    size = fit_anton(head, TEXTW, bottom - top - below, 150, minsize=80)
+    y = block(d, head, size, top, col["text"]) + 60
+    for ln in body_l:
+        d.text((M, y), ln, font=fb, fill=col["sub"]); y += 56
+    y += 34
+    for ln in line_l:
+        d.text((M, y), ln, font=fl, fill=col["accent"]); y += 56
+    d.text((M, y + 24), "een initiatief van CeritaProject", font=fi, fill=col["sub"])
     return im
 
 
@@ -219,7 +227,7 @@ def slide_nuance(title, body, k):
 
 
 # Labels under the ECHT. mark on the first slide.
-LABELS = {"denk": "DENK EENS NA.", "echt": "ECHTE VRAAG."}
+LABELS = {"denk": "DENK EENS NA.", "echt": "ECHTE VRAAG.", "verhaal": "VERHALEN GEZOCHT."}
 
 
 def post_slides(spec):
