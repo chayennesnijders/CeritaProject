@@ -14,6 +14,7 @@ import { useMe } from "@/lib/auth";
 import { useActsAsParent } from "@/lib/parent-view";
 import { parentDay } from "@/lib/parent";
 import { teacherDay } from "@/lib/teacher";
+import { countdownFor } from "@/lib/countdown";
 import { useChallengeDay } from "@/lib/challenges";
 import { useSignedImage } from "@/lib/articles";
 import { Button } from "@/components/ui/button";
@@ -112,6 +113,8 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   const isTeacher = !!me?.profile?.is_teacher;
   // Teachers get a question about their day in class; parents their own assignment.
   const prompt = isTeacher ? teacherDay(day).reflect : asParent ? parentDay(day).self : null;
+  // Young people also get the countdown question of the day (the same one as on TikTok that morning).
+  const countdown = prompt ? null : countdownFor(day);
   const name = me?.profile?.display_name ?? "";
   const todayLabel = new Date().toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
   const canSave = !busy && !!(text.trim() || photo || audio);
@@ -143,6 +146,24 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
                 🎨 Teken hier
               </button>
             )}
+          </section>
+        )}
+
+        {countdown && (
+          <section className="mx-2 space-y-2 rounded-3xl bg-ink p-4 text-ink-foreground shadow-soft">
+            <p className="text-xs font-bold uppercase tracking-wider opacity-70">
+              {countdown.emoji} {countdown.headline} · vraag {countdown.day} van {countdown.total}
+            </p>
+            <p className="font-hand text-2xl leading-7">{countdown.question}</p>
+            <button
+              onClick={() => {
+                if (!text.includes(countdown.question)) setText((t) => `${countdown.question}\n${t}`);
+                document.getElementById("diary-text")?.focus();
+              }}
+              className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground active:scale-95"
+            >
+              ✍️ Beantwoorden in mijn dagboek
+            </button>
           </section>
         )}
 
