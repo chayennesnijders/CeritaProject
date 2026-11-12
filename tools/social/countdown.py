@@ -60,6 +60,14 @@ INKC = (17, 12, 14)
 ANTON = os.path.join(os.path.dirname(__file__), "fonts", "Anton.woff")
 M = 96  # side margin
 TEXTW = W - M - RIGHT - 40
+SIZES = {"tiktok": (1440, 150), "instagram": (1350, 40)}  # height, clear space on the right
+
+
+def set_size(kind):
+    """TikTok photo mode is 3:4 (1080x1440, buttons on the right); an Instagram carousel shows 4:5 whole."""
+    global H, RIGHT, TEXTW
+    H, RIGHT = SIZES[kind]
+    TEXTW = W - M - RIGHT - 40
 
 
 def anton(size):
@@ -129,7 +137,7 @@ def slide_cover(c):
     dark = dark_at(1); col = pal(dark)
     im = base(dark); d = frame(im, dark, 1)
     text = (c["headline"] + ".").upper()
-    size = fit_anton(text, TEXTW, 700, 230)
+    size = fit_anton(text, TEXTW, 700 * H / 1440, 230)
     lines = len(wrap(text, anton(size), TEXTW))
     y = (H - lines * size * 1.02) / 2 - 110
     end = block(d, text, size, y, col["text"])
@@ -184,7 +192,7 @@ def slide_big(text, k, label=None):
     dark = dark_at(k); col = pal(dark)
     im = base(dark); d = frame(im, dark, k)
     text = text.upper()
-    size = fit_anton(text, TEXTW, 860, 170)
+    size = fit_anton(text, TEXTW, 860 * H / 1440, 170)
     lines = len(wrap(text, anton(size), TEXTW))
     y = (H - lines * size * 1.02) / 2 - 30
     if label:
@@ -252,8 +260,11 @@ def main():
         # nuance_body, followup); writes OUTDIR/1.png .. 4.png
         spec = json.load(open(sys.argv[2]))
         os.makedirs(sys.argv[3], exist_ok=True)
-        for i, im in enumerate(post_slides(spec), 1):
-            im.save(os.path.join(sys.argv[3], f"{i}.png"), optimize=True)
+        # 1.png .. 4.png for TikTok (3:4) and ig-1.png .. ig-4.png for Instagram (4:5)
+        for kind, prefix in (("tiktok", ""), ("instagram", "ig-")):
+            set_size(kind)
+            for i, im in enumerate(post_slides(spec), 1):
+                im.save(os.path.join(sys.argv[3], f"{prefix}{i}.png"), optimize=True)
         return
     out, a = sys.argv[1], sys.argv[2]
     b = sys.argv[3] if len(sys.argv) > 3 else a
@@ -264,8 +275,10 @@ def main():
             continue
         folder = os.path.join(out, day)
         os.makedirs(folder, exist_ok=True)
-        for i, fn in enumerate([slide_cover, slide_day, slide_question, slide_cta], 1):
-            fn(c).save(os.path.join(folder, f"{i}.png"), optimize=True)
+        for kind, prefix in (("tiktok", ""), ("instagram", "ig-")):
+            set_size(kind)
+            for i, fn in enumerate([slide_cover, slide_day, slide_question, slide_cta], 1):
+                fn(c).save(os.path.join(folder, f"{prefix}{i}.png"), optimize=True)
         with open(os.path.join(folder, "caption.txt"), "w") as f:
             f.write(caption(c))
         print(day, c["headline"], "|", c["question"])
