@@ -3,10 +3,12 @@
 Usage: python3 tools/social/countdown.py OUTDIR FROM [TO]
   FROM/TO are YYYY-MM-DD; for every day a folder OUTDIR/<day>/ with 1.png .. 4.png and caption.txt.
 The questions come from src/lib/countdown.ts (the same ones wait in the app's diary).
-Slides: 1 the countdown, 2 "DAG 3", 3 the question, 4 the call to action with Riti.
+Style "ECHT.": big Anton capitals, light and dark slides in turn. Slides: 1 the countdown, 2 "DAG 03.",
+3 the question, 4 "Deel je antwoord in de reacties" + the app.
 """
 import datetime as dt
 import json
+import math
 import os
 import re
 import subprocess
@@ -52,85 +54,103 @@ def fit(text, maxw, maxh, start, weight, lh=1.15, minsize=44):
     return minsize
 
 
-def base():
+LIGHT = (247, 243, 240)
+INKC = (17, 12, 14)
+ANTON = os.path.join(os.path.dirname(__file__), "fonts", "Anton.woff")
+M = 96  # side margin
+TEXTW = W - M - RIGHT - 40
+
+
+def anton(size):
+    return ImageFont.truetype(ANTON, size)
+
+
+def fit_anton(text, maxw, maxh, start, lh=1.02, minsize=70):
+    s = start
+    while s > minsize:
+        lines = wrap(text, anton(s), maxw)
+        # Also a single long word ("VALENTIJNSDAG.") must fit the width.
+        if len(lines) * s * lh <= maxh and max(anton(s).getlength(ln) for ln in lines) <= maxw:
+            return s
+        s -= 6
+    return minsize
+
+
+def base(dark):
+    if not dark:
+        return Image.new("RGB", (W, H), LIGHT)
     im = Image.new("RGB", (W, H), BG)
     glow = Image.new("RGB", (W, H), BG)
     ImageDraw.Draw(glow).ellipse((W * 0.1, H * 0.25, W * 0.9, H * 0.75), fill=(58, 30, 40))
     return Image.blend(im, glow.filter(ImageFilter.GaussianBlur(160)), 1.0)
 
 
-def centered(d, lines, f, color, y_mid, lh):
-    step = int(f.size * lh)
-    y = y_mid - step * len(lines) / 2
-    cx = (W - RIGHT) / 2 + RIGHT / 4
-    for ln in lines:
-        d.text((cx - f.getlength(ln) / 2, y), ln, font=f, fill=color)
-        y += step
-    return y
+def frame(im, dark, k, n=4):
+    """ECHT. mark top left and the slide counter bottom left."""
+    d = ImageDraw.Draw(im)
+    col = CREAM if dark else INKC
+    d.text((M, 92), "ECHT.", font=font(54, b"ExtraBold"), fill=col)
+    d.text((M, H - 130), f"{k:02d} / {n:02d}", font=font(34, b"SemiBold"), fill=col)
+    return d
 
 
-def watermark(d):
-    f = font(30, b"SemiBold")
-    t = "CeritaProject"
-    d.text(((W - f.getlength(t)) / 2, H - 90), t, font=f, fill=(150, 110, 122))
+def block(d, text, size, y, color, lh=1.02):
+    f = anton(size)
+    for i, ln in enumerate(wrap(text, f, TEXTW)):
+        d.text((M, y + i * size * lh), ln, font=f, fill=color)
+    return y + len(wrap(text, f, TEXTW)) * size * lh
+
+
+def stroke(d, x, y, w, color):
+    """A quick hand-drawn underline."""
+    pts = [(x + i * w / 20, y + 10 * math.sin(i / 20 * math.pi) - i * 0.6) for i in range(21)]
+    d.line(pts, fill=color, width=12, joint="curve")
 
 
 def slide_cover(c):
-    im = base(); d = ImageDraw.Draw(im)
-    m = re.match(r"Nog (\d+) (dagen|dag) tot (.+)", c["headline"])
-    if m:
-        n, unit, to = m.groups()
-        fn = font(260); y = H * 0.36
-        d.text(((W - RIGHT / 2 - fn.getlength(n)) / 2, y - 150), n, font=fn, fill=PINK)
-        f2 = font(fit(f"{unit} tot {to}".upper(), W - RIGHT - 160, 300, 110, b"ExtraBold"))
-        end = centered(d, wrap(f"{unit} tot {to}".upper(), f2, W - RIGHT - 160), f2, PINK, H * 0.56, 1.1)
-    else:
-        f2 = font(fit(c["headline"].upper(), W - RIGHT - 160, 420, 120, b"ExtraBold"))
-        end = centered(d, wrap(c["headline"].upper(), f2, W - RIGHT - 160), f2, PINK, H * 0.47, 1.1)
-    fs = font(46, b"SemiBold")
-    sub = "elke dag één vraag voor jezelf"
-    d.text(((W - RIGHT / 2 - fs.getlength(sub)) / 2, end + 40), sub, font=fs, fill=CREAM)
-    watermark(d)
+    im = base(False); d = frame(im, False, 1)
+    text = (c["headline"] + ".").upper()
+    size = fit_anton(text, TEXTW, 760, 230)
+    lines = len(wrap(text, anton(size), TEXTW))
+    y = (H - lines * size * 1.02) / 2 - 60
+    end = block(d, text, size, y, INKC)
+    stroke(d, M, end + 90, 460, INKC)
+    sub = font(40, b"Medium")
+    for i, ln in enumerate(wrap("Elke dag één vraag. Geen goed of fout antwoord.", sub, TEXTW - 120)):
+        d.text((M, end + 165 + i * 54), ln, font=sub, fill=(70, 60, 64))
     return im
 
 
 def slide_day(c):
-    im = base(); d = ImageDraw.Draw(im)
-    f = font(150)
-    centered(d, [f"DAG {c['day']}"], f, PINK, H / 2, 1.0)
-    fs = font(44, b"SemiBold")
-    t = f"van de {c['total']}"
-    d.text(((W - RIGHT / 2 - fs.getlength(t)) / 2, H / 2 + 110), t, font=fs, fill=MUTED)
-    watermark(d)
+    im = base(True); d = frame(im, True, 2)
+    label = f"DAG {c['day']:02d}."
+    size = 300
+    while anton(size).getlength(label) > TEXTW:
+        size -= 10
+    y = block(d, label, size, H / 2 - size * 0.75, CREAM) + 40
+    d.text((M, y + 30), f"van de {c['total']}", font=font(44, b"SemiBold"), fill=PINK)
+    d.text((M, y + 100), "Lees de vraag. Neem even de tijd.", font=font(40, b"Medium"), fill=MUTED)
     return im
 
 
 def slide_question(c):
-    im = base(); d = ImageDraw.Draw(im)
-    maxw = W - RIGHT - 170
-    size = fit(c["question"], maxw, 620, 84, b"Bold", lh=1.22)
-    f = font(size, b"Bold")
-    centered(d, wrap(c["question"], f, maxw), f, PINK, H / 2, 1.22)
-    fs = font(38, b"SemiBold")
-    t = "Schrijf je antwoord in de reacties"
-    d.text(((W - RIGHT / 2 - fs.getlength(t)) / 2, H - 230), t, font=fs, fill=MUTED)
-    watermark(d)
+    im = base(False); d = frame(im, False, 3)
+    text = c["question"].upper()
+    size = fit_anton(text, TEXTW, 900, 170)
+    lines = len(wrap(text, anton(size), TEXTW))
+    block(d, text, size, (H - lines * size * 1.02) / 2 - 30, INKC)
     return im
 
 
 def slide_cta(c):
-    im = base(); d = ImageDraw.Draw(im)
-    riti = Image.open(os.path.join(ROOT, "public", "riti", "blij.webp")).convert("RGBA")
-    riti = riti.crop(riti.getbbox())
-    rw = 380; riti = riti.resize((rw, int(rw * riti.height / riti.width)), Image.LANCZOS)
-    im.paste(riti, (int((W - RIGHT / 2 - rw) / 2), 230), riti)
-    f = font(66)
-    lines = wrap("Elke dag een nieuwe vraag, en een plek voor jouw antwoord", f, W - RIGHT - 160)
-    y = centered(d, lines, f, CREAM, 870, 1.15)
-    fs = font(44, b"SemiBold")
-    for i, t in enumerate(["in het dagboek van de CeritaProject-app", "Zet je op de wachtlijst: link in bio"]):
-        d.text(((W - RIGHT / 2 - fs.getlength(t)) / 2, y + 40 + i * 64), t, font=fs, fill=PINK if i else MUTED)
-    watermark(d)
+    im = base(True); d = frame(im, True, 4)
+    end = block(d, "DEEL JE ANTWOORD IN DE REACTIES.", 150, 430, CREAM)
+    f = font(42, b"SemiBold")
+    y = end + 60
+    for ln in wrap("Of schrijf het op in je eigen dagboek in de CeritaProject-app. Daar staat elke dag de vraag voor je klaar.", f, TEXTW):
+        d.text((M, y), ln, font=f, fill=MUTED); y += 56
+    d.text((M, y + 30), "Wachtlijst: link in bio", font=font(44, b"Bold"), fill=PINK)
+    d.text((M, H - 200), "een initiatief van CeritaProject", font=font(32, b"Medium"), fill=MUTED)
     return im
 
 
