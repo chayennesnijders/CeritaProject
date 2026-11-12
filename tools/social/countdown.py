@@ -1,6 +1,7 @@
 """Countdown slideshows: "Nog 48 dagen tot oud & nieuw", one question a day (TikTok photo mode, 3:4).
 
 Usage: python3 tools/social/countdown.py OUTDIR FROM [TO]
+       python3 tools/social/countdown.py post spec.json OUTDIR   (a "DENK EENS NA." or "EERLIJK." post)
   FROM/TO are YYYY-MM-DD; for every day a folder OUTDIR/<day>/ with 1.png .. 4.png and caption.txt.
 The questions come from src/lib/countdown.ts (the same ones wait in the app's diary).
 Style "ECHT.": big Anton capitals, light and dark slides in turn. Slides: 1 the countdown, 2 "DAG 03.",
@@ -142,16 +143,65 @@ def slide_question(c):
     return im
 
 
+CTA = {
+    "countdown": ("DEEL JE ANTWOORD IN DE REACTIES.", "Of schrijf het op in je eigen dagboek in de CeritaProject-app. Daar staat elke dag de vraag voor je klaar."),
+    "denk": ("DEEL JE ANTWOORD IN DE REACTIES.", "Of schrijf het op in je eigen dagboek in de CeritaProject-app, waar niemand meeleest."),
+    # Personal questions: never invite public confessions in the comments.
+    "eerlijk": ("SCHRIJF HET OP. VOOR JEZELF.", "In je eigen dagboek in de CeritaProject-app, waar niemand meeleest. Zit je ergens mee? Praat met iemand die je vertrouwt."),
+}
+
+
 def slide_cta(c):
     im = base(True); d = frame(im, True, 4)
-    end = block(d, "DEEL JE ANTWOORD IN DE REACTIES.", 150, 430, CREAM)
+    head, body = CTA[c.get("format", "countdown")]
+    end = block(d, head, 150, 330, CREAM)
     f = font(42, b"SemiBold")
     y = end + 60
-    for ln in wrap("Of schrijf het op in je eigen dagboek in de CeritaProject-app. Daar staat elke dag de vraag voor je klaar.", f, TEXTW):
+    for ln in wrap(body, f, TEXTW):
         d.text((M, y), ln, font=f, fill=MUTED); y += 56
     d.text((M, y + 30), "Wachtlijst: link in bio", font=font(44, b"Bold"), fill=PINK)
-    d.text((M, H - 200), "een initiatief van CeritaProject", font=font(32, b"Medium"), fill=MUTED)
+    d.text((M, y + 100), "een initiatief van CeritaProject", font=font(32, b"Medium"), fill=MUTED)
     return im
+
+
+def slide_big(text, k, dark=False, label=None):
+    """A light (or dark) slide with one big question in capitals; optional small label above it."""
+    im = base(dark); d = frame(im, dark, k)
+    text = text.upper()
+    size = fit_anton(text, TEXTW, 860, 170)
+    lines = len(wrap(text, anton(size), TEXTW))
+    y = (H - lines * size * 1.02) / 2 - 30
+    if label:
+        d.text((M, 170), label, font=font(40, b"Bold"), fill=PINK if dark else (120, 60, 80))
+        y = max(y, 280)
+    block(d, text, size, y, CREAM if dark else INKC)
+    return im
+
+
+def slide_nuance(title, body, k):
+    """Dark slide: a short sentence in bold and a calmer line under it (like "stel je voor: …")."""
+    im = base(True); d = frame(im, True, k)
+    ft, fb = font(84, b"ExtraBold"), font(56, b"Medium")
+    t_lines, b_lines = wrap(title, ft, TEXTW), wrap(body, fb, TEXTW)
+    total = len(t_lines) * 98 + 50 + len(b_lines) * 70
+    y = (H - total) / 2
+    for ln in t_lines:
+        d.text((M, y), ln, font=ft, fill=CREAM); y += 98
+    y += 50
+    for ln in b_lines:
+        d.text((M, y), ln, font=fb, fill=MUTED); y += 70
+    return im
+
+
+def post_slides(spec):
+    """'DENK EENS NA.' and 'EERLIJK.' posts: question, nuance, follow-up question, call to action."""
+    label = {"denk": "DENK EENS NA.", "eerlijk": "EERLIJK."}[spec["format"]]
+    return [
+        slide_big(spec["question"], 1, label=label),
+        slide_nuance(spec["nuance_title"], spec["nuance_body"], 2),
+        slide_big(spec["followup"], 3),
+        slide_cta(spec),
+    ]
 
 
 def questions_for(days):
@@ -175,6 +225,14 @@ def caption(c):
 
 
 def main():
+    if sys.argv[1] == "post":
+        # python3 countdown.py post spec.json OUTDIR  (spec: format denk|eerlijk, question, nuance_title,
+        # nuance_body, followup); writes OUTDIR/1.png .. 4.png
+        spec = json.load(open(sys.argv[2]))
+        os.makedirs(sys.argv[3], exist_ok=True)
+        for i, im in enumerate(post_slides(spec), 1):
+            im.save(os.path.join(sys.argv[3], f"{i}.png"), optimize=True)
+        return
     out, a = sys.argv[1], sys.argv[2]
     b = sys.argv[3] if len(sys.argv) > 3 else a
     d0, d1 = dt.date.fromisoformat(a), dt.date.fromisoformat(b)
