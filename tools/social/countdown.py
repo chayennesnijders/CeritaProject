@@ -242,7 +242,7 @@ def caption(c):
         f"{c['emoji']} {c['headline']}. Dag {c['day']}/{c['total']}: {c['question']}\n\n"
         "Schrijf je antwoord in de reacties, of bewaar het voor jezelf in je dagboek in de CeritaProject-app 💛 "
         "Wachtlijst: link in bio\n\n"
-        f"#ceritaproject #journaling #dagboek #vragen {tag} #jezelf #mentalegezondheid #fyp #voorjou"
+        f"#echt #vragen #jezelf {tag} #journaling #fyp"
     )
 
 
