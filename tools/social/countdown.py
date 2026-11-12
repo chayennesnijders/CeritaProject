@@ -1,7 +1,7 @@
 """Countdown slideshows: "Nog 48 dagen tot oud & nieuw", one question a day (TikTok photo mode, 3:4).
 
 Usage: python3 tools/social/countdown.py OUTDIR FROM [TO]
-       python3 tools/social/countdown.py post spec.json OUTDIR   (a "DENK EENS NA." or "EERLIJK." post)
+       python3 tools/social/countdown.py post spec.json OUTDIR   (a "DENK EENS NA." or "ECHT." post)
   FROM/TO are YYYY-MM-DD; for every day a folder OUTDIR/<day>/ with 1.png .. 4.png and caption.txt.
 The questions come from src/lib/countdown.ts (the same ones wait in the app's diary).
 Style "ECHT.": big Anton capitals, light and dark slides in turn. Slides: 1 the countdown, 2 "DAG 03.",
@@ -90,7 +90,13 @@ def frame(im, dark, k, n=4):
     """ECHT. mark top left and the slide counter bottom left."""
     d = ImageDraw.Draw(im)
     col = CREAM if dark else INKC
-    d.text((M, 92), "ECHT.", font=font(54, b"ExtraBold"), fill=col)
+    f = font(54, b"Black")
+    d.text((M, 92), "ECHT", font=f, fill=col)
+    # The logo's dot, pink like on the profile picture.
+    bb = d.textbbox((M, 92), "ECHT", font=f)
+    r = 6.5
+    x = bb[2] + 4 + r
+    d.ellipse((x - r, bb[3] - 2 * r, x + r, bb[3]), fill=PINK if dark else (178, 58, 98))
     d.text((M, H - 130), f"{k:02d} / {n:02d}", font=font(34, b"SemiBold"), fill=col)
     return d
 
@@ -108,96 +114,112 @@ def stroke(d, x, y, w, color):
     d.line(pts, fill=color, width=12, joint="curve")
 
 
+def pal(dark):
+    """Colours per slide: the brown-purple slides and the light ones."""
+    if dark:
+        return {"text": CREAM, "sub": MUTED, "accent": PINK}
+    return {"text": INKC, "sub": (70, 60, 64), "accent": (178, 58, 98)}
+
+
+# The first slide is always the brown-purple one, then light and dark take turns.
+dark_at = lambda k: k % 2 == 1
+
+
 def slide_cover(c):
-    im = base(False); d = frame(im, False, 1)
+    dark = dark_at(1); col = pal(dark)
+    im = base(dark); d = frame(im, dark, 1)
     text = (c["headline"] + ".").upper()
-    size = fit_anton(text, TEXTW, 760, 230)
+    size = fit_anton(text, TEXTW, 700, 230)
     lines = len(wrap(text, anton(size), TEXTW))
-    y = (H - lines * size * 1.02) / 2 - 60
-    end = block(d, text, size, y, INKC)
-    stroke(d, M, end + 90, 460, INKC)
+    y = (H - lines * size * 1.02) / 2 - 110
+    end = block(d, text, size, y, col["text"])
+    stroke(d, M, end + 90, 460, col["accent"])
     sub = font(40, b"Medium")
     for i, ln in enumerate(wrap("Elke dag één vraag. Geen goed of fout antwoord.", sub, TEXTW - 120)):
-        d.text((M, end + 165 + i * 54), ln, font=sub, fill=(70, 60, 64))
+        d.text((M, end + 165 + i * 54), ln, font=sub, fill=col["sub"])
     return im
 
 
 def slide_day(c):
-    im = base(True); d = frame(im, True, 2)
+    dark = dark_at(2); col = pal(dark)
+    im = base(dark); d = frame(im, dark, 2)
     label = f"DAG {c['day']:02d}."
     size = 300
     while anton(size).getlength(label) > TEXTW:
         size -= 10
-    y = block(d, label, size, H / 2 - size * 0.75, CREAM) + 40
-    d.text((M, y + 30), f"van de {c['total']}", font=font(44, b"SemiBold"), fill=PINK)
-    d.text((M, y + 100), "Lees de vraag. Neem even de tijd.", font=font(40, b"Medium"), fill=MUTED)
+    y = block(d, label, size, H / 2 - size * 0.75, col["text"]) + 40
+    d.text((M, y + 30), f"van de {c['total']}", font=font(44, b"SemiBold"), fill=col["accent"])
+    d.text((M, y + 100), "Lees de vraag. Neem even de tijd.", font=font(40, b"Medium"), fill=col["sub"])
     return im
 
 
 def slide_question(c):
-    im = base(False); d = frame(im, False, 3)
-    text = c["question"].upper()
-    size = fit_anton(text, TEXTW, 900, 170)
-    lines = len(wrap(text, anton(size), TEXTW))
-    block(d, text, size, (H - lines * size * 1.02) / 2 - 30, INKC)
-    return im
+    return slide_big(c["question"], 3)
 
 
 CTA = {
     "countdown": ("DEEL JE ANTWOORD IN DE REACTIES.", "Of schrijf het op in je eigen dagboek in de CeritaProject-app. Daar staat elke dag de vraag voor je klaar."),
     "denk": ("DEEL JE ANTWOORD IN DE REACTIES.", "Of schrijf het op in je eigen dagboek in de CeritaProject-app, waar niemand meeleest."),
     # Personal questions: never invite public confessions in the comments.
-    "eerlijk": ("SCHRIJF HET OP. VOOR JEZELF.", "In je eigen dagboek in de CeritaProject-app, waar niemand meeleest. Zit je ergens mee? Praat met iemand die je vertrouwt."),
+    "echt": ("SCHRIJF HET OP. VOOR JEZELF.", "In je eigen dagboek in de CeritaProject-app, waar niemand meeleest. Zit je ergens mee? Praat met iemand die je vertrouwt."),
 }
 
 
 def slide_cta(c):
-    im = base(True); d = frame(im, True, 4)
+    dark = dark_at(4); col = pal(dark)
+    im = base(dark); d = frame(im, dark, 4)
     head, body = CTA[c.get("format", "countdown")]
-    end = block(d, head, 150, 330, CREAM)
+    end = block(d, head, 150, 330, col["text"])
     f = font(42, b"SemiBold")
     y = end + 60
     for ln in wrap(body, f, TEXTW):
-        d.text((M, y), ln, font=f, fill=MUTED); y += 56
-    d.text((M, y + 30), "Wachtlijst: link in bio", font=font(44, b"Bold"), fill=PINK)
-    d.text((M, y + 100), "een initiatief van CeritaProject", font=font(32, b"Medium"), fill=MUTED)
+        d.text((M, y), ln, font=f, fill=col["sub"]); y += 56
+    d.text((M, y + 30), "Wachtlijst: link in bio", font=font(44, b"Bold"), fill=col["accent"])
+    d.text((M, y + 100), "een initiatief van CeritaProject", font=font(32, b"Medium"), fill=col["sub"])
     return im
 
 
-def slide_big(text, k, dark=False, label=None):
-    """A light (or dark) slide with one big question in capitals; optional small label above it."""
+def slide_big(text, k, label=None):
+    """One big question in capitals; optional small label under the ECHT. mark."""
+    dark = dark_at(k); col = pal(dark)
     im = base(dark); d = frame(im, dark, k)
     text = text.upper()
     size = fit_anton(text, TEXTW, 860, 170)
     lines = len(wrap(text, anton(size), TEXTW))
     y = (H - lines * size * 1.02) / 2 - 30
     if label:
-        d.text((M, 170), label, font=font(40, b"Bold"), fill=PINK if dark else (120, 60, 80))
+        d.text((M, 170), label, font=font(40, b"Bold"), fill=col["accent"])
         y = max(y, 280)
-    block(d, text, size, y, CREAM if dark else INKC)
+    block(d, text, size, y, col["text"])
     return im
 
 
 def slide_nuance(title, body, k):
-    """Dark slide: a short sentence in bold and a calmer line under it (like "stel je voor: …")."""
-    im = base(True); d = frame(im, True, k)
+    """A short sentence in bold and a calmer line under it (like "stel je voor: …")."""
+    dark = dark_at(k); col = pal(dark)
+    im = base(dark); d = frame(im, dark, k)
     ft, fb = font(84, b"ExtraBold"), font(56, b"Medium")
     t_lines, b_lines = wrap(title, ft, TEXTW), wrap(body, fb, TEXTW)
     total = len(t_lines) * 98 + 50 + len(b_lines) * 70
     y = (H - total) / 2
     for ln in t_lines:
-        d.text((M, y), ln, font=ft, fill=CREAM); y += 98
+        d.text((M, y), ln, font=ft, fill=col["text"]); y += 98
     y += 50
     for ln in b_lines:
-        d.text((M, y), ln, font=fb, fill=MUTED); y += 70
+        d.text((M, y), ln, font=fb, fill=col["sub"]); y += 70
     return im
 
 
+# Labels under the ECHT. mark on the first slide.
+LABELS = {"denk": "DENK EENS NA.", "echt": "ECHTE VRAAG."}
+
+
 def post_slides(spec):
-    """'DENK EENS NA.' and 'EERLIJK.' posts: question, nuance, follow-up question, call to action."""
-    label = {"denk": "DENK EENS NA.", "eerlijk": "EERLIJK."}[spec["format"]]
+    """'DENK EENS NA.' and 'ECHT.' posts: question, nuance, follow-up question, call to action."""
+    fmt = "echt" if spec["format"] == "eerlijk" else spec["format"]
+    spec = {**spec, "format": fmt}
     return [
-        slide_big(spec["question"], 1, label=label),
+        slide_big(spec["question"], 1, label=LABELS[fmt]),
         slide_nuance(spec["nuance_title"], spec["nuance_body"], 2),
         slide_big(spec["followup"], 3),
         slide_cta(spec),
@@ -226,7 +248,7 @@ def caption(c):
 
 def main():
     if sys.argv[1] == "post":
-        # python3 countdown.py post spec.json OUTDIR  (spec: format denk|eerlijk, question, nuance_title,
+        # python3 countdown.py post spec.json OUTDIR  (spec: format denk|echt, question, nuance_title,
         # nuance_body, followup); writes OUTDIR/1.png .. 4.png
         spec = json.load(open(sys.argv[2]))
         os.makedirs(sys.argv[3], exist_ok=True)

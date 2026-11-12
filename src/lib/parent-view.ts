@@ -27,12 +27,17 @@ function subscribe(cb: () => void) {
 
 export function setParentView(on: boolean) {
   try {
-    if (on) localStorage.setItem(KEY, "1");
+    if (on) {
+      localStorage.setItem(KEY, "1");
+      // One view at a time (see teacher-view.ts).
+      localStorage.removeItem("cerita-leraarweergave");
+    }
     else localStorage.removeItem(KEY);
   } catch {
     // Not remembered: it simply stays as it was.
   }
   window.dispatchEvent(new Event(EVENT));
+  window.dispatchEvent(new Event("cerita-weergave"));
 }
 
 /** Whether the admin switched on the parent view (always false for everyone else). */

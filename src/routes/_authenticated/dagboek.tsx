@@ -14,6 +14,7 @@ import { useMe } from "@/lib/auth";
 import { useActsAsParent } from "@/lib/parent-view";
 import { parentDay } from "@/lib/parent";
 import { teacherDay } from "@/lib/teacher";
+import { useActsAsTeacher } from "@/lib/teacher-view";
 import { countdownFor } from "@/lib/countdown";
 import { useChallengeDay } from "@/lib/challenges";
 import { useSignedImage } from "@/lib/articles";
@@ -110,7 +111,7 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   }
 
   const asParent = useActsAsParent();
-  const isTeacher = !!me?.profile?.is_teacher;
+  const isTeacher = useActsAsTeacher();
   // Teachers get a question about their day in class; parents their own assignment.
   const prompt = isTeacher ? teacherDay(day).reflect : asParent ? parentDay(day).self : null;
   // Young people also get the countdown question of the day (the same one as on TikTok that morning).

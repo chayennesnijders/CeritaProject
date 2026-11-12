@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { dutchToday, licenseWorks, mayDownload, normalizeCode } from "@/lib/lessons";
+import { dutchToday, licenseWorks, mayDownload, normalizeCode, schoolYearEnd } from "@/lib/lessons";
 
 // Public (no account): teachers use a school code. Everything is checked here with the service
 // role; the tables themselves stay closed to the outside world.
@@ -25,7 +25,13 @@ async function licenseForTeacher(userId: string) {
     supabaseAdmin.from("profiles").select("is_teacher").eq("id", userId).maybeSingle(),
     supabaseAdmin.from("teachers").select("license_id").eq("user_id", userId).maybeSingle(),
   ]);
-  if (!profile?.is_teacher) throw new Error("Dit is geen leraar-account.");
+  if (!profile?.is_teacher) {
+    // Admins looking at the app as a teacher (teacher view) see every lesson as a preview; nothing is logged.
+    const { data: admin } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    if (!admin) throw new Error("Dit is geen leraar-account.");
+    const preview = { id: null, school: "Voorbeeld voor beheerders", active: true, valid_until: schoolYearEnd(dutchToday()) };
+    return { db: supabaseAdmin, license: preview, works: true, preview: true };
+  }
   const { data: license } = link?.license_id
     ? await supabaseAdmin
         .from("school_licenses")
@@ -33,10 +39,15 @@ async function licenseForTeacher(userId: string) {
         .eq("id", link.license_id)
         .maybeSingle()
     : { data: null };
-  return { db: supabaseAdmin, license, works: licenseWorks(license, dutchToday()) };
+  return { db: supabaseAdmin, license, works: licenseWorks(license, dutchToday()), preview: false };
 }
 
-type Licensed = Awaited<ReturnType<typeof licenseFor>>;
+type Licensed = {
+  db: Awaited<ReturnType<typeof licenseFor>>["db"];
+  license: { id: string | null; school: string; active: boolean; valid_until: string } | null;
+  works: boolean;
+  preview?: boolean;
+};
 
 /** Every published lesson, which ones this licence unlocks, and their files (names only). */
 async function catalog({ db, license, works }: Licensed) {
@@ -63,7 +74,7 @@ async function catalog({ db, license, works }: Licensed) {
 }
 
 /** A short-lived download link for one file, if the lesson is free or the licence works. */
-async function download({ db, license, works }: Licensed, fileId: string, inline = false) {
+async function download({ db, license, works, preview }: Licensed, fileId: string, inline = false) {
   const { data: file } = await db
     .from("lesson_files")
     .select("id, path, label, lesson:lessons(id, is_free, published)")
@@ -77,7 +88,7 @@ async function download({ db, license, works }: Licensed, fileId: string, inline
     .from("lessons")
     .createSignedUrl(file.path, 300, inline ? undefined : { download: name });
   if (error || !signed) throw new Error("Openen lukte niet. Probeer het zo nog eens.");
-  await db.from("lesson_downloads").insert({ lesson_id: lesson.id, file_id: file.id, license_id: works ? (license?.id ?? null) : null });
+  if (!preview) await db.from("lesson_downloads").insert({ lesson_id: lesson.id, file_id: file.id, license_id: works ? (license?.id ?? null) : null });
   return { url: signed.signedUrl };
 }
 

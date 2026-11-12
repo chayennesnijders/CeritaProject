@@ -19,6 +19,7 @@ import { useMe, ageGroupFor } from "@/lib/auth";
 import { useUnreadCounts, badgeLabel } from "@/lib/unread";
 import { useAdminNews } from "@/lib/use-admin-news";
 import { setParentView, useActsAsParent, useParentView } from "@/lib/parent-view";
+import { setTeacherView, useActsAsTeacher, useTeacherView } from "@/lib/teacher-view";
 import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
@@ -65,7 +66,8 @@ export function AppShell() {
   // Leden vanaf 28 zien de community niet meer; de rest van de app blijft beschikbaar.
   const band = me?.profile?.birthdate ? ageGroupFor(new Date(me.profile.birthdate)) : null;
   // 28+ has no community; coaches of any age keep Berichten for their chats with members.
-  const isTeacher = !!me?.profile?.is_teacher;
+  const isTeacher = useActsAsTeacher();
+  const teacherView = useTeacherView();
   const isParent = useActsAsParent() && !isTeacher;
   // Teachers and parents share the quiet header: no inbox, shop or welcome tour.
   const isGrownUp = isParent || isTeacher;
@@ -103,7 +105,23 @@ export function AppShell() {
           <WorkMenu uid={me?.user.id} isAdmin={!!me?.isStaff} adminCount={unread.reports + (me?.isAdmin ? news.unread : 0)} />
         </div>
       </header>
-      {parentView && (
+      {teacherView && (
+        <div className="sticky top-[3.75rem] z-20 mx-3 mt-2 flex items-center gap-2 rounded-2xl bg-[#fff4d6] px-3 py-2 text-xs text-[#5c4300] shadow-soft print:hidden">
+          <span className="flex-1">
+            🎓 <b>Je bekijkt de app als leraar.</b> Je ziet alle lessen als voorbeeld, met je eigen account.
+          </span>
+          <button
+            onClick={() => {
+              setTeacherView(false);
+              void navigate({ to: "/beheer" });
+            }}
+            className="shrink-0 rounded-full bg-[#5c4300] px-3 py-1 font-semibold text-white"
+          >
+            Stoppen
+          </button>
+        </div>
+      )}
+      {parentView && !teacherView && (
         <div className="sticky top-[3.75rem] z-20 mx-3 mt-2 flex items-center gap-2 rounded-2xl bg-[#fff4d6] px-3 py-2 text-xs text-[#5c4300] shadow-soft print:hidden">
           <span className="flex-1">
             👪 <b>Je bekijkt de app als ouder.</b> Alles werkt echt, met jouw eigen account.

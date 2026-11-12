@@ -1,5 +1,6 @@
 import { AppLockSettings } from "@/components/AppLock";
 import { useActsAsParent } from "@/lib/parent-view";
+import { useActsAsTeacher } from "@/lib/teacher-view";
 import { shrinkImage } from "@/lib/shrink-image";
 import { normalizeUsername, usernameProblem } from "@/lib/username";
 import { InstallGuide } from "@/components/InstallGuide";
@@ -94,7 +95,7 @@ function ProfilePage() {
   const p = me?.profile;
   const asParent = useActsAsParent();
   // Teachers only keep their name, photo and settings: no youth shortcuts, badges or birthdate.
-  const isTeacher = !!me?.profile?.is_teacher;
+  const isTeacher = useActsAsTeacher();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [birthdate, setBirthdate] = useState("");

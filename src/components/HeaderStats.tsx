@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, GraduationCap, PawPrint, Shield, ShoppingBag, Users } from "lucide-react";
+import { Bell, BookOpen, GraduationCap, PawPrint, Shield, ShoppingBag, Users } from "lucide-react";
 import { setParentView, useParentView } from "@/lib/parent-view";
+import { setTeacherView, useTeacherView } from "@/lib/teacher-view";
 import { useInbox } from "@/lib/use-inbox";
 import { useMe } from "@/lib/auth";
 import { canEnterShop } from "@/lib/shop-status";
@@ -185,6 +186,7 @@ export function WorkMenu({
   const coachOpen = useCoachOpen(uid);
   const { data: me } = useMe();
   const parentView = useParentView();
+  const teacherView = useTeacherView();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const isCoach = coachOpen != null;
@@ -215,7 +217,7 @@ export function WorkMenu({
     );
   return (
     <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-      <PopoverTrigger aria-label="Beheer, coach en ouder" className={headerButton}>
+      <PopoverTrigger aria-label="Beheer, coach, ouder en leraar" className={headerButton}>
         <Icon className="size-5" />
         <HeaderBadge n={total} />
       </PopoverTrigger>
@@ -241,6 +243,19 @@ export function WorkMenu({
           >
             <Users className="size-5" /> {parentView ? "Stop ouder-weergave" : "Ouder"}
             {parentView && <span className="ml-auto text-xs">👀</span>}
+          </button>
+        )}
+        {canViewAsParent && (
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              setTeacherView(!teacherView);
+              void navigate({ to: teacherView ? "/beheer" : "/home" });
+            }}
+            className={`${item} w-full text-left`}
+          >
+            <BookOpen className="size-5" /> {teacherView ? "Stop leraar-weergave" : "Leraar"}
+            {teacherView && <span className="ml-auto text-xs">👀</span>}
           </button>
         )}
       </PopoverContent>
