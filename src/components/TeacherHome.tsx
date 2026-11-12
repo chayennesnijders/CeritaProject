@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Download, ExternalLink, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { teacherCatalog, teacherFile } from "@/lib/lessons.functions";
-import { licenceEnd, sortForTeacher } from "@/lib/teacher";
+import { licenceEnd, sortForTeacher, teacherDay } from "@/lib/teacher";
+import { dutchToday } from "@/lib/lessons";
 import { Riti } from "@/components/Riti";
 import { Button } from "@/components/ui/button";
 
@@ -52,6 +54,28 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
   }
 
   const lessons = sortForTeacher(data?.lessons ?? []);
+  const today = dutchToday();
+  const day = teacherDay(today);
+  // "Gedaan" for today's class task is only remembered on this device: a small personal nudge.
+  const doneKey = `cerita-leraar-opdracht-${today}`;
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    try {
+      setDone(localStorage.getItem(doneKey) === "1");
+    } catch {
+      setDone(false);
+    }
+  }, [doneKey]);
+  function toggleDone() {
+    const next = !done;
+    setDone(next);
+    try {
+      if (next) localStorage.setItem(doneKey, "1");
+      else localStorage.removeItem(doneKey);
+    } catch {
+      // Not remembered on this device; the tick still shows for now.
+    }
+  }
 
   return (
     <div className="space-y-4 pt-2">
@@ -101,6 +125,34 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
           </div>
         </section>
       )}
+
+      <section className="space-y-3 rounded-3xl bg-ink p-4 text-ink-foreground shadow-soft">
+        <p className="text-xs font-bold uppercase tracking-wider opacity-70">Tip van vandaag</p>
+        <p className="text-sm leading-relaxed">💡 {day.tip}</p>
+        <div className="rounded-2xl bg-ink-foreground/10 p-3">
+          <p className="text-xs font-bold uppercase tracking-wider opacity-70">
+            Opdrachtje voor in de klas
+          </p>
+          <p className="mt-1 text-sm">{day.task}</p>
+          <button
+            onClick={toggleDone}
+            className={`mt-2 rounded-full px-3 py-1 text-xs font-semibold ${done ? "bg-primary text-primary-foreground" : "bg-ink-foreground/15"}`}
+          >
+            {done ? "✅ Gedaan, goed bezig!" : "Gedaan"}
+          </button>
+        </div>
+      </section>
+
+      <Link to="/dagboek" className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+        <span className="text-3xl">📔</span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">Mijn dagboek</span>
+          <span className="block text-xs text-muted-foreground">
+            {day.reflect} · Alleen voor jou
+          </span>
+        </span>
+        <span aria-hidden>›</span>
+      </Link>
 
       <h2 className="px-1 text-lg">Jouw lessen</h2>
       {isLoading && <p className="px-1 text-sm text-muted-foreground">Lessen laden…</p>}

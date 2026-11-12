@@ -13,6 +13,7 @@ import { useTodayChallenge } from "@/lib/challenges";
 import { useMe } from "@/lib/auth";
 import { useActsAsParent } from "@/lib/parent-view";
 import { parentDay } from "@/lib/parent";
+import { teacherDay } from "@/lib/teacher";
 import { useChallengeDay } from "@/lib/challenges";
 import { useSignedImage } from "@/lib/articles";
 import { Button } from "@/components/ui/button";
@@ -108,7 +109,9 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
   }
 
   const asParent = useActsAsParent();
-  const prompt = asParent ? parentDay(day).self : null;
+  const isTeacher = !!me?.profile?.is_teacher;
+  // Teachers get a question about their day in class; parents their own assignment.
+  const prompt = isTeacher ? teacherDay(day).reflect : asParent ? parentDay(day).self : null;
   const name = me?.profile?.display_name ?? "";
   const todayLabel = new Date().toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
   const canSave = !busy && !!(text.trim() || photo || audio);
@@ -155,7 +158,7 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
               el.style.height = "auto";
               el.style.height = `${Math.max(256, Math.ceil(el.scrollHeight / 32) * 32)}px`;
             }}
-            placeholder={asParent ? "Hoe gaat het met jóu vandaag? Niemand leest mee…" : "Lief dagboek… Niemand leest mee."}
+            placeholder={isTeacher ? "Hoe was je dag in de klas? Niemand leest mee…" : asParent ? "Hoe gaat het met jóu vandaag? Niemand leest mee…" : "Lief dagboek… Niemand leest mee."}
             value={text}
             onChange={(e) => {
               setText(e.target.value);
