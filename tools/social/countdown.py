@@ -94,10 +94,18 @@ def base(dark):
     return Image.blend(im, glow.filter(ImageFilter.GaussianBlur(160)), 1.0)
 
 
+# Whose account the slides are for: "cerita" (CeritaProject, the default) or "echt" (the ECHT. account).
+BRAND = os.environ.get("BRAND", "cerita")
+
+
 def frame(im, dark, k, n=4):
-    """ECHT. mark top left and the slide counter bottom left."""
+    """Brand mark top left and the slide counter bottom left."""
     d = ImageDraw.Draw(im)
     col = CREAM if dark else INKC
+    if BRAND != "echt":
+        d.text((M, 96), "CeritaProject", font=font(46, b"Black"), fill=col)
+        d.text((M, H - 130), f"{k:02d} / {n:02d}", font=font(34, b"SemiBold"), fill=col)
+        return d
     f = font(54, b"Black")
     d.text((M, 92), "ECHT", font=f, fill=col)
     # The logo's dot, pink like on the profile picture.
@@ -191,7 +199,7 @@ def slide_cta(c):
     y += 34
     for ln in line_l:
         d.text((M, y), ln, font=fl, fill=col["accent"]); y += 56
-    d.text((M, y + 24), "een initiatief van CeritaProject", font=fi, fill=col["sub"])
+    d.text((M, y + 24), "een initiatief van CeritaProject" if BRAND == "echt" else "Elke ochtend een nieuwe vraag · @ceritaproject", font=fi, fill=col["sub"])
     return im
 
 
@@ -258,8 +266,13 @@ def caption(c):
         f"{c['emoji']} {c['headline']}. Dag {c['day']}/{c['total']}: {c['question']}\n\n"
         "Schrijf je antwoord in de reacties, of bewaar het voor jezelf in je dagboek in de CeritaProject-app 💛 "
         "Wachtlijst: link in bio\n\n"
-        f"#echt #vragen #jezelf {tag} #journaling #fyp"
+        + (f"#echt #vragen #jezelf {tag} #journaling #fyp" if BRAND == "echt" else f"#ceritaproject #vragen #jezelf {tag} #dagboek #nietalleen #fyp")
     )
+
+
+def caption_ig(c):
+    """Instagram: no #fyp, and ask people to save or send the post (that is what Instagram rewards)."""
+    return caption(c).replace(" #fyp", "").replace("Wachtlijst: link in bio", "Sla deze post op of stuur hem naar iemand. Wachtlijst: link in bio")
 
 
 def main():
@@ -289,6 +302,8 @@ def main():
                 fn(c).save(os.path.join(folder, f"{prefix}{i}.png"), optimize=True)
         with open(os.path.join(folder, "caption.txt"), "w") as f:
             f.write(caption(c))
+        with open(os.path.join(folder, "caption-ig.txt"), "w") as f:
+            f.write(caption_ig(c))
         print(day, c["headline"], "|", c["question"])
 
 if __name__ == "__main__":
