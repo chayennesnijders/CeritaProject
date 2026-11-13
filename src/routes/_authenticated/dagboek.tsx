@@ -61,7 +61,11 @@ function Diary({ me }: { me: ReturnType<typeof useMe>["data"] }) {
       (await supabase.from("diary_entries").select("*, challenge:daily_challenges(title)").eq("user_id", me!.profile!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["diary"] });
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ["diary"] });
+    // Riti on the home screen stops saying "Je opdracht van vandaag staat klaar".
+    void qc.invalidateQueries({ queryKey: ["challenge-done"] });
+  };
 
   async function save(challengeId: string | null) {
     if (!text.trim() && !photo && !audio) return;

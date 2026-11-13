@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Riti } from "@/components/Riti";
-import { useTodayChallenge } from "@/lib/challenges";
+import { challengeDay, useTodayChallenge } from "@/lib/challenges";
 import { CARE_ACTIONS, petDay, speciesEmoji } from "@/lib/pet";
 import { useUnreadCounts } from "@/lib/unread";
 import { useDiscover } from "@/lib/use-discover";
@@ -34,15 +34,17 @@ export function RitiHome({ uid, name, day }: { uid: string | undefined; name: st
   });
   const { data: challenge } = useTodayChallenge();
   const { data: challengeDone = false } = useQuery({
-    queryKey: ["challenge-done", uid, challenge?.id],
+    queryKey: ["challenge-done", uid, challenge?.id, today],
     enabled: !!uid && !!challenge?.id,
     queryFn: async () => {
-      const { count } = await supabase
+      // Done once you saved today's task, or wrote anything in your diary today: both answer "Doen".
+      const since = new Date(Date.now() - 36 * 3600_000).toISOString();
+      const { data } = await supabase
         .from("diary_entries")
-        .select("id", { count: "exact", head: true })
+        .select("challenge_id, created_at")
         .eq("user_id", uid!)
-        .eq("challenge_id", challenge!.id);
-      return (count ?? 0) > 0;
+        .or(`challenge_id.eq.${challenge!.id},created_at.gte.${since}`);
+      return (data ?? []).some((e) => e.challenge_id === challenge!.id || challengeDay(new Date(e.created_at)) === challengeDay());
     },
   });
   const unread = useUnreadCounts();

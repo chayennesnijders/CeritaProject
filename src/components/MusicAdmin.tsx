@@ -35,7 +35,7 @@ export function MusicAdmin() {
         supabase
           .from("song_tips")
           .select(
-            "id, title, artist, url, hidden, age_group, created_at, author:profiles(display_name, username)",
+            "id, title, artist, url, hidden, age_group, created_at, author:profiles!song_tips_user_id_fkey(display_name, username)",
           )
           .order("created_at", { ascending: false })
           .limit(50),

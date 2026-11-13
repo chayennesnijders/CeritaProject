@@ -45,7 +45,9 @@ function MusicPage() {
       const [t, l] = await Promise.all([
         supabase
           .from("song_tips")
-          .select("id, user_id, title, artist, url, created_at, author:profiles(display_name)")
+          // The explicit link: via song_tip_likes there is a second path to profiles, and then
+          // PostgREST refuses the whole request (and the list stayed empty).
+          .select("id, user_id, title, artist, url, created_at, author:profiles!song_tips_user_id_fkey(display_name)")
           .eq("hidden", false)
           // Admins can see every band, but here they also only see their own (like the community).
           .eq("age_group", me!.profile!.age_group)
@@ -53,6 +55,7 @@ function MusicPage() {
           .limit(60),
         supabase.from("song_tip_likes").select("tip_id, user_id"),
       ]);
+      if (t.error) throw t.error;
       return (t.data ?? []).map((x) => ({
         ...x,
         likes: (l.data ?? []).filter((y) => y.tip_id === x.id).length,
