@@ -199,7 +199,8 @@ def slide_cta(c):
     y += 34
     for ln in line_l:
         d.text((M, y), ln, font=fl, fill=col["accent"]); y += 56
-    d.text((M, y + 24), "een initiatief van CeritaProject" if BRAND == "echt" else "Elke ochtend een nieuwe vraag · @ceritaproject", font=fi, fill=col["sub"])
+    foot = c.get("footer") or ("een initiatief van CeritaProject" if BRAND == "echt" else "Elke ochtend een nieuwe vraag · @ceritaproject")
+    d.text((M, y + 24), foot, font=fi, fill=col["sub"])
     return im
 
 
@@ -250,6 +251,61 @@ def post_slides(spec):
     ]
 
 
+def slide_list_cover(spec):
+    """Evening list post: the title big on the brown-purple slide."""
+    dark = dark_at(1); col = pal(dark)
+    im = base(dark); d = frame(im, dark, 1)
+    text = spec["title"].upper()
+    size = fit_anton(text, TEXTW, 760 * H / 1440, 200)
+    lines = len(wrap(text, anton(size), TEXTW))
+    y = (H - lines * size * 1.02) / 2 - 90
+    end = block(d, text, size, y, col["text"])
+    stroke(d, M, end + 80, 420, col["accent"])
+    sub = font(40, b"Medium")
+    for i, ln in enumerate(wrap(spec.get("sub", "Hoeveel herken jij er? Swipe →"), sub, TEXTW - 80)):
+        d.text((M, end + 150 + i * 54), ln, font=sub, fill=col["sub"])
+    return im
+
+
+def slide_items(items, start, k):
+    """Two or three list items: a big number, a bold line and a calmer line under it."""
+    dark = dark_at(k); col = pal(dark)
+    im = base(dark); d = frame(im, dark, k)
+    fn, ft, fb = anton(150), font(60, b"ExtraBold"), font(42, b"Medium")
+    numw = 150
+    tw = TEXTW - numw
+    blocks = []
+    for it in items:
+        head, body = (it if isinstance(it, list) else [it, ""])
+        tl, bl = wrap(head, ft, tw), wrap(body, fb, tw) if body else []
+        blocks.append((tl, bl, len(tl) * 72 + (14 + len(bl) * 54 if bl else 0)))
+    gap = 90
+    total = sum(b[2] for b in blocks) + gap * (len(blocks) - 1)
+    y = max(230, (H - total) / 2)
+    for i, (tl, bl, h) in enumerate(blocks):
+        d.text((M, y - 28), str(start + i), font=fn, fill=col["accent"])
+        yy = y
+        for ln in tl:
+            d.text((M + numw, yy), ln, font=ft, fill=col["text"]); yy += 72
+        if bl:
+            yy += 14
+            for ln in bl:
+                d.text((M + numw, yy), ln, font=fb, fill=col["sub"]); yy += 54
+        y += max(h, 150) + gap
+    return im
+
+
+def list_slides(spec):
+    """Evening list: title, items 1-3, the rest, and a closing slide (always 4 slides)."""
+    items = spec["items"]
+    return [
+        slide_list_cover(spec),
+        slide_items(items[:3], 1, 2),
+        slide_items(items[3:], 4, 3),
+        slide_cta({**spec, "footer": "Elke avond een nieuw lijstje · @ceritaproject"}),
+    ]
+
+
 def questions_for(days):
     """Ask the app's own module (one source of truth) for each day, in one node call."""
     js = (
@@ -276,6 +332,15 @@ def caption_ig(c):
 
 
 def main():
+    if sys.argv[1] == "lijst":
+        # python3 countdown.py lijst spec.json OUTDIR  (spec: title, items [[line, explanation]], cta)
+        spec = json.load(open(sys.argv[2]))
+        os.makedirs(sys.argv[3], exist_ok=True)
+        for kind, prefix in (("tiktok", ""), ("instagram", "ig-")):
+            set_size(kind)
+            for i, im in enumerate(list_slides(spec), 1):
+                im.save(os.path.join(sys.argv[3], f"{prefix}{i}.png"), optimize=True)
+        return
     if sys.argv[1] == "post":
         # python3 countdown.py post spec.json OUTDIR  (spec: format denk|echt, question, nuance_title,
         # nuance_body, followup); writes OUTDIR/1.png .. 4.png
