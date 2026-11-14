@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { feedbackExport, lastSeen, testItems, testPath, testPhases, testProgress, testQuestions } from "./test-checklist";
-import { TEST_FORM } from "./test-week";
+import { PARENT_FORM, TEST_FORM } from "./test-week";
 
 describe("tester checklist", () => {
   it("has unique, stable ids per role", () => {
@@ -10,12 +10,17 @@ describe("tester checklist", () => {
       expect(testQuestions(role).length).toBeGreaterThanOrEqual(4);
     }
   });
-  it("counts ticked items for parents and ignores unknown ids", () => {
-    const first = testPhases("ouder")[0]!.items.map((i) => i.id);
-    const p = testProgress("ouder", { [first[0]!]: true, [first[1]!]: true, mail: true });
-    expect(p.done).toBe(2);
-    expect(p.phases[0]).toMatchObject({ id: "start", done: 2, total: first.length });
-    expect(p.pct).toBe(Math.round((2 / p.total) * 100));
+  it("gives parents only feedback questions, never about their child's details", () => {
+    expect(testPhases("ouder")).toEqual([]);
+    expect(testItems("ouder")).toEqual([]);
+    const ids = PARENT_FORM.map((q) => q.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(testQuestions("ouder").map((q) => q.id)).toEqual(ids);
+    // Nothing that asks for a child's name, age, birthday or school.
+    for (const q of PARENT_FORM) expect(q.label.toLowerCase()).not.toMatch(/naam|leeftijd|geboort|school/);
+    // Old checklist ticks no longer count; answers do.
+    const p = testProgress("ouder", { "o-s1": true }, { telefoon: "iPhone", leukst: "de tips", mis: " " });
+    expect(p).toMatchObject({ done: 2, total: PARENT_FORM.length });
   });
   it("counts answered questions for young people", () => {
     expect(testItems("jongere")).toEqual([]);
@@ -40,7 +45,7 @@ describe("feedback export", () => {
     const text = feedbackExport(
       [
         { role: "jongere", checks: {}, notes: { telefoon: "iPhone", leukst: "de groepen", indruk: "gezellig", verstuurd: "ja" } },
-        { role: "ouder", checks: { "o-s1": true }, notes: { q2: "’s avonds" } },
+        { role: "ouder", checks: { "o-s1": true }, notes: { wanneer: "’s Avonds", q2: "’s avonds" } },
       ],
       ["🧪 Testfeedback\nleukst: diertje"],
     );
@@ -48,7 +53,8 @@ describe("feedback export", () => {
     expect(text).toContain("Tester 1 (jongere)");
     expect(text).toContain("de groepen");
     expect(text).toContain("Tester 2 (ouder) · 1/");
-    expect(text).toContain("Nog niet gedaan:");
+    expect(text).toContain("’s Avonds");
+    expect(text).toContain("(eerdere vraag “q2”)");
     expect(text).toContain("leukst: diertje");
     expect(text).toContain("(eerdere vraag “indruk”) gezellig");
     expect(text).toContain("✅ verstuurd");

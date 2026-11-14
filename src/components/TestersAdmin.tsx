@@ -170,7 +170,7 @@ export function TestersAdmin() {
                   <span className="block truncate font-semibold">{data.names.get(r.user_id) ?? "Onbekend"}</span>
                   <span className="block text-xs text-muted-foreground">
                     {p.done}/{p.total} · bezig {lastSeen(r.updated_at)}
-                    {role === "jongere" ? " vragen" : ""}
+                    {" vragen"}
                     {r.notes["cijfer"] ? ` · cijfer ${r.notes["cijfer"]}/10` : ""}
                     {r.notes["verstuurd"] ? " · ✅ verstuurd" : ""}
                     {answered ? ` · ${answered} ${answered === 1 ? "antwoord" : "antwoorden"} 💬` : ""}

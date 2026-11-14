@@ -13,7 +13,7 @@ export function TesterCard({ uid }: { uid: string | undefined }) {
     <Link to={testPath(role)} className="flex items-center gap-3 rounded-3xl border-2 border-dashed border-primary bg-card p-4 shadow-soft transition active:scale-[0.99]">
       <span className="text-2xl">🧪</span>
       <span className="min-w-0 flex-1">
-        <span className="block font-semibold">{role === "jongere" ? (p.done === p.total ? "Testvragen klaar 🎉" : "Jouw testvragen") : p.done === p.total ? "Testlijst klaar 🎉" : "Jouw testlijst"}</span>
+        <span className="block font-semibold">{p.done === p.total ? "Testvragen klaar 🎉" : "Jouw testvragen"}</span>
         <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-muted">
           <span className="block h-full rounded-full bg-primary" style={{ width: `${p.pct}%` }} />
         </span>

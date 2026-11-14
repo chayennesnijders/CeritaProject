@@ -1,106 +1,45 @@
 /**
- * What testers fill in (Beheer → Testers shows it live). Parents tick a checklist at /testlijst;
- * young people answer the questions at /testen (src/lib/test-week.ts), so for them progress means
- * questions answered. Item ids are stable, so progress survives text changes.
+ * What testers fill in (Beheer → Testers shows it live): parents answer PARENT_FORM at /testlijst,
+ * young people TEST_FORM at /testen (src/lib/test-week.ts); progress means questions answered.
+ * Question ids are stable, so answers survive text changes.
  */
-import { answeredCount, TEST_FORM } from "@/lib/test-week";
+import { answeredCount, PARENT_FORM, TEST_FORM, type TestFormQuestion } from "@/lib/test-week";
 
 export type TesterRole = "ouder" | "jongere";
 export type TestItem = { id: string; title: string; hint: string };
 export type TestPhase = { id: string; title: string; when: string; items: TestItem[] };
 export type TestQuestion = { id: string; question: string; placeholder: string };
 
-const PARENT: TestPhase[] = [
-  {
-    id: "start",
-    title: "Beginnen",
-    when: "Dag 1 · ongeveer 5 minuten",
-    items: [
-      { id: "o-s1", title: "Account gemaakt met ‘Ik ben ouder’", hint: "Op app.ceritaproject.nl → Account maken." },
-      { id: "o-s2", title: "E-mail bevestigd", hint: "Niet gezien? Kijk in je spam- of reclamemap." },
-      { id: "o-s3", title: "App op je beginscherm gezet", hint: "iPhone: Safari → Deel → Zet op beginscherm. Android: Chrome → ⋮ → Toevoegen aan startscherm." },
-      { id: "o-s4", title: "Leeftijd van je kind gekozen", hint: "Bovenaan je startscherm. Meer kinderen? Kies meerdere." },
-    ],
-  },
-  {
-    id: "dag",
-    title: "Elke dag",
-    when: "Ongeveer 2 minuten · vink af als het een paar dagen gelukt is",
-    items: [
-      { id: "o-d1", title: "Opdracht voor jezelf gedaan", hint: "Bij 🌿 Voor jezelf, en tik op Gedaan." },
-      { id: "o-d2", title: "Tip voor je kind geprobeerd", hint: "Bij 💛 Voor je kind." },
-      { id: "o-d3", title: "Ingevuld hoe je je voelt", hint: "Alleen jij ziet je antwoord." },
-      { id: "o-d4", title: "Een vraag van de dag aan je kind gesteld", hint: "Bij ‘Vraag het je kind eens’." },
-    ],
-  },
-  {
-    id: "week",
-    title: "Deze week",
-    when: "Doe de handleiding in de eerste dagen, dan kun je aan het eind ook de check-in doen",
-    items: [
-      { id: "o-w1", title: "Eén handleiding helemaal gedaan", hint: "Bijvoorbeeld ‘Het gesprek beginnen als je je zorgen maakt’ (±15 minuten)." },
-      { id: "o-w2", title: "Je plan gekozen en het spiekbriefje bekeken", hint: "Aan het eind van de handleiding." },
-      { id: "o-w3", title: "Een rustmoment gedaan", hint: "Via Rust onderin." },
-      { id: "o-w4", title: "Iets in je dankbaar potje gezet", hint: "Wat ging er vandaag goed?" },
-    ],
-  },
-  {
-    id: "eind",
-    title: "Aan het eind van de week",
-    when: "Dag 5 tot 7",
-    items: [
-      { id: "o-v1", title: "‘Hoe ging het met je plan?’ beantwoord", hint: "Verschijnt op je startscherm twee dagen na je handleiding." },
-      { id: "o-v4", title: "Een screenshot gestuurd van iets wat raar deed", hint: "Of: niets geks gezien. Dan mag je hem ook afvinken." },
-    ],
-  },
-];
+/** Both parents and young people only answer questions now; no checklist to tick. */
+export const testForm = (role: TesterRole) => (role === "ouder" ? PARENT_FORM : TEST_FORM);
+const asQuestions = (form: readonly TestFormQuestion[]): TestQuestion[] =>
+  form.map((q) => ({ id: q.id, question: q.label, placeholder: q.kind === "text" ? q.placeholder : "" }));
 
-
-const PARENT_QUESTIONS: TestQuestion[] = [
-  { id: "q1", question: "Wat gebruikte je het meest, en wat sloeg je over?", placeholder: "Bijvoorbeeld: de vraag voor mijn kind elke avond…" },
-  { id: "q2", question: "Wanneer opende je de app meestal?", placeholder: "Bijvoorbeeld ’s avonds, of na een lastig moment" },
-  { id: "q3", question: "Zou je betalen voor de handleidingen? Zo ja, voor welk deel?", placeholder: "Eerlijk zeggen mag, ook ‘nee’" },
-  { id: "q4", question: "Nog iets anders? (fijn, onhandig, ideeën)", placeholder: "Alles is welkom" },
-];
-
-const YOUTH_QUESTIONS: TestQuestion[] = TEST_FORM.map((q) => ({ id: q.id, question: q.label, placeholder: "" }));
 
 /** Where a tester ticks their list. */
 export const testPath = (role: TesterRole) => (role === "ouder" ? "/testlijst" : "/testen");
 
-/** Young testers have no checklist any more, only questions. */
-export const testPhases = (role: TesterRole): TestPhase[] => (role === "ouder" ? PARENT : []);
-export const testQuestions = (role: TesterRole) => (role === "ouder" ? PARENT_QUESTIONS : YOUTH_QUESTIONS);
+/** Testers have no checklist any more, only questions (kept as a type for older rows). */
+export const testPhases = (_role: TesterRole): TestPhase[] => [];
+export const testQuestions = (role: TesterRole) => asQuestions(testForm(role));
 export const testItems = (role: TesterRole) => testPhases(role).flatMap((p) => p.items);
 
-/**
- * Progress: for parents the ticked items (unknown ids from an older list are ignored), for young
- * people the questions answered.
- */
+/** Progress: the questions answered (ticks from the older parents' checklist no longer count). */
 export function testProgress(
   role: TesterRole,
   checks: Record<string, boolean | undefined>,
   notes: Record<string, string> = {},
 ) {
-  if (role === "jongere") {
-    const done = answeredCount(notes);
-    const total = TEST_FORM.length;
-    return {
-      phases: [{ id: "vragen", title: "Vragen beantwoord", done, total }],
-      done,
-      total,
-      pct: Math.round((done / total) * 100),
-    };
-  }
-  const phases = testPhases(role).map((p) => ({
-    id: p.id,
-    title: p.title,
-    done: p.items.filter((i) => checks[i.id]).length,
-    total: p.items.length,
-  }));
-  const done = phases.reduce((a, p) => a + p.done, 0);
-  const total = phases.reduce((a, p) => a + p.total, 0);
-  return { phases, done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+  void checks;
+  const form = testForm(role);
+  const done = answeredCount(notes, form);
+  const total = form.length;
+  return {
+    phases: [{ id: "vragen", title: "Vragen beantwoord", done, total }],
+    done,
+    total,
+    pct: Math.round((done / total) * 100),
+  };
 }
 
 /** "net", "3 uur geleden", "2 dagen geleden": how long ago a tester was last busy. */
@@ -126,11 +65,7 @@ export function feedbackExport(
   rows.forEach((r, n) => {
     const role: TesterRole = r.role === "ouder" ? "ouder" : "jongere";
     const p = testProgress(role, r.checks, r.notes);
-    out.push("", `— Tester ${n + 1} (${role}) · ${p.done}/${p.total}${role === "jongere" ? " vragen" : " afgevinkt"}`);
-    if (role === "ouder") {
-      const notDone = testItems(role).filter((i) => !r.checks[i.id]).map((i) => i.title);
-      if (notDone.length) out.push(`Nog niet gedaan: ${notDone.join("; ")}`);
-    }
+    out.push("", `— Tester ${n + 1} (${role}) · ${p.done}/${p.total} vragen`);
     const known = new Set(testQuestions(role).map((q) => q.id));
     for (const q of testQuestions(role)) {
       const a = (r.notes[q.id] ?? "").trim();
