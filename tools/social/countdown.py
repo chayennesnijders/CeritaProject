@@ -302,7 +302,7 @@ def list_slides(spec):
         slide_list_cover(spec),
         slide_items(items[:3], 1, 2),
         slide_items(items[3:], 4, 3),
-        slide_cta({**spec, "footer": "Elke avond een nieuw lijstje · @ceritaproject"}),
+        slide_cta({"footer": "Elke avond een nieuw lijstje · @ceritaproject", **spec}),
     ]
 
 
