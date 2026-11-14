@@ -1,6 +1,7 @@
 import { Riti } from "@/components/Riti";
 import { LegalLinks } from "@/components/LegalPage";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { safeReturnPath } from "@/lib/return-path";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +34,10 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const nav = useNavigate();
+  // Came here from a link to a page in the app (?terug=/testlijst)? Then go there after logging in.
+  const [next] = useState(() =>
+    safeReturnPath(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("terug") : null),
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -60,7 +65,7 @@ function AuthPage() {
   // in plaats van opnieuw het e-mailformulier te tonen.
   useEffect(() => {
     let done = false;
-    const go = () => { if (!done) { done = true; nav({ to: "/home" }); } };
+    const go = () => { if (!done) { done = true; nav({ href: next }); } };
     const back = readOAuthReturn(openedAt || window.location.href);
     const clean = () => window.history.replaceState(null, "", window.location.pathname);
     if (back.kind === "error") {
@@ -137,7 +142,7 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        nav({ to: "/home" });
+        nav({ href: next });
       }
     } catch (err) {
       setError(friendlyAuthError(err instanceof Error ? err.message : ""));

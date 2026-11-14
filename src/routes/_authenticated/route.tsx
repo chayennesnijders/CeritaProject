@@ -4,9 +4,10 @@ import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth" });
+    // Remember the page (e.g. /testlijst from a link) so login brings people right back to it.
+    if (!data.user) throw redirect({ to: "/auth", search: { terug: location.href } as never });
   },
   component: AppShell,
 });
