@@ -14,13 +14,14 @@ export function CoachesAdmin() {
   const [title, setTitle] = useState("");
   const { data: coaches = [] } = useQuery({
     queryKey: ["coaches"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("coaches")
-          .select("user_id, title, active, profile:profiles(username)")
-          .order("created_at")
-      ).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("coaches")
+        .select("user_id, title, active, profile:profiles!coaches_user_id_fkey(username)")
+        .order("created_at");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
   // The coach name is optional: "Coach Chayenne" from the username.
   const defaultTitle = (u: string) => {

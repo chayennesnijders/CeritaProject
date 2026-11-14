@@ -22,7 +22,7 @@ export function TalkToCoach() {
       const [c, conv] = await Promise.all([
         supabase
           .from("coaches")
-          .select("user_id, title, bio, profile:profiles(avatar_url)")
+          .select("user_id, title, bio, profile:profiles!coaches_user_id_fkey(avatar_url)")
           .eq("active", true)
           .order("created_at"),
         supabase
@@ -30,6 +30,8 @@ export function TalkToCoach() {
           .select("id, user_a, user_b, status")
           .or(`user_a.eq.${uid},user_b.eq.${uid}`),
       ]);
+      // Throw instead of showing "binnenkort" when loading fails (then react-query retries).
+      if (c.error) throw c.error;
       const convWith = new Map(
         (conv.data ?? []).map((x) => [x.user_a === uid ? x.user_b : x.user_a, x]),
       );
