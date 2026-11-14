@@ -256,21 +256,37 @@ def slide_list_cover(spec):
     dark = dark_at(1); col = pal(dark)
     im = base(dark); d = frame(im, dark, 1)
     text = spec["title"].upper()
-    size = fit_anton(text, TEXTW, 760 * H / 1440, 200)
+    room = (560 if spec.get("cover_cta") else 760) * H / 1440
+    size = fit_anton(text, TEXTW, room, 200)
     lines = len(wrap(text, anton(size), TEXTW))
-    y = (H - lines * size * 1.02) / 2 - 90
+    y = 250 if spec.get("cover_cta") else (H - lines * size * 1.02) / 2 - 90
     end = block(d, text, size, y, col["text"])
     stroke(d, M, end + 80, 420, col["accent"])
+    if spec.get("cover_cta"):
+        # The call to action already on the first slide: a pink card "question + Reageer met: WORD".
+        q, kw = spec["cover_cta"], f"Reageer met: {spec['keyword']}"
+        fq, fk, pad = font(42, b"SemiBold"), font(52, b"Black"), 40
+        ql = wrap(q, fq, TEXTW - 2 * pad)
+        h = pad + len(ql) * 54 + 14 + 62 + pad
+        top = min(end + 140, H - 200 - h)
+        d.rounded_rectangle((M, top, M + TEXTW, top + h), radius=36, fill=col["accent"])
+        y = top + pad
+        for ln in ql:
+            d.text((M + pad, y), ln, font=fq, fill=INKC); y += 54
+        d.text((M + pad, y + 14), kw, font=fk, fill=INKC)
+        return im
     sub = font(40, b"Medium")
     for i, ln in enumerate(wrap(spec.get("sub", "Hoeveel herken jij er? Swipe →"), sub, TEXTW - 80)):
         d.text((M, end + 150 + i * 54), ln, font=sub, fill=col["sub"])
     return im
 
 
-def slide_items(items, start, k):
-    """Two or three list items: a big number, a bold line and a calmer line under it."""
+def slide_items(items, start, k, head=None):
+    """Two or three list items: a big number, a bold line and a calmer line under it (optional heading)."""
     dark = dark_at(k); col = pal(dark)
     im = base(dark); d = frame(im, dark, k)
+    if head:
+        d.text((M, 200), head, font=font(44, b"Black"), fill=col["accent"])
     fn, ft, fb = anton(150), font(60, b"ExtraBold"), font(42, b"Medium")
     numw = 150
     tw = TEXTW - numw
@@ -281,7 +297,7 @@ def slide_items(items, start, k):
         blocks.append((tl, bl, len(tl) * 72 + (14 + len(bl) * 54 if bl else 0)))
     gap = 90
     total = sum(b[2] for b in blocks) + gap * (len(blocks) - 1)
-    y = max(230, (H - total) / 2)
+    y = max(330 if head else 230, (H - total) / 2)
     for i, (tl, bl, h) in enumerate(blocks):
         d.text((M, y - 28), str(start + i), font=fn, fill=col["accent"])
         yy = y
@@ -297,6 +313,15 @@ def slide_items(items, start, k):
 
 def list_slides(spec):
     """Evening list: title, items 1-3, the rest, and a closing slide (always 4 slides)."""
+    if spec.get("pages"):
+        # A post about one call to action: cover with the ask, two explaining slides, the ask again.
+        (h2, i2), (h3, i3) = spec["pages"]
+        return [
+            slide_list_cover(spec),
+            slide_items(i2, 1, 2, head=h2),
+            slide_items(i3, len(i2) + 1, 3, head=h3),
+            slide_cta({"footer": "Vanaf 13 jaar · @ceritaproject", **spec}),
+        ]
     items = spec["items"]
     return [
         slide_list_cover(spec),
