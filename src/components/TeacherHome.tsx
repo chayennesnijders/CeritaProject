@@ -113,31 +113,31 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
 
       <Link
         to="/mijn-lessen"
-        className="flex items-center gap-3 rounded-3xl bg-primary p-4 text-primary-foreground shadow-soft transition active:scale-[0.99]"
+        className="flex items-center gap-3 rounded-3xl border-2 border-primary/60 bg-card p-4 shadow-soft transition active:scale-[0.99]"
       >
         <span className="text-3xl">📚</span>
         <span className="min-w-0 flex-1">
           <span className="block text-lg font-semibold">Lessen</span>
-          <span className="block text-xs opacity-80">
+          <span className="block text-xs text-muted-foreground">
             {isLoading
               ? "Lessen laden…"
               : `${lessons.filter((l) => l.unlocked).length} ${lessons.filter((l) => l.unlocked).length === 1 ? "les" : "lessen"} klaar om te geven`}
           </span>
         </span>
-        <span aria-hidden className="text-xl">›</span>
+        <span aria-hidden className="grid size-8 place-items-center rounded-full bg-primary text-lg text-primary-foreground">›</span>
       </Link>
 
-      <section className="space-y-3 rounded-3xl bg-ink p-4 text-ink-foreground shadow-soft">
-        <p className="text-xs font-bold uppercase tracking-wider opacity-70">Tip van vandaag</p>
+      <section className="space-y-3 rounded-3xl bg-card p-4 shadow-soft">
+        <p className="text-xs font-bold uppercase tracking-wider text-primary">Tip van vandaag</p>
         <p className="text-sm leading-relaxed">💡 {day.tip}</p>
-        <div className="rounded-2xl bg-ink-foreground/10 p-3">
-          <p className="text-xs font-bold uppercase tracking-wider opacity-70">
+        <div className="rounded-2xl bg-muted p-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Opdrachtje voor in de klas
           </p>
           <p className="mt-1 text-sm">{day.task}</p>
           <button
             onClick={toggleDone}
-            className={`mt-2 rounded-full px-3 py-1 text-xs font-semibold ${done ? "bg-primary text-primary-foreground" : "bg-ink-foreground/15"}`}
+            className={`mt-2 rounded-full px-3 py-1 text-xs font-semibold ${done ? "bg-primary text-primary-foreground" : "bg-card"}`}
           >
             {done ? "✅ Gedaan, goed bezig!" : "Gedaan"}
           </button>
@@ -155,7 +155,7 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
         <span aria-hidden>›</span>
       </Link>
 
-      <section className="rounded-3xl bg-secondary p-4 text-sm text-secondary-foreground">
+      <section className="rounded-3xl bg-muted p-4 text-sm">
         <p className="font-semibold">Zorg goed voor je klas 💛</p>
         <p className="mt-1">
           Laat de zorgcoördinator weten wanneer je een les geeft. Vertelt een leerling iets
