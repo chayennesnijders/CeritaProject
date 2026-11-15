@@ -2694,6 +2694,7 @@ export type Database = {
       become_parent: { Args: never; Returns: undefined }
       become_teacher: { Args: { _code: string }; Returns: string }
       set_teacher_levels: { Args: { _levels: string[] }; Returns: string[] }
+      new_account_wait_days: { Args: never; Returns: number }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }
       parent_portal_stats: { Args: never; Returns: Json }

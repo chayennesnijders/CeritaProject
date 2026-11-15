@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { chatRequestError } from "@/lib/chat-request";
 import { useReportReason } from "@/components/ReportReasonDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -86,7 +87,7 @@ function InboxPage() {
       return toast("Er loopt al een verzoek tussen jullie.");
     }
     const { data: created, error } = await supabase.from("conversations").insert({ user_a: a!, user_b: b!, requested_by: uid! }).select("id").single();
-    if (error) { toast.error("Je kunt deze persoon (nu) geen bericht sturen."); return; }
+    if (error) { toast.error(error.hint === "nieuw-account" ? chatRequestError(error) : "Je kunt deze persoon (nu) geen bericht sturen.", { duration: 8000 }); return; }
     notify({ data: { convId: created.id } }).catch(() => {});
     toast.success("Verzoek verstuurd! Zodra de ander accepteert, kunnen jullie chatten.");
     qc.invalidateQueries({ queryKey: ["inbox", uid] });

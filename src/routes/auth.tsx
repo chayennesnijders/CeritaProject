@@ -42,6 +42,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthdate, setBirthdate] = useState("");
+  // Young people and coaches confirm that their birthdate is real (it decides who they meet).
+  const [ageTrue, setAgeTrue] = useState(false);
   // Young people (13–27) or a parent/carer: parents get their own environment and no birthdate.
   // Teachers coming from /lessen (?rol=leraar) start on "Ik ben leraar" and on signing up.
   const [teacherInvite] = useState(
@@ -118,6 +120,7 @@ function AuthPage() {
       if (mode === "up") {
         const parent = who === "ouder";
         const teacher = who === "leraar";
+        if (!parent && !teacher && !ageTrue) { setError("Vink aan dat je geboortedatum klopt."); return; }
         if (!parent && !teacher && ageGroupFor(new Date(birthdate)) === "too_young") { setError("CeritaProject is voor jongeren vanaf 13 jaar. Ben je jonger? Praat met de Kindertelefoon: 0800-0432."); return; }
         const { data, error } = await supabase.auth.signUp({
           email, password,
@@ -319,6 +322,19 @@ function AuthPage() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       {who === "coach" ? "Alleen voor de beheerders. Jongeren zien je geboortedatum niet." : "Zo kom je bij leeftijdsgenoten. Anderen zien je geboortedatum niet."}
                     </p>
+                    <label className="mt-3 flex items-start gap-2 rounded-2xl bg-card p-3 text-xs shadow-soft">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={ageTrue}
+                        onChange={(e) => setAgeTrue(e.target.checked)}
+                        className="mt-0.5 size-4 shrink-0 accent-primary"
+                      />
+                      <span>
+                        Ik vul mijn <b>echte geboortedatum</b> in. Klopt die niet, dan wordt mijn account verwijderd. Zo
+                        blijft CeritaProject veilig voor iedereen.
+                      </span>
+                    </label>
                   </div>
                 )}
               </>

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { chatRequestError } from "@/lib/chat-request";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -103,11 +104,7 @@ function BuddyPage() {
       .select("id")
       .single();
     if (error) {
-      toast.error(
-        error.code === "23505"
-          ? "Jullie hebben al een gesprek of verzoek. Kijk bij Berichten."
-          : "Verzoek sturen lukte niet.",
-      );
+      toast.error(chatRequestError(error), { duration: 8000 });
       return;
     }
     setSent(new Set(sent).add(other));

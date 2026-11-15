@@ -626,6 +626,9 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
           .rpc("admin_make_parent" as never, { _user: "00000000-0000-0000-0000-000000000000" } as never)
           .then((r) => !r.error || r.error.code !== "PGRST202"),
         "62": await exists("teachers"),
+        "64": await supabaseAdmin
+          .rpc("new_account_wait_days")
+          .then((r) => !r.error || r.error.code !== "PGRST202"),
         "63": await supabaseAdmin
           .rpc("set_teacher_levels", { _levels: [] })
           .then((r) => !r.error || r.error.code !== "PGRST202"),
