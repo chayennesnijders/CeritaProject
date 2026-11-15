@@ -40,7 +40,8 @@ const parentTabs = [
 
 /** Teachers only have their lessons and their profile. */
 const teacherTabs = [
-  { to: "/home", label: "Lessen", icon: BookOpen },
+  { to: "/home", label: "Home", icon: Home },
+  { to: "/mijn-lessen", label: "Lessen", icon: BookOpen },
   { to: "/profiel", label: "Profiel", icon: User },
 ] as const;
 

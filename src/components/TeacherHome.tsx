@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, ExternalLink, Lock } from "lucide-react";
+import { ChevronDown, Download, ExternalLink, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { teacherCatalog, teacherFile } from "@/lib/lessons.functions";
@@ -11,34 +11,17 @@ import { dutchToday } from "@/lib/lessons";
 import { Riti } from "@/components/Riti";
 import { Button } from "@/components/ui/button";
 
-/** Home for teachers: the lessons of their school, ready to open in class or download. */
-export function TeacherHome({ uid, name }: { uid: string; name: string }) {
+function useTeacherLessons(uid: string) {
   const catalog = useServerFn(teacherCatalog);
-  const file = useServerFn(teacherFile);
+  return useQuery({ queryKey: ["teacher-lessons", uid], queryFn: () => catalog() });
+}
+
+/** Home for teachers: today's tip and class task, the diary, and a button to the lessons. */
+export function TeacherHome({ uid, name }: { uid: string; name: string }) {
   const qc = useQueryClient();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["teacher-lessons", uid],
-    queryFn: () => catalog(),
-  });
-  const [busy, setBusy] = useState<string | null>(null);
+  const { data, isLoading } = useTeacherLessons(uid);
   const [code, setCode] = useState("");
   const [saving, setSaving] = useState(false);
-
-  async function get(fileId: string, open: boolean) {
-    setBusy(fileId + (open ? "o" : "d"));
-    // Open the tab now (still inside the tap) so phones and tablets don't block it.
-    const tab = open ? window.open("", "_blank") : null;
-    try {
-      const { url } = await file({ data: { fileId, open } });
-      if (tab) tab.location.href = url;
-      else window.location.href = url;
-    } catch (e) {
-      tab?.close();
-      toast.error(e instanceof Error ? e.message : "Dat lukte niet.");
-    } finally {
-      setBusy(null);
-    }
-  }
 
   async function newCode() {
     setSaving(true);
@@ -126,6 +109,22 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
         </section>
       )}
 
+      <Link
+        to="/mijn-lessen"
+        className="flex items-center gap-3 rounded-3xl bg-primary p-4 text-primary-foreground shadow-soft transition active:scale-[0.99]"
+      >
+        <span className="text-3xl">📚</span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-lg font-semibold">Lessen</span>
+          <span className="block text-xs opacity-80">
+            {isLoading
+              ? "Lessen laden…"
+              : `${lessons.filter((l) => l.unlocked).length} ${lessons.filter((l) => l.unlocked).length === 1 ? "les" : "lessen"} klaar om te geven`}
+          </span>
+        </span>
+        <span aria-hidden className="text-xl">›</span>
+      </Link>
+
       <section className="space-y-3 rounded-3xl bg-ink p-4 text-ink-foreground shadow-soft">
         <p className="text-xs font-bold uppercase tracking-wider opacity-70">Tip van vandaag</p>
         <p className="text-sm leading-relaxed">💡 {day.tip}</p>
@@ -154,7 +153,56 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
         <span aria-hidden>›</span>
       </Link>
 
-      <h2 className="px-1 text-lg">Jouw lessen</h2>
+      <section className="rounded-3xl bg-secondary p-4 text-sm text-secondary-foreground">
+        <p className="font-semibold">Zorg goed voor je klas 💛</p>
+        <p className="mt-1">
+          Laat de zorgcoördinator weten wanneer je een les geeft. Vertelt een leerling iets
+          zorgelijks, volg dan het protocol van je school. Hulplijnen voor jongeren: Kindertelefoon
+          0800-0432 en 113 Zelfmoordpreventie 0800-0113. Bij direct gevaar: 112.
+        </p>
+      </section>
+      <p className="px-1 text-xs text-muted-foreground">
+        Je leraar-account ziet niets van de jongeren in de app: geen groepen, chats of profielen.
+      </p>
+    </div>
+  );
+}
+
+/** The school's lessons, each folded so the list stays clear; tap one to open or download its files. */
+export function TeacherLessons({ uid }: { uid: string }) {
+  const file = useServerFn(teacherFile);
+  const { data, isLoading, isError } = useTeacherLessons(uid);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const lessons = sortForTeacher(data?.lessons ?? []);
+
+  async function get(fileId: string, open: boolean) {
+    setBusy(fileId + (open ? "o" : "d"));
+    // Open the tab now (still inside the tap) so phones and tablets don't block it.
+    const tab = open ? window.open("", "_blank") : null;
+    try {
+      const { url } = await file({ data: { fileId, open } });
+      if (tab) tab.location.href = url;
+      else window.location.href = url;
+    } catch (e) {
+      tab?.close();
+      toast.error(e instanceof Error ? e.message : "Dat lukte niet.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="space-y-3 pt-2">
+      <div className="flex items-center gap-2 px-1">
+        <Link to="/home" className="rounded-full bg-card px-3 py-1 text-sm font-semibold shadow-soft">
+          ‹ Terug
+        </Link>
+      </div>
+      <h1 className="px-1 text-3xl">📚 Lessen</h1>
+      {data?.school && (
+        <p className="-mt-2 px-1 text-sm text-muted-foreground">🏫 {data.school}</p>
+      )}
       {isLoading && <p className="px-1 text-sm text-muted-foreground">Lessen laden…</p>}
       {isError && (
         <p className="px-1 text-sm text-muted-foreground">
@@ -168,7 +216,11 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
       )}
       {lessons.map((l) => (
         <article key={l.id} className="space-y-3 rounded-3xl bg-card p-4 shadow-soft">
-          <div className="flex items-start gap-3">
+          <button
+            onClick={() => setOpen(open === l.id ? null : l.id)}
+            aria-expanded={open === l.id}
+            className="flex w-full items-start gap-3 text-left"
+          >
             <span className="text-3xl">{l.emoji}</span>
             <div className="min-w-0 flex-1">
               <h3 className="text-lg leading-snug">{l.title}</h3>
@@ -181,9 +233,12 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
                 Proefles
               </span>
             )}
-          </div>
-          {l.summary && <p className="text-sm">{l.summary}</p>}
-          {l.unlocked ? (
+            <ChevronDown
+              className={`mt-1 size-5 shrink-0 transition-transform ${open === l.id ? "rotate-180" : ""}`}
+            />
+          </button>
+          {open === l.id && l.summary && <p className="text-sm">{l.summary}</p>}
+          {open !== l.id ? null : l.unlocked ? (
             l.files.length ? (
               <ul className="space-y-2">
                 {l.files.map((f) => (
@@ -221,16 +276,9 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
         </article>
       ))}
 
-      <section className="rounded-3xl bg-secondary p-4 text-sm text-secondary-foreground">
-        <p className="font-semibold">Zorg goed voor je klas 💛</p>
-        <p className="mt-1">
-          Laat de zorgcoördinator weten wanneer je een les geeft. Vertelt een leerling iets
-          zorgelijks, volg dan het protocol van je school. Hulplijnen voor jongeren: Kindertelefoon
-          0800-0432 en 113 Zelfmoordpreventie 0800-0113. Bij direct gevaar: 112.
-        </p>
-      </section>
       <p className="px-1 text-xs text-muted-foreground">
-        Je leraar-account ziet niets van de jongeren in de app: geen groepen, chats of profielen.
+        Laat de zorgcoördinator weten wanneer je een les geeft. Hulplijnen voor jongeren: Kindertelefoon
+        0800-0432 en 113 Zelfmoordpreventie 0800-0113. Bij direct gevaar: 112.
       </p>
     </div>
   );

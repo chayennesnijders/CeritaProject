@@ -13,6 +13,7 @@ describe("teacher accounts", () => {
     expect(teacherMayOpen("/home")).toBe(true);
     expect(teacherMayOpen("/profiel")).toBe(true);
     expect(teacherMayOpen("/dagboek")).toBe(true);
+    expect(teacherMayOpen("/mijn-lessen")).toBe(true);
     for (const youth of [
       "/community",
       "/community/abc",
