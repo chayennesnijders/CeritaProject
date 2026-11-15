@@ -43,11 +43,12 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [birthdate, setBirthdate] = useState("");
   // Young people (13–27) or a parent/carer: parents get their own environment and no birthdate.
-  // Teachers come from /lessen (?rol=leraar); only then is "Ik ben leraar" offered.
+  // Teachers coming from /lessen (?rol=leraar) start on "Ik ben leraar" and on signing up.
   const [teacherInvite] = useState(
     () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("rol") === "leraar",
   );
-  const [who, setWho] = useState<"jongere" | "ouder" | "leraar">(teacherInvite ? "leraar" : "jongere");
+  // A coach signs up like a young person (with a birthdate); an admin then makes the account a coach.
+  const [who, setWho] = useState<"jongere" | "ouder" | "leraar" | "coach">(teacherInvite ? "leraar" : "jongere");
   // A teacher coming from /lessen usually has no account yet, so start on "aanmelden".
   const [mode, setMode] = useState<"in" | "up" | "forgot" | "resend">(teacherInvite ? "up" : "in");
   const [busy, setBusy] = useState(false);
@@ -214,6 +215,11 @@ function AuthPage() {
       <h1 className="mt-6 text-3xl text-foreground">
         {mode === "in" ? "Welkom terug" : mode === "up" ? "Maak je account" : mode === "forgot" ? "Wachtwoord vergeten" : "Bevestigingsmail opnieuw"}
       </h1>
+      {mode === "in" && !sent && (
+        <p className="mt-1 text-sm text-muted-foreground">
+          Jongere, ouder, leraar of coach: iedereen logt hier in. De app weet vanzelf welke omgeving bij jou hoort.
+        </p>
+      )}
       {mode === "forgot" && !sent && (
         <p className="mt-1 text-sm text-muted-foreground">Vul je e-mail in. Je krijgt een link om een nieuw wachtwoord te kiezen.</p>
       )}
@@ -241,7 +247,8 @@ function AuthPage() {
                   {([
                     ["jongere", "🙋 Ik ben jongere", "13 tot 27 jaar"],
                     ["ouder", "👪 Ik ben ouder", "of verzorger"],
-                    ...(teacherInvite ? ([["leraar", "🎓 Ik ben leraar", "met een schoolcode"]] as const) : []),
+                    ["leraar", "🏫 Ik ben leraar", "met een schoolcode"],
+                    ["coach", "🎓 Ik ben coach", "voor CeritaProject"],
                   ] as const).map(([id, label, sub]) => (
                     <button
                       key={id}
@@ -262,6 +269,12 @@ function AuthPage() {
                     in. Je ziet niets van de jongeren in de app.
                   </p>
                 )}
+                {who === "coach" && (
+                  <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
+                    Vul hieronder je eigen gegevens in, met je echte geboortedatum. Daarna zet CeritaProject je account om
+                    naar een coach-account: laat de beheerder je @gebruikersnaam weten. Pas dan kun je jongeren helpen.
+                  </p>
+                )}
                 {who === "ouder" && (
                   <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
                     Je krijgt een eigen omgeving voor ouders, met elke dag een tip voor jou en je kind en handleidingen
@@ -277,14 +290,16 @@ function AuthPage() {
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">Na het aanmelden kies je ook een eigen @gebruikersnaam.</p>
                 </div>
-                {who === "jongere" && (
+                {(who === "jongere" || who === "coach") && (
                   <div>
                     <Label htmlFor="b">Geboortedatum</Label>
                     <div className={field}>
                       <Calendar className={icon} />
                       <Input id="b" type="date" required value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className={inputCls} />
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">Zo kom je bij leeftijdsgenoten. Anderen zien je geboortedatum niet.</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {who === "coach" ? "Alleen voor de beheerders. Jongeren zien je geboortedatum niet." : "Zo kom je bij leeftijdsgenoten. Anderen zien je geboortedatum niet."}
+                    </p>
                   </div>
                 )}
               </>
