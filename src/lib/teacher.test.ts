@@ -6,6 +6,8 @@ import {
   sortForTeacher,
   teacherDay,
   teacherMayOpen,
+  levelOf,
+  lessonsForLevels,
 } from "./teacher";
 
 describe("teacher accounts", () => {
@@ -48,5 +50,26 @@ describe("teacher accounts", () => {
   it("always point to real help", () => {
     expect(TEACHER_TIPS.some((t) => t.includes("112"))).toBe(true);
     expect([...TEACHER_TIPS, ...TEACHER_TASKS].some((t) => t.includes("0800-0432"))).toBe(true);
+  });
+  it("knows which group a lesson is for", () => {
+    expect(levelOf("Groep 7/8")).toBe("groep78");
+    expect(levelOf("groep 7 en 8")).toBe("groep78");
+    expect(levelOf("Klas 1 t/m 3")).toBe("klas13");
+    expect(levelOf("Klas 2 t/m 4")).toBe("klas13");
+    expect(levelOf("Klas 4 t/m 6")).toBe("klas46");
+    expect(levelOf("Bovenbouw")).toBe("klas46");
+    expect(levelOf("Iedereen")).toBeNull();
+    expect(levelOf(null)).toBeNull();
+  });
+  it("shows only the lessons for the chosen groups", () => {
+    const l = [
+      { id: "a", audience: "Groep 7/8" },
+      { id: "b", audience: "Klas 1 t/m 3" },
+      { id: "c", audience: "Klas 4 t/m 6" },
+      { id: "d", audience: "" },
+    ];
+    expect(lessonsForLevels(l, []).map((x) => x.id)).toEqual(["a", "b", "c", "d"]);
+    expect(lessonsForLevels(l, ["groep78"]).map((x) => x.id)).toEqual(["a", "d"]);
+    expect(lessonsForLevels(l, ["klas13", "klas46"]).map((x) => x.id)).toEqual(["b", "c", "d"]);
   });
 });

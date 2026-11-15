@@ -1,3 +1,4 @@
+import { LESSON_LEVELS } from "@/lib/teacher";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -179,7 +180,10 @@ function LessonEditor({ lesson, files }: { lesson: Lesson; files: LessonFile[] }
       />
       <div className="grid grid-cols-3 gap-2">
         <label className="space-y-1"><span className="text-xs text-muted-foreground">Voor wie</span>
-          <input className={input} value={form.audience} maxLength={60} onChange={(e) => setForm({ ...form, audience: e.target.value })} /></label>
+          <select className={input} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}>
+            {LESSON_LEVELS.map((lv) => <option key={lv.id} value={lv.label}>{lv.label}</option>)}
+            {!LESSON_LEVELS.some((lv) => lv.label === form.audience) && <option value={form.audience}>{form.audience || "Kies…"}</option>}
+          </select></label>
         <label className="space-y-1"><span className="text-xs text-muted-foreground">Minuten</span>
           <input type="number" className={input} value={form.minutes} min={5} max={300} onChange={(e) => setForm({ ...form, minutes: Number(e.target.value) || 50 })} /></label>
         <label className="space-y-1"><span className="text-xs text-muted-foreground">Thema</span>

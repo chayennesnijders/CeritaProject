@@ -11,6 +11,33 @@ export const TEACHER_PAGES = ["/home", "/mijn-lessen", "/dagboek", "/profiel", "
 export const teacherMayOpen = (path: string) =>
   TEACHER_PAGES.some((p) => path === p || path.startsWith(`${p}/`));
 
+/** The groups a lesson can be for. A teacher picks theirs and then only sees those lessons. */
+export const LESSON_LEVELS = [
+  { id: "groep78", label: "Groep 7/8", hint: "basisschool, 10–12 jaar" },
+  { id: "klas13", label: "Klas 1 t/m 3", hint: "onderbouw, 12–15 jaar" },
+  { id: "klas46", label: "Klas 4 t/m 6", hint: "bovenbouw, 15–18 jaar" },
+] as const;
+export type LessonLevel = (typeof LESSON_LEVELS)[number]["id"];
+export const isLessonLevel = (v: string): v is LessonLevel => LESSON_LEVELS.some((l) => l.id === v);
+
+/** Which group a lesson's "Voor wie" is for; null when it says something else (then everyone sees it). */
+export function levelOf(audience: string | null | undefined): LessonLevel | null {
+  const a = (audience ?? "").toLowerCase().replace(/\s+/g, "");
+  if (/groep7|groep8|basisschool/.test(a)) return "groep78";
+  if (/klas4|klas5|klas6|bovenbouw/.test(a)) return "klas46";
+  if (/klas1|klas2|klas3|onderbouw/.test(a)) return "klas13";
+  return null;
+}
+
+/** Only the lessons for the chosen groups; nothing chosen yet shows them all. */
+export function lessonsForLevels<T extends { audience: string | null }>(lessons: readonly T[], levels: readonly string[]): T[] {
+  if (!levels.length) return [...lessons];
+  return lessons.filter((l) => {
+    const lv = levelOf(l.audience);
+    return lv === null || levels.includes(lv);
+  });
+}
+
 /** Lessons first: unlocked ones before locked ones, each in the order the admin set. */
 export function sortForTeacher<T extends { unlocked: boolean }>(lessons: readonly T[]): T[] {
   return [...lessons.filter((l) => l.unlocked), ...lessons.filter((l) => !l.unlocked)];

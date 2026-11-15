@@ -411,9 +411,9 @@ export type Database = {
         Relationships: []
       }
       teachers: {
-        Row: { user_id: string; license_id: string | null; created_at: string }
-        Insert: { user_id: string; license_id?: string | null; created_at?: string }
-        Update: { user_id?: string; license_id?: string | null; created_at?: string }
+        Row: { user_id: string; license_id: string | null; created_at: string; levels: string[] }
+        Insert: { user_id: string; license_id?: string | null; created_at?: string; levels?: string[] }
+        Update: { user_id?: string; license_id?: string | null; created_at?: string; levels?: string[] }
         Relationships: []
       }
       tester_progress: {
@@ -2693,6 +2693,7 @@ export type Database = {
       event_counts: { Args: never; Returns: { event_id: string; going: number }[] }
       become_parent: { Args: never; Returns: undefined }
       become_teacher: { Args: { _code: string }; Returns: string }
+      set_teacher_levels: { Args: { _levels: string[] }; Returns: string[] }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }
       parent_portal_stats: { Args: never; Returns: Json }

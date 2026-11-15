@@ -6,7 +6,8 @@ import { ChevronDown, Download, ExternalLink, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { teacherCatalog, teacherFile } from "@/lib/lessons.functions";
-import { licenceEnd, sortForTeacher, teacherDay } from "@/lib/teacher";
+import { LESSON_LEVELS, lessonsForLevels, licenceEnd, sortForTeacher, teacherDay, type LessonLevel } from "@/lib/teacher";
+import { useTeacherLevels } from "@/lib/use-teacher-levels";
 import { dutchToday } from "@/lib/lessons";
 import { Riti } from "@/components/Riti";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ function useTeacherLessons(uid: string) {
 export function TeacherHome({ uid, name }: { uid: string; name: string }) {
   const qc = useQueryClient();
   const { data, isLoading } = useTeacherLessons(uid);
+  const { levels } = useTeacherLevels(uid);
   const [code, setCode] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -36,7 +38,7 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
     void qc.invalidateQueries({ queryKey: ["teacher-lessons", uid] });
   }
 
-  const lessons = sortForTeacher(data?.lessons ?? []);
+  const lessons = lessonsForLevels(sortForTeacher(data?.lessons ?? []), levels);
   const today = dutchToday();
   const day = teacherDay(today);
   // "Gedaan" for today's class task is only remembered on this device: a small personal nudge.
@@ -174,7 +176,12 @@ export function TeacherLessons({ uid }: { uid: string }) {
   const { data, isLoading, isError } = useTeacherLessons(uid);
   const [busy, setBusy] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
-  const lessons = sortForTeacher(data?.lessons ?? []);
+  const { levels, loaded, save } = useTeacherLevels(uid);
+  const lessons = lessonsForLevels(sortForTeacher(data?.lessons ?? []), levels);
+  function toggleLevel(id: LessonLevel) {
+    void save(levels.includes(id) ? levels.filter((x) => x !== id) : [...levels, id]);
+    setOpen(null);
+  }
 
   async function get(fileId: string, open: boolean) {
     setBusy(fileId + (open ? "o" : "d"));
@@ -203,6 +210,32 @@ export function TeacherLessons({ uid }: { uid: string }) {
       {data?.school && (
         <p className="-mt-2 px-1 text-sm text-muted-foreground">🏫 {data.school}</p>
       )}
+      {loaded && (
+        <section className={`space-y-2 rounded-3xl p-4 ${levels.length ? "bg-card shadow-soft" : "bg-secondary text-secondary-foreground"}`}>
+          <p className="text-sm font-semibold">
+            {levels.length ? "Ik geef les aan" : "Voor welke groep geef je les? Kies er één of meer."}
+          </p>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Voor welke groep geef je les?">
+            {LESSON_LEVELS.map((lv) => {
+              const on = levels.includes(lv.id);
+              return (
+                <button
+                  key={lv.id}
+                  role="checkbox"
+                  aria-checked={on}
+                  onClick={() => toggleLevel(lv.id)}
+                  className={`rounded-full px-3 py-2 text-left text-sm font-semibold transition active:scale-95 ${on ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
+                >
+                  {on ? "✓ " : ""}
+                  {lv.label}
+                  <span className="block text-[11px] font-normal opacity-75">{lv.hint}</span>
+                </button>
+              );
+            })}
+          </div>
+          {!levels.length && <p className="text-xs">Tot je kiest, zie je alle lessen.</p>}
+        </section>
+      )}
       {isLoading && <p className="px-1 text-sm text-muted-foreground">Lessen laden…</p>}
       {isError && (
         <p className="px-1 text-sm text-muted-foreground">
@@ -211,7 +244,9 @@ export function TeacherLessons({ uid }: { uid: string }) {
       )}
       {data && lessons.length === 0 && (
         <p className="px-1 text-sm text-muted-foreground">
-          De eerste lessen komen er binnenkort aan.
+          {levels.length
+            ? "Voor deze groep komen de lessen er binnenkort aan."
+            : "De eerste lessen komen er binnenkort aan."}
         </p>
       )}
       {lessons.map((l) => (
