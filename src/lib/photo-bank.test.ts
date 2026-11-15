@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bankPhotos, duplicatesToRemove, isDuplicate, referencedPaths } from "./photo-bank";
+import { bankPhotos, duplicatesToRemove, isDuplicate, photoPlan, referencedPaths } from "./photo-bank";
 
 const A = "ffff0000ffff0000";
 const A2 = "ffff0000ffff0001"; // same photo, other file
@@ -43,5 +43,25 @@ describe("photo bank", () => {
       { path: "verhalen/verborgen.jpg", deleteFile: false },
       { path: "fotobank/kopie.jpg", deleteFile: true },
     ]);
+  });
+});
+
+describe("photos for stories without one", () => {
+  const photo = (path: string, hash: string | null, used = false) => ({ path, hash, created_at: path, inUse: used, referenced: used });
+  it("gives each story its own unused photo, never a look-alike", () => {
+    const photos = [
+      photo("1-live.jpg", A, true),
+      photo("2-kopie-van-live.jpg", A2),
+      photo("3-vrij.jpg", B),
+      photo("4-kopie-van-vrij.jpg", B),
+      photo("5-zonder-hash.jpg", null),
+    ];
+    expect(photoPlan(photos, ["s1", "s2", "s3"])).toEqual([
+      { id: "s1", path: "3-vrij.jpg" },
+    ]);
+  });
+  it("stops when every story has a photo", () => {
+    expect(photoPlan([photo("a.jpg", A), photo("b.jpg", B)], ["s1"])).toEqual([{ id: "s1", path: "a.jpg" }]);
+    expect(photoPlan([photo("a.jpg", A)], [])).toEqual([]);
   });
 });

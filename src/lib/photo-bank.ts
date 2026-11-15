@@ -61,3 +61,24 @@ export function duplicatesToRemove(photos: BankPhoto[]): { path: string; deleteF
   }
   return out;
 }
+
+/**
+ * Which bank photo goes to which story without a photo. Only photos no story uses yet (banner or in
+ * the text), and never one that looks like a photo already used or already picked: every story gets
+ * its own photo. Photos without a fingerprint are skipped, since they can't be checked for doubles.
+ * Stories go in the given order; when photos run out, the rest stays without.
+ */
+export function photoPlan(photos: BankPhoto[], storyIds: readonly string[]): { id: string; path: string }[] {
+  const taken = photos.filter((p) => p.referenced || p.inUse).map((p) => p.hash);
+  const free = photos
+    .filter((p) => !p.referenced && !p.inUse)
+    .sort((a, b) => (a.created_at || "0").localeCompare(b.created_at || "0"));
+  const out: { id: string; path: string }[] = [];
+  for (const p of free) {
+    if (out.length === storyIds.length) break;
+    if (!p.hash || isDuplicate(p.hash, taken)) continue;
+    out.push({ id: storyIds[out.length]!, path: p.path });
+    taken.push(p.hash);
+  }
+  return out;
+}

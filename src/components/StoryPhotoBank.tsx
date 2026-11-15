@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { shrinkImage } from "@/lib/shrink-image";
 import { fingerprintBlob } from "@/lib/photo-dedupe";
-import { duplicatesToRemove, type BankPhoto } from "@/lib/photo-bank";
+import { duplicatesToRemove, photoPlan, type BankPhoto } from "@/lib/photo-bank";
 import { addToBank, usePhotoBank, useRefreshPhotoBank, type BankPhotoWithSrc } from "@/lib/use-photo-bank";
 import { celebrate } from "@/lib/celebrate";
 import {
@@ -30,6 +30,7 @@ export function StoryPhotoBank() {
   const [shown, setShown] = useState(PAGE);
   const [plan, setPlan] = useState<{ path: string; deleteFile: boolean }[] | null>(null);
   const [removing, setRemoving] = useState<BankPhotoWithSrc | null>(null);
+  const [give, setGive] = useState<{ plan: { id: string; path: string }[]; without: number } | null>(null);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Fotobank laden…</p>;
   if (!data?.installed)
@@ -75,8 +76,8 @@ export function StoryPhotoBank() {
     );
   }
 
-  /** Fingerprint photos that have none yet (old story photos), then work out which copies can go. */
-  async function findDoubles() {
+  /** Fingerprint photos that have none yet (old story photos), so look-alikes can be found. */
+  async function fingerprintMissing(): Promise<BankPhoto[]> {
     const todo = photos.filter((p) => !p.hash);
     const hashed: BankPhoto[] = photos.filter((p) => p.hash);
     for (const [i, p] of todo.entries()) {
@@ -91,6 +92,12 @@ export function StoryPhotoBank() {
         // A photo that can't be read is left alone.
       }
     }
+    return [...hashed, ...photos.filter((p) => !p.hash && !hashed.some((h) => h.path === p.path))];
+  }
+
+  /** Work out which copies can go. */
+  async function findDoubles() {
+    const hashed = (await fingerprintMissing()).filter((p) => p.hash);
     setBusy(null);
     await refresh();
     const remove = duplicatesToRemove(hashed);
@@ -130,6 +137,54 @@ export function StoryPhotoBank() {
     toast.success("Foto uit de fotobank gehaald");
   }
 
+  /** Every story without a banner gets its own free photo from the bank (never a look-alike). */
+  async function planStories() {
+    setBusy("Verhalen zonder foto zoeken…");
+    const { data: stories, error } = await supabase
+      .from("articles")
+      .select("id")
+      .eq("kind", "verhaal")
+      .is("image_url", null)
+      .order("created_at");
+    if (error) {
+      setBusy(null);
+      toast.error("Verhalen laden lukte niet. Probeer het later opnieuw.");
+      return;
+    }
+    if (!stories.length) {
+      setBusy(null);
+      toast.success("Alle verhalen hebben al een foto 🎉");
+      return;
+    }
+    const all = await fingerprintMissing();
+    setBusy(null);
+    const plan = photoPlan(all, stories.map((s) => s.id));
+    if (!plan.length) {
+      toast(`${stories.length} verhalen zonder foto, maar er zijn geen vrije foto's meer. Voeg eerst foto's toe.`);
+      return;
+    }
+    setGive({ plan, without: stories.length - plan.length });
+  }
+
+  async function giveToStories(plan: { id: string; path: string }[]) {
+    let done = 0;
+    for (const [i, x] of plan.entries()) {
+      setBusy(`Foto's geven… ${i + 1} van ${plan.length}`);
+      // Only stories that still have no photo: never overwrite one chosen in the meantime.
+      const { data } = await supabase
+        .from("articles")
+        .update({ image_url: x.path })
+        .eq("id", x.id)
+        .is("image_url", null)
+        .select("id");
+      if (data?.length) done++;
+    }
+    setBusy(null);
+    await refresh();
+    if (done) celebrate("klein", { set: "hartjes" });
+    toast.success(`${done} ${done === 1 ? "verhaal kreeg" : "verhalen kregen"} een eigen foto`);
+  }
+
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
       <div className="flex items-start justify-between gap-3">
@@ -160,6 +215,13 @@ export function StoryPhotoBank() {
           className="rounded-full bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground disabled:opacity-50"
         >
           🧹 Dubbele eruit halen
+        </button>
+        <button
+          disabled={!!busy || free === 0}
+          onClick={() => void planStories()}
+          className="rounded-full bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground disabled:opacity-50"
+        >
+          📸 Verhalen zonder foto een foto geven
         </button>
       </div>
       {busy && <p className="text-sm font-semibold text-primary" role="status">⏳ {busy}</p>}
@@ -232,6 +294,33 @@ export function StoryPhotoBank() {
           <AlertDialogFooter>
             <AlertDialogCancel>Annuleren</AlertDialogCancel>
             <AlertDialogAction onClick={() => removing && void removeOne(removing)}>Weghalen</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={!!give} onOpenChange={(o) => !o && setGive(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Foto's geven aan verhalen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {give?.plan.length} {give?.plan.length === 1 ? "verhaal krijgt" : "verhalen krijgen"} elk een eigen foto uit de
+              fotobank, die nog bij geen enkel verhaal staat en niet op een andere foto lijkt.
+              {give?.without
+                ? ` ${give.without} ${give.without === 1 ? "verhaal blijft" : "verhalen blijven"} nog zonder foto: daarvoor zijn niet genoeg vrije foto's.`
+                : ""}{" "}
+              Je kunt een foto later altijd nog wisselen bij het verhaal.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const plan = give!.plan;
+                setGive(null);
+                void giveToStories(plan);
+              }}
+            >
+              Foto's geven
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
