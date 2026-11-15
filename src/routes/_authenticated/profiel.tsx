@@ -29,6 +29,7 @@ import { LegalLinks } from "@/components/LegalPage";
 import { Camera, Moon, Sun } from "lucide-react";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { parentMayOpen } from "@/lib/parent";
+import { TeacherLevelSettings } from "@/components/TeacherLevels";
 
 export const Route = createFileRoute("/_authenticated/profiel")({
   head: () => ({
@@ -356,6 +357,19 @@ function ProfilePage() {
         >
           <MyBadges uid={p.id} />
         </SettingsSection>
+        )}
+
+        {isTeacher && me?.user.id && (
+          <SettingsSection
+            id="groepen"
+            emoji="🏫"
+            title="Mijn groep(en)"
+            summary="Voor welke groep je lesgeeft"
+            open={open === "groepen"}
+            onToggle={toggle}
+          >
+            <TeacherLevelSettings uid={me.user.id} />
+          </SettingsSection>
         )}
 
         <SettingsSection

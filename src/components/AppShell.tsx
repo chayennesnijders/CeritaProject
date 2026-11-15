@@ -12,6 +12,7 @@ import { InboxBell, PetLink, ShopLink, StreakChip, WorkMenu } from "@/components
 import { CareHelpDialog } from "@/components/CareHelpDialog";
 import { toast } from "sonner";
 import { listenForeground } from "@/lib/push-client";
+import { TeacherLevelDialog } from "@/components/TeacherLevels";
 import { Home, Users, Compass, MessageCircle, User, CalendarHeart, Wind, BookOpen } from "lucide-react";
 import { parentMayOpen } from "@/lib/parent";
 import { teacherMayOpen } from "@/lib/teacher";
@@ -146,6 +147,7 @@ export function AppShell() {
         <div key={page} className="animate-in fade-in duration-300 motion-reduce:animate-none">
           {(isTeacher && !teacherMayOpen(page)) || (isParent && !parentMayOpen(page)) ? <ForYoungPeople /> : <Outlet />}
         </div>
+        {isTeacher && me?.user.id && <TeacherLevelDialog uid={me.user.id} />}
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
         <div className="flex justify-around rounded-3xl border-2 border-secondary bg-ink px-2 py-2 text-ink-foreground shadow-soft">
