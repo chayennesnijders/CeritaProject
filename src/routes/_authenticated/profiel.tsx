@@ -96,6 +96,7 @@ function ProfilePage() {
   const asParent = useActsAsParent();
   // Teachers only keep their name, photo and settings: no youth shortcuts, badges or birthdate.
   const isTeacher = useActsAsTeacher();
+  const grownUp = isTeacher || asParent;
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -485,11 +486,13 @@ function ProfilePage() {
         <SettingsSection
           id="privacy"
           emoji="🔒"
-          title="Privacy en veiligheid"
-          summary="Wie je mag berichten en bellen, slot op de app"
+          title={grownUp ? "Slot op de app" : "Privacy en veiligheid"}
+          summary={grownUp ? "Een code, zodat alleen jij je dagboek ziet" : "Wie je mag berichten en bellen, slot op de app"}
           open={open === "privacy"}
           onToggle={toggle}
         >
+          {/* Parents and teachers have no chats, calls or stories: only the app lock applies to them. */}
+          {!grownUp && (<>
           <label className="flex items-center justify-between gap-4 text-sm">
             Privéprofiel (alleen volgers zien je verhalen)
             <Switch checked={p.is_private} onCheckedChange={(v) => setPrivacy({ is_private: v })} />
@@ -508,8 +511,9 @@ function ProfilePage() {
               onCheckedChange={(v) => setPrivacy({ allow_calls: v })}
             />
           </label>
-          <div className="border-t border-border/40 pt-4">
-            <p className="mb-2 text-sm font-semibold">🔐 Slot op de app</p>
+          </>)}
+          <div className={grownUp ? "" : "border-t border-border/40 pt-4"}>
+            {!grownUp && <p className="mb-2 text-sm font-semibold">🔐 Slot op de app</p>}
             <AppLockSettings bare />
           </div>
         </SettingsSection>
