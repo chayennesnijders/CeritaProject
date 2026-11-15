@@ -56,12 +56,13 @@ describe("photos for stories without one", () => {
       photo("4-kopie-van-vrij.jpg", B),
       photo("5-zonder-hash.jpg", null),
     ];
-    expect(photoPlan(photos, ["s1", "s2", "s3"])).toEqual([
-      { id: "s1", path: "3-vrij.jpg" },
-    ]);
+    expect(photoPlan(photos, ["s1", "s2", "s3"])).toEqual({
+      plan: [{ id: "s1", path: "3-vrij.jpg" }],
+      skipped: { inStory: 1, lookAlike: 2, noPrint: 1 },
+    });
   });
   it("stops when every story has a photo", () => {
-    expect(photoPlan([photo("a.jpg", A), photo("b.jpg", B)], ["s1"])).toEqual([{ id: "s1", path: "a.jpg" }]);
-    expect(photoPlan([photo("a.jpg", A)], [])).toEqual([]);
+    expect(photoPlan([photo("a.jpg", A), photo("b.jpg", B)], ["s1"]).plan).toEqual([{ id: "s1", path: "a.jpg" }]);
+    expect(photoPlan([photo("a.jpg", A)], []).plan).toEqual([]);
   });
 });

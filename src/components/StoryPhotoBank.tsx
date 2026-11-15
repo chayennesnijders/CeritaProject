@@ -41,7 +41,8 @@ export function StoryPhotoBank() {
       </section>
     );
   const photos = data.photos;
-  const free = photos.filter((p) => !p.inUse).length;
+  // Free = no story uses it at all (also not a planned or draft story, and not in a story's text).
+  const free = photos.filter((p) => !p.inUse && !p.referenced).length;
 
   async function add(files: FileList) {
     const known = data!.rows.map((r) => r.hash);
@@ -158,9 +159,19 @@ export function StoryPhotoBank() {
     }
     const all = await fingerprintMissing();
     setBusy(null);
-    const plan = photoPlan(all, stories.map((s) => s.id));
+    const { plan, skipped } = photoPlan(all, stories.map((s) => s.id));
     if (!plan.length) {
-      toast(`${stories.length} verhalen zonder foto, maar er zijn geen vrije foto's meer. Voeg eerst foto's toe.`);
+      const why = [
+        skipped.inStory ? `${skipped.inStory} staan al bij een verhaal (ook als dat nog niet live is)` : null,
+        skipped.lookAlike ? `${skipped.lookAlike} lijken op een foto die al gebruikt wordt` : null,
+        skipped.noPrint ? `${skipped.noPrint} konden niet gecontroleerd worden` : null,
+      ].filter(Boolean);
+      toast(
+        `${stories.length} ${stories.length === 1 ? "verhaal" : "verhalen"} zonder foto, maar geen foto die nog vrij is én nergens op lijkt.` +
+          (why.length ? ` Van de ${all.length} foto's: ${why.join(", ")}.` : "") +
+          " Voeg nieuwe foto's toe.",
+        { duration: 15000 },
+      );
       return;
     }
     setGive({ plan, without: stories.length - plan.length });
@@ -191,7 +202,7 @@ export function StoryPhotoBank() {
         <div>
           <h2 className="text-xl">🖼️ Fotobank</h2>
           <p className="text-sm text-muted-foreground">
-            {photos.length} foto's · {free} nog vrij. Voeg foto's toe en kies ze later bij een nieuw verhaal.
+            {photos.length} foto's · {free} nog vrij (bij geen enkel verhaal). Voeg foto's toe en kies ze later bij een nieuw verhaal.
           </p>
         </div>
       </div>
