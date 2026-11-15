@@ -243,25 +243,44 @@ function AuthPage() {
           <form onSubmit={submit} className="mt-5 space-y-4">
             {mode === "up" && (
               <>
-                <div role="radiogroup" aria-label="Wie ben jij?" className="grid grid-cols-2 gap-2">
-                  {([
-                    ["jongere", "🙋 Ik ben jongere", "13 tot 27 jaar"],
-                    ["ouder", "👪 Ik ben ouder", "of verzorger"],
-                    ["leraar", "🏫 Ik ben leraar", "met een schoolcode"],
-                    ["coach", "🎓 Ik ben coach", "voor CeritaProject"],
-                  ] as const).map(([id, label, sub]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      role="radio"
-                      aria-checked={who === id}
-                      onClick={() => setWho(id)}
-                      className={`rounded-2xl border-2 p-3 text-left transition active:scale-95 ${who === id ? "border-primary bg-primary/10" : "border-input"}`}
-                    >
-                      <span className="block text-sm font-semibold">{label}</span>
-                      <span className="block text-xs text-muted-foreground">{sub}</span>
-                    </button>
-                  ))}
+                <div role="radiogroup" aria-label="Wie ben jij?" className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      ["jongere", "🙋 Ik ben jongere", "13 tot 27 jaar"],
+                      ["ouder", "👪 Ik ben ouder", "of verzorger"],
+                    ] as const).map(([id, label, sub]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={who === id}
+                        onClick={() => setWho(id)}
+                        className={`rounded-2xl border-2 p-3 text-left transition active:scale-95 ${who === id ? "border-primary bg-primary/10" : "border-input"}`}
+                      >
+                        <span className="block text-sm font-semibold">{label}</span>
+                        <span className="block text-xs text-muted-foreground">{sub}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>Of ben je</span>
+                    {([
+                      ["leraar", "🏫 leraar"],
+                      ["coach", "🎓 coach"],
+                    ] as const).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={who === id}
+                        onClick={() => setWho(id)}
+                        className={`rounded-full border px-2.5 py-1 font-semibold transition active:scale-95 ${who === id ? "border-primary bg-primary/10 text-foreground" : "border-input"}`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                    <span>?</span>
+                  </div>
                 </div>
                 {who === "leraar" && (
                   <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
