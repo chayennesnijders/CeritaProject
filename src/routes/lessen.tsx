@@ -165,7 +165,7 @@ function LessonsPage() {
               </div>
               {(error || data?.codeProblem) && <p className="text-sm text-destructive">{error ?? data?.codeProblem}</p>}
               <p className="text-xs text-muted-foreground">
-                Geen code? De proefles kun je gratis downloaden. Een schoollicentie aanvragen kan via{" "}
+                Geen code? De proeflessen kun je gratis downloaden. Een schoollicentie aanvragen kan via{" "}
                 <Link to="/contact-ons" className="font-semibold underline">het contactformulier</Link>.
               </p>
             </form>
