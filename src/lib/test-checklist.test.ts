@@ -60,3 +60,17 @@ describe("feedback export", () => {
     expect(text).toContain("✅ verstuurd");
   });
 });
+
+describe("teacher testers", () => {
+  it("get their own questions on the parents' link, never about pupils by name", async () => {
+    const { TEACHER_FORM } = await import("./test-week");
+    const { asTesterRole } = await import("./test-checklist");
+    expect(testQuestions("leraar").map((q) => q.id)).toEqual(TEACHER_FORM.map((q) => q.id));
+    expect(new Set(TEACHER_FORM.map((q) => q.id)).size).toBe(TEACHER_FORM.length);
+    expect(testPath("leraar")).toBe("/testlijst");
+    expect(asTesterRole("leraar")).toBe("leraar");
+    expect(asTesterRole("iets")).toBe("jongere");
+    const p = testProgress("leraar", {}, { les: "Druk in je hoofd", cijfer: "8" });
+    expect(p).toMatchObject({ done: 2, total: TEACHER_FORM.length });
+  });
+});

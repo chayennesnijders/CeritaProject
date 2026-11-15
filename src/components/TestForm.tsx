@@ -116,6 +116,7 @@ export function TestForm({ role }: { role: TesterRole }) {
         Je gebruikt de app al een tijdje: vertel eerlijk wat je ervan vindt. Beantwoord alle vragen; kort mag. Je
         antwoorden worden meteen bewaard, en de makers van de app lezen ze.
         {role === "ouder" && " Namen of gegevens van je kind zijn niet nodig."}
+        {role === "leraar" && " Namen of gegevens van leerlingen zijn niet nodig."}
       </p>
 
       <div className="sticky top-[3.75rem] z-10 -mx-1 space-y-1.5 rounded-2xl bg-background/95 px-1 py-2 backdrop-blur">

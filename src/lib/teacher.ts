@@ -7,7 +7,7 @@
 import { dayNumber } from "@/lib/parent";
 
 /** Pages a teacher may open (their diary is private, like everyone's). Everything else is for young people. */
-export const TEACHER_PAGES = ["/home", "/mijn-lessen", "/dagboek", "/profiel", "/beheer"] as const;
+export const TEACHER_PAGES = ["/home", "/mijn-lessen", "/dagboek", "/profiel", "/testlijst", "/beheer"] as const;
 export const teacherMayOpen = (path: string) =>
   TEACHER_PAGES.some((p) => path === p || path.startsWith(`${p}/`));
 

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { teacherCatalog, teacherFile } from "@/lib/lessons.functions";
 import { LESSON_LEVELS, lessonsForLevels, licenceEnd, sortForTeacher, teacherDay } from "@/lib/teacher";
 import { useTeacherLevels } from "@/lib/use-teacher-levels";
+import { TesterCard } from "@/components/TesterCard";
 import { dutchToday } from "@/lib/lessons";
 import { Riti } from "@/components/Riti";
 import { Button } from "@/components/ui/button";
@@ -163,6 +164,7 @@ export function TeacherHome({ uid, name }: { uid: string; name: string }) {
           0800-0432 en 113 Zelfmoordpreventie 0800-0113. Bij direct gevaar: 112.
         </p>
       </section>
+      <TesterCard uid={uid} />
       <p className="px-1 text-xs text-muted-foreground">
         Je leraar-account ziet niets van de jongeren in de app: geen groepen, chats of profielen.
       </p>

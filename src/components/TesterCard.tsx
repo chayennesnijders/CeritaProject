@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { testPath, testProgress } from "@/lib/test-checklist";
+import { asTesterRole, testPath, testProgress } from "@/lib/test-checklist";
 import { useMyTesterRow } from "@/lib/use-tester";
 
 /** For testers only (once they opened their list): a shortcut back to it with their progress. */
@@ -7,7 +7,7 @@ export function TesterCard({ uid }: { uid: string | undefined }) {
   const { data } = useMyTesterRow(uid);
   const row = data?.row;
   if (!row) return null;
-  const role = row.role === "ouder" ? "ouder" : "jongere";
+  const role = asTesterRole(row.role);
   const p = testProgress(role, row.checks ?? {}, row.notes ?? {});
   return (
     <Link to={testPath(role)} className="flex items-center gap-3 rounded-3xl border-2 border-dashed border-primary bg-card p-4 shadow-soft transition active:scale-[0.99]">

@@ -1,23 +1,26 @@
 /**
- * What testers fill in (Beheer → Testers shows it live): parents answer PARENT_FORM at /testlijst,
+ * What testers fill in (Beheer → Testers shows it live): parents answer PARENT_FORM and teachers
+ * TEACHER_FORM at /testlijst,
  * young people TEST_FORM at /testen (src/lib/test-week.ts); progress means questions answered.
  * Question ids are stable, so answers survive text changes.
  */
-import { answeredCount, PARENT_FORM, TEST_FORM, type TestFormQuestion } from "@/lib/test-week";
+import { answeredCount, PARENT_FORM, TEACHER_FORM, TEST_FORM, type TestFormQuestion } from "@/lib/test-week";
 
-export type TesterRole = "ouder" | "jongere";
+export type TesterRole = "ouder" | "jongere" | "leraar";
+/** A tester_progress row's role as one of the known roles (unknown values count as young people). */
+export const asTesterRole = (r: string): TesterRole => (r === "ouder" || r === "leraar" ? r : "jongere");
 export type TestItem = { id: string; title: string; hint: string };
 export type TestPhase = { id: string; title: string; when: string; items: TestItem[] };
 export type TestQuestion = { id: string; question: string; placeholder: string };
 
 /** Both parents and young people only answer questions now; no checklist to tick. */
-export const testForm = (role: TesterRole) => (role === "ouder" ? PARENT_FORM : TEST_FORM);
+export const testForm = (role: TesterRole) => (role === "ouder" ? PARENT_FORM : role === "leraar" ? TEACHER_FORM : TEST_FORM);
 const asQuestions = (form: readonly TestFormQuestion[]): TestQuestion[] =>
   form.map((q) => ({ id: q.id, question: q.label, placeholder: q.kind === "text" ? q.placeholder : "" }));
 
 
 /** Where a tester ticks their list. */
-export const testPath = (role: TesterRole) => (role === "ouder" ? "/testlijst" : "/testen");
+export const testPath = (role: TesterRole) => (role === "jongere" ? "/testen" : "/testlijst");
 
 /** Testers have no checklist any more, only questions (kept as a type for older rows). */
 export const testPhases = (_role: TesterRole): TestPhase[] => [];
@@ -63,7 +66,7 @@ export function feedbackExport(
 ): string {
   const out: string[] = [`Testresultaten CeritaProject (${rows.length} testers, zonder namen)`];
   rows.forEach((r, n) => {
-    const role: TesterRole = r.role === "ouder" ? "ouder" : "jongere";
+    const role = asTesterRole(r.role);
     const p = testProgress(role, r.checks, r.notes);
     out.push("", `— Tester ${n + 1} (${role}) · ${p.done}/${p.total} vragen`);
     const known = new Set(testQuestions(role).map((q) => q.id));

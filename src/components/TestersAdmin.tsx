@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronDown, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { feedbackExport, lastSeen, testItems, testProgress, testQuestions, type TesterRole } from "@/lib/test-checklist";
+import { asTesterRole, feedbackExport, lastSeen, testItems, testProgress, testQuestions, type TesterRole } from "@/lib/test-checklist";
 
 type Row = {
   user_id: string;
@@ -15,7 +15,7 @@ type Row = {
 };
 const LINKS = [
   { label: "Jongeren", url: "app.ceritaproject.nl/testen" },
-  { label: "Ouders", url: "app.ceritaproject.nl/testlijst" },
+  { label: "Ouders en leraren", url: "app.ceritaproject.nl/testlijst" },
 ] as const;
 
 /** Beheer → Testers: everyone's checklist live (refreshes every 15 seconds), with their answers. */
@@ -53,7 +53,7 @@ export function TestersAdmin() {
     );
 
   const rows = data.rows.filter((r) => filter === "alle" || r.role === filter);
-  const roleOf = (r: Row): TesterRole => (r.role === "ouder" ? "ouder" : "jongere");
+  const roleOf = (r: Row): TesterRole => asTesterRole(r.role);
   const stats = (role: TesterRole) => {
     const list = data.rows.filter((r) => roleOf(r) === role);
     const avg = list.length ? Math.round(list.reduce((a, r) => a + testProgress(role, r.checks, r.notes).pct, 0) / list.length) : 0;
@@ -62,6 +62,7 @@ export function TestersAdmin() {
   };
   const parents = stats("ouder");
   const youth = stats("jongere");
+  const teachers = stats("leraar");
 
   return (
     <div className="space-y-4">
@@ -74,7 +75,8 @@ export function TestersAdmin() {
           </span>
         </div>
         <p className="text-sm text-muted-foreground">
-          Jongeren vinken af op <b>{LINKS[0].url}</b>, ouders op <b>{LINKS[1].url}</b> (allebei ingelogd). Elk vinkje en
+          Jongeren antwoorden op <b>{LINKS[0].url}</b>, ouders en leraren op <b>{LINKS[1].url}</b> (ingelogd; iedereen krijgt
+          vanzelf de vragen die bij hem passen). Elk vinkje en
           antwoord komt hier meteen binnen; dit overzicht ververst elke 15 seconden.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -133,8 +135,8 @@ export function TestersAdmin() {
         )}
       </section>
 
-      <div className="grid grid-cols-2 gap-3">
-        {([["jongere", "🙋 Jongeren", youth], ["ouder", "👪 Ouders", parents]] as const).map(([role, label, s]) => (
+      <div className="grid grid-cols-3 gap-2">
+        {([["jongere", "🙋 Jongeren", youth], ["ouder", "👪 Ouders", parents], ["leraar", "🏫 Leraren", teachers]] as const).map(([role, label, s]) => (
           <button
             key={role}
             onClick={() => setFilter(filter === role ? "alle" : role)}
@@ -165,7 +167,7 @@ export function TestersAdmin() {
           return (
             <article key={r.user_id} className="rounded-3xl bg-card p-4 shadow-soft">
               <button onClick={() => setOpen(isOpen ? null : r.user_id)} className="flex w-full items-center gap-3 text-left" aria-expanded={isOpen}>
-                <span className="text-2xl">{role === "ouder" ? "👪" : "🙋"}</span>
+                <span className="text-2xl">{role === "ouder" ? "👪" : role === "leraar" ? "🏫" : "🙋"}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">{data.names.get(r.user_id) ?? "Onbekend"}</span>
                   <span className="block text-xs text-muted-foreground">

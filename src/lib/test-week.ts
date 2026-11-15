@@ -90,6 +90,29 @@ export const PARENT_FORM: readonly TestFormQuestion[] = [
   { id: "waarom", kind: "text", label: "Waarom dit cijfer?", placeholder: "Kort mag" },
 ];
 
+/** For teachers: about the lessons and the dashboard, never about pupils by name. */
+export const TEACHER_FORM: readonly TestFormQuestion[] = [
+  {
+    id: "les",
+    kind: "multi",
+    label: "Welke les(sen) heb je gegeven of bekeken? Tik alles aan wat klopt.",
+    options: ["Je bent niet de enige", "Druk in je hoofd", "Online en offline", "Nog geen les gegeven"],
+  },
+  { id: "groep", kind: "multi", label: "In welke groep? Tik alles aan wat klopt.", options: ["Groep 7/8", "Klas 1 t/m 3", "Klas 4 t/m 6"] },
+  { id: "klas", kind: "text", label: "Hoe reageerde de klas?", placeholder: "Wat werkte goed, wat minder? Geen namen van leerlingen nodig." },
+  { id: "handleiding", kind: "choice", label: "Was de handleiding duidelijk?", options: ["Ja", "Grotendeels", "Nee"] },
+  { id: "voorbereiding", kind: "choice", label: "Hoeveel tijd kostte de voorbereiding?", options: ["Minder dan 15 min", "15–30 min", "30–60 min", "Meer dan een uur"] },
+  { id: "tijd", kind: "choice", label: "Paste de les in de tijd?", options: ["Ja", "Te kort", "Te lang"] },
+  { id: "zorg", kind: "choice", label: "Kwam er iets zorgelijks naar boven?", options: ["Nee", "Ja, en ik wist wat ik moest doen", "Ja, en dat vond ik lastig"] },
+  { id: "dashboard", kind: "text", label: "Wat vind je van de app voor leraren (lessen, tip, opdrachtje, dagboek)?", placeholder: "Wat is handig, wat is onduidelijk?" },
+  { id: "werkt-niet", kind: "text", label: "Wat werkt niet, of doet raar?", placeholder: "Wat deed je, en wat gebeurde er?" },
+  { id: "mis", kind: "text", label: "Welke les of welk onderwerp mis je nog?", placeholder: "Bijvoorbeeld: pesten, rouw, thuissituatie…" },
+  { id: "betalen", kind: "choice", label: "Zou je school hiervoor betalen?", options: ["Ja", "Misschien", "Nee", "Weet ik niet"] },
+  { id: "betalen-wat", kind: "text", label: "Wat zou het jullie waard zijn, en wie beslist dat op school?", placeholder: "Eerlijk zeggen mag, ook ‘niks’" },
+  { id: "cijfer", kind: "score", label: "Hoe groot is de kans dat je een les van CeritaProject nog eens geeft? (1–10)" },
+  { id: "waarom", kind: "text", label: "Waarom dit cijfer?", placeholder: "Kort mag" },
+];
+
 export type TestFormAnswers = Record<string, string>;
 
 const filled = (v: string | undefined) => !!v && v.trim() !== "";
@@ -115,7 +138,7 @@ export const joinMulti = (list: readonly string[]) => list.join(", ");
 /** The message sent to the admins (max 2000 characters, the limit of admin_messages). */
 export function feedbackMessage(a: TestFormAnswers, form: readonly TestFormQuestion[] = TEST_FORM) {
   const lines = [
-    form === PARENT_FORM ? "🧪 Testfeedback (ouder)" : "🧪 Testfeedback",
+    form === PARENT_FORM ? "🧪 Testfeedback (ouder)" : form === TEACHER_FORM ? "🧪 Testfeedback (leraar)" : "🧪 Testfeedback",
     `${answeredCount(a, form)} van ${form.length} vragen beantwoord`,
     ...form.map((q) => `\n${q.label}\n${(a[q.id] ?? "").trim() || "–"}`),
   ];

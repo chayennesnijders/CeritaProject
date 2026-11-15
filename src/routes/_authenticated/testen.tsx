@@ -1,6 +1,7 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useMe } from "@/lib/auth";
 import { useActsAsParent } from "@/lib/parent-view";
+import { useActsAsTeacher } from "@/lib/teacher-view";
 import { TestForm } from "@/components/TestForm";
 
 export const Route = createFileRoute("/_authenticated/testen")({
@@ -11,7 +12,9 @@ export const Route = createFileRoute("/_authenticated/testen")({
 /** Young testers' questions; parents have their own at /testlijst. */
 function TestPage() {
   const { data: me } = useMe();
-  const asParent = useActsAsParent();
+  const parent = useActsAsParent();
+  const teacher = useActsAsTeacher();
+  const asParent = parent || teacher;
   // Wait for the account before deciding, or a parent would be sent away while it loads.
   if (!me) return <p className="pt-6 text-sm text-muted-foreground">Laden…</p>;
   if (asParent) return <Navigate to="/testlijst" replace />;
