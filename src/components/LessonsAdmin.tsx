@@ -1,4 +1,4 @@
-import { LESSON_LEVELS } from "@/lib/teacher";
+import { LESSON_LEVELS, levelOf } from "@/lib/teacher";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -40,8 +40,9 @@ export function LessonsAdmin() {
   return (
     <div className="space-y-6">
       <p className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
-        Leraren vinden de lessen op <b>app.ceritaproject.nl/lessen</b>. Gratis lessen kan iedereen downloaden; de rest
-        alleen met een schoolcode. Leraren hebben geen account nodig.
+        Leraren met een account zien in de app alleen de lessen voor hun groep(en). Zonder account staan ze op{" "}
+        <b>app.ceritaproject.nl/lessen</b>. Gratis lessen kan iedereen downloaden; de rest alleen met een schoolcode. Maak
+        per groep een eigen les, en kies bij "Voor wie" de juiste groep.
       </p>
       <Lessons lessons={data.lessons} files={data.files} downloads={data.downloads} />
       <Licenses licenses={data.licenses} downloads={data.downloads} />
@@ -49,13 +50,29 @@ export function LessonsAdmin() {
   );
 }
 
+/** Badge colour per group, so the versions of one lesson are easy to tell apart. */
+const LEVEL_STYLE: Record<string, string> = {
+  groep78: "bg-[#FCE7A8] text-[#5B4400]",
+  klas13: "bg-[#F9DCE4] text-[#7A1F42]",
+  klas46: "bg-[#D9E8FF] text-[#1F3F7A]",
+};
+
 function Lessons({ lessons, files, downloads }: { lessons: Lesson[]; files: LessonFile[]; downloads: { lesson_id: string | null }[] }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState<string | null>(null);
+  // Which group is shown: one of LESSON_LEVELS, "anders" (no known group) or "alles" (grouped per group).
+  const [tab, setTab] = useState<string>("alles");
+  const groups = [
+    ...LESSON_LEVELS.map((lv) => ({ id: lv.id as string, label: lv.label, items: lessons.filter((l) => levelOf(l.audience) === lv.id) })),
+    { id: "anders", label: "Zonder groep", items: lessons.filter((l) => levelOf(l.audience) === null) },
+  ].filter((g) => g.id !== "anders" || g.items.length);
+  const shown = tab === "alles" ? groups : groups.filter((g) => g.id === tab);
+
   async function add() {
+    const level = LESSON_LEVELS.find((lv) => lv.id === tab);
     const { data, error } = await supabase
       .from("lessons")
-      .insert({ title: "Nieuwe les", sort: lessons.length })
+      .insert({ title: "Nieuwe les", sort: lessons.length, ...(level ? { audience: level.label } : {}) })
       .select("id")
       .single();
     if (error) {
@@ -65,28 +82,60 @@ function Lessons({ lessons, files, downloads }: { lessons: Lesson[]; files: Less
     setOpen(data.id);
     qc.invalidateQueries({ queryKey: ["lessons-admin"] });
   }
+  const chip = (on: boolean) =>
+    `shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`;
   return (
-    <section className="space-y-2">
+    <section className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg">📚 Lessen</h2>
-        <Button size="sm" className="rounded-full" onClick={add}>+ Les</Button>
+        <Button size="sm" className="rounded-full" onClick={add}>
+          + Les{tab !== "alles" && tab !== "anders" ? ` voor ${LESSON_LEVELS.find((lv) => lv.id === tab)?.label}` : ""}
+        </Button>
+      </div>
+      <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="tablist" aria-label="Lessen per groep">
+        <button role="tab" aria-selected={tab === "alles"} onClick={() => setTab("alles")} className={chip(tab === "alles")}>
+          Alles ({lessons.length})
+        </button>
+        {groups.map((g) => (
+          <button key={g.id} role="tab" aria-selected={tab === g.id} onClick={() => setTab(g.id)} className={chip(tab === g.id)}>
+            {g.label} ({g.items.length})
+          </button>
+        ))}
       </div>
       {lessons.length === 0 && <p className="text-sm text-muted-foreground">Nog geen lessen. Voeg de eerste toe.</p>}
-      {lessons.map((l) => (
-        <div key={l.id} className="rounded-3xl bg-card shadow-soft">
-          <button onClick={() => setOpen(open === l.id ? null : l.id)} className="flex w-full items-center gap-3 p-4 text-left">
-            <span className="text-2xl">{l.emoji}</span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-semibold">{l.title}</span>
-              <span className="block text-xs text-muted-foreground">
-                {l.published ? "Online" : "Concept"}
-                {l.is_free ? " · gratis" : ""} · {files.filter((f) => f.lesson_id === l.id).length} bestanden ·{" "}
-                {downloads.filter((d) => d.lesson_id === l.id).length} downloads
-              </span>
-            </span>
-            <span className="text-muted-foreground">{open === l.id ? "▴" : "▾"}</span>
-          </button>
-          {open === l.id && <LessonEditor lesson={l} files={files.filter((f) => f.lesson_id === l.id)} />}
+      {shown.map((g) => (
+        <div key={g.id} className="space-y-2">
+          {tab === "alles" && (
+            <h3 className="px-1 pt-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+              {g.label} · {g.items.length} {g.items.length === 1 ? "les" : "lessen"}
+            </h3>
+          )}
+          {g.items.length === 0 && <p className="px-1 text-sm text-muted-foreground">Nog geen lessen voor deze groep.</p>}
+          {g.items.map((l) => {
+            const lv = levelOf(l.audience);
+            return (
+              <div key={l.id} className="rounded-3xl bg-card shadow-soft">
+                <button onClick={() => setOpen(open === l.id ? null : l.id)} className="flex w-full items-center gap-3 p-4 text-left">
+                  <span className="text-2xl">{l.emoji}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{l.title}</span>
+                    <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className={`rounded-full px-2 py-0.5 font-semibold ${lv ? LEVEL_STYLE[lv] : "bg-muted"}`}>
+                        {l.audience || "Geen groep"}
+                      </span>
+                      <span>
+                        {l.published ? "Online" : "Concept"}
+                        {l.is_free ? " · gratis" : ""} · {files.filter((f) => f.lesson_id === l.id).length} bestanden ·{" "}
+                        {downloads.filter((d) => d.lesson_id === l.id).length} downloads
+                      </span>
+                    </span>
+                  </span>
+                  <span className="text-muted-foreground">{open === l.id ? "▴" : "▾"}</span>
+                </button>
+                {open === l.id && <LessonEditor lesson={l} files={files.filter((f) => f.lesson_id === l.id)} />}
+              </div>
+            );
+          })}
         </div>
       ))}
     </section>
