@@ -12,7 +12,7 @@ export const AMBASSADOR_MIN_AGE = 18;
 export const POINT_RULES = [
   { emoji: "🔗", label: "Iemand zet zich op de wachtlijst via jouw link", points: 1 },
   { emoji: "📱", label: "Post over CeritaProject (goedgekeurd, max. 2 per week)", points: 2 },
-  { emoji: "🏆", label: "Een opdracht of challenge voltooid", points: 5 },
+  { emoji: "🏆", label: "Een opdracht voltooid (staat bij de opdracht)", points: "2–5" },
   { emoji: "🚀", label: "Na de lancering: iemand maakt een account via jouw link", points: 3 },
 ] as const;
 
@@ -120,6 +120,18 @@ export function qrPath(m: boolean[][], margin = 2): string {
     if (dark) d += `M${c + margin} ${r + margin}h1v1h-1z`;
   }));
   return d;
+}
+
+/** Assignments are planned per week: shown from `starts` up to and including `due` (dates as YYYY-MM-DD, Dutch time). */
+export type PlannedTask = { starts: string | null; due: string | null; active: boolean };
+
+export function isCurrentTask(t: PlannedTask, today: string): boolean {
+  return t.active && (!t.starts || t.starts <= today) && (!t.due || t.due >= today);
+}
+
+/** Planned for later (Beheer shows these apart from this week's assignments). */
+export function isUpcomingTask(t: PlannedTask, today: string): boolean {
+  return t.active && !!t.starts && t.starts > today;
 }
 
 /** Submissions: a public link, or a photo (for offline assignments such as a poster). */

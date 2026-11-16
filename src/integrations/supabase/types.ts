@@ -21,9 +21,9 @@ export type Database = {
         Relationships: []
       }
       ambassador_tasks: {
-        Row: { id: string; title: string; body: string; points: number; active: boolean; due: string | null; created_at: string }
-        Insert: { id?: string; title: string; body?: string; points?: number; active?: boolean; due?: string | null; created_at?: string }
-        Update: { id?: string; title?: string; body?: string; points?: number; active?: boolean; due?: string | null; created_at?: string }
+        Row: { id: string; title: string; body: string; points: number; active: boolean; starts: string | null; due: string | null; created_at: string }
+        Insert: { id?: string; title: string; body?: string; points?: number; active?: boolean; starts?: string | null; due?: string | null; created_at?: string }
+        Update: { id?: string; title?: string; body?: string; points?: number; active?: boolean; starts?: string | null; due?: string | null; created_at?: string }
         Relationships: []
       }
       ambassador_submissions: {
@@ -2722,6 +2722,7 @@ export type Database = {
       my_ambassador_stats: { Args: never; Returns: Json }
       set_hall_of_fame: { Args: { _on: boolean }; Returns: boolean }
       ambassador_photos_ready: { Args: never; Returns: boolean }
+      ambassador_tasks_planned: { Args: never; Returns: number }
       hall_of_fame: {
         Args: never
         Returns: { display_name: string; avatar_url: string | null; since: string; points: number }[]

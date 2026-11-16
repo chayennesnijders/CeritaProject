@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
+import { challengeDay } from "@/lib/challenges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +16,7 @@ import {
   AMBASSADOR_RULES,
   OFFLINE_RULES,
   HALL_OF_FAME_MIN,
+  isCurrentTask,
   isSubmissionUrl,
   LEVELS,
   levelFor,
@@ -88,7 +90,7 @@ function AmbassadorPage() {
     enabled: !!uid && isAmb,
     queryFn: async () => {
       const [t, s] = await Promise.all([
-        supabase.from("ambassador_tasks").select("*").eq("active", true).order("created_at", { ascending: false }),
+        supabase.from("ambassador_tasks").select("*").eq("active", true).order("starts", { ascending: true }),
         // In the preview the real assignments show (admins may read them), but no submissions.
         preview
           ? Promise.resolve({ data: [] as Sub[], error: null })
@@ -96,7 +98,9 @@ function AmbassadorPage() {
       ]);
       if (t.error) throw t.error;
       if (s.error) throw s.error;
-      return { tasks: t.data ?? [], subs: s.data ?? [] };
+      // Only this week's assignments (admins in the preview may read every planned one).
+      const today = challengeDay();
+      return { tasks: (t.data ?? []).filter((x) => isCurrentTask(x, today)), subs: s.data ?? [] };
     },
   });
 
@@ -525,8 +529,8 @@ function Assignments({
 
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
-      <h2 className="text-lg">🎯 Opdrachten</h2>
-      {tasks.length === 0 && <p className="text-sm text-muted-foreground">Er staan nu geen opdrachten klaar. Je krijgt bericht als er een nieuwe is.</p>}
+      <h2 className="text-lg">🎯 Opdrachten van deze week</h2>
+      {tasks.length === 0 && <p className="text-sm text-muted-foreground">Er staan nu geen opdrachten klaar. Elke maandag komen er nieuwe.</p>}
       {tasks.map((t) => (
         <div key={t.id} className="rounded-2xl border-2 border-primary/30 p-3">
           <div className="flex items-start gap-2">

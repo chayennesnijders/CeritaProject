@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { flyerLink, HALL_OF_FAME_MIN, qrMatrix, qrPath, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
+import { isCurrentTask, isUpcomingTask, flyerLink, HALL_OF_FAME_MIN, qrMatrix, qrPath, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
 
 describe("ambassador", () => {
   it("counts sign-ups plus approved task points", () => {
@@ -56,5 +56,17 @@ describe("ambassador", () => {
     expect(m[0]![0]).toBe(true);
     expect(m[0]![6]).toBe(true);
     expect(qrPath(m)).toContain("M2 2h1v1h-1z");
+  });
+
+  it("shows an assignment only in its own week", () => {
+    const t = { active: true, starts: "2026-11-16", due: "2026-11-22" };
+    expect(isCurrentTask(t, "2026-11-15")).toBe(false);
+    expect(isCurrentTask(t, "2026-11-16")).toBe(true);
+    expect(isCurrentTask(t, "2026-11-22")).toBe(true);
+    expect(isCurrentTask(t, "2026-11-23")).toBe(false);
+    expect(isCurrentTask({ ...t, active: false }, "2026-11-18")).toBe(false);
+    expect(isCurrentTask({ active: true, starts: null, due: null }, "2027-01-01")).toBe(true);
+    expect(isUpcomingTask(t, "2026-11-10")).toBe(true);
+    expect(isUpcomingTask(t, "2026-11-16")).toBe(false);
   });
 });

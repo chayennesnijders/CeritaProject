@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSignedImage } from "@/lib/articles";
-import { AMBASSADOR_MIN_AGE, levelFor, referralLink, totalPoints } from "@/lib/ambassador";
+import { AMBASSADOR_MIN_AGE, isCurrentTask, isUpcomingTask, levelFor, referralLink, totalPoints } from "@/lib/ambassador";
+import { challengeDay } from "@/lib/challenges";
 
 /** Beheer → Ambassadeurs: add ambassadors (18+), give assignments and check what they send in. */
 export function AmbassadorsAdmin() {
@@ -15,13 +16,15 @@ export function AmbassadorsAdmin() {
   const [body, setBody] = useState("");
   const [points, setPoints] = useState(5);
   const [due, setDue] = useState("");
+  const [starts, setStarts] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const { data } = useQuery({
     queryKey: ["ambassadors-admin"],
     queryFn: async () => {
       const [o, t, s] = await Promise.all([
         supabase.rpc("ambassador_overview"),
-        supabase.from("ambassador_tasks").select("*").order("created_at", { ascending: false }),
+        supabase.from("ambassador_tasks").select("*").order("starts", { ascending: true, nullsFirst: true }),
         supabase.from("ambassador_submissions").select("*").eq("status", "ingediend").order("created_at"),
       ]);
       if (o.error) throw o.error;
@@ -29,6 +32,7 @@ export function AmbassadorsAdmin() {
     },
   });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["ambassadors-admin"] });
+  const today = challengeDay();
   const run = (fn: () => PromiseLike<{ error: { message: string } | null }>, ok: string) =>
     void Promise.resolve(fn()).then(({ error }) => {
       toast[error ? "error" : "success"](error ? error.message : ok);
@@ -165,6 +169,10 @@ export function AmbassadorsAdmin() {
             <Input type="number" min={1} max={20} className="w-20" value={points} onChange={(e) => setPoints(Number(e.target.value) || 1)} />
           </label>
           <label className="flex items-center gap-1">
+            Vanaf
+            <Input type="date" className="w-40" value={starts} onChange={(e) => setStarts(e.target.value)} />
+          </label>
+          <label className="flex items-center gap-1">
             Uiterlijk
             <Input type="date" className="w-40" value={due} onChange={(e) => setDue(e.target.value)} />
           </label>
@@ -175,11 +183,18 @@ export function AmbassadorsAdmin() {
               run(async () => {
                 const r = await supabase
                   .from("ambassador_tasks")
-                  .insert({ title: title.trim(), body: body.trim(), points: Math.min(20, Math.max(1, points)), due: due || null });
+                  .insert({
+                    title: title.trim(),
+                    body: body.trim(),
+                    points: Math.min(20, Math.max(1, points)),
+                    starts: starts || null,
+                    due: due || null,
+                  });
                 if (!r.error) {
                   setTitle("");
                   setBody("");
                   setDue("");
+                  setStarts("");
                 }
                 return r;
               }, "Opdracht toegevoegd")
@@ -188,12 +203,50 @@ export function AmbassadorsAdmin() {
             Toevoegen
           </Button>
         </div>
-        {data?.tasks.map((t) => (
+        {(() => {
+          const all = data?.tasks ?? [];
+          const now = all.filter((t) => isCurrentTask(t, today));
+          const soon = all.filter((t) => isUpcomingTask(t, today));
+          const rest = all.filter((t) => !now.includes(t) && !soon.includes(t));
+          return (
+            <>
+              <p className="pt-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Deze week ({now.length})</p>
+              {now.map(taskRow)}
+              <p className="pt-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Gepland ({soon.length}) · verschijnen vanzelf op maandag
+              </p>
+              {(showAll ? soon : soon.slice(0, 6)).map(taskRow)}
+              {(soon.length > 6 || rest.length > 0) && (
+                <Button size="sm" variant="ghost" className="rounded-full" onClick={() => setShowAll(!showAll)}>
+                  {showAll ? "Minder tonen" : `Alles tonen (${soon.length} gepland, ${rest.length} voorbij of verborgen)`}
+                </Button>
+              )}
+              {showAll && rest.length > 0 && (
+                <>
+                  <p className="pt-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Voorbij of verborgen</p>
+                  {rest.map(taskRow)}
+                </>
+              )}
+            </>
+          );
+        })()}
+      </section>
+    </div>
+  );
+
+  function taskRow(t: NonNullable<typeof data>["tasks"][number]) {
+    return (
           <div key={t.id} className={`flex items-center gap-2 rounded-2xl border p-3 text-sm ${t.active ? "" : "opacity-60"}`}>
             <div className="min-w-0 flex-1">
               <p className="font-semibold">
                 {t.title} <span className="text-xs text-primary">+{t.points}</span>
               </p>
+              {t.starts && (
+                <p className="text-xs text-muted-foreground">
+                  {fmt(t.starts)}
+                  {t.due ? ` t/m ${fmt(t.due)}` : ""}
+                </p>
+              )}
               {t.body && <p className="text-xs text-muted-foreground">{t.body}</p>}
             </div>
             <Button
@@ -205,11 +258,11 @@ export function AmbassadorsAdmin() {
               {t.active ? "Verbergen" : "Tonen"}
             </Button>
           </div>
-        ))}
-      </section>
-    </div>
-  );
+    );
+  }
 }
+
+const fmt = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
 
 function SubmissionPhoto({ path }: { path: string }) {
   const { data: src } = useSignedImage("ambassador-photos", path);
