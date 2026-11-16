@@ -177,7 +177,7 @@ function drawProps(world, spec, t, st, layer) {
         break;
       }
       case "bubble": bubble(world, p.text, p.at[0], p.at[1], op, p.tail || 0); break;
-      case "cloud": { const [hx, hy] = A ? headPos(A) : p.at; cloud(world, hx + (p.dx || 0), hy - 230 + (p.dy || 0), op, p.rain !== false, t, p.sc || 1); break; }
+      case "cloud": { const [hx, hy] = A ? headPos(A) : p.at; cloud(world, hx + (p.dx || 0), hy - 180 + (p.dy || 0), op, p.rain !== false, t, p.sc || 1); break; }
       case "label": { const [hx, hy] = headPos(A); pill(world, p.text, hx + (p.dx || 0), hy - 150 + (p.dy || 0), op, lerp(p.sc?.[0] ?? 1, p.sc?.[1] ?? 1, p.grow ? seg(t, p.grow[0], p.grow[1]) : 0), p.fill || "#fff"); break; }
       case "hearts": {
         for (let i = 0; i < (p.n || 6); i++) {
