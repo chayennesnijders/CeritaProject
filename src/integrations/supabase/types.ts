@@ -27,9 +27,9 @@ export type Database = {
         Relationships: []
       }
       ambassador_submissions: {
-        Row: { id: string; task_id: string | null; user_id: string; url: string; note: string; status: string; points: number; created_at: string; reviewed_at: string | null }
-        Insert: { id?: string; task_id?: string | null; user_id: string; url: string; note?: string; status?: string; points?: number; created_at?: string; reviewed_at?: string | null }
-        Update: { id?: string; task_id?: string | null; user_id?: string; url?: string; note?: string; status?: string; points?: number; created_at?: string; reviewed_at?: string | null }
+        Row: { id: string; task_id: string | null; user_id: string; url: string | null; photo_path: string | null; note: string; status: string; points: number; created_at: string; reviewed_at: string | null }
+        Insert: { id?: string; task_id?: string | null; user_id: string; url?: string | null; photo_path?: string | null; note?: string; status?: string; points?: number; created_at?: string; reviewed_at?: string | null }
+        Update: { id?: string; task_id?: string | null; user_id?: string; url?: string | null; photo_path?: string | null; note?: string; status?: string; points?: number; created_at?: string; reviewed_at?: string | null }
         Relationships: []
       }
       coaches: {
@@ -2721,6 +2721,7 @@ export type Database = {
       review_submission: { Args: { _id: string; _ok: boolean }; Returns: undefined }
       my_ambassador_stats: { Args: never; Returns: Json }
       set_hall_of_fame: { Args: { _on: boolean }; Returns: boolean }
+      ambassador_photos_ready: { Args: never; Returns: boolean }
       hall_of_fame: {
         Args: never
         Returns: { display_name: string; avatar_url: string | null; since: string; points: number }[]

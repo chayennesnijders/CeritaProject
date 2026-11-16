@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSignedImage } from "@/lib/articles";
 import { AMBASSADOR_MIN_AGE, levelFor, referralLink, totalPoints } from "@/lib/ambassador";
 
 /** Beheer → Ambassadeurs: add ambassadors (18+), give assignments and check what they send in. */
@@ -71,6 +72,9 @@ export function AmbassadorsAdmin() {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">Het lid moet eerst zelf een account hebben en 18 jaar of ouder zijn.</p>
+        <a href="/flyer" target="_blank" rel="noopener" className="inline-block text-xs font-semibold underline">
+          🖨️ Flyer van het team printen (zonder ambassadeurscode, bron ‘flyer’)
+        </a>
       </section>
 
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
@@ -132,9 +136,12 @@ export function AmbassadorsAdmin() {
               {taskOf(s.task_id)?.title ?? "Eigen post"} · +{taskOf(s.task_id)?.points ?? 2} punten ·{" "}
               {new Date(s.created_at).toLocaleDateString("nl-NL")}
             </p>
-            <a href={s.url} target="_blank" rel="noreferrer noopener" className="block truncate text-xs underline">
-              {s.url}
-            </a>
+            {s.url && (
+              <a href={s.url} target="_blank" rel="noreferrer noopener" className="block truncate text-xs underline">
+                {s.url}
+              </a>
+            )}
+            {s.photo_path && <SubmissionPhoto path={s.photo_path} />}
             {s.note && <p className="mt-1 text-xs">“{s.note}”</p>}
             <div className="mt-2 flex gap-2">
               <Button size="sm" className="rounded-full" onClick={() => run(() => supabase.rpc("review_submission", { _id: s.id, _ok: true }), "Goedgekeurd")}>
@@ -202,4 +209,13 @@ export function AmbassadorsAdmin() {
       </section>
     </div>
   );
+}
+
+function SubmissionPhoto({ path }: { path: string }) {
+  const { data: src } = useSignedImage("ambassador-photos", path);
+  return src ? (
+    <a href={src} target="_blank" rel="noreferrer noopener" className="mt-2 block">
+      <img src={src} alt="Ingestuurde foto" className="max-h-56 rounded-2xl object-cover" />
+    </a>
+  ) : null;
 }

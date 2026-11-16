@@ -15,6 +15,7 @@ import { Route as AccountVerwijderenRouteImport } from './routes/account-verwijd
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BevestigRouteImport } from './routes/bevestig'
 import { Route as ContactOnsRouteImport } from './routes/contact-ons'
+import { Route as FlyerRouteImport } from './routes/flyer'
 import { Route as HuisregelsRouteImport } from './routes/huisregels'
 import { Route as HulpRouteImport } from './routes/hulp'
 import { Route as LessenRouteImport } from './routes/lessen'
@@ -100,6 +101,11 @@ const BevestigRoute = BevestigRouteImport.update({
 const ContactOnsRoute = ContactOnsRouteImport.update({
   id: '/contact-ons',
   path: '/contact-ons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlyerRoute = FlyerRouteImport.update({
+  id: '/flyer',
+  path: '/flyer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HuisregelsRoute = HuisregelsRouteImport.update({
@@ -413,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/bevestig': typeof BevestigRoute
   '/contact-ons': typeof ContactOnsRoute
+  '/flyer': typeof FlyerRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
   '/lessen': typeof LessenRoute
@@ -477,6 +484,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/bevestig': typeof BevestigRoute
   '/contact-ons': typeof ContactOnsRoute
+  '/flyer': typeof FlyerRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
   '/lessen': typeof LessenRoute
@@ -543,6 +551,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/bevestig': typeof BevestigRoute
   '/contact-ons': typeof ContactOnsRoute
+  '/flyer': typeof FlyerRoute
   '/huisregels': typeof HuisregelsRoute
   '/hulp': typeof HulpRoute
   '/lessen': typeof LessenRoute
@@ -609,6 +618,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bevestig'
     | '/contact-ons'
+    | '/flyer'
     | '/huisregels'
     | '/hulp'
     | '/lessen'
@@ -673,6 +683,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bevestig'
     | '/contact-ons'
+    | '/flyer'
     | '/huisregels'
     | '/hulp'
     | '/lessen'
@@ -738,6 +749,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bevestig'
     | '/contact-ons'
+    | '/flyer'
     | '/huisregels'
     | '/hulp'
     | '/lessen'
@@ -804,6 +816,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BevestigRoute: typeof BevestigRoute
   ContactOnsRoute: typeof ContactOnsRoute
+  FlyerRoute: typeof FlyerRoute
   HuisregelsRoute: typeof HuisregelsRoute
   HulpRoute: typeof HulpRoute
   LessenRoute: typeof LessenRoute
@@ -864,6 +877,13 @@ declare module '@tanstack/react-router' {
       path: '/contact-ons'
       fullPath: '/contact-ons'
       preLoaderRoute: typeof ContactOnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flyer': {
+      id: '/flyer'
+      path: '/flyer'
+      fullPath: '/flyer'
+      preLoaderRoute: typeof FlyerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/huisregels': {
@@ -1366,6 +1386,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BevestigRoute: BevestigRoute,
   ContactOnsRoute: ContactOnsRoute,
+  FlyerRoute: FlyerRoute,
   HuisregelsRoute: HuisregelsRoute,
   HulpRoute: HulpRoute,
   LessenRoute: LessenRoute,

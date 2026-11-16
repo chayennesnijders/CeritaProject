@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HALL_OF_FAME_MIN, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
+import { flyerLink, HALL_OF_FAME_MIN, qrMatrix, qrPath, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
 
 describe("ambassador", () => {
   it("counts sign-ups plus approved task points", () => {
@@ -40,5 +40,21 @@ describe("ambassador", () => {
     expect(isSubmissionUrl("http://tiktok.com/x")).toBe(false);
     expect(isSubmissionUrl("javascript:alert(1)")).toBe(false);
     expect(isSubmissionUrl("https://localhost")).toBe(false);
+  });
+
+  it("flyer link is personal, or general for the team", () => {
+    expect(flyerLink("noor")).toBe("https://app.ceritaproject.nl/wachtlijst?bron=amb-noor");
+    expect(flyerLink(null)).toBe("https://app.ceritaproject.nl/wachtlijst?bron=flyer");
+    expect(flyerLink("Noor<script>")).toBe("https://app.ceritaproject.nl/wachtlijst?bron=flyer");
+  });
+
+  it("makes a square QR code with finder patterns", () => {
+    const m = qrMatrix(flyerLink("noor"));
+    expect(m.length).toBeGreaterThanOrEqual(21);
+    expect(m.every((row) => row.length === m.length)).toBe(true);
+    // top-left finder pattern: dark corner, dark edge
+    expect(m[0]![0]).toBe(true);
+    expect(m[0]![6]).toBe(true);
+    expect(qrPath(m)).toContain("M2 2h1v1h-1z");
   });
 });

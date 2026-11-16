@@ -1,3 +1,5 @@
+import qrcode from "qrcode-generator";
+
 /**
  * Cerita Ambassadors: points, levels and the personal link. Pure data, so the portal (/ambassadeur),
  * Beheer and the tests agree. Rewards are digital for now and only start at the launch of the app.
@@ -68,3 +70,43 @@ export const AMBASSADOR_RULES = [
   "Vertelt iemand je dat het niet goed gaat? Verwijs naar 113 (0800-0113), de Kindertelefoon (0800-0432) of bij gevaar 112.",
   "Wees jezelf. Je hoeft niks te faken.",
 ] as const;
+
+/** Extra rules for spreading the word offline (flyers, posters, QR code). */
+export const OFFLINE_RULES = [
+  "Hang een flyer of poster alleen op als het mag van de school of de plek.",
+  "Niet op basisscholen: de app is vanaf 13 jaar.",
+  "Schrijf nooit zelf e-mailadressen of telefoonnummers van anderen op. Iedereen meldt zich zelf aan.",
+  "Spreek geen jongeren aan die je niet kent om ze over te halen. Vertel het aan mensen die je kent.",
+  "Is iemand jonger dan 16? Dan meldt die zich samen met een ouder of verzorger aan.",
+  "Stuur je een foto in? Zorg dat er geen herkenbare mensen op staan.",
+] as const;
+
+/** The link on a printed flyer: an ambassador's own link, or a plain one (bron=flyer) for flyers from the team. */
+export function flyerLink(code?: string | null): string {
+  return code && isAmbassadorCode(code) ? referralLink(code) : `${APP_URL}/wachtlijst?bron=flyer`;
+}
+
+export function isAmbassadorCode(code: string): boolean {
+  return /^[a-z0-9]{2,20}$/.test(code);
+}
+
+/** QR code as a grid of dark (true) and light modules, for SVG on screen and a PNG to download. */
+export function qrMatrix(text: string): boolean[][] {
+  const qr = qrcode(0, "M");
+  qr.addData(text);
+  qr.make();
+  const n = qr.getModuleCount();
+  return Array.from({ length: n }, (_, r) => Array.from({ length: n }, (_, c) => qr.isDark(r, c)));
+}
+
+/** One SVG path for all dark modules (with a quiet zone of `margin` modules). */
+export function qrPath(m: boolean[][], margin = 2): string {
+  let d = "";
+  m.forEach((row, r) => row.forEach((dark, c) => {
+    if (dark) d += `M${c + margin} ${r + margin}h1v1h-1z`;
+  }));
+  return d;
+}
+
+/** Submissions: a public link, or a photo (for offline assignments such as a poster). */
+export type SubmissionKind = "link" | "foto";

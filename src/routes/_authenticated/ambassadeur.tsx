@@ -7,9 +7,13 @@ import { useMe } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { QrCode, downloadQrPng } from "@/components/QrCode";
+import { shrinkImage } from "@/lib/shrink-image";
+import { useSignedImage } from "@/lib/articles";
 import {
   AMBASSADOR_MIN_AGE,
   AMBASSADOR_RULES,
+  OFFLINE_RULES,
   HALL_OF_FAME_MIN,
   isSubmissionUrl,
   LEVELS,
@@ -17,6 +21,7 @@ import {
   nextLevel,
   POINT_RULES,
   referralLink,
+  type SubmissionKind,
   totalPoints,
 } from "@/lib/ambassador";
 
@@ -222,6 +227,40 @@ function AmbassadorPage() {
             </div>
           </section>
 
+          {/* Offline: QR code and flyer */}
+          <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
+            <h2 className="text-lg">📲 Jouw QR-code</h2>
+            <p className="text-sm text-muted-foreground">
+              Voor offline: laat hem zien op je scherm, zet hem in je WhatsApp-status of print de flyer. Wie scant, komt via
+              jouw link op de wachtlijst.
+            </p>
+            <div className="mx-auto w-44 rounded-2xl border-4 border-foreground bg-white p-1.5">
+              <QrCode text={link} className="block h-auto w-full" />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 rounded-full" onClick={() => downloadQrPng(link, `cerita-qr-${stats.code}.png`)}>
+                Download QR
+              </Button>
+              <a
+                href={preview ? "/flyer" : `/flyer?code=${encodeURIComponent(stats.code)}`}
+                target="_blank"
+                rel="noopener"
+                className="flex flex-1 items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+              >
+                🖨️ Flyer printen
+              </a>
+            </div>
+            <details className="rounded-2xl bg-muted p-3">
+              <summary className="cursor-pointer text-sm font-semibold">Ideeën zonder socials</summary>
+              <ul className="mt-2 space-y-1 text-sm">
+                <li>🏫 Flyer op je eigen school, mbo, hbo of uni (vraag eerst of het mag)</li>
+                <li>📚 Bieb, buurthuis, jongerencentrum of sportclub</li>
+                <li>👯 Vertel het aan vrienden, broers, zussen, neven en nichten</li>
+                <li>🎓 Kort vertellen bij je studievereniging of club, met je QR erbij</li>
+              </ul>
+            </details>
+          </section>
+
           {/* 3. Stats */}
           <section className="grid grid-cols-2 gap-3">
             <Stat emoji="📝" value={Number(stats.signups)} label="aanmeldingen via jou" />
@@ -322,15 +361,22 @@ function AmbassadorPage() {
 }
 
 function Rules() {
-  return (
+  const list = (rules: readonly string[]) => (
     <ul className="space-y-1.5 text-sm">
-      {AMBASSADOR_RULES.map((r) => (
+      {rules.map((r) => (
         <li key={r} className="flex gap-2">
           <span className="text-primary">♥</span>
           <span>{r}</span>
         </li>
       ))}
     </ul>
+  );
+  return (
+    <div className="space-y-3">
+      {list(AMBASSADOR_RULES)}
+      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Offline (flyers, posters, QR)</p>
+      {list(OFFLINE_RULES)}
+    </div>
   );
 }
 
@@ -345,7 +391,21 @@ function Stat({ emoji, value, label }: { emoji: string; value: number; label: st
 }
 
 type Task = { id: string; title: string; body: string; points: number; due: string | null };
-type Sub = { id: string; task_id: string | null; url: string; note: string; status: string; points: number; created_at: string };
+type Sub = {
+  id: string;
+  task_id: string | null;
+  url: string | null;
+  photo_path: string | null;
+  note: string;
+  status: string;
+  points: number;
+  created_at: string;
+};
+
+function SubPhoto({ path }: { path: string }) {
+  const { data: src } = useSignedImage("ambassador-photos", path);
+  return src ? <img src={src} alt="Ingestuurde foto" className="size-10 shrink-0 rounded-lg object-cover" /> : null;
+}
 
 function Assignments({
   preview,
@@ -363,18 +423,37 @@ function Assignments({
   const [open, setOpen] = useState<string | null>(null);
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
+  const [kind, setKind] = useState<SubmissionKind>("link");
+  const [photo, setPhoto] = useState<File | null>(null);
   const send = useMutation({
     mutationFn: async (taskId: string | null) => {
       if (preview) throw new Error(PREVIEW_NOTE);
-      if (!isSubmissionUrl(url)) throw new Error("Plak de link naar je post (begint met https://).");
-      const { error } = await supabase
-        .from("ambassador_submissions")
-        .insert({ user_id: uid, task_id: taskId, url: url.trim(), note: note.trim().slice(0, 300) });
-      if (error) throw error;
+      let photoPath: string | null = null;
+      if (kind === "foto" && taskId) {
+        if (!photo) throw new Error("Kies eerst een foto.");
+        const small = await shrinkImage(photo);
+        if (small.size > 10 * 1024 * 1024) throw new Error("Deze foto is te groot (max. 10 MB).");
+        photoPath = `${uid}/${crypto.randomUUID()}.${small.type === "image/png" ? "png" : "jpg"}`;
+        const up = await supabase.storage.from("ambassador-photos").upload(photoPath, small, { contentType: small.type });
+        if (up.error) throw up.error;
+      } else if (!isSubmissionUrl(url)) throw new Error("Plak de link naar je post (begint met https://).");
+      const { error } = await supabase.from("ambassador_submissions").insert({
+        user_id: uid,
+        task_id: taskId,
+        url: photoPath ? null : url.trim(),
+        photo_path: photoPath,
+        note: note.trim().slice(0, 300),
+      });
+      if (error) {
+        if (photoPath) void supabase.storage.from("ambassador-photos").remove([photoPath]);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast.success("Ingestuurd! We kijken er snel naar 💖");
       setUrl("");
+      setPhoto(null);
+      setKind("link");
       setNote("");
       setOpen(null);
       onDone();
@@ -386,7 +465,28 @@ function Assignments({
   const form = (key: string, taskId: string | null) =>
     open === key && (
       <div className="space-y-2 pt-2">
-        <Input placeholder="https://www.tiktok.com/..." value={url} onChange={(e) => setUrl(e.target.value)} inputMode="url" />
+        {taskId && (
+          <div className="flex gap-1 rounded-full bg-muted p-1 text-xs font-semibold">
+            {(["link", "foto"] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setKind(k)}
+                className={`flex-1 rounded-full px-3 py-1.5 ${kind === k ? "bg-card shadow-soft" : "text-muted-foreground"}`}
+              >
+                {k === "link" ? "🔗 Link naar post" : "📸 Foto (offline)"}
+              </button>
+            ))}
+          </div>
+        )}
+        {kind === "foto" && taskId ? (
+          <>
+            <Input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+            <p className="text-xs text-muted-foreground">Bijv. je poster of flyer. Zorg dat er geen herkenbare mensen op staan.</p>
+          </>
+        ) : (
+          <Input placeholder="https://www.tiktok.com/..." value={url} onChange={(e) => setUrl(e.target.value)} inputMode="url" />
+        )}
         <Input placeholder="Iets erbij vertellen? (mag leeg)" value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} />
         <Button className="w-full rounded-full" disabled={send.isPending} onClick={() => send.mutate(taskId)}>
           Insturen
@@ -413,7 +513,7 @@ function Assignments({
           ) : (
             open !== t.id && (
               <Button size="sm" variant="outline" className="mt-2 rounded-full" onClick={() => setOpen(t.id)}>
-                Klaar? Stuur je link in
+                Klaar? Stuur het in
               </Button>
             )
           )}
@@ -436,11 +536,16 @@ function Assignments({
           <h3 className="text-sm font-semibold">Mijn inzendingen</h3>
           {subs.map((s) => (
             <div key={s.id} className="flex items-center gap-2 rounded-2xl bg-muted px-3 py-2 text-sm">
+              {s.photo_path && <SubPhoto path={s.photo_path} />}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{taskName(s.task_id)}</p>
-                <a href={s.url} target="_blank" rel="noreferrer noopener" className="block truncate text-xs text-muted-foreground underline">
-                  {s.url}
-                </a>
+                {s.url ? (
+                  <a href={s.url} target="_blank" rel="noreferrer noopener" className="block truncate text-xs text-muted-foreground underline">
+                    {s.url}
+                  </a>
+                ) : (
+                  <p className="text-xs text-muted-foreground">📸 Foto</p>
+                )}
               </div>
               <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS[s.status]?.cls ?? ""}`}>
                 {STATUS[s.status]?.label ?? s.status}
