@@ -18,7 +18,7 @@ export const LEVELS = [
   { id: "starter", name: "Starter", emoji: "🌱", min: 10, reward: "Ambassadeursbadge in je profiel" },
   { id: "creator", name: "Creator", emoji: "🎬", min: 30, reward: "Exclusieve outfit voor je diertje" },
   { id: "influencer", name: "Influencer", emoji: "✨", min: 60, reward: "Speciale kleur voor je diertje + shoutout" },
-  { id: "legend", name: "Legend", emoji: "👑", min: 100, reward: "Plek in de Cerita Hall of Fame + meedenken over nieuwe functies" },
+  { id: "legend", name: "Legend", emoji: "👑", min: 100, reward: "Plek in de Cerita Hall of Fame" },
 ] as const;
 export type Level = (typeof LEVELS)[number];
 

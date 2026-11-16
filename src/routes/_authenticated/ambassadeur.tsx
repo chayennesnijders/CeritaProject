@@ -248,7 +248,8 @@ function AmbassadorPage() {
           </details>
         )}
         <p className="text-xs text-muted-foreground">
-          Je ziet alleen aantallen, nooit wie zich via jou heeft aangemeld. Wil je stoppen of klopt er iets niet? Stuur ons een{" "}
+          Je ziet alleen aantallen, nooit wie zich via jou heeft aangemeld. Een idee voor de app, wil je stoppen of klopt er
+          iets niet? Stuur ons een{" "}
           <Link to="/contact" className="underline">
             bericht
           </Link>
