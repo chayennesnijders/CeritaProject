@@ -73,6 +73,7 @@ const SHORTCUT_GROUPS = [
       { to: "/vragen", emoji: "🎓", label: "Coaches" },
       { to: "/buddy", emoji: "🤝", label: "Buddy zoeken" },
       { to: "/agenda", emoji: "🗓️", label: "Agenda" },
+      { to: "/hall-of-fame", emoji: "👑", label: "Hall of Fame" },
     ],
   },
   {
