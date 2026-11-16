@@ -43,13 +43,26 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   afgewezen: { label: "Niet goedgekeurd", cls: "bg-rose-100 text-rose-800" },
 };
 
+const PREVIEW_NOTE = "Dit is een voorbeeld: hier wordt niks opgeslagen.";
+const PREVIEW_STATS: Stats = {
+  code: "voorbeeld",
+  active: true,
+  agreed_at: "2026-11-10T10:00:00Z",
+  since: "2026-11-10T10:00:00Z",
+  signups: 14,
+  task_points: 9,
+  approved: 2,
+  pending: 1,
+  hall_of_fame: false,
+};
+
 /** The Cerita Ambassadors portal: your link, numbers, assignments, points, rewards and your details. */
 function AmbassadorPage() {
   const { data: me } = useMe();
   const qc = useQueryClient();
   const uid = me?.user.id;
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: myStats, isLoading } = useQuery({
     queryKey: ["ambassador-stats", uid],
     enabled: !!uid,
     queryFn: async () => {
@@ -58,8 +71,11 @@ function AmbassadorPage() {
       return (data as Stats | null) ?? null;
     },
   });
-  const isAmb = !!stats?.active;
-  const agreed = !!stats?.agreed_at;
+  // Admins who are no ambassador themselves see the portal with example numbers (nothing is saved).
+  const preview = !myStats?.active && !!me?.isAdmin;
+  const shown: Stats | null = preview ? PREVIEW_STATS : (myStats ?? null);
+  const isAmb = !!shown?.active;
+  const agreed = !!shown?.agreed_at;
 
   const { data: work } = useQuery({
     queryKey: ["ambassador-work", uid],
@@ -67,7 +83,10 @@ function AmbassadorPage() {
     queryFn: async () => {
       const [t, s] = await Promise.all([
         supabase.from("ambassador_tasks").select("*").eq("active", true).order("created_at", { ascending: false }),
-        supabase.from("ambassador_submissions").select("*").eq("user_id", uid!).order("created_at", { ascending: false }).limit(30),
+        // In the preview the real assignments show (admins may read them), but no submissions.
+        preview
+          ? Promise.resolve({ data: [] as Sub[], error: null })
+          : supabase.from("ambassador_submissions").select("*").eq("user_id", uid!).order("created_at", { ascending: false }).limit(30),
       ]);
       if (t.error) throw t.error;
       if (s.error) throw s.error;
@@ -82,6 +101,7 @@ function AmbassadorPage() {
 
   const agree = useMutation({
     mutationFn: async () => {
+      if (preview) throw new Error(PREVIEW_NOTE);
       const { error } = await supabase.rpc("agree_ambassador_terms");
       if (error) throw error;
     },
@@ -94,6 +114,7 @@ function AmbassadorPage() {
 
   const hall = useMutation({
     mutationFn: async (on: boolean) => {
+      if (preview) throw new Error(PREVIEW_NOTE);
       const { error } = await supabase.rpc("set_hall_of_fame", { _on: on });
       if (error) throw error;
       return on;
@@ -108,7 +129,7 @@ function AmbassadorPage() {
 
   if (!me || isLoading) return null;
 
-  if (!isAmb)
+  if (!isAmb || !shown)
     return (
       <div className="mt-6 space-y-3 rounded-3xl bg-card p-6 text-center shadow-soft">
         <p className="text-4xl">💖</p>
@@ -123,6 +144,7 @@ function AmbassadorPage() {
       </div>
     );
 
+  const stats = shown;
   const points = totalPoints(Number(stats.signups), Number(stats.task_points));
   const level = levelFor(points);
   const next = nextLevel(points);
@@ -130,6 +152,12 @@ function AmbassadorPage() {
 
   return (
     <div className="space-y-5 pb-8 pt-2">
+      {preview && (
+        <p className="rounded-2xl border-2 border-dashed border-primary bg-card p-3 text-sm">
+          👀 <b>Voorbeeld voor beheerders.</b> Zo ziet een ambassadeur het portaal. De cijfers zijn verzonnen, de opdrachten
+          zijn echt. Insturen en schakelaars werken hier niet.
+        </p>
+      )}
       {/* Hero: who you are and your level */}
       <section className="relative overflow-hidden rounded-3xl bg-primary p-5 text-primary-foreground shadow-soft">
         <span className="absolute -right-6 -top-6 text-8xl opacity-20" aria-hidden>
@@ -203,7 +231,7 @@ function AmbassadorPage() {
           </section>
 
           {/* 4. Assignments and submissions */}
-          <Assignments uid={me.user.id} tasks={work?.tasks ?? []} subs={work?.subs ?? []} onDone={refresh} />
+          <Assignments preview={preview} uid={me.user.id} tasks={work?.tasks ?? []} subs={work?.subs ?? []} onDone={refresh} />
         </>
       )}
 
@@ -319,12 +347,25 @@ function Stat({ emoji, value, label }: { emoji: string; value: number; label: st
 type Task = { id: string; title: string; body: string; points: number; due: string | null };
 type Sub = { id: string; task_id: string | null; url: string; note: string; status: string; points: number; created_at: string };
 
-function Assignments({ uid, tasks, subs, onDone }: { uid: string; tasks: Task[]; subs: Sub[]; onDone: () => void }) {
+function Assignments({
+  preview,
+  uid,
+  tasks,
+  subs,
+  onDone,
+}: {
+  preview: boolean;
+  uid: string;
+  tasks: Task[];
+  subs: Sub[];
+  onDone: () => void;
+}) {
   const [open, setOpen] = useState<string | null>(null);
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
   const send = useMutation({
     mutationFn: async (taskId: string | null) => {
+      if (preview) throw new Error(PREVIEW_NOTE);
       if (!isSubmissionUrl(url)) throw new Error("Plak de link naar je post (begint met https://).");
       const { error } = await supabase
         .from("ambassador_submissions")

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, BookOpen, GraduationCap, PawPrint, Shield, ShoppingBag, Users } from "lucide-react";
+import { Bell, BookOpen, GraduationCap, Heart, PawPrint, Shield, ShoppingBag, Users } from "lucide-react";
 import { setParentView, useParentView } from "@/lib/parent-view";
 import { setTeacherView, useTeacherView } from "@/lib/teacher-view";
 import { useInbox } from "@/lib/use-inbox";
@@ -257,6 +257,11 @@ export function WorkMenu({
             <BookOpen className="size-5" /> {teacherView ? "Stop leraar-weergave" : "Leraar"}
             {teacherView && <span className="ml-auto text-xs">👀</span>}
           </button>
+        )}
+        {canViewAsParent && (
+          <Link to="/ambassadeur" className={item} onClick={() => setMenuOpen(false)}>
+            <Heart className="size-5" /> Ambassadeur
+          </Link>
         )}
       </PopoverContent>
     </Popover>
