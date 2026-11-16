@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      ambassadors: {
+        Row: { user_id: string; code: string; active: boolean; agreed_at: string | null; added_by: string | null; created_at: string }
+        Insert: { user_id: string; code: string; active?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
+        Update: { user_id?: string; code?: string; active?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
+        Relationships: []
+      }
+      ambassador_tasks: {
+        Row: { id: string; title: string; body: string; points: number; active: boolean; due: string | null; created_at: string }
+        Insert: { id?: string; title: string; body?: string; points?: number; active?: boolean; due?: string | null; created_at?: string }
+        Update: { id?: string; title?: string; body?: string; points?: number; active?: boolean; due?: string | null; created_at?: string }
+        Relationships: []
+      }
+      ambassador_submissions: {
+        Row: { id: string; task_id: string | null; user_id: string; url: string; note: string; status: string; points: number; created_at: string; reviewed_at: string | null }
+        Insert: { id?: string; task_id?: string | null; user_id: string; url: string; note?: string; status?: string; points?: number; created_at?: string; reviewed_at?: string | null }
+        Update: { id?: string; task_id?: string | null; user_id?: string; url?: string; note?: string; status?: string; points?: number; created_at?: string; reviewed_at?: string | null }
+        Relationships: []
+      }
       coaches: {
         Row: {
           active: boolean
@@ -2696,6 +2714,16 @@ export type Database = {
       set_teacher_levels: { Args: { _levels: string[] }; Returns: string[] }
       new_account_wait_days: { Args: never; Returns: number }
       teacher_testers_ready: { Args: never; Returns: boolean }
+      is_ambassador: { Args: { _user: string }; Returns: boolean }
+      add_ambassador: { Args: { _username: string }; Returns: string }
+      set_ambassador_active: { Args: { _user: string; _active: boolean }; Returns: undefined }
+      agree_ambassador_terms: { Args: never; Returns: string }
+      review_submission: { Args: { _id: string; _ok: boolean }; Returns: undefined }
+      my_ambassador_stats: { Args: never; Returns: Json }
+      ambassador_overview: {
+        Args: never
+        Returns: { user_id: string; username: string | null; display_name: string; code: string; active: boolean; agreed_at: string | null; signups: number; task_points: number; pending: number }[]
+      }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }
       parent_portal_stats: { Args: never; Returns: Json }

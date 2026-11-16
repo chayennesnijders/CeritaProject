@@ -7,10 +7,11 @@ export function useMe() {
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return null;
-      const [{ data: profile }, { data: roles }, { data: coach }] = await Promise.all([
+      const [{ data: profile }, { data: roles }, { data: coach }, { data: amb }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", u.user.id),
         supabase.from("coaches").select("active").eq("user_id", u.user.id).maybeSingle(),
+        supabase.from("ambassadors").select("active").eq("user_id", u.user.id).maybeSingle(),
       ]);
       return {
         user: u.user,
@@ -22,6 +23,8 @@ export function useMe() {
         isStaff: !!roles?.some((r) => ["admin", "owner", "moderator"].includes(r.role)),
         // Coaches may chat with every age band, also when they are older than 27.
         isCoach: !!coach?.active,
+        // Cerita Ambassadors (18+, added in Beheer) get their own portal at /ambassadeur.
+        isAmbassador: !!amb?.active,
       };
     },
   });

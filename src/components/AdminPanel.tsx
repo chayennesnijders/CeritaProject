@@ -40,6 +40,7 @@ import { BuddyAdmin } from "@/components/BuddyAdmin";
 import { LessonsAdmin } from "@/components/LessonsAdmin";
 import { ParentsAdmin } from "@/components/ParentsAdmin";
 import { TestersAdmin } from "@/components/TestersAdmin";
+import { AmbassadorsAdmin } from "@/components/AmbassadorsAdmin";
 import { DedupeStoryPhotos } from "@/components/DedupeStoryPhotos";
 import { StoryPhotoBank } from "@/components/StoryPhotoBank";
 
@@ -56,6 +57,7 @@ const TABS = [
   { id: "lessen", label: "Lessen & scholen" },
   { id: "ouders", label: "Ouderportaal" },
   { id: "testers", label: "Testers" },
+  { id: "ambassadeurs", label: "Ambassadeurs" },
   { id: "overzicht", label: "Overzicht" },
   { id: "inbox", label: "Inbox" },
   { id: "verhalen", label: "Verhalen" },
@@ -226,6 +228,7 @@ export function AdminPanel() {
       {tab === "lessen" && <LessonsAdmin />}
       {tab === "ouders" && <ParentsAdmin />}
       {tab === "testers" && <TestersAdmin />}
+      {tab === "ambassadeurs" && <AmbassadorsAdmin />}
       {tab === "vragen" && (
         <div className="space-y-4">
           <CoachesAdmin />

@@ -240,6 +240,20 @@ function ProfilePage() {
         </button>}
       </div>
 
+      {me?.isAmbassador && (
+        <Link
+          to="/ambassadeur"
+          className="flex items-center gap-3 rounded-3xl bg-primary p-4 text-primary-foreground shadow-soft transition-transform active:scale-95"
+        >
+          <span className="text-3xl">💖</span>
+          <span className="flex-1">
+            <span className="block font-semibold">Ambassadeursportaal</span>
+            <span className="block text-xs opacity-90">Jouw link, punten, opdrachten en beloningen</span>
+          </span>
+          <span className="text-xl">→</span>
+        </Link>
+      )}
+
       {!isTeacher && <section className="space-y-3">
         <h2 className="text-lg">Voor jou</h2>
         {SHORTCUT_GROUPS.map((g) => ({ ...g, items: g.items.filter((s) => !asParent || parentMayOpen(s.to)) }))

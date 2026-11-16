@@ -26,6 +26,7 @@ import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as WachtlijstRouteImport } from './routes/wachtlijst'
 import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedAmbassadeurRouteImport } from './routes/_authenticated/ambassadeur'
 import { Route as AuthenticatedBeheerRouteImport } from './routes/_authenticated/beheer'
 import { Route as AuthenticatedBrievenRouteImport } from './routes/_authenticated/brieven'
 import { Route as AuthenticatedBuddyRouteImport } from './routes/_authenticated/buddy'
@@ -156,6 +157,12 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAmbassadeurRoute =
+  AuthenticatedAmbassadeurRouteImport.update({
+    id: '/ambassadeur',
+    path: '/ambassadeur',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBeheerRoute = AuthenticatedBeheerRouteImport.update({
   id: '/beheer',
   path: '/beheer',
@@ -411,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/ambassadeur': typeof AuthenticatedAmbassadeurRoute
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
   '/buddy': typeof AuthenticatedBuddyRoute
@@ -473,6 +481,7 @@ export interface FileRoutesByTo {
   '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/ambassadeur': typeof AuthenticatedAmbassadeurRoute
   '/beheer': typeof AuthenticatedBeheerRoute
   '/brieven': typeof AuthenticatedBrievenRoute
   '/buddy': typeof AuthenticatedBuddyRoute
@@ -537,6 +546,7 @@ export interface FileRoutesById {
   '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/ambassadeur': typeof AuthenticatedAmbassadeurRoute
   '/_authenticated/beheer': typeof AuthenticatedBeheerRoute
   '/_authenticated/brieven': typeof AuthenticatedBrievenRoute
   '/_authenticated/buddy': typeof AuthenticatedBuddyRoute
@@ -601,6 +611,7 @@ export interface FileRouteTypes {
     | '/wachtlijst'
     | '/.well-known/assetlinks.json'
     | '/agenda'
+    | '/ambassadeur'
     | '/beheer'
     | '/brieven'
     | '/buddy'
@@ -663,6 +674,7 @@ export interface FileRouteTypes {
     | '/wachtlijst'
     | '/.well-known/assetlinks.json'
     | '/agenda'
+    | '/ambassadeur'
     | '/beheer'
     | '/brieven'
     | '/buddy'
@@ -726,6 +738,7 @@ export interface FileRouteTypes {
     | '/wachtlijst'
     | '/.well-known/assetlinks.json'
     | '/_authenticated/agenda'
+    | '/_authenticated/ambassadeur'
     | '/_authenticated/beheer'
     | '/_authenticated/brieven'
     | '/_authenticated/buddy'
@@ -916,6 +929,13 @@ declare module '@tanstack/react-router' {
       path: '/agenda'
       fullPath: '/agenda'
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ambassadeur': {
+      id: '/_authenticated/ambassadeur'
+      path: '/ambassadeur'
+      fullPath: '/ambassadeur'
+      preLoaderRoute: typeof AuthenticatedAmbassadeurRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/beheer': {
@@ -1231,6 +1251,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedAmbassadeurRoute: typeof AuthenticatedAmbassadeurRoute
   AuthenticatedBeheerRoute: typeof AuthenticatedBeheerRoute
   AuthenticatedBrievenRoute: typeof AuthenticatedBrievenRoute
   AuthenticatedBuddyRoute: typeof AuthenticatedBuddyRoute
@@ -1273,6 +1294,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedAmbassadeurRoute: AuthenticatedAmbassadeurRoute,
   AuthenticatedBeheerRoute: AuthenticatedBeheerRoute,
   AuthenticatedBrievenRoute: AuthenticatedBrievenRoute,
   AuthenticatedBuddyRoute: AuthenticatedBuddyRoute,
