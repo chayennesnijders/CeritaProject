@@ -1,0 +1,328 @@
+<!doctype html>
+<!--
+  CeritaProject animation engine: soft round figures with a heart, Dutch captions, 1080x1920.
+  A video is a spec (window.SPEC) with keyframed actors, props and captions; window.render(t) draws frame t.
+  Render with: node tools/social/anim/render.cjs SPECS.js OUT_DIR [id,id,...]
+-->
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'Unbounded';font-weight:800;src:url('../fonts/unbounded-latin-800-normal.woff2') format('woff2')}
+@font-face{font-family:'Figtree';font-weight:700;src:url('../fonts/figtree-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Figtree';font-weight:800;src:url('../fonts/figtree-latin-800-normal.woff2') format('woff2')}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#F7EDE1}
+svg{display:block}
+.cap{font-family:'Unbounded';font-weight:800}
+.lbl{font-family:'Figtree';font-weight:800}
+</style></head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+  </defs>
+  <g id="world"></g>
+  <rect id="fade" width="1080" height="1920" fill="#F7EDE1" opacity="1"/>
+</svg>
+<script>
+const INK = "#1E1615", CARD = "#FDF8F2", PINK = "#F2A6BF", HOT = "#E58AA9", GREY = "#B9ADA3", BAG = "#E8D2BF";
+const CREAM = "#F7EDE1", NIGHT = "#2A2338", NIGHT2 = "#3A3150";
+const GY = 1440, S = 1.32;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const seg = (t, a, b) => ease((t - a) / (b - a));
+const win = (t, r, f = 0.4) => !r ? 1 : seg(t, r[0], r[0] + f) - seg(t, r[1] - f, r[1]);
+const lerp = (a, b, k) => a + (b - a) * k;
+const mix = (c1, c2, k) => { const p = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)); const A = p(c1), B = p(c2); return "#" + A.map((v, i) => Math.round(lerp(v, B[i], clamp(k))).toString(16).padStart(2, "0")).join(""); };
+const heartPath = (s) => `M0 ${0.35*s} C ${-1.1*s} ${-0.35*s} ${-0.45*s} ${-1.05*s} 0 ${-0.45*s} C ${0.45*s} ${-1.05*s} ${1.1*s} ${-0.35*s} 0 ${0.35*s} Z`;
+
+const DEFAULTS = { x: 540, y: 0, dir: 1, walk: 0, lean: 0, heart: 1, mouth: 0.4, bag: 0, reach: 0, armUp: 0, head: 0, look: 0,
+  sit: 0, s: 1, op: 1, mask: 0, phone: 0, tear: 0, eyes: 1, headphones: 0, hot: 0, hug: 0, shrink: 0 };
+const STEP = new Set(["dir"]);
+
+/** Value of a keyframed field at time t (eased between keys that define it). */
+function val(keys, f, t) {
+  let prev = null, next = null;
+  for (const k of keys) if (k[f] !== undefined) { if (k.t <= t) prev = k; else { next = k; break; } }
+  if (!prev && !next) return DEFAULTS[f];
+  if (!prev) return next[f];
+  if (!next || STEP.has(f)) return prev[f];
+  const span = next.ease ?? (next.t - prev.t);
+  return lerp(prev[f], next[f], ease((t - (next.t - span)) / span));
+}
+function state(a, t) { const o = {}; for (const f in DEFAULTS) o[f] = val(a.keys, f, t); return o; }
+function walkPhase(a, t) { let d = 0; for (let s = 0; s < t; s += 1 / 60) d += val(a.keys, "walk", s) / 60; return d * 9; }
+function integral(keys, f, t) { let d = 0; for (let s = 0; s < t; s += 1 / 60) d += val(keys, f, s) / 60; return d; }
+
+function text(parent, str, x, y, size, cls, fill, anchor = "middle") {
+  const t = el("text", { x, y, "font-size": size, class: cls, "text-anchor": anchor, fill }, parent);
+  t.textContent = str;
+  return t;
+}
+function wrap(str, max) {
+  const out = []; let line = "";
+  for (const w of str.split(" ")) { if ((line + " " + w).trim().length > max && line) { out.push(line); line = w; } else line = (line + " " + w).trim(); }
+  if (line) out.push(line);
+  return out;
+}
+
+/** One soft round figure. */
+function figure(root, o, ph) {
+  const scale = S * o.s;
+  const g = el("g", { transform: `translate(${o.x} ${GY + o.y}) scale(${o.dir * scale} ${scale})`, opacity: o.op }, root);
+  const walking = clamp(o.walk);
+  const sw = Math.sin(ph) * 0.42 * walking;
+  const bob = -Math.abs(Math.sin(ph)) * 10 * walking;
+  const lift = 70 * o.sit;
+  const leg = (a, dx) => {
+    const hx = dx, hy = -175 + lift + bob;
+    const t1 = lerp(a, Math.PI / 2, o.sit), t2 = lerp(a, 0, o.sit);
+    const kx = hx + Math.sin(t1) * 90, ky = hy + Math.cos(t1) * 90;
+    const fx = kx + Math.sin(t2) * 88, fy = Math.min(ky + Math.cos(t2) * 88, 0);
+    el("path", { d: `M ${hx} ${hy} L ${kx} ${ky} L ${fx} ${fy}`, stroke: INK, "stroke-width": 30, "stroke-linecap": "round", "stroke-linejoin": "round", fill: "none" }, g);
+  };
+  leg(sw, -16); leg(-sw, 16);
+  const sh = 1 - 0.25 * o.shrink;
+  const up = el("g", { transform: `translate(0 ${lift + bob}) rotate(${o.lean} 0 -175) translate(0 -175) scale(${sh}) translate(0 175)` }, g);
+  if (o.bag > 0) {
+    const w = 62 + 34 * o.bag, h = 130 + 46 * o.bag;
+    el("rect", { x: -62 - w + 14, y: -190 - h, width: w, height: h, rx: 34, fill: BAG, stroke: INK, "stroke-width": 9 }, up);
+    el("path", { d: `M ${-62 - w + 40} ${-190 - h + 20} h ${w - 50}`, stroke: INK, "stroke-width": 7, "stroke-linecap": "round", fill: "none", opacity: .5 }, up);
+  }
+  const arm = (a) => {
+    const sx = 0, sy = -330, L = 150;
+    el("line", { x1: sx, y1: sy, x2: sx + Math.sin(a) * L, y2: sy + Math.cos(a) * L, stroke: INK, "stroke-width": 26, "stroke-linecap": "round" }, up);
+    return [sx + Math.sin(a) * L, sy + Math.cos(a) * L];
+  };
+  const aSwing = Math.sin(ph) * 0.35 * walking;
+  arm(-aSwing - o.hug * 1.6);
+  el("rect", { x: -62, y: -385, width: 124, height: 225, rx: 62, fill: CARD, stroke: INK, "stroke-width": 10 }, up);
+  const front = aSwing + o.reach * 1.25 + o.armUp * 2.6 + o.phone * 2.45 + o.hug * 1.7;
+  const hand = arm(front);
+  const hc = mix(GREY, o.hot ? HOT : PINK, o.heart);
+  if (o.heart > 0.05) el("path", { d: heartPath(46 * (1 + 0.5 * o.heart)), transform: "translate(8 -292)", fill: PINK, opacity: 0.55 * o.heart, filter: "url(#glow)" }, up);
+  el("path", { d: heartPath(40 * (0.75 + 0.25 * o.heart)), transform: "translate(8 -292)", fill: hc, stroke: INK, "stroke-width": 6 }, up);
+  if (o.phone > 0.02) {
+    const pg = el("g", { transform: `translate(${hand[0] + 6} ${hand[1] - 40})`, opacity: o.phone }, up);
+    el("rect", { x: -26, y: -46, width: 52, height: 90, rx: 12, fill: INK }, pg);
+    el("rect", { x: -19, y: -38, width: 38, height: 70, rx: 6, fill: "#CFE3F2" }, pg);
+    el("circle", { cx: 0, cy: 0, r: 60, fill: "#CFE3F2", opacity: .35, filter: "url(#glow)" }, pg);
+  }
+  const hg = el("g", { transform: `rotate(${o.head} 0 -400)` }, up);
+  el("circle", { cx: 0, cy: -468, r: 72, fill: CARD, stroke: INK, "stroke-width": 10 }, hg);
+  const ey = -478 + o.look * 6;
+  if (o.eyes > 0.5) { el("circle", { cx: 30, cy: ey, r: 7.5, fill: INK }, hg); el("circle", { cx: 2, cy: ey, r: 7.5, fill: INK }, hg); }
+  else for (const ex of [2, 30]) el("path", { d: `M ${ex - 9} ${ey} q 9 7 18 0`, stroke: INK, "stroke-width": 5, fill: "none", "stroke-linecap": "round" }, hg);
+  const m = o.mouth;
+  el("path", { d: `M 0 -440 Q 16 ${-440 + 14 * m} 32 -440`, stroke: INK, "stroke-width": 6, "stroke-linecap": "round", fill: "none" }, hg);
+  if (o.tear > 0.02) el("path", { d: "M 34 -462 q -8 16 0 24 q 8 -8 0 -24 z", fill: "#9CC7E8", stroke: INK, "stroke-width": 3, opacity: o.tear, transform: `translate(0 ${18 * o.tear})` }, hg);
+  if (o.mask > 0.02) {
+    const mg = el("g", { transform: `translate(16 ${-468 + (1 - o.mask) * 260}) rotate(${(1 - o.mask) * 25})`, opacity: clamp(o.mask * 2) }, hg);
+    el("ellipse", { cx: 0, cy: 0, rx: 62, ry: 70, fill: "#FFFFFF", stroke: INK, "stroke-width": 8 }, mg);
+    el("path", { d: "M -30 -16 q 10 -10 20 0 M 10 -16 q 10 -10 20 0", stroke: INK, "stroke-width": 6, fill: "none", "stroke-linecap": "round" }, mg);
+    el("path", { d: "M -32 16 Q 0 52 32 16", stroke: INK, "stroke-width": 7, fill: "none", "stroke-linecap": "round" }, mg);
+    el("circle", { cx: -34, cy: 14, r: 10, fill: PINK, opacity: .7 }, mg); el("circle", { cx: 34, cy: 14, r: 10, fill: PINK, opacity: .7 }, mg);
+  }
+  if (o.headphones > 0.02) {
+    const hp = el("g", { opacity: o.headphones }, hg);
+    el("path", { d: "M -66 -480 A 74 74 0 0 1 82 -480", stroke: INK, "stroke-width": 14, fill: "none" }, hp);
+    el("rect", { x: -84, y: -500, width: 30, height: 62, rx: 14, fill: PINK, stroke: INK, "stroke-width": 7 }, hp);
+    el("rect", { x: 70, y: -500, width: 30, height: 62, rx: 14, fill: PINK, stroke: INK, "stroke-width": 7 }, hp);
+  }
+}
+
+/** Where an actor's head is in the world (for clouds, labels). */
+function headPos(o) { return [o.x + 14 * o.dir * S * o.s, GY + o.y + (-468 + 70 * o.sit) * S * o.s]; }
+
+function pill(parent, str, x, y, op, sc = 1, fill = PINK, rot = 0) {
+  if (op <= 0) return;
+  const w = str.length * 30 + 70;
+  const g = el("g", { opacity: op, transform: `translate(${x} ${y}) rotate(${rot}) scale(${sc})` }, parent);
+  el("rect", { x: -w / 2 + 7, y: -33, width: w, height: 84, rx: 42, fill: INK }, g);
+  el("rect", { x: -w / 2, y: -40, width: w, height: 84, rx: 42, fill, stroke: INK, "stroke-width": 7 }, g);
+  text(g, str, 0, 15, 46, "lbl", INK);
+}
+function bubble(parent, str, x, y, op, tail) {
+  if (op <= 0) return;
+  const lines = wrap(str, 20);
+  const w = Math.max(...lines.map((l) => l.length)) * 25 + 90, h = 60 + lines.length * 52;
+  const g = el("g", { opacity: op, transform: `translate(${x} ${y}) scale(${0.85 + 0.15 * op})` }, parent);
+  el("rect", { x: -w / 2 + 8, y: -h / 2 + 8, width: w, height: h, rx: 46, fill: INK }, g);
+  el("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 46, fill: "#fff", stroke: INK, "stroke-width": 7 }, g);
+  if (tail) el("path", { d: tail < 0 ? `M ${-w/4} ${h/2-4} l -26 40 l 52 -40 z` : `M ${w/4} ${h/2-4} l 26 40 l -52 -40 z`, fill: "#fff", stroke: INK, "stroke-width": 7, "stroke-linejoin": "round" }, g);
+  lines.forEach((l, i) => text(g, l, 0, -h / 2 + 30 + 52 * (i + 0.5) + 12, 42, "lbl", INK));
+}
+function cloud(parent, x, y, op, rain, t, sc = 1) {
+  if (op <= 0) return;
+  const g = el("g", { opacity: op, transform: `translate(${x} ${y}) scale(${sc})` }, parent);
+  if (rain) for (let i = 0; i < 7; i++) {
+    const k = ((t * 1.6 + i * 0.37) % 1);
+    el("line", { x1: -90 + i * 30, y1: 40 + k * 160, x2: -96 + i * 30, y2: 70 + k * 160, stroke: "#8DB5D6", "stroke-width": 8, "stroke-linecap": "round", opacity: 1 - k }, g);
+  }
+  el("path", { d: "M -120 40 q -10 -60 50 -62 q 20 -50 80 -30 q 50 -20 80 30 q 50 6 30 62 z", fill: "#9A93A0", stroke: INK, "stroke-width": 8, "stroke-linejoin": "round" }, g);
+}
+
+function drawProps(world, spec, t, st, layer) {
+  for (const p of spec.props || []) {
+    if ((p.layer || "front") !== layer) continue;
+    const op = win(t, p.t, p.f ?? 0.4);
+    if (op <= 0 && p.type !== "hearts" && p.type !== "orbit") continue;
+    const A = p.actor ? st[p.actor] : null;
+    switch (p.type) {
+      case "pill": {
+        const k = p.move ? seg(t, p.move[0], p.move[1]) : 0;
+        const from = p.at || p.from, to = p.to || from;
+        pill(world, p.text, lerp(from[0], to[0], k), lerp(from[1], to[1], k), op, lerp(p.sc?.[0] ?? 1, p.sc?.[1] ?? 1, p.grow ? seg(t, p.grow[0], p.grow[1]) : 0), p.fill || PINK, p.rot || 0);
+        break;
+      }
+      case "bubble": bubble(world, p.text, p.at[0], p.at[1], op, p.tail || 0); break;
+      case "cloud": { const [hx, hy] = A ? headPos(A) : p.at; cloud(world, hx + (p.dx || 0), hy - 230 + (p.dy || 0), op, p.rain !== false, t, p.sc || 1); break; }
+      case "label": { const [hx, hy] = headPos(A); pill(world, p.text, hx + (p.dx || 0), hy - 150 + (p.dy || 0), op, lerp(p.sc?.[0] ?? 1, p.sc?.[1] ?? 1, p.grow ? seg(t, p.grow[0], p.grow[1]) : 0), p.fill || "#fff"); break; }
+      case "hearts": {
+        for (let i = 0; i < (p.n || 6); i++) {
+          const k = (t - p.t[0] - i * (p.gap || 0.35)) / (p.fly || 1.4);
+          if (k < 0 || k > 1) continue;
+          const x = lerp(p.from[0], p.to[0], ease(k)) + Math.sin(k * 6 + i) * 30, y = lerp(p.from[1], p.to[1], ease(k)) - Math.sin(k * Math.PI) * 120;
+          el("path", { d: heartPath(26), transform: `translate(${x} ${y})`, fill: PINK, stroke: INK, "stroke-width": 5, opacity: Math.sin(k * Math.PI) * 1.4 }, world);
+        }
+        break;
+      }
+      case "orbit": {
+        if (t < p.t[0] - 0.4 || t > p.t[1]) break;
+        const [hx, hy] = headPos(A);
+        const sp = p.speed ? integral(p.speed, "v", t) : (t - p.t[0]);
+        p.items.forEach((w, i) => {
+          const a0 = sp * (p.rate || 1.6) + (i / p.items.length) * Math.PI * 2;
+          let x = hx + Math.cos(a0) * (p.rx || 260), y = hy - (p.up || 40) + Math.sin(a0) * (p.ry || 90);
+          let o2 = win(t, [p.t[0] + i * 0.25, p.t[1]], 0.4);
+          if (p.fall && t > p.fall + i * 0.12) { const k = t - p.fall - i * 0.12; y += 900 * k * k; o2 *= clamp(1 - k * 1.2); }
+          pill(world, w, x, y, o2, 0.85, p.fill || "#fff");
+        });
+        break;
+      }
+      case "breath": {
+        const cyc = p.cycle || 10, k = ((t - p.t[0]) % cyc + cyc) % cyc, inhale = k < 4;
+        const r = inhale ? lerp(180, 290, ease(k / 4)) : lerp(290, 180, ease((k - 4) / 6));
+        const g = el("g", { opacity: op }, world);
+        el("circle", { cx: p.at[0], cy: p.at[1], r: r + 30, fill: PINK, opacity: .35, filter: "url(#soft)" }, g);
+        el("circle", { cx: p.at[0], cy: p.at[1], r, fill: PINK, stroke: INK, "stroke-width": 8, opacity: .9 }, g);
+        text(g, inhale ? "adem in" : "adem uit", p.at[0], p.at[1] - 6, 46, "cap", INK);
+        text(g, String(inhale ? Math.min(4, Math.floor(k) + 1) : Math.min(6, Math.floor(k - 4) + 1)), p.at[0], p.at[1] + 70, 56, "cap", INK);
+        break;
+      }
+      case "stairs": {
+        const g = el("g", { opacity: op }, world);
+        p.steps.forEach((s, i) => {
+          const x = p.x0 + i * p.w, y = GY - (i + 1) * p.h;
+          el("rect", { x, y, width: p.w * (p.steps.length - i), height: p.h, fill: i % 2 ? "#F1E1CF" : "#EBD6C0", stroke: INK, "stroke-width": 7 }, g);
+          text(g, s, x + p.w / 2, y + p.h / 2 + 14, 36, "lbl", INK);
+        });
+        break;
+      }
+      case "bench": {
+        const g = el("g", { opacity: op }, world);
+        const y = GY - 95 * S;
+        el("rect", { x: p.x - p.w / 2, y, width: p.w, height: 26, rx: 10, fill: "#C99E7E", stroke: INK, "stroke-width": 7 }, g);
+        for (const dx of [-p.w / 2 + 30, p.w / 2 - 30]) el("line", { x1: p.x + dx, y1: y + 26, x2: p.x + dx, y2: GY, stroke: INK, "stroke-width": 12 }, g);
+        break;
+      }
+      case "wall": {
+        const h = (p.h || 700) * (p.grow ? seg(t, p.grow[0], p.grow[1]) : 1);
+        const g = el("g", { opacity: op }, world);
+        el("rect", { x: p.x - 40, y: GY - h, width: 80, height: h, rx: 12, fill: "#D9C3AE", stroke: INK, "stroke-width": 8 }, g);
+        for (let y = GY - 70; y > GY - h + 20; y -= 70) el("line", { x1: p.x - 40, y1: y, x2: p.x + 40, y2: y, stroke: INK, "stroke-width": 4, opacity: .4 }, g);
+        break;
+      }
+      case "clock": {
+        const g = el("g", { opacity: op, transform: `translate(${p.at[0]} ${p.at[1]})` }, world);
+        el("circle", { cx: 0, cy: 0, r: 70, fill: "#fff", stroke: INK, "stroke-width": 8 }, g);
+        const a = (t - (p.t?.[0] || 0)) * (p.speed || 4);
+        el("line", { x1: 0, y1: 0, x2: Math.sin(a) * 50, y2: -Math.cos(a) * 50, stroke: INK, "stroke-width": 7, "stroke-linecap": "round" }, g);
+        el("line", { x1: 0, y1: 0, x2: Math.sin(a / 12) * 32, y2: -Math.cos(a / 12) * 32, stroke: INK, "stroke-width": 9, "stroke-linecap": "round" }, g);
+        break;
+      }
+      case "sun": {
+        const g = el("g", { opacity: op, transform: `translate(${p.at[0]} ${p.at[1] + (1 - op) * 80})` }, world);
+        el("circle", { cx: 0, cy: 0, r: 120, fill: "#FFD98A", opacity: .5, filter: "url(#soft)" }, g);
+        for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2 + t * 0.3; el("line", { x1: Math.cos(a) * 92, y1: Math.sin(a) * 92, x2: Math.cos(a) * 122, y2: Math.sin(a) * 122, stroke: INK, "stroke-width": 8, "stroke-linecap": "round" }, g); }
+        el("circle", { cx: 0, cy: 0, r: 70, fill: "#FFD98A", stroke: INK, "stroke-width": 8 }, g);
+        break;
+      }
+      case "screen": {
+        // A big phone screen with chat lines (group chat, social media)
+        const g = el("g", { opacity: op, transform: `translate(${p.at[0]} ${p.at[1]})` }, world);
+        el("rect", { x: -230 + 10, y: -340 + 10, width: 460, height: 680, rx: 50, fill: INK }, g);
+        el("rect", { x: -230, y: -340, width: 460, height: 680, rx: 50, fill: "#fff", stroke: INK, "stroke-width": 9 }, g);
+        if (p.title) text(g, p.title, 0, -275, 34, "lbl", INK);
+        (p.msgs || []).forEach((m, i) => {
+          const mo = seg(t, m.t, m.t + 0.3);
+          if (mo <= 0) return;
+          const mine = m.me, w = Math.min(360, m.text.length * 20 + 60);
+          const x = mine ? 200 - w : -200, y = -220 + i * 92;
+          el("rect", { x, y, width: w, height: 70, rx: 34, fill: mine ? PINK : "#EFE6DC", stroke: INK, "stroke-width": 5, opacity: mo }, g);
+          text(g, m.text, x + w / 2, y + 45, 30, "lbl", INK).setAttribute("opacity", mo);
+          if (m.seen && t > m.seen) text(g, "gelezen", x + w - 10, y + 96, 24, "lbl", "#8A7B70", "end");
+        });
+        break;
+      }
+    }
+  }
+}
+
+window.render = function (t) {
+  const spec = window.SPEC;
+  const world = document.getElementById("world"); world.innerHTML = "";
+  const night = spec.night ? val(spec.night, "v", t) : 0;
+  el("rect", { width: 1080, height: 1920, fill: mix(CREAM, NIGHT, night) }, world);
+  if (night > 0.05) {
+    for (let i = 0; i < 26; i++) { const x = (i * 397) % 1080, y = 120 + ((i * 211) % 900); el("circle", { cx: x, cy: y, r: 3 + (i % 3), fill: "#FFF6E0", opacity: night * (0.4 + 0.6 * Math.abs(Math.sin(t * 1.3 + i))) }, world); }
+    el("circle", { cx: 860, cy: 560, r: 70, fill: "#FFF0C8", opacity: night }, world);
+    el("circle", { cx: 890, cy: 535, r: 62, fill: mix(CREAM, NIGHT, night), opacity: night }, world);
+  }
+  const ink = mix(INK, "#F7EDE1", night);
+  // ground
+  el("line", { x1: 0, y1: GY + 4, x2: 1080, y2: GY + 4, stroke: ink, "stroke-width": 8 }, world);
+  const off = ((spec.scroll ? integral(spec.scroll, "v", t) : 0) * 260) % 180;
+  for (let x = -off; x < 1100; x += 180) el("line", { x1: x, y1: GY + 48, x2: x + 70, y2: GY + 48, stroke: ink, "stroke-width": 7, "stroke-linecap": "round", opacity: .25 }, world);
+
+  const st = {};
+  for (const id in spec.actors) st[id] = state(spec.actors[id], t);
+  drawProps(world, spec, t, st, "back");
+  const order = Object.keys(spec.actors).sort((a, b) => (st[a].s - st[b].s));
+  for (const id of order) {
+    const a = spec.actors[id];
+    if (a.show && (t < a.show[0] || t > a.show[1])) continue;
+    figure(world, st[id], walkPhase(a, t) + (a.phase || 0));
+  }
+  drawProps(world, spec, t, st, "front");
+
+  // story label
+  if (spec.label) { const o = win(t, spec.labelT || [0, spec.dur - 3.2]); if (o > 0) { const g = el("g", { opacity: o }, world); const w = spec.label.length * 21 + 60; el("rect", { x: 540 - w / 2, y: 225, width: w, height: 62, rx: 31, fill: PINK, stroke: INK, "stroke-width": 5 }, g); text(g, spec.label, 540, 267, 32, "lbl", INK); } }
+
+  // captions
+  for (const c of spec.captions || []) {
+    const o = win(t, c.t, 0.35);
+    if (o <= 0) continue;
+    const size = c.size || 64, max = c.max || Math.floor(1000 / (size * 0.66));
+    const lines = c.lines || wrap(c.text, max);
+    const g = el("g", { opacity: o, transform: `translate(0 ${(1 - o) * 16})` }, world);
+    const y0 = c.y || 360;
+    lines.forEach((l, i) => text(g, l, 540, y0 + i * size * 1.28, size, "cap", c.color || ink));
+  }
+  if (spec.end) {
+    const o = seg(t, spec.end.t, spec.end.t + 0.6);
+    if (o > 0) {
+      const g = el("g", { opacity: o }, world);
+      const lines = wrap(spec.end.text, 18);
+      lines.forEach((l, i) => text(g, l, 540, 330 + i * 84, 66, "cap", ink));
+      const hy = 330 + lines.length * 84 + 50;
+      el("path", { d: heartPath(70), transform: `translate(540 ${hy})`, fill: PINK, opacity: .6, filter: "url(#glow)" }, g);
+      el("path", { d: heartPath(52), transform: `translate(540 ${hy})`, fill: PINK, stroke: INK, "stroke-width": 7 }, g);
+      if (spec.end.sub) wrap(spec.end.sub, 34).forEach((l, i) => text(g, l, 540, hy + 100 + i * 48, 36, "lbl", ink));
+    }
+  }
+  document.getElementById("fade").setAttribute("opacity", 1 - seg(t, 0, 0.35));
+};
+</script>
+</body></html>
