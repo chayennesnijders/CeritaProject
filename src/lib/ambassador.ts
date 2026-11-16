@@ -22,6 +22,9 @@ export const LEVELS = [
 ] as const;
 export type Level = (typeof LEVELS)[number];
 
+/** Legends who said yes appear in the Hall of Fame. Keep equal to the 100 in hall_of_fame() (update-67). */
+export const HALL_OF_FAME_MIN = 100;
+
 export function totalPoints(signups: number, taskPoints: number): number {
   return Math.max(0, Math.floor(signups)) + Math.max(0, Math.floor(taskPoints));
 }

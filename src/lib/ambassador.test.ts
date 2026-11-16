@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
+import { HALL_OF_FAME_MIN, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
 
 describe("ambassador", () => {
   it("counts sign-ups plus approved task points", () => {
@@ -23,6 +23,11 @@ describe("ambassador", () => {
     expect(nextLevel(0)).toMatchObject({ missing: 10, progress: 0 });
     expect(nextLevel(20)).toMatchObject({ missing: 10, progress: 0.5 });
     expect(nextLevel(100)).toBeNull();
+  });
+
+  it("Hall of Fame is for Legends", () => {
+    expect(HALL_OF_FAME_MIN).toBe(100);
+    expect(levelFor(HALL_OF_FAME_MIN)?.id).toBe("legend");
   });
 
   it("builds the personal waitlist link", () => {

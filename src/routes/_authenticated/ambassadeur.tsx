@@ -6,9 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   AMBASSADOR_MIN_AGE,
   AMBASSADOR_RULES,
+  HALL_OF_FAME_MIN,
   isSubmissionUrl,
   LEVELS,
   levelFor,
@@ -32,6 +34,7 @@ type Stats = {
   task_points: number;
   approved: number;
   pending: number;
+  hall_of_fame?: boolean;
 };
 
 const STATUS: Record<string, { label: string; cls: string }> = {
@@ -85,6 +88,20 @@ function AmbassadorPage() {
     onSuccess: () => {
       toast.success("Welkom, ambassadeur! 💖");
       refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const hall = useMutation({
+    mutationFn: async (on: boolean) => {
+      const { error } = await supabase.rpc("set_hall_of_fame", { _on: on });
+      if (error) throw error;
+      return on;
+    },
+    onSuccess: (on) => {
+      toast.success(on ? "Je staat in de Hall of Fame zodra je Legend bent 👑" : "Je staat niet in de Hall of Fame");
+      refresh();
+      void qc.invalidateQueries({ queryKey: ["hall-of-fame"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -222,6 +239,22 @@ function AmbassadorPage() {
         <p className="rounded-2xl bg-muted p-3 text-xs text-muted-foreground">
           Je punten tellen nu al. De beloningen gaan in zodra de app gelanceerd is. Je hebt nu al toegang tot de webversie.
         </p>
+      </section>
+
+      {/* Hall of Fame: only when you say yes */}
+      <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
+        <h2 className="text-lg">👑 Hall of Fame</h2>
+        <p className="text-sm text-muted-foreground">
+          Haal je {HALL_OF_FAME_MIN} punten, dan word je Legend. Wil je dan met je naam en profielfoto in de Cerita Hall of Fame
+          staan? Dat kies jij, en je kunt het altijd weer uitzetten.
+        </p>
+        <label className="flex items-center gap-3 rounded-2xl bg-muted p-3 text-sm font-semibold">
+          <span className="flex-1">Zet mij in de Hall of Fame</span>
+          <Switch checked={!!stats.hall_of_fame} disabled={hall.isPending} onCheckedChange={(v) => hall.mutate(v)} />
+        </label>
+        <Link to="/hall-of-fame" className="inline-block text-sm font-semibold text-primary underline">
+          Bekijk de Hall of Fame →
+        </Link>
       </section>
 
       {/* 6. Your details */}

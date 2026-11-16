@@ -37,6 +37,7 @@ import { Route as AuthenticatedContactRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDagboekRouteImport } from './routes/_authenticated/dagboek'
 import { Route as AuthenticatedDankbaarRouteImport } from './routes/_authenticated/dankbaar'
 import { Route as AuthenticatedDiertjeRouteImport } from './routes/_authenticated/diertje'
+import { Route as AuthenticatedHallOfFameRouteImport } from './routes/_authenticated/hall-of-fame'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMeldingenRouteImport } from './routes/_authenticated/meldingen'
 import { Route as AuthenticatedMijnLessenRouteImport } from './routes/_authenticated/mijn-lessen'
@@ -213,6 +214,11 @@ const AuthenticatedDankbaarRoute = AuthenticatedDankbaarRouteImport.update({
 const AuthenticatedDiertjeRoute = AuthenticatedDiertjeRouteImport.update({
   id: '/diertje',
   path: '/diertje',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHallOfFameRoute = AuthenticatedHallOfFameRouteImport.update({
+  id: '/hall-of-fame',
+  path: '/hall-of-fame',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
@@ -429,6 +435,7 @@ export interface FileRoutesByFullPath {
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/dankbaar': typeof AuthenticatedDankbaarRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
+  '/hall-of-fame': typeof AuthenticatedHallOfFameRoute
   '/home': typeof AuthenticatedHomeRoute
   '/meldingen': typeof AuthenticatedMeldingenRoute
   '/mijn-lessen': typeof AuthenticatedMijnLessenRoute
@@ -492,6 +499,7 @@ export interface FileRoutesByTo {
   '/dagboek': typeof AuthenticatedDagboekRoute
   '/dankbaar': typeof AuthenticatedDankbaarRoute
   '/diertje': typeof AuthenticatedDiertjeRoute
+  '/hall-of-fame': typeof AuthenticatedHallOfFameRoute
   '/home': typeof AuthenticatedHomeRoute
   '/meldingen': typeof AuthenticatedMeldingenRoute
   '/mijn-lessen': typeof AuthenticatedMijnLessenRoute
@@ -557,6 +565,7 @@ export interface FileRoutesById {
   '/_authenticated/dagboek': typeof AuthenticatedDagboekRoute
   '/_authenticated/dankbaar': typeof AuthenticatedDankbaarRoute
   '/_authenticated/diertje': typeof AuthenticatedDiertjeRoute
+  '/_authenticated/hall-of-fame': typeof AuthenticatedHallOfFameRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/meldingen': typeof AuthenticatedMeldingenRoute
   '/_authenticated/mijn-lessen': typeof AuthenticatedMijnLessenRoute
@@ -622,6 +631,7 @@ export interface FileRouteTypes {
     | '/dagboek'
     | '/dankbaar'
     | '/diertje'
+    | '/hall-of-fame'
     | '/home'
     | '/meldingen'
     | '/mijn-lessen'
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/dagboek'
     | '/dankbaar'
     | '/diertje'
+    | '/hall-of-fame'
     | '/home'
     | '/meldingen'
     | '/mijn-lessen'
@@ -749,6 +760,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dagboek'
     | '/_authenticated/dankbaar'
     | '/_authenticated/diertje'
+    | '/_authenticated/hall-of-fame'
     | '/_authenticated/home'
     | '/_authenticated/meldingen'
     | '/_authenticated/mijn-lessen'
@@ -1008,6 +1020,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDiertjeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/hall-of-fame': {
+      id: '/_authenticated/hall-of-fame'
+      path: '/hall-of-fame'
+      fullPath: '/hall-of-fame'
+      preLoaderRoute: typeof AuthenticatedHallOfFameRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
@@ -1262,6 +1281,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDagboekRoute: typeof AuthenticatedDagboekRoute
   AuthenticatedDankbaarRoute: typeof AuthenticatedDankbaarRoute
   AuthenticatedDiertjeRoute: typeof AuthenticatedDiertjeRoute
+  AuthenticatedHallOfFameRoute: typeof AuthenticatedHallOfFameRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedMeldingenRoute: typeof AuthenticatedMeldingenRoute
   AuthenticatedMijnLessenRoute: typeof AuthenticatedMijnLessenRoute
@@ -1305,6 +1325,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDagboekRoute: AuthenticatedDagboekRoute,
   AuthenticatedDankbaarRoute: AuthenticatedDankbaarRoute,
   AuthenticatedDiertjeRoute: AuthenticatedDiertjeRoute,
+  AuthenticatedHallOfFameRoute: AuthenticatedHallOfFameRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedMeldingenRoute: AuthenticatedMeldingenRoute,
   AuthenticatedMijnLessenRoute: AuthenticatedMijnLessenRoute,

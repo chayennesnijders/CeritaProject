@@ -15,9 +15,9 @@ export type Database = {
   public: {
     Tables: {
       ambassadors: {
-        Row: { user_id: string; code: string; active: boolean; agreed_at: string | null; added_by: string | null; created_at: string }
-        Insert: { user_id: string; code: string; active?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
-        Update: { user_id?: string; code?: string; active?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
+        Row: { user_id: string; code: string; active: boolean; hall_of_fame: boolean; agreed_at: string | null; added_by: string | null; created_at: string }
+        Insert: { user_id: string; code: string; active?: boolean; hall_of_fame?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
+        Update: { user_id?: string; code?: string; active?: boolean; hall_of_fame?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
         Relationships: []
       }
       ambassador_tasks: {
@@ -2720,6 +2720,11 @@ export type Database = {
       agree_ambassador_terms: { Args: never; Returns: string }
       review_submission: { Args: { _id: string; _ok: boolean }; Returns: undefined }
       my_ambassador_stats: { Args: never; Returns: Json }
+      set_hall_of_fame: { Args: { _on: boolean }; Returns: boolean }
+      hall_of_fame: {
+        Args: never
+        Returns: { display_name: string; avatar_url: string | null; since: string; points: number }[]
+      }
       ambassador_overview: {
         Args: never
         Returns: { user_id: string; username: string | null; display_name: string; code: string; active: boolean; agreed_at: string | null; signups: number; task_points: number; pending: number }[]
