@@ -397,13 +397,27 @@ window.render = function (t) {
   if (spec.end) {
     const o = seg(t, spec.end.t, spec.end.t + 0.6);
     if (o > 0) {
+      // a call to action stands alone: the scene fades back behind it
+      if (spec.end.kw) world.setAttribute("opacity", 1 - 0.88 * o);
       const g = el("g", { opacity: o }, root);
       const lines = wrap(spec.end.text, 18);
-      lines.forEach((l, i) => text(g, l, 540, 330 + i * 84, 66, "cap", ink));
-      const hy = 330 + lines.length * 84 + 50;
+      const y0 = spec.end.kw ? 620 : 330;
+      lines.forEach((l, i) => text(g, l, 540, y0 + i * 84, 66, "cap", ink));
+      const hy = y0 + lines.length * 84 + 50;
       el("path", { d: heartPath(70), transform: `translate(540 ${hy})`, fill: PINK, opacity: .6, filter: "url(#glow)" }, g);
       el("path", { d: heartPath(52), transform: `translate(540 ${hy})`, fill: PINK, stroke: INK, "stroke-width": 7 }, g);
-      if (spec.end.sub) wrap(spec.end.sub, 34).forEach((l, i) => text(g, l, 540, hy + 100 + i * 48, 36, "lbl", ink));
+      let sy = hy + 100;
+      if (spec.end.kw) {
+        // big keyword button: "Reageer met: VERHAAL"
+        const kw = spec.end.kw, w = Math.min(1000, kw.length * 62 + 150), by = hy + 150;
+        const pulse = 1 + 0.05 * Math.max(0, Math.sin((t - spec.end.t) * 5));
+        const kg = el("g", { transform: `translate(540 ${by}) scale(${pulse * clamp(o * 1.2)})` }, g);
+        el("rect", { x: -w / 2 + 12, y: -62, width: w, height: 136, rx: 68, fill: INK }, kg);
+        el("rect", { x: -w / 2, y: -74, width: w, height: 136, rx: 68, fill: PINK, stroke: INK, "stroke-width": 9 }, kg);
+        text(kg, kw, 0, 18, Math.min(76, (w - 120) / (kw.length * 0.78)), "cap", INK);
+        sy = by + 140;
+      }
+      if (spec.end.sub) wrap(spec.end.sub, 34).forEach((l, i) => text(g, l, 540, sy + i * 48, 36, "lbl", ink));
     }
   }
   document.getElementById("fade").setAttribute("opacity", 1 - seg(t, 0, 0.35));
