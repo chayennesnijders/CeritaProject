@@ -22,6 +22,7 @@ import {
   POINT_RULES,
   referralLink,
   type SubmissionKind,
+  WELCOME,
   totalPoints,
 } from "@/lib/ambassador";
 
@@ -189,6 +190,8 @@ function AmbassadorPage() {
       </section>
 
       {!agreed ? (
+        <>
+        <Welcome />
         <section className="space-y-3 rounded-3xl border-2 border-primary bg-card p-5 shadow-soft">
           <h2 className="text-lg">Eerst even de afspraken 🤝</h2>
           <p className="text-sm text-muted-foreground">
@@ -199,6 +202,7 @@ function AmbassadorPage() {
             Ik doe mee en houd me hieraan
           </Button>
         </section>
+        </>
       ) : (
         <>
           {/* 2. Personal link */}
@@ -341,7 +345,10 @@ function AmbassadorPage() {
         </dl>
         {agreed && (
           <details className="rounded-2xl bg-muted p-3">
-            <summary className="cursor-pointer text-sm font-semibold">De afspraken nog eens lezen</summary>
+            <summary className="cursor-pointer text-sm font-semibold">Het welkomstbericht en de afspraken nog eens lezen</summary>
+            <div className="pt-2">
+              <Welcome plain />
+            </div>
             <div className="pt-2">
               <Rules />
             </div>
@@ -357,6 +364,28 @@ function AmbassadorPage() {
         </p>
       </section>
     </div>
+  );
+}
+
+function Welcome({ plain = false }: { plain?: boolean }) {
+  return (
+    <section className={plain ? "space-y-2 text-sm" : "space-y-3 rounded-3xl bg-card p-5 text-sm shadow-soft"}>
+      {!plain && <h2 className="text-lg">{WELCOME.title}</h2>}
+      <p>{WELCOME.intro}</p>
+      <ol className="space-y-1.5">
+        {WELCOME.steps.map((step, i) => (
+          <li key={step} className="flex gap-2">
+            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+              {i + 1}
+            </span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="text-muted-foreground">{WELCOME.launch}</p>
+      <p className="text-muted-foreground">{WELCOME.contact}</p>
+      {!plain && <p className="font-semibold">Welkom in het team! 💌</p>}
+    </section>
   );
 }
 

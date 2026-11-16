@@ -62,6 +62,20 @@ export function isSubmissionUrl(url: string): boolean {
   }
 }
 
+/** The welcome a new ambassador sees in the portal before agreeing (the same text the team sends by WhatsApp). */
+export const WELCOME = {
+  title: "Welkom bij Cerita Ambassadors! 💖",
+  intro:
+    "Wat leuk dat je ambassadeur van CeritaProject wordt. Samen zorgen we dat meer jongeren een plek vinden waar ze zich niet de enige voelen. Dankjewel dat je daarbij helpt.",
+  steps: [
+    "Lees hieronder de afspraken en klik op ‘Ik doe mee’.",
+    "Je krijgt je eigen link en QR-code. Zet ze in je bio of story, of print je eigen flyer.",
+    "Doe opdrachten en stuur je posts in. Zo verdien je punten, badges en beloningen.",
+  ],
+  launch: "Je punten tellen vanaf nu. De beloningen gaan in zodra de app gelanceerd is. De webversie kun je nu al gebruiken.",
+  contact: "Heb je een vraag of een idee voor de app? Stuur ons een bericht via de app. Dat kan altijd.",
+} as const;
+
 export const AMBASSADOR_RULES = [
   "Zet #samenwerking of ‘ambassadeur van CeritaProject’ bij je posts.",
   "Stuur nooit zelf een DM naar jongeren om ze over te halen. Je deelt alleen je link in je eigen posts, bio of story.",
