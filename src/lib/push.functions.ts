@@ -629,6 +629,9 @@ export const getLaunchChecks = createServerFn({ method: "POST" })
         "65": await supabaseAdmin
           .rpc("teacher_testers_ready")
           .then((r) => !r.error || r.error.code !== "PGRST202"),
+        "71": await supabaseAdmin
+          .rpc("claim_referral", { _source: "" })
+          .then((r) => !r.error || r.error.code !== "PGRST202"),
         "70": await supabaseAdmin
           .rpc("points_per_signup")
           .then((r) => !r.error || r.error.code !== "PGRST202"),

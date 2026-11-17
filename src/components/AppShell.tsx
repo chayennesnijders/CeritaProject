@@ -3,6 +3,8 @@ import { useNowPlaying } from "@/lib/now-playing";
 import { NowPlayingBar } from "@/components/NowPlayingBar";
 import { WeeklyRulesPopup } from "@/components/WeeklyRulesPopup";
 import { useEffect } from "react";
+import { ACTIVE_KEY, REF_KEY, storedSource } from "@/lib/referral";
+import { challengeDay } from "@/lib/challenges";
 import { CallProvider } from "@/components/CallProvider";
 import { BirthdayPopup } from "@/components/BirthdayPopup";
 import { AppLock } from "@/components/AppLock";
@@ -53,6 +55,26 @@ export function AppShell() {
   const navigate = useNavigate();
   // Room for the music bar above the menu while something plays.
   const playing = !!useNowPlaying();
+  // Once a day: note that this member opened the app (only the date), and claim an ambassador's link once.
+  useEffect(() => {
+    if (!me?.user.id) return;
+    const today = challengeDay();
+    try {
+      if (localStorage.getItem(ACTIVE_KEY) !== `${me.user.id}:${today}`) {
+        void supabase.rpc("mark_active").then(({ error }) => {
+          if (!error) localStorage.setItem(ACTIVE_KEY, `${me.user.id}:${today}`);
+        });
+      }
+      const source = storedSource(localStorage.getItem(REF_KEY));
+      if (source) {
+        void supabase.rpc("claim_referral", { _source: source }).then(({ error }) => {
+          if (!error) localStorage.removeItem(REF_KEY);
+        });
+      }
+    } catch {
+      /* no storage: skip */
+    }
+  }, [me?.user.id]);
   // Each page fades in softly (opacity only, so fixed bars inside a page stay put).
   const page = useRouterState({ select: (st) => st.location.pathname });
   // Meldingen die binnenkomen terwijl de app open is, tonen we als pop-up bovenin.

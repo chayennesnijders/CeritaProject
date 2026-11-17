@@ -2715,7 +2715,7 @@ export type Database = {
       new_account_wait_days: { Args: never; Returns: number }
       teacher_testers_ready: { Args: never; Returns: boolean }
       is_ambassador: { Args: { _user: string }; Returns: boolean }
-      add_ambassador: { Args: { _username: string }; Returns: string }
+      add_ambassador: { Args: { _username: string; _referred_by?: string }; Returns: string }
       set_ambassador_active: { Args: { _user: string; _active: boolean }; Returns: undefined }
       agree_ambassador_terms: { Args: never; Returns: string }
       review_submission: { Args: { _id: string; _ok: boolean }; Returns: undefined }
@@ -2724,13 +2724,15 @@ export type Database = {
       ambassador_photos_ready: { Args: never; Returns: boolean }
       ambassador_tasks_planned: { Args: never; Returns: number }
       points_per_signup: { Args: never; Returns: number }
+      mark_active: { Args: never; Returns: undefined }
+      claim_referral: { Args: { _source: string }; Returns: boolean }
       hall_of_fame: {
         Args: never
         Returns: { display_name: string; avatar_url: string | null; since: string; points: number }[]
       }
       ambassador_overview: {
         Args: never
-        Returns: { user_id: string; username: string | null; display_name: string; code: string; active: boolean; agreed_at: string | null; signups: number; task_points: number; pending: number }[]
+        Returns: { user_id: string; username: string | null; display_name: string; code: string; active: boolean; agreed_at: string | null; signups: number; active_week: number; recruits: number; recruits_started: number; referred_by: string | null; pending: number }[]
       }
       buddy_status: { Args: never; Returns: Json }
       buddy_stats: { Args: never; Returns: Json }

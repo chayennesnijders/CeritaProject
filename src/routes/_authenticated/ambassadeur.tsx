@@ -40,6 +40,9 @@ type Stats = {
   agreed_at: string | null;
   since: string;
   signups: number;
+  active_week?: number;
+  recruits?: number;
+  recruits_started?: number;
   task_points: number;
   approved: number;
   pending: number;
@@ -58,8 +61,11 @@ const PREVIEW_STATS: Stats = {
   active: true,
   agreed_at: "2026-11-10T10:00:00Z",
   since: "2026-11-10T10:00:00Z",
-  signups: 14,
-  task_points: 9,
+  signups: 6,
+  active_week: 3,
+  recruits: 1,
+  recruits_started: 1,
+  task_points: 0,
   approved: 2,
   pending: 1,
   hall_of_fame: false,
@@ -156,7 +162,12 @@ function AmbassadorPage() {
     );
 
   const stats = shown;
-  const points = totalPoints(Number(stats.signups));
+  const points = totalPoints({
+    signups: Number(stats.signups),
+    activeWeek: Number(stats.active_week ?? 0),
+    recruits: Number(stats.recruits ?? 0),
+    recruitsStarted: Number(stats.recruits_started ?? 0),
+  });
   const level = levelFor(points);
   const next = nextLevel(points);
   const link = referralLink(stats.code);
@@ -272,10 +283,20 @@ function AmbassadorPage() {
 
           {/* 3. Stats */}
           <section className="grid grid-cols-2 gap-3">
-            <Stat emoji="📝" value={Number(stats.signups)} label="aanmeldingen via jou" />
             <Stat emoji="⭐" value={points} label="punten totaal" />
-            <Stat emoji="✅" value={Number(stats.approved)} label="goedgekeurde posts" />
-            <Stat emoji="⏳" value={Number(stats.pending)} label="wachten op check" />
+            <Stat emoji="📝" value={Number(stats.signups)} label="aanmeldingen en downloads via jou" />
+            <Stat emoji="📆" value={Number(stats.active_week ?? 0)} label="daarvan een week actief" />
+            <Stat emoji="🤝" value={Number(stats.recruits ?? 0)} label="nieuwe ambassadeurs via jou" />
+          </section>
+
+          {/* Bring in other ambassadors */}
+          <section className="space-y-2 rounded-3xl bg-card p-5 shadow-soft">
+            <h2 className="text-lg">🤝 Ken jij nog een ambassadeur?</h2>
+            <p className="text-sm text-muted-foreground">
+              Iemand van 18 tot 27 die ook mee wil doen? Laat diegene een account maken via jouw link, of je code{" "}
+              <b className="font-mono text-foreground">{stats.code}</b> doorgeven aan ons. Doet diegene mee, dan krijg je 3 punten,
+              en 2 extra zodra diegene de eerste aanmelding binnen heeft.
+            </p>
           </section>
 
           {/* 4. Assignments and submissions */}

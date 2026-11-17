@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { ambSourceFrom, rememberSource } from "@/lib/referral";
 import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
@@ -110,6 +111,15 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  // Remember an ambassador's link (?bron=amb-<code>) so an account made later counts for them.
+  useEffect(() => {
+    try {
+      const source = ambSourceFrom(window.location.search);
+      if (source) rememberSource(localStorage, source);
+    } catch {
+      /* no storage: the waitlist still counts the source itself */
+    }
+  }, []);
   // Push + offline screen: one service worker for every page.
   useEffect(() => {
     void import("@/lib/push-client").then((m) => m.registerAppServiceWorker());

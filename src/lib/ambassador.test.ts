@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import { isCurrentTask, isUpcomingTask, flyerLink, HALL_OF_FAME_MIN, qrMatrix, qrPath, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
 
 describe("ambassador", () => {
-  it("gives 3 points per sign-up", () => {
+  it("counts sign-ups, active weeks and new ambassadors", () => {
     expect(totalPoints(4)).toBe(12);
     expect(totalPoints(-2)).toBe(0);
+    // 2 sign-ups (6) + 1 active a week (2) = 8, same as the database test
+    expect(totalPoints({ signups: 2, activeWeek: 1 })).toBe(8);
+    // one recruit who joined (3) and got a first sign-up (2) = 5
+    expect(totalPoints({ signups: 0, recruits: 1, recruitsStarted: 1 })).toBe(5);
   });
 
   it("finds the level reached", () => {

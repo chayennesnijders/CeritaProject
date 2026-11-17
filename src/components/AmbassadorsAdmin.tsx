@@ -11,6 +11,7 @@ import { challengeDay } from "@/lib/challenges";
 /** Beheer → Ambassadeurs: add ambassadors (18+), give assignments and check what they send in. */
 export function AmbassadorsAdmin() {
   const qc = useQueryClient();
+  const [referredBy, setReferredBy] = useState("");
   const [username, setUsername] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -40,13 +41,14 @@ export function AmbassadorsAdmin() {
 
   const add = useMutation({
     mutationFn: async () => {
-      const { data: code, error } = await supabase.rpc("add_ambassador", { _username: username });
+      const { data: code, error } = await supabase.rpc("add_ambassador", { _username: username, ...(referredBy.trim() ? { _referred_by: referredBy.trim() } : {}) });
       if (error) throw error;
       return code as string;
     },
     onSuccess: (code) => {
       toast.success(`Ambassadeur toegevoegd. Code: ${code}`);
       setUsername("");
+      setReferredBy("");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -68,8 +70,9 @@ export function AmbassadorsAdmin() {
 
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
         <h3 className="font-semibold">➕ Ambassadeur toevoegen</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 [&>input]:min-w-[10rem] [&>input]:flex-1">
           <Input placeholder="gebruikersnaam" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <Input placeholder="aangebracht door (code, mag leeg)" value={referredBy} onChange={(e) => setReferredBy(e.target.value)} />
           <Button className="rounded-full" disabled={!username.trim() || add.isPending} onClick={() => add.mutate()}>
             Toevoegen
           </Button>
@@ -84,7 +87,7 @@ export function AmbassadorsAdmin() {
         <h3 className="font-semibold">💖 Ambassadeurs ({people.length})</h3>
         {people.length === 0 && <p className="text-sm text-muted-foreground">Nog niemand toegevoegd.</p>}
         {people.map((p) => {
-          const pts = totalPoints(Number(p.signups));
+          const pts = totalPoints({ signups: Number(p.signups), activeWeek: Number(p.active_week), recruits: Number(p.recruits), recruitsStarted: Number(p.recruits_started) });
           const lvl = levelFor(pts);
           return (
             <div key={p.user_id} className={`rounded-2xl border p-3 text-sm ${p.active ? "" : "opacity-60"}`}>
@@ -98,7 +101,9 @@ export function AmbassadorsAdmin() {
                 {!p.active && <span className="rounded-full bg-muted px-2 py-0.5 text-xs">gestopt</span>}
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {Number(p.signups)} aanmeldingen × 3 punten · {Number(p.pending)} inzendingen wachten · bron{" "}
+                {Number(p.signups)} aanmeldingen · {Number(p.active_week)} een week actief · {Number(p.recruits)} nieuwe ambassadeurs
+                ({Number(p.recruits_started)} met eerste aanmelding){p.referred_by ? ` · aangebracht door ${p.referred_by}` : ""} · {Number(p.pending)} inzendingen
+                wachten · bron{" "}
                 <span className="font-mono">amb-{p.code}</span>
               </p>
               <div className="mt-2 flex gap-2">
