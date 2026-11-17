@@ -220,7 +220,7 @@ function AuthPage() {
       </h1>
       {mode === "in" && !sent && (
         <p className="mt-1 text-sm text-muted-foreground">
-          Jongere, ouder, leraar of coach: iedereen logt hier in. De app weet vanzelf welke omgeving bij jou hoort.
+          Jongere, ouder, leraar, trainer of coach: iedereen logt hier in. De app weet vanzelf welke omgeving bij jou hoort.
         </p>
       )}
       {mode === "forgot" && !sent && (
@@ -268,8 +268,8 @@ function AuthPage() {
                   <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                     <span>Of ben je</span>
                     {([
-                      ["leraar", "🏫 leraar"],
-                      ["coach", "🎓 coach"],
+                      ["leraar", "🏫 leraar, trainer of jongerenwerker"],
+                      ["coach", "🎓 coach in de app"],
                     ] as const).map(([id, label]) => (
                       <button
                         key={id}
@@ -287,14 +287,16 @@ function AuthPage() {
                 </div>
                 {who === "leraar" && (
                   <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
-                    Je krijgt een leraar-account met de lessen van CeritaProject. Na het aanmelden vul je de schoolcode
-                    in. Je ziet niets van de jongeren in de app.
+                    Voor iedereen die met de lessen werkt: leraren, mentoren, trainers, coaches en jongerenwerkers. Je
+                    krijgt een account met de lessen van CeritaProject. Na het aanmelden vul je je code in. Je ziet niets
+                    van de jongeren in de app.
                   </p>
                 )}
                 {who === "coach" && (
                   <p className="animate-in fade-in rounded-2xl bg-secondary p-3 text-xs text-secondary-foreground">
-                    Vul hieronder je eigen gegevens in, met je echte geboortedatum. Daarna zet CeritaProject je account om
-                    naar een coach-account: laat de beheerder je @gebruikersnaam weten. Pas dan kun je jongeren helpen.
+                    Alleen als je in de app met jongeren gaat chatten en hun vragen beantwoordt, op uitnodiging van
+                    CeritaProject. Wil je de lessen gebruiken? Kies dan "leraar, trainer of jongerenwerker". Vul hieronder
+                    je eigen gegevens in, met je echte geboortedatum, en laat de beheerder je @gebruikersnaam weten.
                   </p>
                 )}
                 {who === "ouder" && (
