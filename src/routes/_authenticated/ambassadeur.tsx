@@ -55,6 +55,15 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   afgewezen: { label: "Niet goedgekeurd", cls: "bg-rose-100 text-rose-800" },
 };
 
+const TABS = [
+  { id: "delen", emoji: "🔗", label: "Delen" },
+  { id: "challenges", emoji: "🏆", label: "Challenges" },
+  { id: "punten", emoji: "⭐", label: "Punten" },
+  { id: "ik", emoji: "🪪", label: "Over mij" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
+const TAB_KEY = "cerita-ambassadeur-tab";
+
 const PREVIEW_NOTE = "Dit is een voorbeeld: hier wordt niks opgeslagen.";
 const PREVIEW_STATS: Stats = {
   code: "voorbeeld",
@@ -90,6 +99,22 @@ function AmbassadorPage() {
   const preview = !myStats?.active && !!me?.isAdmin;
   const shown: Stats | null = preview ? PREVIEW_STATS : (myStats ?? null);
   const isAmb = !!shown?.active;
+  const [tab, setTab] = useState<TabId>(() => {
+    try {
+      const v = localStorage.getItem(TAB_KEY);
+      return TABS.some((t) => t.id === v) ? (v as TabId) : "delen";
+    } catch {
+      return "delen";
+    }
+  });
+  const pickTab = (t: TabId) => {
+    setTab(t);
+    try {
+      localStorage.setItem(TAB_KEY, t);
+    } catch {
+      /* fine */
+    }
+  };
   const agreed = !!shown?.agreed_at;
 
   const { data: work } = useQuery({
@@ -221,6 +246,23 @@ function AmbassadorPage() {
         </>
       ) : (
         <>
+          <nav className="sticky top-16 z-10 grid grid-cols-4 gap-1 rounded-full bg-card p-1 shadow-soft" aria-label="Onderdelen van het portaal">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => pickTab(t.id)}
+                aria-current={tab === t.id ? "page" : undefined}
+                className={`rounded-full px-1 py-2 text-xs font-bold transition-colors ${tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              >
+                <span className="block text-base">{t.emoji}</span>
+                {t.label}
+              </button>
+            ))}
+          </nav>
+
+          {tab === "delen" && (
+            <>
           {/* 2. Personal link */}
           <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
             <h2 className="text-lg">🔗 Jouw link</h2>
@@ -281,6 +323,18 @@ function AmbassadorPage() {
             </details>
           </section>
 
+            </>
+          )}
+
+          {tab === "challenges" && (
+            <>
+          {/* 4. Assignments and submissions */}
+          <Assignments preview={preview} uid={me.user.id} tasks={work?.tasks ?? []} subs={work?.subs ?? []} onDone={refresh} />
+            </>
+          )}
+
+          {tab === "punten" && (
+            <>
           {/* 3. Stats */}
           <section className="grid grid-cols-2 gap-3">
             <Stat emoji="⭐" value={points} label="punten totaal" />
@@ -298,11 +352,6 @@ function AmbassadorPage() {
               en 2 extra zodra diegene de eerste aanmelding binnen heeft.
             </p>
           </section>
-
-          {/* 4. Assignments and submissions */}
-          <Assignments preview={preview} uid={me.user.id} tasks={work?.tasks ?? []} subs={work?.subs ?? []} onDone={refresh} />
-        </>
-      )}
 
       {/* 5. Points and rewards */}
       <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
@@ -365,6 +414,11 @@ function AmbassadorPage() {
         </Link>
       </section>
 
+            </>
+          )}
+
+          {tab === "ik" && (
+            <>
       {/* 6. Your details */}
       <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
         <h2 className="text-lg">🪪 Mijn gegevens</h2>
@@ -400,6 +454,10 @@ function AmbassadorPage() {
           .
         </p>
       </section>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }
