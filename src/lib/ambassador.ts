@@ -8,12 +8,21 @@ export const APP_URL = "https://app.ceritaproject.nl";
 
 export const AMBASSADOR_MIN_AGE = 18;
 
-/** How you earn points. Sign-ups are counted automatically; the rest after approval in Beheer. */
+/** Points come only from sign-ups through your own link (counted automatically). Keep 3 equal to update-70. */
+export const POINTS_PER_SIGNUP = 3;
+/** After the launch: someone makes an account through your link. */
+export const POINTS_PER_ACCOUNT = 5;
+
 export const POINT_RULES = [
-  { emoji: "🔗", label: "Iemand zet zich op de wachtlijst via jouw link", points: 1 },
-  { emoji: "📱", label: "Post over CeritaProject (goedgekeurd, max. 2 per week)", points: 2 },
-  { emoji: "🏆", label: "Een opdracht voltooid (staat bij de opdracht)", points: "2–5" },
-  { emoji: "🚀", label: "Na de lancering: iemand maakt een account via jouw link", points: 3 },
+  { emoji: "🔗", label: "Iemand meldt zich aan via jouw link", points: POINTS_PER_SIGNUP },
+  { emoji: "🚀", label: "Na de lancering: iemand maakt een account via jouw link", points: POINTS_PER_ACCOUNT },
+] as const;
+
+/** Ways to get people to sign up through your link. */
+export const WAYS = [
+  { emoji: "📱", label: "Een post delen over CeritaProject (max. 2 per week)" },
+  { emoji: "🏆", label: "Meedoen met de challenges" },
+  { emoji: "🏫", label: "Offline, via vrienden en scholen" },
 ] as const;
 
 export const LEVELS = [
@@ -27,8 +36,8 @@ export type Level = (typeof LEVELS)[number];
 /** Legends who said yes appear in the Hall of Fame. Keep equal to the 100 in hall_of_fame() (update-67). */
 export const HALL_OF_FAME_MIN = 100;
 
-export function totalPoints(signups: number, taskPoints: number): number {
-  return Math.max(0, Math.floor(signups)) + Math.max(0, Math.floor(taskPoints));
+export function totalPoints(signups: number, accounts = 0): number {
+  return Math.max(0, Math.floor(signups)) * POINTS_PER_SIGNUP + Math.max(0, Math.floor(accounts)) * POINTS_PER_ACCOUNT;
 }
 
 /** The highest level reached, or null below the first one. */
@@ -68,21 +77,21 @@ export const WELCOME = {
   intro:
     "Wat leuk dat je ambassadeur van CeritaProject wordt. Samen zorgen we dat meer jongeren een plek vinden waar ze zich niet de enige voelen. Dankjewel dat je daarbij helpt.",
   steps: [
-    "Lees hieronder de afspraken en klik op ‘Ik doe mee’.",
+    "Lees de afspraken en klik op ‘Ik doe mee’.",
     "Je krijgt je eigen link en QR-code. Zet ze in je bio of story, of print je eigen flyer.",
-    "Doe opdrachten en stuur je posts in. Zo verdien je punten, badges en beloningen.",
+    "Je verdient 3 punten als iemand zich aanmeldt via jouw link. Na de lancering: 5 punten als iemand een account maakt via jouw link.",
   ],
-  launch: "Je punten tellen vanaf nu. De beloningen gaan in zodra de app gelanceerd is. De webversie kun je nu al gebruiken.",
+  launch: "Je punten tellen vanaf nu. De beloningen gaan in zodra de app gelanceerd is. Je kunt de webversie nu al gebruiken.",
   contact: "Heb je een vraag of een idee voor de app? Stuur ons een bericht via de app. Dat kan altijd.",
+  signoff: "Veel plezier, en welkom in het team! 💌 Chayenne | CeritaProject",
 } as const;
 
 export const AMBASSADOR_RULES = [
-  "Zet #samenwerking of ‘ambassadeur van CeritaProject’ bij je posts.",
-  "Stuur nooit zelf een DM naar jongeren om ze over te halen. Je deelt alleen je link in je eigen posts, bio of story.",
+  "Zet #samenwerking bij je posts.",
+  "Stuur nooit zelf een DM naar jongeren om ze over te halen.",
   "Deel nooit namen, foto's of verhalen van andere leden.",
-  "Beloof niks wat de app niet doet, en noem CeritaProject nooit hulpverlening.",
+  "Hang flyers alleen op als het mag, en niet op basisscholen.",
   "Vertelt iemand je dat het niet goed gaat? Verwijs naar 113 (0800-0113), de Kindertelefoon (0800-0432) of bij gevaar 112.",
-  "Wees jezelf. Je hoeft niks te faken.",
 ] as const;
 
 /** Extra rules for spreading the word offline (flyers, posters, QR code). */

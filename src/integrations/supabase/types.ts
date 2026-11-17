@@ -2723,6 +2723,7 @@ export type Database = {
       set_hall_of_fame: { Args: { _on: boolean }; Returns: boolean }
       ambassador_photos_ready: { Args: never; Returns: boolean }
       ambassador_tasks_planned: { Args: never; Returns: number }
+      points_per_signup: { Args: never; Returns: number }
       hall_of_fame: {
         Args: never
         Returns: { display_name: string; avatar_url: string | null; since: string; points: number }[]

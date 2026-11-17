@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { isCurrentTask, isUpcomingTask, flyerLink, HALL_OF_FAME_MIN, qrMatrix, qrPath, isSubmissionUrl, LEVELS, levelFor, nextLevel, referralLink, totalPoints } from "./ambassador";
 
 describe("ambassador", () => {
-  it("counts sign-ups plus approved task points", () => {
-    expect(totalPoints(4, 7)).toBe(11);
-    expect(totalPoints(-2, 3)).toBe(3);
+  it("gives 3 points per sign-up and 5 per account after launch", () => {
+    expect(totalPoints(4)).toBe(12);
+    expect(totalPoints(2, 1)).toBe(11);
+    expect(totalPoints(-2)).toBe(0);
   });
 
   it("finds the level reached", () => {

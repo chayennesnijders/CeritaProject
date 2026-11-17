@@ -14,7 +14,6 @@ export function AmbassadorsAdmin() {
   const [username, setUsername] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [points, setPoints] = useState(5);
   const [due, setDue] = useState("");
   const [starts, setStarts] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -85,7 +84,7 @@ export function AmbassadorsAdmin() {
         <h3 className="font-semibold">💖 Ambassadeurs ({people.length})</h3>
         {people.length === 0 && <p className="text-sm text-muted-foreground">Nog niemand toegevoegd.</p>}
         {people.map((p) => {
-          const pts = totalPoints(Number(p.signups), Number(p.task_points));
+          const pts = totalPoints(Number(p.signups));
           const lvl = levelFor(pts);
           return (
             <div key={p.user_id} className={`rounded-2xl border p-3 text-sm ${p.active ? "" : "opacity-60"}`}>
@@ -99,7 +98,7 @@ export function AmbassadorsAdmin() {
                 {!p.active && <span className="rounded-full bg-muted px-2 py-0.5 text-xs">gestopt</span>}
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {Number(p.signups)} aanmeldingen · {Number(p.task_points)} opdrachtpunten · {Number(p.pending)} wachten · bron{" "}
+                {Number(p.signups)} aanmeldingen × 3 punten · {Number(p.pending)} inzendingen wachten · bron{" "}
                 <span className="font-mono">amb-{p.code}</span>
               </p>
               <div className="mt-2 flex gap-2">
@@ -137,7 +136,7 @@ export function AmbassadorsAdmin() {
           <div key={s.id} className="rounded-2xl border p-3 text-sm">
             <p className="font-semibold">{nameOf(s.user_id)}</p>
             <p className="text-xs text-muted-foreground">
-              {taskOf(s.task_id)?.title ?? "Eigen post"} · +{taskOf(s.task_id)?.points ?? 2} punten ·{" "}
+              {taskOf(s.task_id)?.title ?? "Eigen post"} ·{" "}
               {new Date(s.created_at).toLocaleDateString("nl-NL")}
             </p>
             {s.url && (
@@ -165,10 +164,6 @@ export function AmbassadorsAdmin() {
         <Input placeholder="Uitleg (mag leeg)" value={body} maxLength={600} onChange={(e) => setBody(e.target.value)} />
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <label className="flex items-center gap-1">
-            Punten
-            <Input type="number" min={1} max={20} className="w-20" value={points} onChange={(e) => setPoints(Number(e.target.value) || 1)} />
-          </label>
-          <label className="flex items-center gap-1">
             Vanaf
             <Input type="date" className="w-40" value={starts} onChange={(e) => setStarts(e.target.value)} />
           </label>
@@ -186,7 +181,6 @@ export function AmbassadorsAdmin() {
                   .insert({
                     title: title.trim(),
                     body: body.trim(),
-                    points: Math.min(20, Math.max(1, points)),
                     starts: starts || null,
                     due: due || null,
                   });
@@ -239,7 +233,7 @@ export function AmbassadorsAdmin() {
           <div key={t.id} className={`flex items-center gap-2 rounded-2xl border p-3 text-sm ${t.active ? "" : "opacity-60"}`}>
             <div className="min-w-0 flex-1">
               <p className="font-semibold">
-                {t.title} <span className="text-xs text-primary">+{t.points}</span>
+                {t.title}
               </p>
               {t.starts && (
                 <p className="text-xs text-muted-foreground">

@@ -22,6 +22,7 @@ import {
   levelFor,
   nextLevel,
   POINT_RULES,
+  WAYS,
   referralLink,
   type SubmissionKind,
   WELCOME,
@@ -155,7 +156,7 @@ function AmbassadorPage() {
     );
 
   const stats = shown;
-  const points = totalPoints(Number(stats.signups), Number(stats.task_points));
+  const points = totalPoints(Number(stats.signups));
   const level = levelFor(points);
   const next = nextLevel(points);
   const link = referralLink(stats.code);
@@ -213,7 +214,7 @@ function AmbassadorPage() {
           <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
             <h2 className="text-lg">🔗 Jouw link</h2>
             <p className="text-sm text-muted-foreground">
-              Zet hem in je bio, story of bij je post. Elke aanmelding op de wachtlijst via deze link is 1 punt voor jou.
+              Zet hem in je bio, story of bij je post. Elke aanmelding op de wachtlijst via deze link is 3 punten voor jou.
             </p>
             <div className="break-all rounded-2xl bg-muted px-3 py-2.5 font-mono text-xs">{link}</div>
             <div className="flex gap-2">
@@ -294,6 +295,17 @@ function AmbassadorPage() {
             </li>
           ))}
         </ul>
+        <div className="rounded-2xl bg-muted p-3 text-sm">
+          <p className="font-semibold">Zo krijg je aanmeldingen via jouw link:</p>
+          <ul className="mt-1 space-y-1">
+            {WAYS.map((w) => (
+              <li key={w.label} className="flex gap-2">
+                <span>{w.emoji}</span>
+                <span>{w.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="grid grid-cols-2 gap-2 pt-1">
           {LEVELS.map((l) => {
             const got = points >= l.min;
@@ -388,7 +400,7 @@ function Welcome({ plain = false }: { plain?: boolean }) {
       </ol>
       <p className="text-muted-foreground">{WELCOME.launch}</p>
       <p className="text-muted-foreground">{WELCOME.contact}</p>
-      {!plain && <p className="font-semibold">Welkom in het team! 💌</p>}
+      {!plain && <p className="font-semibold">{WELCOME.signoff}</p>}
     </section>
   );
 }
@@ -529,8 +541,9 @@ function Assignments({
 
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
-      <h2 className="text-lg">🎯 Opdrachten van deze week</h2>
-      {tasks.length === 0 && <p className="text-sm text-muted-foreground">Er staan nu geen opdrachten klaar. Elke maandag komen er nieuwe.</p>}
+      <h2 className="text-lg">🏆 Challenges van deze week</h2>
+      <p className="text-sm text-muted-foreground">Ideeën om meer mensen via jouw link te laten aanmelden. Klaar? Stuur het in, dan zien wij wat werkt.</p>
+      {tasks.length === 0 && <p className="text-sm text-muted-foreground">Er staan nu geen challenges klaar. Elke maandag komen er nieuwe.</p>}
       {tasks.map((t) => (
         <div key={t.id} className="rounded-2xl border-2 border-primary/30 p-3">
           <div className="flex items-start gap-2">
@@ -539,7 +552,7 @@ function Assignments({
               {t.body && <p className="text-sm text-muted-foreground">{t.body}</p>}
               {t.due && <p className="mt-1 text-xs text-muted-foreground">Uiterlijk {new Date(t.due).toLocaleDateString("nl-NL", { day: "numeric", month: "long" })}</p>}
             </div>
-            <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">+{t.points}</span>
+            <span className="shrink-0 text-xl" aria-hidden>🏆</span>
           </div>
           {subs.some((s) => s.task_id === t.id && s.status !== "afgewezen") ? (
             <p className="mt-2 text-xs font-semibold text-primary">✓ Ingestuurd</p>
@@ -555,7 +568,7 @@ function Assignments({
       ))}
       <div className="rounded-2xl bg-muted p-3">
         <p className="text-sm font-semibold">📱 Zelf iets gepost over CeritaProject?</p>
-        <p className="text-xs text-muted-foreground">Stuur de link in. Goedgekeurd = 2 punten (max. 2 posts per week).</p>
+        <p className="text-xs text-muted-foreground">Stuur de link in (max. 2 posts per week). Zet #samenwerking erbij.</p>
         {open !== "los" && (
           <Button size="sm" variant="outline" className="mt-2 rounded-full bg-card" onClick={() => setOpen("los")}>
             Post insturen
@@ -582,7 +595,6 @@ function Assignments({
               </div>
               <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS[s.status]?.cls ?? ""}`}>
                 {STATUS[s.status]?.label ?? s.status}
-                {s.status === "goedgekeurd" && ` +${s.points}`}
               </span>
             </div>
           ))}
