@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
-import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, outfitsFor, colorsFor, unlocksFor, isUnlocked, todoPopupKey, shouldAutoOpenTodoPopup, type Unlockable } from "@/lib/pet";
+import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, outfitsFor, colorsFor, unlocksFor, isUnlocked, todoPopupKey, shouldAutoOpenTodoPopup, AMBASSADOR_OUTFIT, AMBASSADOR_COLOR, type Unlockable } from "@/lib/pet";
 import { useEffect, useRef } from "react";
 import { PetAvatar, growthStage, STAGE_LABELS } from "@/components/PetAvatar";
 import { PetGames } from "@/components/PetGames";
@@ -33,6 +33,16 @@ const localDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).pa
 
 function PetPage() {
   const { data: me } = useMe();
+  // Exclusive ambassador items (update-73): who may wear them, and whether the rewards are switched on.
+  const { data: exclusive } = useQuery({
+    queryKey: ["exclusive-unlocks", me?.user.id],
+    enabled: !!me?.user.id,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("my_exclusive_unlocks");
+      if (error) return null; // update-73 not run yet: simply don't show them
+      return data as unknown as { live: boolean; ambassador: boolean; outfit: boolean; color: boolean };
+    },
+  });
   const uid = me?.user?.id ?? me?.profile?.id;
   const qc = useQueryClient();
   const now = new Date();
@@ -355,7 +365,7 @@ function PetPage() {
         <p className="mt-3 text-xs text-muted-foreground">Elke ochtend om 7:00 begint een nieuw lijstje en komt het popupje vanzelf tevoorschijn. Taken van gisteren die niet af zijn, zijn gewoon weg — zonder straf.</p>
       </div>
       )}
-      {panel === "aankleden" && <Wardrobe level={level} backgroundLevel={mainLevel} slot={slot} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} />}
+      {panel === "aankleden" && <Wardrobe level={level} backgroundLevel={mainLevel} slot={slot} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} exclusive={exclusive} />}
       {panel === "spelletjes" && (
         <div className="rounded-3xl bg-card p-5 shadow-soft">
           <p className="font-semibold">Spelletjes</p>
@@ -462,7 +472,11 @@ function useLevelUpToast(level: number | null, petRef: string, slot: number) {
   }, [level, petRef, slot]);
 }
 
-function Wardrobe({ level, backgroundLevel, slot, pet, onChoose }: {
+type Exclusive = { live: boolean; ambassador: boolean; outfit: boolean; color: boolean } | null | undefined;
+
+function Wardrobe({ level, backgroundLevel, slot, pet, onChoose, exclusive }: {
+  /** The exclusive ambassador items, shown only to ambassadors and admins. */
+  exclusive?: Exclusive;
   level: number;
   /** Which pet (0 = first): every pet has its own outfits and colours. */
   slot: number;
@@ -473,7 +487,15 @@ function Wardrobe({ level, backgroundLevel, slot, pet, onChoose }: {
 }) {
   const [tab, setTab] = useState<"background" | "outfit" | "color">("outfit");
   const colors = colorsFor(slot);
-  const lists: Record<"background" | "outfit" | "color", Unlockable[]> = { background: BACKGROUNDS, outfit: outfitsFor(slot), color: colors };
+  const showExclusive = !!exclusive && (exclusive.ambassador || exclusive.outfit);
+  const lists: Record<"background" | "outfit" | "color", Unlockable[]> = {
+    background: BACKGROUNDS,
+    outfit: showExclusive ? [...outfitsFor(slot), AMBASSADOR_OUTFIT] : outfitsFor(slot),
+    color: showExclusive ? [...colors, AMBASSADOR_COLOR] : colors,
+  };
+  const exclusiveOpen = (id: string) => (id === AMBASSADOR_OUTFIT.id ? !!exclusive?.outfit : !!exclusive?.color);
+  const exclusiveHint = (id: string) =>
+    !exclusive?.live ? "Bij de lancering" : id === AMBASSADOR_OUTFIT.id ? "Vanaf Creator" : "Vanaf Influencer";
   const tabs = [["outfit", "👕 Kleding"], ["color", "🎨 Kleur"], ["background", "🖼️ Achtergrond"]] as const;
   return (
     <div className="rounded-3xl bg-card p-5 shadow-soft">
@@ -488,11 +510,12 @@ function Wardrobe({ level, backgroundLevel, slot, pet, onChoose }: {
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {lists[tab].map((item) => {
-          const open = isUnlocked(item, tab === "background" ? backgroundLevel : level);
+          const isExcl = item.id === AMBASSADOR_OUTFIT.id || item.id === AMBASSADOR_COLOR.id;
+          const open = isExcl ? exclusiveOpen(item.id) : isUnlocked(item, tab === "background" ? backgroundLevel : level);
           const active = pet[tab] === item.id;
           return (
             <button key={item.id} disabled={!open} onClick={() => onChoose(tab, item.id)}
-              className={`rounded-2xl p-3 text-center ${active ? "bg-accent ring-2 ring-primary" : "bg-muted"} ${open ? "" : "opacity-50"}`}>
+              className={`rounded-2xl p-3 text-center ${active ? "bg-accent ring-2 ring-primary" : isExcl ? "bg-primary/15 ring-1 ring-primary/40" : "bg-muted"} ${open ? "" : "opacity-50"}`}>
               {tab === "color" && open && (item as (typeof colors)[number]).body ? (
                 <span
                   aria-hidden
@@ -504,7 +527,8 @@ function Wardrobe({ level, backgroundLevel, slot, pet, onChoose }: {
               ) : (
                 <p className="text-2xl">{open ? item.emoji : "🔒"}</p>
               )}
-              <p className="text-xs">{open ? item.label : `Level ${item.level}`}</p>
+              <p className="text-xs">{open ? item.label : isExcl ? exclusiveHint(item.id) : `Level ${item.level}`}</p>
+              {isExcl && <p className="text-[10px] font-semibold text-primary">Ambassadeurs</p>}
             </button>
           );
         })}

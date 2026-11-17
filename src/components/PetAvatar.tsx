@@ -158,6 +158,25 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
           {outfit === "ketting" && (<g>{Array.from({ length: 9 }, (_, i) => { const t = (i / 8) * Math.PI; return <circle key={i} cx={100 - Math.cos(t) * 46} cy={134 + Math.sin(t) * 14} r="4.5" fill="#FBF7F0" stroke="#D9CFC0" strokeWidth="1" />; })}</g>)}
           {outfit === "tiara" && (<g><path d="M66 54 Q100 36 134 54 L130 42 L118 48 L110 28 L100 44 L90 28 L82 48 L70 42 Z" fill="#F7D774" stroke="#C99A1E" strokeWidth="2" /><circle cx="100" cy="40" r="4.5" fill="#E36F8C" /><circle cx="84" cy="46" r="3" fill="#8FD3F5" /><circle cx="116" cy="46" r="3" fill="#8FD3F5" /></g>)}
           {outfit === "kroon" && (<path d="M72 50 L76 22 L90 38 L100 16 L110 38 L124 22 L128 50 Z" fill="#F2C744" stroke="#D9A920" strokeWidth="2" />)}
+          {outfit === "ambassadeur" && (
+            <g>
+              {/* Cerita Ambassador sash with a heart badge */}
+              <path d="M40 134 L52 122 L158 176 L150 188 Z" fill="#F2A6BF" stroke="#C9547D" strokeWidth="2.5" strokeLinejoin="round" />
+              <path d="M48 130 L152 182" stroke="#fff" strokeWidth="2" strokeDasharray="4 5" opacity=".8" />
+              <g transform="translate(104 158)">
+                <circle r="15" fill="#fff" stroke="#C9547D" strokeWidth="2.5" />
+                <path d="M0 6 C-12 -2 -7 -12 0 -6 C7 -12 12 -2 0 6 Z" fill="#E36F8C" />
+              </g>
+            </g>
+          )}
+          {color === "cerita" && (
+            <g fill="#fff" opacity=".9">
+              {/* little glitter stars that come with the Cerita colour */}
+              {[[48, 122, 1], [154, 104, 0.8], [66, 170, 0.7], [140, 158, 0.9], [118, 60, 0.6]].map(([x, y, k]) => (
+                <path key={`${x}-${y}`} transform={`translate(${x} ${y}) scale(${k})`} d="M0 -7 L2 -2 L7 0 L2 2 L0 7 L-2 2 L-7 0 L-2 -2 Z" />
+              ))}
+            </g>
+          )}
         </svg>
       </div>
       {sleeping && <span className="pet-float absolute right-6 top-4 text-2xl" style={{ animationIterationCount: "infinite", animationDuration: "2.5s" }}>💤</span>}

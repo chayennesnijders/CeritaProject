@@ -157,11 +157,20 @@ export const COLOR_SETS: PetColor[][] = [
   ],
 ];
 
+/**
+ * Exclusive for Cerita Ambassadors (src/lib/ambassador.ts): an outfit from the Creator level and a colour from
+ * the Influencer level. They are not unlocked by the pet's level but by my_exclusive_unlocks() (update-73),
+ * and only after the rewards are switched on at launch; a database trigger checks it too.
+ */
+export const AMBASSADOR_OUTFIT: Unlockable = { id: "ambassadeur", label: "Ambassadeurssjerp", emoji: "💖", level: 99 };
+export const AMBASSADOR_COLOR: PetColor = { id: "cerita", label: "Cerita-glitter", emoji: "✨", level: 99, body: "#EE8DB2", belly: "#FFE3EE" };
+export const isExclusive = (id: string) => id === AMBASSADOR_OUTFIT.id || id === AMBASSADOR_COLOR.id;
+
 /** Which set a pet uses: 0 for your first pet, then 1, 2, 0, 1, … for the extra pets in order. */
 export const petSet = (slot: number) => ((slot % OUTFIT_SETS.length) + OUTFIT_SETS.length) % OUTFIT_SETS.length;
 export const outfitsFor = (slot: number) => OUTFIT_SETS[petSet(slot)]!;
 export const colorsFor = (slot: number) => COLOR_SETS[petSet(slot)]!;
-const ALL_COLORS = COLOR_SETS.flat();
+const ALL_COLORS = [...COLOR_SETS.flat(), AMBASSADOR_COLOR];
 
 /** What a pet unlocks at a level (its own outfits and colours, plus the shared backgrounds and games). */
 export function unlocksFor(slot: number, level: number) {

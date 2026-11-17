@@ -68,6 +68,8 @@ export function AmbassadorsAdmin() {
         opdrachten en beloningen. Ze zien alleen aantallen, nooit wie zich via hen aanmeldde.
       </p>
 
+      <RewardsSwitch />
+
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-soft">
         <h3 className="font-semibold">➕ Ambassadeur toevoegen</h3>
         <div className="flex flex-wrap gap-2 [&>input]:min-w-[10rem] [&>input]:flex-1">
@@ -270,4 +272,38 @@ function SubmissionPhoto({ path }: { path: string }) {
       <img src={src} alt="Ingestuurde foto" className="max-h-56 rounded-2xl object-cover" />
     </a>
   ) : null;
+}
+
+/** Switch the ambassador rewards on at launch (the sash from Creator, the glitter colour from Influencer). */
+function RewardsSwitch() {
+  const qc = useQueryClient();
+  const { data: live } = useQuery({
+    queryKey: ["ambassador-rewards-live"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("ambassador_settings").select("rewards_live").maybeSingle();
+      if (error) return null; // update-73 not run yet
+      return !!data?.rewards_live;
+    },
+  });
+  if (live === null || live === undefined) return null;
+  const toggle = async () => {
+    const { error } = await supabase.rpc("set_ambassador_rewards", { _live: !live });
+    toast[error ? "error" : "success"](error ? error.message : !live ? "Beloningen staan aan 🎉" : "Beloningen staan uit");
+    void qc.invalidateQueries({ queryKey: ["ambassador-rewards-live"] });
+    void qc.invalidateQueries({ queryKey: ["exclusive-unlocks"] });
+  };
+  return (
+    <section className="flex flex-wrap items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+      <div className="min-w-0 flex-1">
+        <h3 className="font-semibold">🎁 Beloningen voor het diertje</h3>
+        <p className="text-xs text-muted-foreground">
+          💖 Ambassadeurssjerp vanaf Creator, ✨ Cerita-glitter vanaf Influencer. Zet dit aan bij de lancering. Jij kunt ze als
+          beheerder nu al uitproberen bij je eigen diertje.
+        </p>
+      </div>
+      <Button className="rounded-full" variant={live ? "outline" : "default"} onClick={() => void toggle()}>
+        {live ? "Zet uit" : "Zet aan"}
+      </Button>
+    </section>
+  );
 }

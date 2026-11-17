@@ -94,3 +94,14 @@ describe("new things with every new pet", () => {
     expect(colouredLook(base, "kers").body).not.toBe(base.body);
   });
 });
+
+describe("ambassador rewards for the pet", () => {
+  it("are not unlocked by the pet's level, and the glitter colour recolours the pet", async () => {
+    const { AMBASSADOR_OUTFIT, AMBASSADOR_COLOR, isExclusive, isUnlocked, colouredLook, outfitsFor, colorsFor } = await import("./pet");
+    expect(isUnlocked(AMBASSADOR_OUTFIT, 20)).toBe(false);
+    expect(isExclusive("ambassadeur") && isExclusive("cerita")).toBe(true);
+    expect(outfitsFor(0).some((o) => o.id === "ambassadeur")).toBe(false);
+    expect(colorsFor(0).some((c) => c.id === "cerita")).toBe(false);
+    expect(colouredLook({ body: "#000000", belly: "#111111", ear: "#222222" }, "cerita").body).toBe(AMBASSADOR_COLOR.body);
+  });
+});

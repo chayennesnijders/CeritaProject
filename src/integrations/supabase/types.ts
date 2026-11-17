@@ -20,6 +20,12 @@ export type Database = {
         Update: { user_id?: string; code?: string; active?: boolean; hall_of_fame?: boolean; agreed_at?: string | null; added_by?: string | null; created_at?: string }
         Relationships: []
       }
+      ambassador_settings: {
+        Row: { id: boolean; rewards_live: boolean; updated_at: string }
+        Insert: { id?: boolean; rewards_live?: boolean; updated_at?: string }
+        Update: { id?: boolean; rewards_live?: boolean; updated_at?: string }
+        Relationships: []
+      }
       ambassador_tasks: {
         Row: { id: string; title: string; body: string; points: number; active: boolean; starts: string | null; due: string | null; created_at: string }
         Insert: { id?: string; title: string; body?: string; points?: number; active?: boolean; starts?: string | null; due?: string | null; created_at?: string }
@@ -2725,6 +2731,8 @@ export type Database = {
       ambassador_tasks_planned: { Args: never; Returns: number }
       points_per_signup: { Args: never; Returns: number }
       points_per_challenge: { Args: never; Returns: number }
+      my_exclusive_unlocks: { Args: never; Returns: Json }
+      set_ambassador_rewards: { Args: { _live: boolean }; Returns: boolean }
       mark_active: { Args: never; Returns: undefined }
       claim_referral: { Args: { _source: string }; Returns: boolean }
       hall_of_fame: {
