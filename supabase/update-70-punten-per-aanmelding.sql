@@ -1,7 +1,6 @@
 -- Update na update-69: nieuwe puntenregels voor ambassadeurs. Punten komen alleen nog van aanmeldingen via
 -- je eigen link: 3 punten per aanmelding (zelfde als POINTS_PER_SIGNUP in src/lib/ambassador.ts).
 -- Posts, challenges en offline delen zijn manieren om aanmeldingen te krijgen; ze geven zelf geen punten meer.
--- Na de lancering komen er 5 punten bij per account dat via je link wordt gemaakt.
 -- Plak dit in Supabase → SQL Editor en klik Run. Je kunt het veilig vaker draaien.
 
 CREATE OR REPLACE FUNCTION public.ambassador_points(_user uuid) RETURNS bigint

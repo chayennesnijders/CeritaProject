@@ -10,12 +10,8 @@ export const AMBASSADOR_MIN_AGE = 18;
 
 /** Points come only from sign-ups through your own link (counted automatically). Keep 3 equal to update-70. */
 export const POINTS_PER_SIGNUP = 3;
-/** After the launch: someone makes an account through your link. */
-export const POINTS_PER_ACCOUNT = 5;
-
 export const POINT_RULES = [
-  { emoji: "🔗", label: "Iemand meldt zich aan via jouw link", points: POINTS_PER_SIGNUP },
-  { emoji: "🚀", label: "Na de lancering: iemand maakt een account via jouw link", points: POINTS_PER_ACCOUNT },
+  { emoji: "🔗", label: "Iemand meldt zich aan of downloadt de app via jouw link", points: POINTS_PER_SIGNUP },
 ] as const;
 
 /** Ways to get people to sign up through your link. */
@@ -36,8 +32,8 @@ export type Level = (typeof LEVELS)[number];
 /** Legends who said yes appear in the Hall of Fame. Keep equal to the 100 in hall_of_fame() (update-67). */
 export const HALL_OF_FAME_MIN = 100;
 
-export function totalPoints(signups: number, accounts = 0): number {
-  return Math.max(0, Math.floor(signups)) * POINTS_PER_SIGNUP + Math.max(0, Math.floor(accounts)) * POINTS_PER_ACCOUNT;
+export function totalPoints(signups: number): number {
+  return Math.max(0, Math.floor(signups)) * POINTS_PER_SIGNUP;
 }
 
 /** The highest level reached, or null below the first one. */
@@ -79,7 +75,7 @@ export const WELCOME = {
   steps: [
     "Lees de afspraken en klik op ‘Ik doe mee’.",
     "Je krijgt je eigen link en QR-code. Zet ze in je bio of story, of print je eigen flyer.",
-    "Je verdient 3 punten als iemand zich aanmeldt via jouw link. Na de lancering: 5 punten als iemand een account maakt via jouw link.",
+    "Je verdient 3 punten als iemand zich aanmeldt of de app downloadt via jouw link.",
   ],
   launch: "Je punten tellen vanaf nu. De beloningen gaan in zodra de app gelanceerd is. Je kunt de webversie nu al gebruiken.",
   contact: "Heb je een vraag of een idee voor de app? Stuur ons een bericht via de app. Dat kan altijd.",
