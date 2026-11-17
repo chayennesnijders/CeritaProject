@@ -8,8 +8,8 @@ export const APP_URL = "https://app.ceritaproject.nl";
 
 export const AMBASSADOR_MIN_AGE = 18;
 
-/** Points (same rules as ambassador_points() in update-71). */
-export const POINTS = { signup: 3, activeWeek: 2, recruit: 3, recruitStarted: 2 } as const;
+/** Points (same rules as ambassador_points() in update-72). */
+export const POINTS = { signup: 3, activeWeek: 2, recruit: 3, recruitStarted: 2, challenge: 1 } as const;
 export const POINTS_PER_SIGNUP = POINTS.signup;
 
 export const POINT_RULES = [
@@ -17,12 +17,13 @@ export const POINT_RULES = [
   { emoji: "📆", label: "Extra als diegene een week actief is (5 van de eerste 7 dagen)", points: POINTS.activeWeek },
   { emoji: "🤝", label: "Je haalt een nieuwe ambassadeur erbij die meedoet", points: POINTS.recruit },
   { emoji: "⭐", label: "Extra als jouw nieuwe ambassadeur zijn eerste aanmelding of download heeft", points: POINTS.recruitStarted },
+  { emoji: "🏆", label: "Een challenge voltooid (na goedkeuring)", points: POINTS.challenge },
 ] as const;
 
 /** Ways to get people to sign up through your link. */
 export const WAYS = [
   { emoji: "📱", label: "Een post delen over CeritaProject (max. 2 per week)" },
-  { emoji: "🏆", label: "Meedoen met de challenges" },
+  { emoji: "🏆", label: "Meedoen met de challenges (en 1 punt per challenge)" },
   { emoji: "🏫", label: "Offline, via vrienden en scholen" },
 ] as const;
 
@@ -37,12 +38,12 @@ export type Level = (typeof LEVELS)[number];
 /** Legends who said yes appear in the Hall of Fame. Keep equal to the 100 in hall_of_fame() (update-67). */
 export const HALL_OF_FAME_MIN = 100;
 
-export type PointCounts = { signups: number; activeWeek?: number; recruits?: number; recruitsStarted?: number };
+export type PointCounts = { signups: number; activeWeek?: number; recruits?: number; recruitsStarted?: number; challenges?: number };
 
 export function totalPoints(c: PointCounts | number): number {
   const n = typeof c === "number" ? { signups: c } : c;
   const v = (x: number | undefined) => Math.max(0, Math.floor(Number(x) || 0));
-  return v(n.signups) * POINTS.signup + v(n.activeWeek) * POINTS.activeWeek + v(n.recruits) * POINTS.recruit + v(n.recruitsStarted) * POINTS.recruitStarted;
+  return v(n.signups) * POINTS.signup + v(n.activeWeek) * POINTS.activeWeek + v(n.recruits) * POINTS.recruit + v(n.recruitsStarted) * POINTS.recruitStarted + v(n.challenges) * POINTS.challenge;
 }
 
 /** The highest level reached, or null below the first one. */
@@ -84,7 +85,7 @@ export const WELCOME = {
   steps: [
     "Lees de afspraken en klik op ‘Ik doe mee’.",
     "Je krijgt je eigen link en QR-code. Zet ze in je bio of story, of print je eigen flyer.",
-    "Je verdient 3 punten als iemand zich aanmeldt of de app downloadt via jouw link, en 2 extra als diegene een week actief is. Haal je een nieuwe ambassadeur erbij? Dan krijg je 3 punten, en 2 extra bij zijn eerste aanmelding.",
+    "Je verdient 3 punten als iemand zich aanmeldt of de app downloadt via jouw link, en 2 extra als diegene een week actief is. Haal je een nieuwe ambassadeur erbij? Dan krijg je 3 punten, en 2 extra bij zijn eerste aanmelding. Elke voltooide challenge is 1 punt.",
   ],
   launch: "Je punten tellen vanaf nu. De beloningen gaan in zodra de app gelanceerd is. Je kunt de webversie nu al gebruiken.",
   contact: "Heb je een vraag of een idee voor de app? Stuur ons een bericht via de app. Dat kan altijd.",

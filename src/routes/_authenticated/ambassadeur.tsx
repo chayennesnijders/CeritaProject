@@ -43,6 +43,7 @@ type Stats = {
   active_week?: number;
   recruits?: number;
   recruits_started?: number;
+  tasks_done?: number;
   task_points: number;
   approved: number;
   pending: number;
@@ -74,6 +75,7 @@ const PREVIEW_STATS: Stats = {
   active_week: 3,
   recruits: 1,
   recruits_started: 1,
+  tasks_done: 2,
   task_points: 0,
   approved: 2,
   pending: 1,
@@ -192,6 +194,7 @@ function AmbassadorPage() {
     activeWeek: Number(stats.active_week ?? 0),
     recruits: Number(stats.recruits ?? 0),
     recruitsStarted: Number(stats.recruits_started ?? 0),
+    challenges: Number(stats.tasks_done ?? 0),
   });
   const level = levelFor(points);
   const next = nextLevel(points);
@@ -621,7 +624,7 @@ function Assignments({
   return (
     <section className="space-y-3 rounded-3xl bg-card p-5 shadow-soft">
       <h2 className="text-lg">🏆 Challenges van deze week</h2>
-      <p className="text-sm text-muted-foreground">Ideeën om meer mensen via jouw link te laten aanmelden. Klaar? Stuur het in, dan zien wij wat werkt.</p>
+      <p className="text-sm text-muted-foreground">Ideeën om meer mensen via jouw link te laten aanmelden. Klaar? Stuur het in: na goedkeuring krijg je 1 punt per challenge.</p>
       {tasks.length === 0 && <p className="text-sm text-muted-foreground">Er staan nu geen challenges klaar. Elke maandag komen er nieuwe.</p>}
       {tasks.map((t) => (
         <div key={t.id} className="rounded-2xl border-2 border-primary/30 p-3">
@@ -631,7 +634,7 @@ function Assignments({
               {t.body && <p className="text-sm text-muted-foreground">{t.body}</p>}
               {t.due && <p className="mt-1 text-xs text-muted-foreground">Uiterlijk {new Date(t.due).toLocaleDateString("nl-NL", { day: "numeric", month: "long" })}</p>}
             </div>
-            <span className="shrink-0 text-xl" aria-hidden>🏆</span>
+            <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">+1</span>
           </div>
           {subs.some((s) => s.task_id === t.id && s.status !== "afgewezen") ? (
             <p className="mt-2 text-xs font-semibold text-primary">✓ Ingestuurd</p>

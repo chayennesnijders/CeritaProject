@@ -9,6 +9,8 @@ describe("ambassador", () => {
     expect(totalPoints({ signups: 2, activeWeek: 1 })).toBe(8);
     // one recruit who joined (3) and got a first sign-up (2) = 5
     expect(totalPoints({ signups: 0, recruits: 1, recruitsStarted: 1 })).toBe(5);
+    // one point per approved challenge
+    expect(totalPoints({ signups: 1, challenges: 2 })).toBe(5);
   });
 
   it("finds the level reached", () => {

@@ -87,7 +87,7 @@ export function AmbassadorsAdmin() {
         <h3 className="font-semibold">💖 Ambassadeurs ({people.length})</h3>
         {people.length === 0 && <p className="text-sm text-muted-foreground">Nog niemand toegevoegd.</p>}
         {people.map((p) => {
-          const pts = totalPoints({ signups: Number(p.signups), activeWeek: Number(p.active_week), recruits: Number(p.recruits), recruitsStarted: Number(p.recruits_started) });
+          const pts = totalPoints({ signups: Number(p.signups), activeWeek: Number(p.active_week), recruits: Number(p.recruits), recruitsStarted: Number(p.recruits_started), challenges: Number(p.tasks_done) });
           const lvl = levelFor(pts);
           return (
             <div key={p.user_id} className={`rounded-2xl border p-3 text-sm ${p.active ? "" : "opacity-60"}`}>
@@ -102,7 +102,7 @@ export function AmbassadorsAdmin() {
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {Number(p.signups)} aanmeldingen · {Number(p.active_week)} een week actief · {Number(p.recruits)} nieuwe ambassadeurs
-                ({Number(p.recruits_started)} met eerste aanmelding){p.referred_by ? ` · aangebracht door ${p.referred_by}` : ""} · {Number(p.pending)} inzendingen
+                ({Number(p.recruits_started)} met eerste aanmelding) · {Number(p.tasks_done)} challenges{p.referred_by ? ` · aangebracht door ${p.referred_by}` : ""} · {Number(p.pending)} inzendingen
                 wachten · bron{" "}
                 <span className="font-mono">amb-{p.code}</span>
               </p>
@@ -141,7 +141,7 @@ export function AmbassadorsAdmin() {
           <div key={s.id} className="rounded-2xl border p-3 text-sm">
             <p className="font-semibold">{nameOf(s.user_id)}</p>
             <p className="text-xs text-muted-foreground">
-              {taskOf(s.task_id)?.title ?? "Eigen post"} ·{" "}
+              {taskOf(s.task_id) ? `${taskOf(s.task_id)!.title} · +1 punt` : "Eigen post · geen punt"} ·{" "}
               {new Date(s.created_at).toLocaleDateString("nl-NL")}
             </p>
             {s.url && (
