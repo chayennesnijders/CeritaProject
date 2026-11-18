@@ -19,7 +19,7 @@ import {
   weekDots,
 } from "@/lib/parent";
 import { GUIDES, needsCheckIn, nextGuideFor } from "@/lib/guides";
-import { bandInfo, bandsLabel, childQuestions, childTips } from "@/lib/child-age";
+import { ASK_TIPS, bandInfo, bandsLabel, childQuestions, childTips } from "@/lib/child-age";
 import { ChildAgePicker, useChildAges } from "@/components/ChildAgePicker";
 
 type CheckKind = "zelf" | "kind";
@@ -341,11 +341,14 @@ export function ParentHome({
         <p key={question} className="animate-in fade-in text-lg font-semibold leading-snug">
           {q.together ? q.text : `“${q.text}”`}
         </p>
+        {!q.together && q.deeper && (
+          <p className="rounded-2xl bg-card/60 px-3 py-2 text-sm text-foreground">
+            <span className="font-semibold">Gaat het gesprek vanzelf?</span> Vraag dan: “{q.deeper}”
+          </p>
+        )}
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs opacity-80">
-            {q.together
-              ? "Een paar minuten samen spelen is al genoeg."
-              : "Tip: stel de vraag terloops, bijvoorbeeld in de auto of tijdens het eten."}
+            {q.together ? "Een paar minuten samen spelen is al genoeg." : `💡 ${ASK_TIPS[question % ASK_TIPS.length]}`}
           </p>
           <button
             onClick={() => setQuestion((i) => nextQuestion(i % questions.length, Math.random, questions.length))}

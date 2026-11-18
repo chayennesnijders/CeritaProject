@@ -1,4 +1,4 @@
-import { dayNumber, PARENT_FOR_CHILD, PARENT_QUESTIONS } from "@/lib/parent";
+import { dayNumber, PARENT_DEEPER, PARENT_FOR_CHILD, PARENT_QUESTIONS } from "@/lib/parent";
 
 /**
  * Parents choose the age group(s) of their child(ren), never a birthdate. The daily tip for their
@@ -103,56 +103,120 @@ export const BAND_QUESTIONS: Record<ChildBand, readonly string[]> = {
     "Lees een boekje en laat je kind dieren aanwijzen.",
   ],
   "4-9": [
-    "Waar heb je vandaag om gelachen?",
-    "Wie was er vandaag aardig tegen je?",
+    "Als je vandaag een dier was, welk dier was je dan?",
+    "Wat was het grappigste wat er vandaag gebeurde?",
     "Als je een superkracht mocht kiezen, welke zou het zijn?",
-    "Wat vond je vandaag moeilijk?",
-    "Met wie speel je het liefst in de pauze?",
-    "Wat wil je later worden, en waarom?",
-    "Wat maakt jou blij als je verdrietig bent?",
     "Wat zou jij doen als je een dag de baas was thuis?",
+    "Met wie speel je het liefst in de pauze, en wat doen jullie dan?",
+    "Welk eten zou je elke dag willen eten?",
+    "Wat was vandaag een 10, en wat een 3?",
+    "Als je een knuffel kon laten praten, wat zou hij zeggen?",
   ],
   "10-12": [
-    "Wie is je beste vriend of vriendin op dit moment, en waarom?",
-    "Wat vind je spannend aan de middelbare school?",
-    "Wat kijk je graag online? Laat eens zien.",
-    "Is er iets in de klas waar je je zorgen over maakt?",
-    "Wat vind je van jezelf een goede eigenschap?",
-    "Waar kijk je deze week naar uit?",
-    "Wat zou je graag eens samen met mij willen doen?",
-    "Wat doen jouw vrienden als iemand verdrietig is?",
+    "Welk filmpje of spel moet ik echt eens zien?",
+    "Als je één dag les mocht geven, waarover zou het gaan?",
+    "Wat is het gekste wat er in de klas gebeurde deze week?",
+    "Welk liedje zit nu in je hoofd?",
+    "Wie in je klas kan het best grappen maken?",
+    "Als we deze zomer overal heen konden, waar zou je naartoe willen?",
+    "Wat zou jij uitvinden als je alles kon maken?",
+    "Wat was deze week een 10, en wat een 3?",
   ],
   "13-15": [
     "Welk liedje zit nu in je hoofd?",
-    "Wat vind je het lastigste aan deze week?",
-    "Waar ben je trots op, van de afgelopen tijd?",
-    "Wat helpt jou als je je rot voelt?",
-    "Welke docent vind je het fijnst, en waarom?",
-    "Is er iets wat je me al een tijdje wilt vertellen?",
-    "Wat zou je willen dat volwassenen beter begrijpen over jongeren?",
+    "Wat is het beste wat je deze week online zag?",
+    "Welke docent heeft de gekste gewoontes?",
+    "Als je een dag niet naar school hoefde, wat zou je doen?",
+    "Wat moet ik echt eens proberen, volgens jou?",
+    "Wat was deze week een 10, en wat een 3?",
+    "Als je één ding thuis mocht veranderen, wat zou het zijn?",
+    "Welke serie of game moet ik met je kijken of spelen?",
+  ],
+  "16-18": [
+    "Als je morgen ergens heen mocht, waar zou het zijn?",
+    "Wat is iets kleins waar je deze week blij van werd?",
+    "Welke serie moet ik echt eens kijken?",
+    "Wat zou je dit jaar nog willen leren of proberen?",
+    "Wat was deze week een 10, en wat een 3?",
+    "Als je één regel thuis mocht veranderen, welke?",
+    "Wat is iets wat ik nog niet van je weet?",
+    "Welk eten mis je als je lang van huis bent?",
+  ],
+  "19+": [
+    "Waar word je op dit moment het meest blij van?",
+    "Wat is het beste wat je deze maand at of deed?",
+    "Wat heb je van thuis meegenomen waar je blij mee bent?",
+    "Waar kijk je deze maand naar uit?",
+    "Wat was deze week een 10, en wat een 3?",
+    "Hoe gaat het met je vrienden?",
+    "Wat wil je over vijf jaar anders hebben?",
+    "Wanneer heb je voor het laatst echt rust gehad?",
+  ],
+};
+
+/** A deeper question that goes with each light one, for when the conversation flows (same order as BAND_QUESTIONS). */
+export const BAND_DEEPER: Record<Exclude<ChildBand, "0-3">, readonly string[]> = {
+  "4-9": [
+    "Wanneer voelde je je vandaag dat dier?",
+    "Was er ook iets wat niet zo leuk was?",
+    "Wanneer zou je die superkracht het liefst gebruiken?",
+    "Wat zou je anders doen dan ik?",
+    "Is er ook iemand met wie je niet zo graag speelt?",
+    "Wat eet je liever niet, en waarom?",
+    "Wat maakte dat van die 3?",
+    "Wat zou je knuffel over jou vertellen als je verdrietig bent?",
+  ],
+  "10-12": [
+    "Wat vind jij er zo goed aan?",
+    "Wat vind je zelf het lastigste op school?",
+    "Hoe reageerde de klas, en jij?",
+    "Waar doet dat liedje je aan denken?",
+    "Lacht iedereen mee, of wordt er ook weleens iemand uitgelachen?",
+    "Wat vind je spannend aan volgend jaar?",
+    "Wat zou dat oplossen?",
+    "Wat maakte dat van die 3?",
+  ],
+  "13-15": [
+    "Past het bij hoe je je nu voelt?",
+    "Zie je online ook weleens dingen die je niet fijn vindt?",
+    "Bij welke docent voel je je het meest op je gemak?",
+    "Is er iets op school waar je tegenop ziet?",
+    "Wat zou jij willen dat ik beter snap van jouw leven?",
+    "Wat maakte dat van die 3?",
+    "Wat zou dat voor jou makkelijker maken?",
     "Wanneer voelde je je deze week echt ontspannen?",
   ],
   "16-18": [
     "Waar droom je over, voor later?",
-    "Wat vind je het fijnst aan thuis, en wat mag anders?",
-    "Wat zou je tegen je jongere zelf zeggen?",
     "Wat geeft jou op dit moment de meeste stress?",
     "Bij wie voel je je het meest jezelf?",
-    "Wat wil je dit jaar nog leren of proberen?",
+    "Wat houdt je tegen?",
+    "Wat maakte dat van die 3?",
     "Hoe merk ik dat het niet goed met je gaat?",
-    "Wat is iets wat ik nog niet van je weet?",
+    "Is er iets wat je me al een tijdje wilt vertellen?",
+    "Wat vind je het fijnst aan thuis, en wat mag anders?",
   ],
   "19+": [
-    "Waar word je op dit moment het meest blij van?",
-    "Wat is het lastigste aan zelfstandig zijn?",
+    "Wat is op dit moment het lastigste aan zelfstandig zijn?",
     "Waar ben je trots op, van het afgelopen jaar?",
     "Wat zou je willen dat ik vaker deed, of juist minder?",
-    "Hoe gaat het met je vrienden?",
-    "Wat wil je over vijf jaar anders hebben?",
-    "Wat heb je van thuis meegenomen waar je blij mee bent?",
-    "Wanneer heb je voor het laatst echt rust gehad?",
+    "Is er iets waar je tegenop ziet?",
+    "Wat maakte dat van die 3?",
+    "Heb je iemand bij wie je terechtkunt als het niet goed gaat?",
+    "Wat heb je daarvoor nodig?",
+    "Wat zou je helpen om vaker tot rust te komen?",
   ],
 };
+
+/** Small tips for asking, shown under the question (one at a time). */
+export const ASK_TIPS = [
+  "Stel de vraag terloops: in de auto, tijdens het koken of wandelen. Naast elkaar praat makkelijker dan tegenover elkaar.",
+  "Gek antwoord of lacht je kind het weg? Lach mee. Je hoeft niet door te vragen. Soms komt het later vanzelf.",
+  "Vertel eerst zelf iets over jouw dag, ook iets wat niet lukte. Dan voelt het minder als een verhoor.",
+  "Een kort antwoord is ook goed. Het gaat erom dat je kind merkt dat je het wilt weten.",
+  "Begin luchtig. Gaat het gesprek vanzelf? Stel dan pas de diepere vraag.",
+  "Geen goed moment? Probeer het een andere dag nog eens. Er is geen haast.",
+] as const;
 
 /** Round-robin over the chosen age groups, so with two children both get a turn. */
 function interleave(lists: readonly (readonly string[])[]): { text: string; band: number }[] {
@@ -190,11 +254,19 @@ export function childTips(day: string, bands: readonly ChildBand[]): { text: str
 }
 
 /** The questions (or things to do together) for the chosen age groups. */
-export function childQuestions(bands: readonly ChildBand[]): { text: string; band: ChildBand | null; together: boolean }[] {
+export type ChildQuestion = { text: string; deeper: string | null; band: ChildBand | null; together: boolean };
+
+/** The questions (or things to do together) for the chosen age groups: a light question first, then a deeper one. */
+export function childQuestions(bands: readonly ChildBand[]): ChildQuestion[] {
   const chosen = sorted(bands);
-  if (!chosen.length) return PARENT_QUESTIONS.map((text) => ({ text, band: null, together: false }));
+  if (!chosen.length) return PARENT_QUESTIONS.map((text, i) => ({ text, deeper: PARENT_DEEPER[i] ?? null, band: null, together: false }));
+  const deeperOf = (band: ChildBand, text: string) => {
+    if (band === "0-3") return null;
+    return BAND_DEEPER[band][BAND_QUESTIONS[band].indexOf(text)] ?? null;
+  };
   return interleave(chosen.map((b) => BAND_QUESTIONS[b])).map((q) => ({
     text: q.text,
+    deeper: deeperOf(chosen[q.band]!, q.text),
     band: chosen[q.band]!,
     together: chosen[q.band] === "0-3",
   }));

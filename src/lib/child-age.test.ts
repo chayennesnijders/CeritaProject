@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BAND_QUESTIONS, BAND_TIPS, bandsLabel, CHILD_BANDS, childQuestions, childTip, childTips, isChildBand } from "./child-age";
-import { PARENT_FOR_CHILD, PARENT_QUESTIONS } from "./parent";
+import { ASK_TIPS, BAND_DEEPER, BAND_QUESTIONS, BAND_TIPS, bandsLabel, CHILD_BANDS, childQuestions, childTip, childTips, isChildBand } from "./child-age";
+import { PARENT_DEEPER, PARENT_FOR_CHILD, PARENT_QUESTIONS } from "./parent";
 
 describe("tips by the child's age", () => {
   it("has tips and questions for every age group", () => {
@@ -51,5 +51,14 @@ describe("tips by the child's age", () => {
     expect(bandsLabel(["16-18", "4-9"])).toBe("4–9 en 16–18 jaar");
     expect(bandsLabel(["19+"])).toBe("19+ jaar");
     expect(bandsLabel([])).toBe("");
+  });
+
+  it("starts light and has a deeper question and a tip to go with it", () => {
+    expect(PARENT_DEEPER.length).toBe(PARENT_QUESTIONS.length);
+    for (const b of CHILD_BANDS) if (b.id !== "0-3") expect(BAND_DEEPER[b.id].length).toBe(BAND_QUESTIONS[b.id].length);
+    expect(childQuestions(["13-15"]).every((q) => !!q.deeper)).toBe(true);
+    expect(childQuestions(["0-3"]).every((q) => q.deeper === null)).toBe(true);
+    expect(childQuestions([])[0]!.deeper).toBe(PARENT_DEEPER[0]);
+    expect(ASK_TIPS.length).toBeGreaterThanOrEqual(4);
   });
 });

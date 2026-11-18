@@ -105,30 +105,34 @@ export const telHref = (phone: string) => `tel:${phone.replace(/[^0-9+]/g, "")}`
 
 /** Questions to start a conversation with your child, one at a time on the home screen. */
 export const PARENT_QUESTIONS = [
-  "Wat was vandaag het leukste moment van je dag?",
-  "Waar heb je vandaag om gelachen?",
-  "Wie was er vandaag aardig tegen je?",
-  "Is er iets waar je je zorgen over maakt?",
-  "Wat zou je doen als je een dag geen school had en alles mocht?",
+  "Wat was vandaag het grappigste moment?",
   "Welk liedje zit nu in je hoofd?",
-  "Wat vind je het lastigste aan deze week?",
-  "Waar ben je trots op, van de afgelopen tijd?",
-  "Wat zou je graag eens samen met mij willen doen?",
-  "Wie is je beste vriend of vriendin op dit moment, en waarom?",
-  "Wat is iets wat ik nog niet van je weet?",
-  "Als je één ding thuis mocht veranderen, wat zou dat zijn?",
-  "Wat helpt jou als je je rot voelt?",
-  "Wat kijk je graag op je telefoon? Laat eens zien.",
-  "Welke docent vind je het fijnst, en waarom?",
+  "Als je een dag niet naar school hoefde, wat zou je doen?",
+  "Wat moet ik echt eens zien of proberen, volgens jou?",
+  "Wat was deze week een 10, en wat een 3?",
+  "Als je een superkracht mocht kiezen, welke?",
+  "Welk eten zou je elke dag willen eten?",
+  "Wie kan bij jou in de klas of op je werk het best grappen maken?",
   "Waar kijk je deze week naar uit?",
-  "Wat vind je van jezelf een goede eigenschap?",
+  "Als je één ding thuis mocht veranderen, wat zou het zijn?",
+  "Wat zou je graag eens samen met mij willen doen?",
+  "Wat is iets wat ik nog niet van je weet?",
+] as const;
+
+/** A deeper question for when the light one goes well (same order as PARENT_QUESTIONS). */
+export const PARENT_DEEPER = [
+  "Was er ook iets wat niet zo leuk was?",
+  "Past het bij hoe je je nu voelt?",
+  "Is er iets waar je tegenop ziet?",
+  "Wat zou je willen dat ik beter snap van jouw leven?",
+  "Wat maakte dat van die 3?",
+  "Wanneer zou je die het liefst gebruiken?",
+  "Wat helpt jou als je je rot voelt?",
+  "Wordt er ook weleens iemand uitgelachen?",
+  "Waar zie je juist tegenop?",
+  "Wat zou dat voor jou makkelijker maken?",
+  "Wanneer voel jij je het meest op je gemak bij mij?",
   "Is er iets wat je me al een tijdje wilt vertellen?",
-  "Wat zou je tegen je jongere zelf zeggen?",
-  "Wanneer voelde je je deze week echt ontspannen?",
-  "Wat doen jouw vrienden als iemand verdrietig is?",
-  "Waar droom je over, voor later?",
-  "Wat vind je het fijnst aan thuis?",
-  "Wat zou je willen dat volwassenen beter begrijpen over jongeren?",
 ] as const;
 
 /** A different question each time (never the same one twice in a row). */
