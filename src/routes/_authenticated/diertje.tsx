@@ -295,8 +295,11 @@ function PetPage() {
       ))}
 
       {!canCare && (
-        <div className="rounded-3xl bg-secondary p-4 text-center text-sm text-secondary-foreground shadow-soft">
-          🌅 Nieuwe dag! Vul eerst je to-do lijstje van vandaag in (minstens één taak) — daarna kun je {active.name} verzorgen.
+        <div className="space-y-2 rounded-3xl bg-secondary p-4 text-center text-sm text-secondary-foreground shadow-soft">
+          <p>🌅 Nieuwe dag! Zet eerst één taakje op je to-do lijstje van vandaag. Daarna kun je {active.name} verzorgen.</p>
+          <Button size="sm" className="rounded-full" onClick={() => { setPanel("taken"); setTodoOpen(true); }}>
+            📝 Taakje toevoegen
+          </Button>
         </div>
       )}
       <div className="grid grid-cols-3 gap-3">
@@ -359,10 +362,28 @@ function PetPage() {
           </div>
           <button onClick={() => setTodoOpen(true)}
             className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-            Open lijstje
+            {todayTasks === 0 ? "Taakje toevoegen" : "Bewerken"}
           </button>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">Elke ochtend om 7:00 begint een nieuw lijstje en komt het popupje vanzelf tevoorschijn. Taken van gisteren die niet af zijn, zijn gewoon weg — zonder straf.</p>
+        {listTodos.length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {listTodos.map((t) => (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => void toggleTodo(t.id, !t.done, t.rewarded)}
+                  className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-left text-sm transition active:scale-[.98] ${t.done ? "bg-primary/10 text-muted-foreground line-through" : "bg-muted"}`}
+                >
+                  <span className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 ${t.done ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40 bg-card"}`}>
+                    {t.done ? "✓" : ""}
+                  </span>
+                  <span className="min-w-0 flex-1 break-words">{t.title}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-xs text-muted-foreground">Tik op een taak om hem af te vinken. Elke ochtend om 7:00 begint een nieuw lijstje. Taken van gisteren die niet af zijn, zijn gewoon weg, zonder straf.</p>
       </div>
       )}
       {panel === "aankleden" && <Wardrobe level={level} backgroundLevel={mainLevel} slot={slot} pet={{ ...pet, outfit: active.outfit, color: active.color ?? "eigen" }} onChoose={choose} exclusive={exclusive} />}
