@@ -75,6 +75,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      // Google Search Console: proves ownership of https://app.ceritaproject.nl/
+      { name: "google-site-verification", content: "HNzL897g4yPsOo2YIxqOPjaYxyJHU9cXxQTuIPH244w" },
       { name: "theme-color", content: "#5a3a26" },
       { name: "apple-mobile-web-app-title", content: "CeritaProject" },
     ],
