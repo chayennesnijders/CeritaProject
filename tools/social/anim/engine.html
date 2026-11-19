@@ -3,6 +3,7 @@
   CeritaProject animation engine: soft round figures with a heart, Dutch captions, 1080x1920.
   A video is a spec (window.SPEC) with keyframed actors, props and captions; window.render(t) draws frame t.
   Render with: node tools/social/anim/render.cjs SPECS.js OUT_DIR [id,id,...]
+  Retention helpers: spec.instant (no fade-in), caption {hook, box, pop, fast}, props stamp and flash, cam key sh (shake).
 -->
 <html><head><meta charset="utf-8">
 <style>
@@ -39,7 +40,7 @@ const heartPath = (s) => `M0 ${0.35*s} C ${-1.1*s} ${-0.35*s} ${-0.45*s} ${-1.05
 
 const DEFAULTS = { x: 540, y: 0, dir: 1, walk: 0, lean: 0, heart: 1, mouth: 0.4, bag: 0, reach: 0, armUp: 0, head: 0, look: 0,
   sit: 0, s: 1, op: 1, mask: 0, phone: 0, tear: 0, eyes: 1, headphones: 0, hot: 0, hug: 0, shrink: 0, shake: 0, jump: 0, pulse: 0 };
-let NOW = 0;
+let NOW = 0, SCREEN = null;
 const STEP = new Set(["dir"]);
 
 /** Value of a keyframed field at time t (eased between keys that define it). */
@@ -119,7 +120,7 @@ function figure(root, o, ph) {
   else for (const ex of [2, 30]) el("path", { d: `M ${ex - 9} ${ey} q 9 7 18 0`, stroke: INK, "stroke-width": 5, fill: "none", "stroke-linecap": "round" }, hg);
   const m = o.mouth;
   el("path", { d: `M 0 -440 Q 16 ${-440 + 14 * m} 32 -440`, stroke: INK, "stroke-width": 6, "stroke-linecap": "round", fill: "none" }, hg);
-  if (o.tear > 0.02) el("path", { d: "M 34 -462 q -8 16 0 24 q 8 -8 0 -24 z", fill: "#9CC7E8", stroke: INK, "stroke-width": 3, opacity: o.tear, transform: `translate(0 ${18 * o.tear})` }, hg);
+  if (o.tear > 0.02) el("path", { d: "M 52 -474 q -7 13 0 20 q 7 -7 0 -20 z", fill: "#9CC7E8", stroke: INK, "stroke-width": 3, opacity: o.tear, transform: `translate(0 ${4 * o.tear})` }, hg);
   if (o.mask > 0.02) {
     const mg = el("g", { transform: `translate(16 ${-468 + (1 - o.mask) * 260}) rotate(${(1 - o.mask) * 25})`, opacity: clamp(o.mask * 2) }, hg);
     el("ellipse", { cx: 0, cy: 0, rx: 62, ry: 70, fill: "#FFFFFF", stroke: INK, "stroke-width": 8 }, mg);
@@ -171,7 +172,8 @@ function cloud(parent, x, y, op, rain, t, sc = 1) {
 function drawProps(world, spec, t, st, layer) {
   for (const p of spec.props || []) {
     if ((p.layer || "front") !== layer) continue;
-    const op = win(t, p.t, p.f ?? 0.4);
+    // in an instant spec, props that are there from the start are fully visible in frame 0
+    const op = spec.instant && p.t && p.t[0] <= 0 ? 1 - seg(t, p.t[1] - (p.f ?? 0.4), p.t[1]) : win(t, p.t, p.f ?? 0.4);
     if (op <= 0 && p.type !== "hearts" && p.type !== "orbit") continue;
     const A = p.actor ? st[p.actor] : null;
     switch (p.type) {
@@ -323,6 +325,28 @@ function drawProps(world, spec, t, st, layer) {
         }
         break;
       }
+      case "stamp": {
+        // a word that slams into view: big, tilted, with a shadow
+        if (t < p.t[0] || t > p.t[1]) break;
+        const k = (t - p.t[0]) / 0.18;
+        const sc = k < 1 ? lerp(2.4, 0.92, ease(k)) : 1 + 0.08 * Math.exp(-(k - 1) * 0.9) * Math.sin((k - 1) * 2.2);
+        const size = p.size || 84, w = p.text.length * size * 0.74 + 90;
+        // stamps sit on the screen (not in the moving camera) unless world: true
+        const g = el("g", { opacity: clamp(win(t, p.t, 0.12)), transform: `translate(${p.at[0]} ${p.at[1]}) rotate(${p.rot ?? -6}) scale(${sc})` }, p.world ? world : SCREEN);
+        el("rect", { x: -w / 2 + 12, y: -size * 0.85 + 12, width: w, height: size * 1.7, rx: size * 0.45, fill: INK }, g);
+        el("rect", { x: -w / 2, y: -size * 0.85, width: w, height: size * 1.7, rx: size * 0.45, fill: p.fill || PINK, stroke: INK, "stroke-width": 9 }, g);
+        text(g, p.text, 0, size * 0.36, size, "cap", p.ink || INK);
+        break;
+      }
+      case "flash": {
+        // a short flash of light on a beat
+        for (const at of p.times || []) {
+          const k = (t - at) / (p.len || 0.18);
+          if (k < 0 || k > 1) continue;
+          el("rect", { x: -2000, y: -2000, width: 5080, height: 5920, fill: p.color || "#fff", opacity: (p.max || 0.75) * (1 - k) }, world);
+        }
+        break;
+      }
       case "screen": {
         // A big phone screen with chat lines (group chat, social media)
         const g = el("g", { opacity: op, transform: `translate(${p.at[0]} ${p.at[1]})` }, world);
@@ -349,7 +373,9 @@ window.render = function (t) {
   const spec = window.SPEC;
   const root = document.getElementById("world"); root.innerHTML = "";
   const cz = spec.cam ? val(spec.cam, "z", t) ?? 1 : 1, ccx = spec.cam ? val(spec.cam, "cx", t) ?? 540 : 540, ccy = spec.cam ? val(spec.cam, "cy", t) ?? 960 : 960;
-  const world = el("g", { transform: `translate(540 960) scale(${cz}) translate(${-ccx} ${-ccy})` }, root);
+  const sh = spec.cam ? val(spec.cam, "sh", t) ?? 0 : 0;
+  const shx = Math.sin(t * 61) * sh, shy = Math.cos(t * 47) * sh;
+  const world = el("g", { transform: `translate(${540 + shx} ${960 + shy}) scale(${cz}) translate(${-ccx} ${-ccy})` }, root);
   const night = spec.night ? val(spec.night, "v", t) : 0;
   root.insertBefore(el("rect", { width: 1080, height: 1920, fill: mix(CREAM, NIGHT, night) }), world);
   if (night > 0.05) {
@@ -365,6 +391,7 @@ window.render = function (t) {
 
   const st = {};
   for (const id in spec.actors) st[id] = state(spec.actors[id], t);
+  SCREEN = el("g", {}, root);
   drawProps(world, spec, t, st, "back");
   const order = Object.keys(spec.actors).sort((a, b) => (st[a].s - st[b].s));
   for (const id of order) {
@@ -377,22 +404,33 @@ window.render = function (t) {
   const camWorld = world;
   { const w2 = root; /* captions and labels stay still, outside the camera */ }
   // story label
-  if (spec.label) { const o = win(t, spec.labelT || [0, spec.dur - 3.2]); if (o > 0) { const g = el("g", { opacity: o }, root); const w = spec.label.length * 21 + 60; el("rect", { x: 540 - w / 2, y: 225, width: w, height: 62, rx: 31, fill: PINK, stroke: INK, "stroke-width": 5 }, g); text(g, spec.label, 540, 267, 32, "lbl", INK); } }
+  if (spec.label) { const lt = spec.labelT || [0, spec.dur - 3.2]; const o = spec.instant && lt[0] <= 0 ? 1 - seg(t, lt[1] - 0.4, lt[1]) : win(t, lt); if (o > 0) { const g = el("g", { opacity: o }, root); const w = spec.label.length * 21 + 60; el("rect", { x: 540 - w / 2, y: 225, width: w, height: 62, rx: 31, fill: PINK, stroke: INK, "stroke-width": 5 }, g); text(g, spec.label, 540, 267, 32, "lbl", INK); } }
 
   // captions
   for (const c of spec.captions || []) {
-    const o = win(t, c.t, 0.35);
+    const o = c.hook ? (t >= c.t[0] && t <= c.t[1] ? 1 - seg(t, c.t[1] - 0.15, c.t[1]) : 0) : win(t, c.t, c.fast ? 0.12 : 0.35);
     if (o <= 0) continue;
     const size = c.size || 64, max = c.max || Math.floor(1000 / (size * 0.66));
     let lines = c.lines || wrap(c.text, max);
-    if (c.type !== false) {
+    if (c.type !== false && !c.hook) {
       const words = lines.join(" ").split(" ").length;
-      let show = Math.ceil(words * clamp((t - c.t[0]) / Math.min(1.2, words * 0.09)));
+      let show = Math.ceil(words * clamp((t - c.t[0]) / Math.min(c.fast ? 0.5 : 1.2, words * (c.fast ? 0.05 : 0.09))));
       lines = lines.map((l) => { const ws = l.split(" "); const keep = ws.slice(0, Math.max(0, show)); show -= ws.length; return keep.join(" "); });
     }
-    const g = el("g", { opacity: o, transform: `translate(0 ${(1 - o) * 16})` }, root);
     const y0 = c.y || 360;
-    lines.forEach((l, i) => text(g, l, 540, y0 + i * size * 1.28, size, "cap", c.color || ink));
+    const hook = c.hook && t < c.t[0] + 0.25;
+    const pop = c.pop ? lerp(1.3, 1, ease((t - c.t[0]) / 0.2)) : 1;
+    const g = el("g", { opacity: o, transform: `translate(540 ${y0 + (c.hook ? 0 : (1 - o) * 16)}) scale(${pop}) translate(-540 ${-y0})` }, root);
+    lines.forEach((l, i) => {
+      const y = y0 + i * size * 1.28;
+      if (c.box && l) {
+        const w = l.length * size * 0.7 + 70, h = size * 1.22, rot = (i % 2 ? 1.2 : -1.2);
+        const bg = el("g", { transform: `rotate(${rot} 540 ${y - size * 0.35})` }, g);
+        el("rect", { x: 540 - w / 2 + 9, y: y - size * 0.98 + 9, width: w, height: h, rx: 22, fill: INK }, bg);
+        el("rect", { x: 540 - w / 2, y: y - size * 0.98, width: w, height: h, rx: 22, fill: c.box, stroke: INK, "stroke-width": 7 }, bg);
+      }
+      text(g, l, 540, y, size, "cap", c.box ? INK : (c.color || ink));
+    });
   }
   if (spec.end) {
     const o = seg(t, spec.end.t, spec.end.t + 0.6);
@@ -420,7 +458,7 @@ window.render = function (t) {
       if (spec.end.sub) wrap(spec.end.sub, 34).forEach((l, i) => text(g, l, 540, sy + i * 48, 36, "lbl", ink));
     }
   }
-  document.getElementById("fade").setAttribute("opacity", 1 - seg(t, 0, 0.35));
+  document.getElementById("fade").setAttribute("opacity", spec.instant ? 0 : 1 - seg(t, 0, 0.35));
 };
 </script>
 </body></html>
