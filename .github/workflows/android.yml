@@ -25,14 +25,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
-
       - name: Android SDK for Bubblewrap
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "build-tools;36.1.0" "platform-tools" > /dev/null
+          # the runner ships an Android SDK; use its newest command-line tools
+          BIN=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin | sort -V | tail -1)
+          echo "sdkmanager: $BIN"
+          yes | "$BIN/sdkmanager" --licenses > /dev/null || true
+          "$BIN/sdkmanager" "build-tools;36.1.0" "platform-tools" > /dev/null
           # Bubblewrap looks for sdkmanager in <sdk>/bin
-          [ -e "$ANDROID_HOME/bin" ] || ln -s "$ANDROID_HOME/cmdline-tools/latest/bin" "$ANDROID_HOME/bin"
+          [ -e "$ANDROID_HOME/bin" ] || ln -s "$BIN" "$ANDROID_HOME/bin"
           mkdir -p ~/.bubblewrap
           printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > ~/.bubblewrap/config.json
           npm install -g @bubblewrap/cli@1.27.0
