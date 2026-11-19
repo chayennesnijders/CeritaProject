@@ -62,8 +62,14 @@ jobs:
         run: |
           export BUBBLEWRAP_KEYSTORE_PASSWORD="$KEY_PASSWORD" BUBBLEWRAP_KEY_PASSWORD="$KEY_PASSWORD"
           bubblewrap update --skipVersionUpgrade
-          bubblewrap build --skipPwaValidation
-          ls -la *.aab *.apk
+          # Gradle directly: bubblewrap build overflows its output buffer on the runner
+          chmod +x gradlew
+          ./gradlew bundleRelease --quiet --console=plain
+          cp app/build/outputs/bundle/release/app-release.aab app-release-bundle.aab
+          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 -keystore upload.keystore \
+            -storepass "$KEY_PASSWORD" -keypass "$KEY_PASSWORD" app-release-bundle.aab upload
+          jarsigner -verify app-release-bundle.aab
+          ls -la app-release-bundle.aab
 
       - name: Package for download
         if: env.TEST_BUILD != '1'
