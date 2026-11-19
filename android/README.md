@@ -4,7 +4,7 @@ The Play Store app is a Trusted Web Activity around https://app.ceritaproject.nl
 `.github/workflows/android.yml` with Bubblewrap from `twa-manifest.json`. Nothing here is
 built by hand.
 
-- Package name: `nl.ceritaproject.app` (can never change once published).
+- Package name: `com.ceritaproject.mijnapp` (can never change once published).
 - New version: raise `appVersionCode` (and `appVersionName`) in `twa-manifest.json` and push.
 - Signing: the workflow signs with the upload key. The password is the GitHub secret
   `ANDROID_KEY_PASSWORD`; once the key exists, it is kept as the secret `ANDROID_KEYSTORE_BASE64`.

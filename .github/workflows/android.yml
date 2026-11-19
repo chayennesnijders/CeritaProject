@@ -82,7 +82,7 @@ jobs:
             echo "CeritaProject · Android-bestand voor Google Play"
             echo
             echo "CeritaProject.aab  -> uploaden bij Productie (of Gesloten test) -> App-bundels"
-            echo "Pakketnaam: nl.ceritaproject.app"
+            echo "Pakketnaam: com.ceritaproject.mijnapp"
             echo "SHA-256 van de uploadsleutel: $FP"
             if [ "$NEW_KEY" = "1" ]; then
               echo

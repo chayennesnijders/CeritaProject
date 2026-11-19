@@ -1,5 +1,5 @@
 {
-  "packageId": "nl.ceritaproject.app",
+  "packageId": "com.ceritaproject.mijnapp",
   "host": "app.ceritaproject.nl",
   "name": "CeritaProject",
   "launcherName": "CeritaProject",
