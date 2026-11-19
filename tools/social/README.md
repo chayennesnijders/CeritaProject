@@ -8,7 +8,7 @@ Animations in the owner's own voice (2D little people, captions timed from the v
 
     python3 tools/social/animate.py script.json [preview-times]
 
-See the docstring in `render.py` and `animate.py` for the plan format. Used by the social agent (`.claude/skills/social-agent/SKILL.md`).
+See the docstring in `render.py` and `animate.py` for the plan format. The working rules for the weekly videos are in `.claude/skills/social-agent/SKILL.md`; there is no automatic agent: the owner sends the numbers every Thursday and the week is made in chat.
 Needs python3 with Pillow and numpy, and ffmpeg. Riti images come from `public/riti/`.
 
 `fonts/Figtree.ttf` is Figtree by Erik Kennedy, licensed under the SIL Open Font License 1.1.
