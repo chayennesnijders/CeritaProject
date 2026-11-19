@@ -5,7 +5,7 @@
  */
 
 /** Change this when the privacy statement or the terms change: every member is then asked to agree again. */
-export const LEGAL_VERSION = "2026-10-31";
+export const LEGAL_VERSION = "2026-11-19";
 
 export type LegalSection = { title: string; text?: string[]; bullets?: string[] };
 export type LegalPage = {
@@ -72,7 +72,7 @@ export const PRIVACY: LegalPage = {
     {
       title: "Welke gegevens bewaren we?",
       bullets: [
-        "Je account: je e-mailadres en je wachtwoord (versleuteld, ook wij kunnen het niet lezen). Log je in met Google, dan krijgen we je naam en e-mailadres van Google.",
+        "Je account: je e-mailadres en je wachtwoord (versleuteld, ook wij kunnen het niet lezen).",
         "Je profiel: je naam, gebruikersnaam, profielfoto en wat je over jezelf schrijft.",
         "Je geboortedatum: daarmee kom je in de goede leeftijdsgroep (13–15, 16–25 of 26–27) en zie je alleen verhalen die bij je leeftijd passen. Andere leden zien je geboortedatum niet.",
         "Wat je deelt: berichten en reacties in groepen, privéberichten, foto's, bestanden en spraakberichten.",
@@ -84,6 +84,9 @@ export const PRIVACY: LegalPage = {
         "Bij een bestelling: je naam en adres om het te kunnen versturen. Betalen gaat via Stripe: wij zien je bankgegevens niet.",
         "Welke verhalen je hebt gelezen, bewaard of een hartje hebt gegeven (anderen zien alleen het aantal, niet van wie).",
         "Als je pushmeldingen aanzet: een code van je telefoon, zodat we je een melding kunnen sturen.",
+        "Op welke dagen je de app opent: alleen de datum, niet wat je doet of hoe lang. Zo kunnen we zien of iemand die via een ambassadeur kwam een week actief was.",
+        "Via welke link je bent gekomen, als je je via de link van een ambassadeur aanmeldt of een account maakt. De ambassadeur ziet alleen aantallen, nooit wie.",
+        "Doe je mee als tester? Dan bewaren we je antwoorden op de testvragen. De makers van de app lezen die, zodat ze de app beter kunnen maken.",
         "Technische gegevens, zoals wanneer je inlogt. Onze hosting bewaart kort je IP-adres om de app veilig te houden.",
       ],
     },
@@ -146,6 +149,26 @@ export const PRIVACY: LegalPage = {
       ],
     },
     {
+      title: "Ambassadeurs (18+)",
+      text: [
+        "Ben je ambassadeur? Dan bewaren we ook je eigen code voor je link, je punten, of je akkoord ging met de afspraken, en wat je instuurt voor een challenge: een link naar je post of een foto. Foto's staan in een afgeschermde opslag: alleen jij en de beheerders kunnen ze zien.",
+        "Je ziet alleen aantallen: hoeveel mensen zich via jouw link aanmeldden, hoeveel daarvan een week actief waren en hoeveel nieuwe ambassadeurs via jou kwamen. Je ziet nooit wie dat zijn.",
+        "In de Hall of Fame sta je alleen als je dat zelf aanzet, en dan alleen met je naam, profielfoto, sinds wanneer je ambassadeur bent en je punten. Je kunt het altijd weer uitzetten.",
+      ],
+    },
+    {
+      title: "Ouders en verzorgers",
+      text: [
+        "Heb je een ouder-account? Dan bewaren we geen geboortedatum. Je kiest alleen de leeftijdsgroep(en) van je kind(eren), nooit een naam of geboortedatum. Je dagboek, je diertje, je stemmingen en je voortgang in de handleidingen zijn alleen voor jou. Beheerders zien alleen totalen, nooit wie wat deed. Als ouder zie je niets van de jongeren in de app, ook niet van je eigen kind.",
+      ],
+    },
+    {
+      title: "Leraren, trainers en jongerenwerkers",
+      text: [
+        "Heb je een account voor de lessen? Dan bewaren we je naam, je e-mailadres, de code van je school of organisatie en voor welke groepen je de lessen wilt zien. We tellen hoe vaak de lessen van een school of organisatie worden gedownload, niet wie ze downloadt. Je dagboek is alleen voor jou. Je ziet niets van de jongeren in de app.",
+      ],
+    },
+    {
       title: "Ben je jonger dan 16?",
       text: [
         "Dan moet je ouder of verzorger het goed vinden dat je CeritaProject gebruikt. Daarom vragen we je dat bij het aanmelden. Op de pagina 'Voor ouders' lezen je ouders wat CeritaProject is.",
@@ -205,6 +228,9 @@ export const ACCOUNT_DELETION: LegalPage = {
         "Je dagboek, stemmingen, veiligheidsplan, brieven aan jezelf en je diertje",
         "Je foto's, spraakberichten en bestanden",
         "Je anonieme vragen en je meldingen",
+        "Als ambassadeur: je code, je punten, je inzendingen en de foto's die je instuurde",
+        "Via welke link je bent gekomen, en op welke dagen je de app opende",
+        "Je antwoorden op de testvragen, als je tester was",
       ],
     },
     {
