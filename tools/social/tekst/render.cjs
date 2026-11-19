@@ -27,12 +27,9 @@ html,body{margin:0;width:1080px;height:1920px;background:${C[bg]};color:${C[fg]}
 .kw{display:inline-block;background:${C.pink};color:${C.ink};border:6px solid ${C.ink};border-radius:999px;padding:.02em .45em;box-shadow:8px 8px 0 ${C.ink};font-family:U;letter-spacing:.02em}
 ${bg === 'pink' ? `.kw{background:${C.cream}}` : ''}
 .top{position:absolute;top:150px;left:96px;right:96px;display:flex;justify-content:space-between;font-family:F;font-weight:800;font-size:40px;opacity:.8}
-.bar{position:absolute;top:120px;left:96px;right:96px;height:8px;border-radius:4px;background:${C[fg]};opacity:.18}
-.fill{position:absolute;top:120px;left:96px;height:8px;border-radius:4px;background:${C[fg]};width:${((i + 1) / n) * 888}px}
 .heart{display:inline-block;width:34px;height:30px;margin-right:12px;vertical-align:-4px}
 .swipe{position:absolute;bottom:330px;left:96px;font-family:F;font-weight:800;font-size:38px;opacity:.8}
 </style></head><body>
-<div class="bar"></div><div class="fill"></div>
 <div class="top"><span><svg class="heart" viewBox="-12 -12 24 22"><path d="M0 7 C -22 -7 -9 -21 0 -9 C 9 -21 22 -7 0 7 Z" fill="${C.pink}" stroke="${C[fg]}" stroke-width="2.4"/></svg>CeritaProject</span><span>${i + 1}/${n}</span></div>
 <div class="wrap"><div id="t">${rich(slide.text)}</div></div>
 ${i === 0 ? '<div class="swipe">Swipe →</div>' : ''}
