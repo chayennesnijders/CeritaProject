@@ -30,7 +30,7 @@
   "isChromeOSOnly": false,
   "isMetaQuest": false,
   "fullScopeUrl": "https://app.ceritaproject.nl/",
-  "minSdkVersion": 21,
+  "minSdkVersion": 24,
   "fingerprints": [],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
