@@ -5,6 +5,9 @@ description: Weekly social-media run for CeritaProject (TikTok, Instagram Reels,
 
 # Cerita social agent
 
+> **Since 2026-11-19 there is no automatic agent and no dashboard step.** The owner sends the TikTok numbers in chat every Thursday; Claude compares them, makes next week's 21 animations (Monday to Sunday) and sends one zip. Skip the ArtifactData/dashboard steps below.
+> **Retention rules (from the week of 16–19 Nov: average watch time 3–7 s, completion falling from 18% to 3%):** the hook is on screen in frame 0 (`instant: true`, a caption with `hook: true` in a pink box), something moves from the first frame, a new beat every 1–2 s (stamps, throws, flashes, camera shakes, a new caption in a box), no quiet parts. Herkenning about 11–12 s, oproep about 11 s (keyword card at about 7.8 s), echt verhaal 20–26 s with the strongest line as the hook.
+
 Goal: as many **wachtlijst sign-ups** (app.ceritaproject.nl/wachtlijst) as possible from TikTok, Instagram, Snapchat and YouTube — safely, for young people aged 13–27. Sign-ups per platform are the score; views and likes only explain it.
 
 Dashboard (the agent's memory and the owner's view): **https://claude.ai/artifact/GujLnz3uDRbbxVU9ddgN39** ("Cerita Groeistudio"). Read and write it with the `ArtifactData` tool; upload videos with the `Artifact` tool (`url` + `asset: true` + `file_paths`). Write in simple Dutch for the owner.
