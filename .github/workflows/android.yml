@@ -1,0 +1,94 @@
+name: Android app (Play Store)
+
+# Builds the Play Store bundle (.aab) for app.ceritaproject.nl as a Trusted Web Activity.
+# Secrets: ANDROID_KEY_PASSWORD (required for a real build), ANDROID_KEYSTORE_BASE64 (optional:
+# the existing upload key; without it a new key is made and handed over in the download).
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Android SDK for Bubblewrap
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "build-tools;36.1.0" "platform-tools" > /dev/null
+          # Bubblewrap looks for sdkmanager in <sdk>/bin
+          [ -e "$ANDROID_HOME/bin" ] || ln -s "$ANDROID_HOME/cmdline-tools/latest/bin" "$ANDROID_HOME/bin"
+          mkdir -p ~/.bubblewrap
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > ~/.bubblewrap/config.json
+          npm install -g @bubblewrap/cli@1.27.0
+
+      - name: Upload key
+        working-directory: android
+        run: |
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "::warning::No ANDROID_KEY_PASSWORD secret: test build with a throwaway key, nothing is published."
+            echo "KEY_PASSWORD=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
+            echo "TEST_BUILD=1" >> "$GITHUB_ENV"
+            KEY_PASSWORD_LOCAL=1
+          fi
+          if [ -n "$KEYSTORE_B64" ] && [ -z "$KEY_PASSWORD_LOCAL" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > upload.keystore
+            echo "NEW_KEY=0" >> "$GITHUB_ENV"
+          else
+            PW="${KEY_PASSWORD:-$(grep '^KEY_PASSWORD=' "$GITHUB_ENV" | tail -1 | cut -d= -f2)}"
+            keytool -genkeypair -keystore upload.keystore -storetype PKCS12 -alias upload -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass "$PW" -keypass "$PW" -dname "CN=CeritaProject, O=CeritaProject, C=NL"
+            echo "NEW_KEY=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build with Bubblewrap
+        working-directory: android
+        run: |
+          export BUBBLEWRAP_KEYSTORE_PASSWORD="$KEY_PASSWORD" BUBBLEWRAP_KEY_PASSWORD="$KEY_PASSWORD"
+          bubblewrap update --skipVersionUpgrade
+          bubblewrap build --skipPwaValidation
+          ls -la *.aab *.apk
+
+      - name: Package for download
+        if: env.TEST_BUILD != '1'
+        working-directory: android
+        run: |
+          mkdir -p out
+          cp app-release-bundle.aab out/CeritaProject.aab
+          FP=$(keytool -list -v -keystore upload.keystore -alias upload -storepass "$KEY_PASSWORD" | grep 'SHA256:' | head -1 | sed 's/.*SHA256: //')
+          {
+            echo "CeritaProject · Android-bestand voor Google Play"
+            echo
+            echo "CeritaProject.aab  -> uploaden bij Productie (of Gesloten test) -> App-bundels"
+            echo "Pakketnaam: nl.ceritaproject.app"
+            echo "SHA-256 van de uploadsleutel: $FP"
+            if [ "$NEW_KEY" = "1" ]; then
+              echo
+              echo "upload.keystore is je uploadsleutel. Bewaar dit bestand goed (bijvoorbeeld in je wachtwoordmanager)."
+              echo "Het wachtwoord is het wachtwoord dat je in GitHub als ANDROID_KEY_PASSWORD hebt gezet. Alias: upload"
+            fi
+          } > out/LEES-MIJ.txt
+          [ "$NEW_KEY" = "1" ] && cp upload.keystore out/upload.keystore || true
+          echo "Upload key SHA-256: $FP"
+
+      - uses: actions/upload-artifact@v4
+        if: env.TEST_BUILD != '1'
+        with:
+          name: CeritaProject-android
+          path: android/out
+          retention-days: 3

@@ -39,3 +39,8 @@ dist-ssr
 # Python
 __pycache__/
 *.pyc
+
+# Android build output (made by the workflow)
+android/*
+!android/twa-manifest.json
+!android/README.md
