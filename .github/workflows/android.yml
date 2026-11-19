@@ -84,13 +84,25 @@ jobs:
             echo "CeritaProject.aab  -> uploaden bij Productie (of Gesloten test) -> App-bundels"
             echo "Pakketnaam: com.ceritaproject.mijnapp"
             echo "SHA-256 van de uploadsleutel: $FP"
+            echo "SHA-1 van de uploadsleutel: $(keytool -list -v -keystore upload.keystore -alias upload -storepass "$KEY_PASSWORD" | grep 'SHA1:' | head -1 | sed 's/.*SHA1: //')"
             if [ "$NEW_KEY" = "1" ]; then
               echo
               echo "upload.keystore is je uploadsleutel. Bewaar dit bestand goed (bijvoorbeeld in je wachtwoordmanager)."
               echo "Het wachtwoord is het wachtwoord dat je in GitHub als ANDROID_KEY_PASSWORD hebt gezet. Alias: upload"
+              echo
+              echo "Zet de tekst uit ANDROID_KEYSTORE_BASE64.txt in GitHub als geheim ANDROID_KEYSTORE_BASE64,"
+              echo "dan gebruikt elke volgende bouw dezelfde sleutel."
+              echo
+              echo "upload_certificate.pem gebruik je in Play Console bij 'Uploadsleutel opnieuw instellen'."
             fi
           } > out/LEES-MIJ.txt
-          [ "$NEW_KEY" = "1" ] && cp upload.keystore out/upload.keystore || true
+          # the public certificate, for "upload key reset" in Play Console
+          keytool -export -rfc -keystore upload.keystore -alias upload -storepass "$KEY_PASSWORD" -file out/upload_certificate.pem
+          if [ "$NEW_KEY" = "1" ]; then
+            cp upload.keystore out/upload.keystore
+            # text version of the (password-protected) key, to paste as the secret ANDROID_KEYSTORE_BASE64
+            base64 -w0 upload.keystore > out/ANDROID_KEYSTORE_BASE64.txt
+          fi
           echo "Upload key SHA-256: $FP"
 
       - uses: actions/upload-artifact@v4
