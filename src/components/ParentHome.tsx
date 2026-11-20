@@ -466,6 +466,26 @@ export function ParentHome({
           ))}
         </div>
       </details>
+
+      <details className="group rounded-3xl bg-card p-4 shadow-soft">
+        <summary className="flex cursor-pointer list-none items-center gap-3">
+          <span className="text-2xl">🔒</span>
+          <span className="flex-1">
+            <span className="block font-semibold">Jouw gegevens</span>
+            <span className="block text-xs text-muted-foreground">Wat we bewaren, en wie wat ziet.</span>
+          </span>
+          <ChevronDown className="size-5 transition-transform group-open:rotate-180" />
+        </summary>
+        <ul className="mt-3 space-y-2 text-sm">
+          {PARENT_PRIVACY.map((line) => (
+            <li key={line} className="rounded-2xl bg-muted p-3">{line}</li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Alles staat in de <Link to="/privacy" className="font-semibold text-primary underline">privacyverklaring</Link>. Je kunt je account en
+          gegevens altijd zelf <Link to="/account-verwijderen" className="font-semibold text-primary underline">verwijderen</Link>.
+        </p>
+      </details>
     </div>
   );
 }
@@ -478,6 +498,14 @@ function Chip({ on, label }: { on: boolean; label: string }) {
     </span>
   );
 }
+
+// Plain facts for parents who ask whether their data is safe (see the privacy statement).
+const PARENT_PRIVACY = [
+  "Je dagboek, je diertje, je antwoorden in de handleidingen en je stemmingen zijn alleen voor jou. Ook de makers van de app lezen ze niet.",
+  "Van je kind vragen we nooit een naam of geboortedatum, alleen de leeftijdsgroep, zodat tips en vragen passen.",
+  "Je ziet geen gegevens van jongeren, ook niet van je eigen kind. Zo blijft hun plek veilig.",
+  "Beheerders zien alleen totalen, zoals hoeveel ouders een handleiding deden. Nooit wie wat deed.",
+];
 
 type GridTile = {
   label: string;

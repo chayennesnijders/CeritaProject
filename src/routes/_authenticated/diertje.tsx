@@ -45,6 +45,7 @@ function PetPage() {
   });
   const uid = me?.user?.id ?? me?.profile?.id;
   const qc = useQueryClient();
+  const togglingTodos = useRef(new Set<string>());
   const now = new Date();
   const today = petDay(now);
   const monthStart = localDate(new Date(now.getFullYear(), now.getMonth(), 1));
@@ -205,7 +206,20 @@ function PetPage() {
     refresh();
   }
   async function toggleTodo(id: string, done: boolean, rewarded: boolean) {
-    await supabase.from("pet_todos").update({ done }).eq("id", id);
+    // One tap at a time per task: a second tap while saving used to flip it straight back.
+    if (togglingTodos.current.has(id)) return;
+    togglingTodos.current.add(id);
+    // Show the tick at once; the server answer only confirms it.
+    const key = ["pet-todos", uid];
+    const before = qc.getQueryData<typeof todos>(key);
+    qc.setQueryData<typeof todos>(key, (old) => old?.map((t) => (t.id === id ? { ...t, done } : t)));
+    const { data: saved, error } = await supabase.from("pet_todos").update({ done }).eq("id", id).eq("user_id", uid!).select("id");
+    togglingTodos.current.delete(id);
+    if (error || !saved?.length) {
+      qc.setQueryData(key, before);
+      toast.error("Afvinken lukte niet. Probeer het nog een keer.");
+      return;
+    }
     if (done) burst(rewarded ? "✨" : "⭐");
     // The last task of today ticked off: a little party.
     if (done && todayTasks > 0 && doneTodos + 1 >= todayTasks) celebrate("groot", { set: "natuur" });
