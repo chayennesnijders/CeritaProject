@@ -58,7 +58,13 @@ function PetPage() {
   const { data: care = [] } = useQuery({
     queryKey: ["pet-care", uid, monthStart],
     enabled: !!uid,
-    queryFn: async () => (await supabase.from("pet_care").select("care_date, action").eq("user_id", uid!).gte("care_date", monthStart)).data ?? [],
+    queryFn: async () => {
+      // Care counts per pet (update 74); before that update every row belongs to the main pet.
+      const r = await supabase.from("pet_care").select("care_date, action, pet_ref").eq("user_id", uid!).gte("care_date", monthStart);
+      if (!r.error) return r.data ?? [];
+      const old = await supabase.from("pet_care").select("care_date, action").eq("user_id", uid!).gte("care_date", monthStart);
+      return (old.data ?? []).map((c) => ({ ...c, pet_ref: "main" }));
+    },
   });
 
   const [jumping, setJumping] = useState(false);
@@ -136,7 +142,7 @@ function PetPage() {
   if (isLoading || !uid) return <p className="pt-6 text-muted-foreground">Laden…</p>;
   if (!pet) return <Adopt uid={uid} onDone={refresh} />;
 
-  const doneToday = care.filter((c) => c.care_date === today).map((c) => c.action);
+  const doneToday = care.filter((c) => c.care_date === today && c.pet_ref === activeRef).map((c) => c.action);
   const mainLevel = levelFor(pet.xp).level;
   const careDays = new Set(care.map((c) => c.care_date));
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -177,7 +183,9 @@ function PetPage() {
   }
 
   async function doCare(action: string, emoji: string) {
-    const { error } = await supabase.from("pet_care").insert({ user_id: uid!, action, care_date: today });
+    let { error } = await supabase.from("pet_care").insert({ user_id: uid!, action, care_date: today, pet_ref: activeRef });
+    // Database without update 74: no pet_ref column yet, so care is still shared by all pets.
+    if (error && error.code === "PGRST204") ({ error } = await supabase.from("pet_care").insert({ user_id: uid!, action, care_date: today }));
     if (error) toast.error("Dat lukte niet, probeer het opnieuw.");
     else { burst(emoji, "pet-eat"); setTimeout(() => burst("💖"), 600); refresh(); }
   }

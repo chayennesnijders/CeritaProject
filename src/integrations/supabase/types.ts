@@ -1803,18 +1803,21 @@ export type Database = {
           action: string
           care_date: string
           created_at: string
+          pet_ref: string
           user_id: string
         }
         Insert: {
           action: string
           care_date?: string
           created_at?: string
+          pet_ref?: string
           user_id: string
         }
         Update: {
           action?: string
           care_date?: string
           created_at?: string
+          pet_ref?: string
           user_id?: string
         }
         Relationships: [
@@ -2693,6 +2696,7 @@ export type Database = {
         Returns: { article_id: string; herkenbaar: number; knuffel: number; sterk: number }[]
       }
       can_access_group: { Args: { _group: string }; Returns: boolean }
+      care_per_pet: { Args: never; Returns: boolean }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_open_media: { Args: { _path: string }; Returns: boolean }
       create_group: { Args: { _name: string; _description: string; _emoji: string }; Returns: string }
