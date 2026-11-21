@@ -23,6 +23,7 @@ import { Route as OrganisatiesRouteImport } from './routes/organisaties'
 import { Route as OudersRouteImport } from './routes/ouders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SchoolpakketRouteImport } from './routes/schoolpakket'
 import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as WachtlijstRouteImport } from './routes/wachtlijst'
 import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known/assetlinks[.]json'
@@ -141,6 +142,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolpakketRoute = SchoolpakketRouteImport.update({
+  id: '/schoolpakket',
+  path: '/schoolpakket',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VoorwaardenRoute = VoorwaardenRouteImport.update({
@@ -427,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/ouders': typeof OudersRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/schoolpakket': typeof SchoolpakketRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
@@ -492,6 +499,7 @@ export interface FileRoutesByTo {
   '/ouders': typeof OudersRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/schoolpakket': typeof SchoolpakketRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
@@ -559,6 +567,7 @@ export interface FileRoutesById {
   '/ouders': typeof OudersRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/schoolpakket': typeof SchoolpakketRoute
   '/voorwaarden': typeof VoorwaardenRoute
   '/wachtlijst': typeof WachtlijstRoute
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
@@ -626,6 +635,7 @@ export interface FileRouteTypes {
     | '/ouders'
     | '/privacy'
     | '/reset-password'
+    | '/schoolpakket'
     | '/voorwaarden'
     | '/wachtlijst'
     | '/.well-known/assetlinks.json'
@@ -691,6 +701,7 @@ export interface FileRouteTypes {
     | '/ouders'
     | '/privacy'
     | '/reset-password'
+    | '/schoolpakket'
     | '/voorwaarden'
     | '/wachtlijst'
     | '/.well-known/assetlinks.json'
@@ -757,6 +768,7 @@ export interface FileRouteTypes {
     | '/ouders'
     | '/privacy'
     | '/reset-password'
+    | '/schoolpakket'
     | '/voorwaarden'
     | '/wachtlijst'
     | '/.well-known/assetlinks.json'
@@ -824,6 +836,7 @@ export interface RootRouteChildren {
   OudersRoute: typeof OudersRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SchoolpakketRoute: typeof SchoolpakketRoute
   VoorwaardenRoute: typeof VoorwaardenRoute
   WachtlijstRoute: typeof WachtlijstRoute
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
@@ -933,6 +946,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schoolpakket': {
+      id: '/schoolpakket'
+      path: '/schoolpakket'
+      fullPath: '/schoolpakket'
+      preLoaderRoute: typeof SchoolpakketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/voorwaarden': {
@@ -1394,6 +1414,7 @@ const rootRouteChildren: RootRouteChildren = {
   OudersRoute: OudersRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SchoolpakketRoute: SchoolpakketRoute,
   VoorwaardenRoute: VoorwaardenRoute,
   WachtlijstRoute: WachtlijstRoute,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,

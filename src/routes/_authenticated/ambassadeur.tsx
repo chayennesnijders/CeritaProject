@@ -315,6 +315,10 @@ function AmbassadorPage() {
                 🖨️ Flyer printen
               </a>
             </div>
+            <a href="/schoolpakket" target="_blank" rel="noopener"
+              className="block rounded-2xl bg-muted p-3 text-sm font-semibold">
+              🏫 Schoolpakket: vraag je eigen school om de lessen →
+            </a>
             <details className="rounded-2xl bg-muted p-3">
               <summary className="cursor-pointer text-sm font-semibold">Ideeën zonder socials</summary>
               <ul className="mt-2 space-y-1 text-sm">
