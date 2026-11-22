@@ -110,4 +110,4 @@ jobs:
         with:
           name: CeritaProject-android
           path: android/out
-          retention-days: 3
+          retention-days: 14
