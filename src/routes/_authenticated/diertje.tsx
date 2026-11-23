@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
-import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, outfitsFor, colorsFor, unlocksFor, isUnlocked, todoPopupKey, shouldAutoOpenTodoPopup, AMBASSADOR_OUTFIT, AMBASSADOR_COLOR, type Unlockable } from "@/lib/pet";
+import { CARE_ACTIONS, PET_SPECIES, extraPetSlots, petDay, careUnlocked, speciesEmoji, levelFor, moodFor, BACKGROUNDS, outfitsFor, colorsFor, unlocksFor, isUnlocked, todoPopupKey, shouldAutoOpenTodoPopup, AMBASSADOR_OUTFIT, AMBASSADOR_COLOR, RITI_SPECIES, type Unlockable } from "@/lib/pet";
 import { useEffect, useRef } from "react";
 import { PetAvatar, growthStage, STAGE_LABELS } from "@/components/PetAvatar";
 import { PetGames } from "@/components/PetGames";
@@ -40,7 +40,7 @@ function PetPage() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("my_exclusive_unlocks");
       if (error) return null; // update-73 not run yet: simply don't show them
-      return data as unknown as { live: boolean; ambassador: boolean; outfit: boolean; color: boolean };
+      return data as unknown as { live: boolean; ambassador: boolean; outfit: boolean; color: boolean; pioneer?: boolean };
     },
   });
   const uid = me?.user?.id ?? me?.profile?.id;
@@ -140,7 +140,7 @@ function PetPage() {
       .then(({ error }) => error && console.warn("active pet not saved", error.message));
   }
   if (isLoading || !uid) return <p className="pt-6 text-muted-foreground">Laden…</p>;
-  if (!pet) return <Adopt uid={uid} onDone={refresh} />;
+  if (!pet) return <Adopt uid={uid} onDone={refresh} pioneer={!!exclusive?.pioneer} />;
 
   const doneToday = care.filter((c) => c.care_date === today && c.pet_ref === activeRef).map((c) => c.action);
   const mainLevel = levelFor(pet.xp).level;
@@ -274,7 +274,7 @@ function PetPage() {
       </div>
       {adopting && (
         <div className="rounded-3xl bg-card p-4 shadow-soft">
-          <Adopt uid={uid} companion onDone={() => { setAdopting(false); refresh(); }} />
+          <Adopt uid={uid} companion pioneer={!!exclusive?.pioneer} onDone={() => { setAdopting(false); refresh(); }} />
           <button onClick={() => setAdopting(false)} className="mt-2 w-full text-sm text-muted-foreground">Annuleren</button>
         </div>
       )}
@@ -467,7 +467,7 @@ const PANELS = [
 ] as const;
 type PanelId = (typeof PANELS)[number]["id"];
 
-function Adopt({ uid, onDone, companion = false }: { uid: string; onDone: () => void; companion?: boolean }) {
+function Adopt({ uid, onDone, companion = false, pioneer = false }: { uid: string; onDone: () => void; companion?: boolean; pioneer?: boolean }) {
   const [species, setSpecies] = useState<string>("kat");
   const [name, setName] = useState("");
   async function save() {
@@ -487,6 +487,13 @@ function Adopt({ uid, onDone, companion = false }: { uid: string; onDone: () => 
             <p className="text-3xl">{s.emoji}</p><p className="text-xs">{s.label}</p>
           </button>
         ))}
+        {/* Riti: only for the first 500 young people on the waitlist (update-75); others see how to get it. */}
+        <button onClick={() => (pioneer ? setSpecies(RITI_SPECIES.id) : toast("🧸 Riti is voor de eerste 500 jongeren op de wachtlijst, met hetzelfde e-mailadres als je account."))}
+          className={`relative rounded-3xl p-3 text-center ${species === RITI_SPECIES.id ? "bg-accent ring-2 ring-primary" : "bg-secondary shadow-soft"} ${pioneer ? "" : "opacity-60"}`}>
+          <p className="text-3xl">{RITI_SPECIES.emoji}</p>
+          <p className="text-xs font-semibold">{pioneer ? "Riti ✨" : "🔒 Riti"}</p>
+          <p className="text-[10px] leading-tight text-muted-foreground">{pioneer ? "Alleen voor pioniers" : "Eerste 500 op de wachtlijst"}</p>
+        </button>
       </div>
       <input value={name} onChange={(e) => setName(e.target.value)} maxLength={30} placeholder="Geef je diertje een naam"
         className="w-full rounded-2xl border border-input bg-card px-4 py-3" />
@@ -515,7 +522,7 @@ function useLevelUpToast(level: number | null, petRef: string, slot: number) {
   }, [level, petRef, slot]);
 }
 
-type Exclusive = { live: boolean; ambassador: boolean; outfit: boolean; color: boolean } | null | undefined;
+type Exclusive = { live: boolean; ambassador: boolean; outfit: boolean; color: boolean; pioneer?: boolean } | null | undefined;
 
 function Wardrobe({ level, backgroundLevel, slot, pet, onChoose, exclusive }: {
   /** The exclusive ambassador items, shown only to ambassadors and admins. */

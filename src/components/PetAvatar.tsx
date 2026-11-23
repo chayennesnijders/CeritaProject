@@ -12,6 +12,7 @@ const LOOKS: Record<string, Look> = {
   muis: { body: "#B9B4C2", belly: "#EDEAF2", ear: "#F4B6C2" },
   hamster: { body: "#E9B26B", belly: "#FFF3DE", ear: "#F4B6C2" },
   eenhoorn: { body: "#FAF6FF", belly: "#FFFFFF", ear: "#F4B6C2" },
+  riti: { body: "#F2A6BF", belly: "#FFE3EE", ear: "#E58AA9" },
 };
 
 function Ears({ species, l }: { species: string; l: Look }) {
@@ -127,13 +128,20 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
             <path d="M95 34 L105 30 M94 24 L104 20" stroke="#D9A920" strokeWidth="2" />
             <path d="M112 42 Q140 40 150 64 Q132 54 120 58 Q136 66 140 84 Q122 70 110 66 Z" fill="#E7A6E0" />
           </>)}
+          {species === "riti" && (<>
+            {/* Riti: the CeritaProject bear with a little leaf sprout and a heart on the belly */}
+            <path d="M100 40 Q100 26 106 18" stroke="#5E9E6E" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M104 22 Q122 8 130 22 Q116 32 104 22 Z" fill="#8CCB9B" stroke="#5E9E6E" strokeWidth="2" />
+            <path d="M98 26 Q82 14 76 26 Q88 34 98 26 Z" fill="#8CCB9B" stroke="#5E9E6E" strokeWidth="2" />
+            <path d="M100 172 C 88 164 90 154 100 160 C 110 154 112 164 100 172 Z" fill="#E36F8C" />
+          </>)}
           {species === "hamster" && (<>
             <ellipse cx="54" cy="122" rx="18" ry="13" fill={l.belly} />
             <ellipse cx="146" cy="122" rx="18" ry="13" fill={l.belly} />
           </>)}
           <ellipse cx="60" cy="118" rx="10" ry="6" fill="#F49AB0" opacity=".6" />
           <ellipse cx="140" cy="118" rx="10" ry="6" fill="#F49AB0" opacity=".6" />
-          {(species === "hond" || species === "beer" || species === "panda" || species === "vos") && <ellipse cx="100" cy="112" rx="8" ry="6" fill="#2B1A12" />}
+          {(species === "hond" || species === "beer" || species === "panda" || species === "vos" || species === "riti") && <ellipse cx="100" cy="112" rx="8" ry="6" fill="#2B1A12" />}
           {(species === "muis" || species === "hamster" || species === "eenhoorn") && <ellipse cx="100" cy="112" rx="6" ry="4.5" fill="#E36F8C" />}
           {species === "kat" && <path d="M95 110 L105 110 L100 116 Z" fill="#E36F8C" />}
           {sleeping ? (

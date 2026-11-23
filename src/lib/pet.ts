@@ -35,7 +35,12 @@ export function moodFor(caredToday: number) {
   return "Rust lekker uit 😴";
 }
 
+/** Riti, the CeritaProject bear: only for the first 500 young people on the waitlist (update-75, is_pioneer). */
+export const RITI_SPECIES = { id: "riti", emoji: "🧸", label: "Riti" } as const;
+export const PIONEER_PLACES = 500;
+
 export function speciesEmoji(id: string) {
+  if (id === RITI_SPECIES.id) return RITI_SPECIES.emoji;
   return PET_SPECIES.find((s) => s.id === id)?.emoji ?? "🐾";
 }
 

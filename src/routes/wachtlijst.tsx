@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LegalLinks } from "@/components/LegalPage";
 import { Riti } from "@/components/Riti";
+import { PIONEER_PLACES } from "@/lib/pet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -60,9 +61,13 @@ function WaitlistPage() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [count, setCount] = useState<number | null>(null);
+  // Places left for Riti, the pioneers' pet (update-75); null when that update has not run yet.
+  const [placesLeft, setPlacesLeft] = useState<number | null>(null);
+  const [wasPioneer, setWasPioneer] = useState(false);
 
   useEffect(() => {
     void supabase.rpc("waitlist_count").then(({ data }) => setCount(data ?? null));
+    void supabase.rpc("pioneer_places_left").then(({ data, error }) => setPlacesLeft(error ? null : (data ?? null)));
   }, [done]);
 
   const problem = waitlistProblem({ kind, email, age, store, parentOk, privacyOk });
@@ -85,7 +90,11 @@ function WaitlistPage() {
     });
     setBusy(false);
     if (err) setError(err.message.includes("vanaf 13") ? problem : err.message);
-    else setDone(true);
+    else {
+      // Joined while places were left: one of the first 500 (the server decides in the end).
+      setWasPioneer(!isParent && placesLeft !== null && placesLeft > 0);
+      setDone(true);
+    }
   }
 
   const [copied, setCopied] = useState(false);
@@ -132,8 +141,24 @@ function WaitlistPage() {
         </p>
       )}
 
+      {!isParent && !done && placesLeft !== null && placesLeft > 0 && (
+        <div className="mt-4 flex items-center gap-3 rounded-3xl border-2 border-foreground bg-secondary p-4 shadow-soft">
+          <span className="text-4xl">🧸</span>
+          <p className="text-sm">
+            <b>De eerste {PIONEER_PLACES} krijgen Riti</b>, een exclusief diertje in de app. Nog <b>{placesLeft}</b>{" "}
+            {placesLeft === 1 ? "plek" : "plekken"}!
+          </p>
+        </div>
+      )}
+
       {done ? (
         <section className="mt-5 space-y-4">
+          {wasPioneer && (
+            <div className="rounded-3xl bg-secondary p-5 text-sm shadow-soft">
+              🧸 <b>Je hoort bij de eerste {PIONEER_PLACES}!</b> Maak straks je account met hetzelfde e-mailadres, dan kun je Riti kiezen
+              als diertje.
+            </div>
+          )}
           <div className="rounded-3xl bg-card p-5 text-sm shadow-soft">
             <p>
               We sturen je een mail op <strong>{email.trim()}</strong> zodra je de app kunt

@@ -2697,6 +2697,7 @@ export type Database = {
       }
       can_access_group: { Args: { _group: string }; Returns: boolean }
       care_per_pet: { Args: never; Returns: boolean }
+      pioneer_places_left: { Args: never; Returns: number }
       can_call: { Args: { _conv: string }; Returns: boolean }
       can_open_media: { Args: { _path: string }; Returns: boolean }
       create_group: { Args: { _name: string; _description: string; _emoji: string }; Returns: string }
