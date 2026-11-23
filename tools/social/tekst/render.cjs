@@ -1,6 +1,6 @@
 // Plain text slides (TikTok photo mode, 1080x1920) in three colours: cream, pink and dark brown.
 //   node tools/social/tekst/render.cjs WEEK.json OUT_DIR
-// WEEK.json: { posts: [{ id, slides: [{ kind: "hook"|"body"|"cta"|"app", text }] }] }
+// WEEK.json: { posts: [{ id, cover?: "pink"|"ink"|"cream", slides: [{ kind: "hook"|"body"|"cta"|"app", text }] }] }
 // In a text, *word* becomes a pink keyword button; a blank line starts a new paragraph.
 const { chromium } = require('/opt/node22/lib/node_modules/playwright');
 const fs = require('fs');
@@ -13,8 +13,10 @@ const THEME = { hook: ['pink', 'ink'], body0: ['cream', 'ink'], body1: ['ink', '
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const rich = (s) => s.split(/\n\s*\n/).map((p) => `<p>${esc(p).replace(/\*([^*]+)\*/g, '<span class="kw">$1</span>').replace(/\n/g, '<br>')}</p>`).join('');
 
-function page(slide, i, n, body) {
-  const [bg, fg] = THEME[slide.kind === 'body' ? `body${body % 2}` : slide.kind];
+function page(slide, i, n, body, cover) {
+  // post.cover picks the first slide's colours (pink, ink or cream), so the grid follows the feed's colour pattern
+  const COVER = { pink: ['pink', 'ink'], ink: ['ink', 'cream'], cream: ['cream', 'ink'] };
+  const [bg, fg] = slide.kind === 'hook' && COVER[cover] ? COVER[cover] : THEME[slide.kind === 'body' ? `body${body % 2}` : slide.kind];
   const hook = slide.kind === 'hook';
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:U;font-weight:800;src:url('file://${FONTS}/unbounded-latin-800-normal.woff2')}
@@ -48,7 +50,7 @@ ${i === 0 ? '<div class="swipe">Swipe →</div>' : ''}
       const s = post.slides[i];
       // load from a file so the local fonts are allowed
       const tmp = path.join(dir, '.slide.html');
-      fs.writeFileSync(tmp, page(s, i, post.slides.length, body));
+      fs.writeFileSync(tmp, page(s, i, post.slides.length, body, post.cover));
       await p.goto('file://' + path.resolve(tmp));
       if (s.kind === 'body') body++;
       await p.evaluate(() => document.fonts.ready);
