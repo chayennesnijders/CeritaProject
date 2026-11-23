@@ -1,5 +1,5 @@
 // Plain text slides (TikTok photo mode, 1080x1920) in three colours: cream, pink and dark brown.
-//   node tools/social/tekst/render.cjs WEEK.json OUT_DIR
+//   node tools/social/tekst/render.cjs WEEK.json OUT_DIR [--45]   (--45: 1080x1350 for an Instagram carousel)
 // WEEK.json: { posts: [{ id, cover?: "pink"|"ink"|"cream", slides: [{ kind: "hook"|"body"|"cta"|"app", text }] }] }
 // In a text, *word* becomes a pink keyword button; a blank line starts a new paragraph.
 const { chromium } = require('/opt/node22/lib/node_modules/playwright');
@@ -7,6 +7,8 @@ const fs = require('fs');
 const path = require('path');
 
 const FONTS = path.join(__dirname, '..', 'fonts');
+const IG = process.argv.includes('--45');
+const H = IG ? 1350 : 1920;
 const C = { cream: '#F7EDE1', pink: '#F2A6BF', ink: '#1E1615' };
 const THEME = { hook: ['pink', 'ink'], body0: ['cream', 'ink'], body1: ['ink', 'cream'], cta: ['pink', 'ink'], app: ['ink', 'cream'] };
 
@@ -22,14 +24,14 @@ function page(slide, i, n, body, cover) {
 @font-face{font-family:U;font-weight:800;src:url('file://${FONTS}/unbounded-latin-800-normal.woff2')}
 @font-face{font-family:F;font-weight:800;src:url('file://${FONTS}/figtree-latin-800-normal.woff2')}
 @font-face{font-family:F;font-weight:600;src:url('file://${FONTS}/figtree-latin-600-normal.woff2')}
-html,body{margin:0;width:1080px;height:1920px;background:${C[bg]};color:${C[fg]};overflow:hidden}
-.wrap{position:absolute;left:96px;right:96px;top:300px;bottom:420px;display:flex;flex-direction:column;justify-content:center}
+html,body{margin:0;width:1080px;height:${H}px;background:${C[bg]};color:${C[fg]};overflow:hidden}
+.wrap{position:absolute;left:96px;right:96px;top:${IG ? 190 : 300}px;bottom:${IG ? 170 : 420}px;display:flex;flex-direction:column;justify-content:center}
 #t{font-family:${hook ? 'U' : 'F'};font-weight:800;line-height:1.18;letter-spacing:${hook ? '-0.02em' : '0'}}
 #t p{margin:0 0 .55em}#t p:last-child{margin:0}
 .kw{display:inline-block;background:${C.pink};color:${C.ink};border:6px solid ${C.ink};border-radius:999px;padding:.02em .45em;box-shadow:8px 8px 0 ${C.ink};font-family:U;letter-spacing:.02em}
 ${bg === 'pink' ? `.kw{background:${C.cream}}` : ''}
-.top{position:absolute;top:150px;left:96px;right:96px;display:flex;justify-content:space-between;font-family:F;font-weight:800;font-size:40px;opacity:.8}
-.swipe{position:absolute;bottom:330px;left:96px;font-family:F;font-weight:800;font-size:38px;opacity:.8}
+.top{position:absolute;top:${IG ? 70 : 150}px;left:96px;right:96px;display:flex;justify-content:space-between;font-family:F;font-weight:800;font-size:40px;opacity:.8}
+.swipe{position:absolute;bottom:${IG ? 80 : 330}px;left:96px;font-family:F;font-weight:800;font-size:38px;opacity:.8}
 </style></head><body>
 <div class="top"><span>CeritaProject</span><span>${i + 1}/${n}</span></div>
 <div class="wrap"><div id="t">${rich(slide.text)}</div></div>
@@ -38,10 +40,10 @@ ${i === 0 ? '<div class="swipe">Swipe →</div>' : ''}
 }
 
 (async () => {
-  const [file, outDir] = process.argv.slice(2);
+  const [file, outDir] = process.argv.slice(2).filter((a) => a !== '--45');
   const week = JSON.parse(fs.readFileSync(file, 'utf8'));
   const b = await chromium.launch();
-  const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
+  const p = await b.newPage({ viewport: { width: 1080, height: H } });
   for (const post of week.posts) {
     const dir = path.join(outDir, post.id);
     fs.mkdirSync(dir, { recursive: true });
