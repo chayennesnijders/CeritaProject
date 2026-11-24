@@ -104,6 +104,7 @@ jobs:
             base64 -w0 upload.keystore > out/ANDROID_KEYSTORE_BASE64.txt
           fi
           echo "Upload key SHA-256: $FP"
+          keytool -list -v -keystore upload.keystore -alias upload -storepass "$KEY_PASSWORD" | grep -E 'SHA1:|SHA256:' | sed 's/^/Upload key /'
 
       - uses: actions/upload-artifact@v4
         if: env.TEST_BUILD != '1'
