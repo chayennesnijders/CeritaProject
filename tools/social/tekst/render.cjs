@@ -35,9 +35,9 @@ ${bg === 'pink' ? `.kw{background:${C.cream}}` : ''}
 .lbl{align-self:flex-start;font-family:F;font-weight:800;font-size:38px;padding:10px 26px;border-radius:999px;border:5px solid ${C.ink};background:${bg === 'pink' ? C.cream : C.pink};color:${C.ink};margin-bottom:40px}
 .swipe{position:absolute;bottom:${IG ? 80 : 330}px;left:96px;font-family:F;font-weight:800;font-size:38px;opacity:.8}
 </style></head><body>
-<div class="top"><span>CeritaProject</span><span>${i + 1}/${n}</span></div>
+<div class="top"><span>CeritaProject</span><span>${n > 1 ? `${i + 1}/${n}` : ''}</span></div>
 <div class="wrap">${slide.label ? `<div class="lbl">${esc(slide.label)}</div>` : ""}<div id="t">${rich(slide.text)}</div></div>
-${i === 0 ? '<div class="swipe">Swipe →</div>' : ''}
+${i === 0 && n > 1 ? '<div class="swipe">Swipe →</div>' : ''}
 </body></html>`;
 }
 
