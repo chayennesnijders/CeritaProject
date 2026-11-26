@@ -6,6 +6,7 @@ import { fingerprintBlob } from "@/lib/photo-dedupe";
 import { duplicatesToRemove, photoPlan, type BankPhoto } from "@/lib/photo-bank";
 import { addToBank, usePhotoBank, useRefreshPhotoBank, type BankPhotoWithSrc } from "@/lib/use-photo-bank";
 import { celebrate } from "@/lib/celebrate";
+import { makeZip, zipName } from "@/lib/zip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +44,47 @@ export function StoryPhotoBank() {
   const photos = data.photos;
   // Free = no story uses it at all (also not a planned or draft story, and not in a story's text).
   const free = photos.filter((p) => !p.inUse && !p.referenced).length;
+
+  // All story photos in one zip (named after the story that uses them), e.g. to make social posts with them.
+  async function downloadAll() {
+    setBusy("Foto's verzamelen…");
+    try {
+      const { data: stories } = await supabase.from("articles").select("title, image_url").eq("kind", "verhaal").not("image_url", "is", null);
+      const title = new Map<string, string>();
+      for (const s of stories ?? []) if (s.image_url && !title.has(s.image_url)) title.set(s.image_url, s.title);
+      const paths = [...new Set([...data!.rows.map((r) => r.path), ...title.keys()])];
+      const used = new Set<string>();
+      const files: { name: string; data: Uint8Array }[] = [];
+      const index = ["bestand;verhaal"];
+      let free = 0;
+      for (const [i, path] of paths.entries()) {
+        setBusy(`Foto ${i + 1} van ${paths.length} ophalen…`);
+        const { data: blob } = await supabase.storage.from("article-images").download(path);
+        if (!blob) continue;
+        const ext = path.toLowerCase().endsWith(".png") ? "png" : "jpg";
+        let base = title.has(path) ? zipName(title.get(path)!) : `fotobank ${String(++free).padStart(3, "0")}`;
+        for (let n = 2; used.has(base); n++) base = `${base} ${n}`;
+        used.add(base);
+        files.push({ name: `fotos/${base}.${ext}`, data: new Uint8Array(await blob.arrayBuffer()) });
+        index.push(`${base}.${ext};${(title.get(path) ?? "").replace(/;/g, ",")}`);
+      }
+      files.push({ name: "fotos/overzicht.csv", data: new TextEncoder().encode(index.join("\n") + "\n") });
+      const zip = makeZip(files);
+      const url = URL.createObjectURL(new Blob([zip.buffer as ArrayBuffer], { type: "application/zip" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "CeritaProject-fotobank.zip";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      toast.success(`${files.length - 1} foto's in de zip.`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Downloaden lukte niet.");
+    } finally {
+      setBusy(null);
+    }
+  }
 
   async function add(files: FileList) {
     const known = data!.rows.map((r) => r.hash);
@@ -220,6 +262,14 @@ export function StoryPhotoBank() {
             }}
           />
         </label>
+        <button
+          type="button"
+          disabled={!!busy}
+          onClick={() => void downloadAll()}
+          className="rounded-full border px-4 py-2 text-sm font-semibold disabled:opacity-60"
+        >
+          📦 Alle foto's downloaden (zip)
+        </button>
         <button
           disabled={!!busy || photos.length < 2}
           onClick={() => void findDoubles()}
