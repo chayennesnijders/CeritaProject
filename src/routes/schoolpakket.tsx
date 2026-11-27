@@ -37,7 +37,14 @@ function SchoolPackPage() {
   return (
     <div className="min-h-screen bg-background print:bg-white">
       <style>{`@page { size: A4; margin: 14mm; } @media print { html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }`}</style>
-      <main className="mx-auto max-w-2xl space-y-5 px-4 py-8 print:max-w-none print:py-0">
+      <main className="mx-auto max-w-2xl space-y-5 px-4 pb-8 pt-[calc(env(safe-area-inset-top,0px)+1rem)] print:max-w-none print:py-0">
+        <button
+          type="button"
+          onClick={() => (window.history.length > 1 ? window.history.back() : window.location.assign("/profiel"))}
+          className="inline-flex items-center gap-1 rounded-full bg-muted px-4 py-2 text-sm font-semibold active:scale-95 print:hidden"
+        >
+          ← Terug
+        </button>
         <header className="flex items-start gap-4">
           <div className="flex-1">
             <p className="text-xs font-bold uppercase tracking-wider text-primary">Schoolpakket</p>

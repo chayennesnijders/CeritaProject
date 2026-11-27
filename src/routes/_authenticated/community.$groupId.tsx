@@ -330,7 +330,7 @@ function GroupPage() {
   return (
     <div className="fixed inset-0 z-40 mx-auto flex max-w-md flex-col bg-background">
       {/* Compacte kop: blijft altijd in beeld, met vaste terugknop naar de groepen */}
-      <header className="flex shrink-0 items-center gap-2 bg-ink px-3 py-2 text-ink-foreground">
+      <header className="flex shrink-0 items-center gap-2 bg-ink px-3 pb-2 pt-[calc(env(safe-area-inset-top,0px)+0.5rem)] text-ink-foreground">
         <Link to="/community" aria-label="Terug naar de groepen"
           className="grid size-9 shrink-0 place-items-center rounded-full bg-foreground/15 active:scale-95">
           <ArrowLeft className="size-5" />

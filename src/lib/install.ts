@@ -12,7 +12,10 @@ export function platformOf(userAgent: string): Platform {
  * that install ("Onveilige app geblokkeerd"). Installing from Chrome works.
  */
 /** True inside our own App Store / Play Store app (the iPhone app adds "CeritaApp" to its user agent). */
-export const isNativeApp = (userAgent: string) => /CeritaApp/i.test(userAgent);
+export const isNativeApp = (userAgent: string) =>
+  /CeritaApp/i.test(userAgent) ||
+  (typeof window !== "undefined" &&
+    !!(window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
 
 export const isSamsungBrowser = (userAgent: string) => /SamsungBrowser/i.test(userAgent);
 

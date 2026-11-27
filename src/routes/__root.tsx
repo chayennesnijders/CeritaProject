@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { children: "try{var t=localStorage.getItem('cerita-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}" },
       { children: TEXT_SIZE_BOOT },
       // In the iPhone app: hide the grey bar with arrows above the keyboard.
-      { children: "if(/CeritaApp/.test(navigator.userAgent)){var n=0,k=function(){var K=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Keyboard;if(K&&K.setAccessoryBarVisible){K.setAccessoryBarVisible({isVisible:false})}else if(n++<40){setTimeout(k,250)}};k()}" },
+      { children: "if(/CeritaApp/.test(navigator.userAgent)||window.Capacitor){var n=0,k=function(){var K=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Keyboard;if(K&&K.setAccessoryBarVisible){K.setAccessoryBarVisible({isVisible:false})}else if(n++<40){setTimeout(k,250)}};k()}" },
     ],
   }),
   shellComponent: RootShell,

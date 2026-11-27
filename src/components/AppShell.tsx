@@ -171,7 +171,7 @@ export function AppShell() {
         </div>
         {isTeacher && me?.user.id && <TeacherLevelDialog uid={me.user.id} />}
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+      <nav className="fixed inset-x-0 bottom-0 z-30 print:hidden mx-auto max-w-md px-3 pb-[max(calc(env(safe-area-inset-bottom,0px)-0.75rem),0.75rem)]">
         <div className="flex justify-around rounded-3xl border-2 border-secondary bg-ink px-2 py-2 text-ink-foreground shadow-soft">
           {visibleTabs.map(({ to, label, icon: Icon }) => {
             const n = to === "/berichten" ? unread.dmTotal + unread.requests : to === "/community" ? unread.groupTotal : 0;

@@ -169,10 +169,10 @@ export function PetAvatar({ species, mood, jumping, onTap, outfit = "geen", leve
           {outfit === "ambassadeur" && (
             <g>
               {/* Cerita Ambassador sash with a heart badge */}
-              <path d="M40 134 L52 122 L158 176 L150 188 Z" fill="#F2A6BF" stroke="#C9547D" strokeWidth="2.5" strokeLinejoin="round" />
-              <path d="M48 130 L152 182" stroke="#fff" strokeWidth="2" strokeDasharray="4 5" opacity=".8" />
-              <g transform="translate(104 158)">
-                <circle r="15" fill="#fff" stroke="#C9547D" strokeWidth="2.5" />
+              <path d="M54 128 L62 118 L148 166 L140 176 Z" fill="#F2A6BF" stroke="#C9547D" strokeWidth="2.5" strokeLinejoin="round" />
+              <path d="M59 124 L144 171" stroke="#fff" strokeWidth="2" strokeDasharray="4 5" opacity=".8" />
+              <g transform="translate(104 148)">
+                <circle r="12" fill="#fff" stroke="#C9547D" strokeWidth="2.5" />
                 <path d="M0 6 C-12 -2 -7 -12 0 -6 C7 -12 12 -2 0 6 Z" fill="#E36F8C" />
               </g>
             </g>

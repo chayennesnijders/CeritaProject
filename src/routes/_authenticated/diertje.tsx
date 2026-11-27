@@ -565,7 +565,7 @@ function Wardrobe({ level, backgroundLevel, slot, pet, onChoose, exclusive }: {
           const active = pet[tab] === item.id;
           return (
             <button key={item.id} disabled={!open} onClick={() => onChoose(tab, item.id)}
-              className={`rounded-2xl p-3 text-center ${active ? "bg-accent ring-2 ring-primary" : isExcl ? "bg-primary/15 ring-1 ring-primary/40" : "bg-muted"} ${open ? "" : "opacity-50"}`}>
+              className={`min-w-0 rounded-2xl p-3 text-center ${active ? "bg-accent ring-2 ring-primary" : isExcl ? "bg-primary/15 ring-1 ring-primary/40" : "bg-muted"} ${open ? "" : "opacity-50"}`}>
               {tab === "color" && open && (item as (typeof colors)[number]).body ? (
                 <span
                   aria-hidden
@@ -577,7 +577,7 @@ function Wardrobe({ level, backgroundLevel, slot, pet, onChoose, exclusive }: {
               ) : (
                 <p className="text-2xl">{open ? item.emoji : "🔒"}</p>
               )}
-              <p className="text-xs">{open ? item.label : isExcl ? exclusiveHint(item.id) : `Level ${item.level}`}</p>
+              <p className="break-words text-xs [hyphens:auto]" lang="nl">{open ? item.label : isExcl ? exclusiveHint(item.id) : `Level ${item.level}`}</p>
               {isExcl && <p className="text-[10px] font-semibold text-primary">Ambassadeurs</p>}
             </button>
           );
