@@ -1,0 +1,10 @@
+{
+  "name": "ceritaproject-ios",
+  "private": true,
+  "description": "iPhone app shell for app.ceritaproject.nl (built by .github/workflows/ios.yml)",
+  "dependencies": {
+    "@capacitor/cli": "7.4.2",
+    "@capacitor/core": "7.4.2",
+    "@capacitor/ios": "7.4.2"
+  }
+}

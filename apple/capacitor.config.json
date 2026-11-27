@@ -1,0 +1,14 @@
+{
+  "appId": "com.ceritaproject.mijnapp",
+  "appName": "CeritaProject",
+  "webDir": "www",
+  "backgroundColor": "#FAF3EA",
+  "server": {
+    "url": "https://app.ceritaproject.nl/home",
+    "allowNavigation": ["app.ceritaproject.nl", "*.supabase.co", "checkout.stripe.com"]
+  },
+  "ios": {
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}
