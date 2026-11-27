@@ -5,10 +5,20 @@
   "backgroundColor": "#FAF3EA",
   "server": {
     "url": "https://app.ceritaproject.nl/home",
-    "allowNavigation": ["app.ceritaproject.nl", "*.supabase.co", "checkout.stripe.com"]
+    "allowNavigation": [
+      "app.ceritaproject.nl",
+      "*.supabase.co",
+      "checkout.stripe.com"
+    ]
   },
   "ios": {
     "contentInset": "never",
     "limitsNavigationsToAppBoundDomains": false
+  },
+  "appendUserAgent": "CeritaApp",
+  "plugins": {
+    "Keyboard": {
+      "resize": "native"
+    }
   }
 }

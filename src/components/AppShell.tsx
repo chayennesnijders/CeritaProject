@@ -111,7 +111,7 @@ export function AppShell() {
       <CareHelpDialog />
       {!isGrownUp && <WelcomeTour />}
       {!isGrownUp && <WeeklyRulesPopup uid={me?.user.id} />}
-      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink py-2 pl-3 pr-4 text-ink-foreground">
+      <header className="sticky top-0 z-20 flex print:hidden items-center justify-between gap-2 rounded-b-3xl bg-ink pb-2 pt-[calc(env(safe-area-inset-top,0px)+0.5rem)] pl-3 pr-4 text-ink-foreground">
         <Link to="/home" aria-label="Cerita Project" className="flex min-w-0 items-center gap-2">
           <img src="/cerita-beer.png" alt="" className="size-11 shrink-0 rounded-full bg-[#faf3ea] object-cover" />
           {/* On a phone the bear logo alone; the name only where it fits without being cut off. */}
@@ -130,7 +130,7 @@ export function AppShell() {
         </div>
       </header>
       {teacherView && (
-        <div className="sticky top-[3.75rem] z-20 mx-3 mt-2 flex items-center gap-2 rounded-2xl bg-[#fff4d6] px-3 py-2 text-xs text-[#5c4300] shadow-soft print:hidden">
+        <div className="sticky top-[calc(3.75rem+env(safe-area-inset-top,0px))] z-20 mx-3 mt-2 flex items-center gap-2 rounded-2xl bg-[#fff4d6] px-3 py-2 text-xs text-[#5c4300] shadow-soft print:hidden">
           <span className="flex-1">
             🎓 <b>Je bekijkt de app als leraar.</b> Je ziet alle lessen als voorbeeld, met je eigen account.
           </span>
@@ -146,7 +146,7 @@ export function AppShell() {
         </div>
       )}
       {parentView && !teacherView && (
-        <div className="sticky top-[3.75rem] z-20 mx-3 mt-2 flex items-center gap-2 rounded-2xl bg-[#fff4d6] px-3 py-2 text-xs text-[#5c4300] shadow-soft print:hidden">
+        <div className="sticky top-[calc(3.75rem+env(safe-area-inset-top,0px))] z-20 mx-3 mt-2 flex items-center gap-2 rounded-2xl bg-[#fff4d6] px-3 py-2 text-xs text-[#5c4300] shadow-soft print:hidden">
           <span className="flex-1">
             👪 <b>Je bekijkt de app als ouder.</b> Alles werkt echt, met jouw eigen account.
           </span>

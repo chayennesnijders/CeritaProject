@@ -4,6 +4,7 @@ import { useActsAsTeacher } from "@/lib/teacher-view";
 import { shrinkImage } from "@/lib/shrink-image";
 import { normalizeUsername, usernameProblem } from "@/lib/username";
 import { InstallGuide } from "@/components/InstallGuide";
+import { isNativeApp } from "@/lib/install";
 import { QuietHours, TextSizePicker } from "@/components/ComfortSettings";
 import { MyBadges, useBadges } from "@/components/MyBadges";
 import { SettingsSection } from "@/components/SettingsSection";
@@ -107,6 +108,8 @@ function ProfilePage() {
   const [theme, setThemeState] = useState<Theme>("light");
   const [open, setOpen] = useState<string | null>(null);
   const [installOpen, setInstallOpen] = useState(false);
+  const [inNativeApp, setInNativeApp] = useState(false);
+  useEffect(() => setInNativeApp(isNativeApp(navigator.userAgent)), []);
   const { earned } = useBadges(p?.id ?? "");
 
   useEffect(() => setThemeState(getTheme()), []);
@@ -456,13 +459,15 @@ function ProfilePage() {
               aria-label="Dagelijks seintje voor je diertje"
             />
           </div>
-          <Button
-            variant="ghost"
-            className="w-full rounded-full text-sm"
-            onClick={() => setInstallOpen(true)}
-          >
-            📲 Hoe zet ik de app op mijn beginscherm?
-          </Button>
+          {!inNativeApp && (
+            <Button
+              variant="ghost"
+              className="w-full rounded-full text-sm"
+              onClick={() => setInstallOpen(true)}
+            >
+              📲 Hoe zet ik de app op mijn beginscherm?
+            </Button>
+          )}
           <Button
             variant="ghost"
             className="w-full rounded-full text-sm"

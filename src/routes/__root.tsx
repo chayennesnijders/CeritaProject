@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" },
       // Google Search Console: proves ownership of https://app.ceritaproject.nl/
       { name: "google-site-verification", content: "HNzL897g4yPsOo2YIxqOPjaYxyJHU9cXxQTuIPH244w" },
       { name: "theme-color", content: "#5a3a26" },
@@ -93,6 +93,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Thema uit de opslag van dit apparaat toepassen vóór de eerste verfbeurt
       { children: "try{var t=localStorage.getItem('cerita-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}" },
       { children: TEXT_SIZE_BOOT },
+      // In the iPhone app: hide the grey bar with arrows above the keyboard.
+      { children: "if(/CeritaApp/.test(navigator.userAgent)){var n=0,k=function(){var K=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Keyboard;if(K&&K.setAccessoryBarVisible){K.setAccessoryBarVisible({isVisible:false})}else if(n++<40){setTimeout(k,250)}};k()}" },
     ],
   }),
   shellComponent: RootShell,

@@ -8,7 +8,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { INSTALL_STEPS, isSamsungBrowser, platformOf, shouldShowInstall, type Platform } from "@/lib/install";
+import {
+  INSTALL_STEPS,
+  isSamsungBrowser,
+  isNativeApp,
+  platformOf,
+  shouldShowInstall,
+  type Platform,
+} from "@/lib/install";
 
 const SEEN_KEY = "cerita-beginscherm-uitleg";
 
@@ -59,8 +66,9 @@ export function InstallGuide({
           <div className="rounded-2xl border-2 border-primary bg-card p-3 text-sm">
             <p className="font-semibold">Je gebruikt Samsung Internet</p>
             <p className="mt-1 text-muted-foreground">
-              Daar blokkeert Google Play Protect soms de installatie (&lsquo;Onveilige app geblokkeerd&rsquo;).
-              Dat ligt niet aan CeritaProject. Kopieer het adres <b>app.ceritaproject.nl</b> en open het in
+              Daar blokkeert Google Play Protect soms de installatie (&lsquo;Onveilige app
+              geblokkeerd&rsquo;). Dat ligt niet aan CeritaProject. Kopieer het adres{" "}
+              <b>app.ceritaproject.nl</b> en open het in
               <b> Chrome</b>; daar werkt installeren wel.
             </p>
             <button
@@ -106,7 +114,8 @@ export function AutoInstallGuide() {
     }
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
-      (navigator as Navigator & { standalone?: boolean }).standalone === true;
+      (navigator as Navigator & { standalone?: boolean }).standalone === true ||
+      isNativeApp(navigator.userAgent);
     if (!shouldShowInstall({ platform: platformOf(navigator.userAgent), standalone, seen }))
       return undefined;
     const t = setTimeout(() => setOpen(true), 1500);

@@ -11,6 +11,9 @@ export function platformOf(userAgent: string): Platform {
  * Samsung Internet installs web apps in its own way, and Google Play Protect sometimes blocks
  * that install ("Onveilige app geblokkeerd"). Installing from Chrome works.
  */
+/** True inside our own App Store / Play Store app (the iPhone app adds "CeritaApp" to its user agent). */
+export const isNativeApp = (userAgent: string) => /CeritaApp/i.test(userAgent);
+
 export const isSamsungBrowser = (userAgent: string) => /SamsungBrowser/i.test(userAgent);
 
 /** Show the "put the app on your home screen" guide once, only on a phone, and not when it is already installed. */
