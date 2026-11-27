@@ -34,9 +34,12 @@ KEY="$TMP/AuthKey_$APPSTORE_KEY_ID.p8"
 printf '%s\n' "$APPSTORE_KEY_P8" > "$KEY"
 trap 'rm -f "$KEY"' EXIT
 AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$APPSTORE_KEY_ID" -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID")
+# Archive unsigned: every build runs on a fresh Mac without our certificate keys. The export below
+# signs with Apple's cloud-managed distribution certificate, which needs no local private key.
 xcodebuild archive -project ios/App/App.xcodeproj -scheme App -configuration Release \
-  -destination 'generic/platform=iOS' -archivePath "$TMP/App.xcarchive" "${AUTH[@]}" \
-  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+  -destination 'generic/platform=iOS' -archivePath "$TMP/App.xcarchive" \
+  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
   MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" | tail -30
 cat > "$TMP/ExportOptions.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
