@@ -1,0 +1,16 @@
+# iPhone app (App Store) on Codemagic's Macs: builds apple/ and uploads to App Store Connect / TestFlight.
+# Secrets live in the Codemagic environment group "apple": APPLE_TEAM_ID, APPSTORE_ISSUER_ID,
+# APPSTORE_KEY_ID, APPSTORE_KEY_P8 (App Store Connect API key, Admin role). Start it with "Start new build".
+workflows:
+  ios-appstore:
+    name: iPhone app (App Store)
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    environment:
+      groups:
+        - apple
+      node: 22
+      xcode: latest
+    scripts:
+      - name: Bouwen, ondertekenen en uploaden
+        script: BUILD_NUMBER=$((PROJECT_BUILD_NUMBER + 10)) ./apple/build.sh

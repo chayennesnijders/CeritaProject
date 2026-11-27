@@ -1,10 +1,12 @@
 # iPhone-app (App Store)
 
 De iPhone-app opent app.ceritaproject.nl in een eigen app-venster (Capacitor). Hij wordt gebouwd,
-ondertekend en naar App Store Connect (TestFlight) gestuurd door `.github/workflows/ios.yml` op een
-Mac van GitHub. Je hebt zelf geen Mac nodig.
+ondertekend en naar App Store Connect (TestFlight) gestuurd door `apple/build.sh` op een Mac van
+**Codemagic** (`codemagic.yaml`; GitHub geeft dit account geen Mac). Je hebt zelf geen Mac nodig.
 
-Nodig als GitHub-secrets (Settings → Secrets and variables → Actions):
+In Codemagic staan de vier geheimen in de omgevingsgroep **apple** (allemaal *Secure*).
+
+Nodig (in Codemagic, en ook als GitHub-secrets voor als GitHub later wel een Mac geeft):
 
 | Secret | Waar vind je het |
 | --- | --- |
