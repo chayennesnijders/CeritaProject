@@ -15,7 +15,7 @@ Alles wat je nodig hebt om de app in de Play Store te zetten, op één plek.
 | Veld | Wat je invult |
 |---|---|
 | App-naam (max. 30 tekens) | **CeritaProject** |
-| Pakketnaam (bij PWABuilder) | **nl.ceritaproject.app** |
+| Pakketnaam | **com.ceritaproject.mijnapp** |
 | Standaardtaal | Nederlands (nl-NL) |
 | App of game | App |
 | Gratis of betaald | Gratis |
