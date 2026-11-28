@@ -15,8 +15,11 @@ type Push = { title: string; body: string; link: string; tag: string; urgent?: b
 // Skipped during the member's quiet hours, unless it is urgent (care signals for admins).
 export async function pushToUser(userId: string, msg: Push) {
   const { fcmServiceAccount, sendFcm } = await import("@/lib/fcm.server");
+  const { apnsConfig, sendApns } = await import("@/lib/apns.server");
+  const { isApnsToken, apnsDeviceToken, apnsTokenGone } = await import("@/lib/apns");
   const sa = fcmServiceAccount();
-  if (!sa) return 0;
+  const apns = apnsConfig();
+  if (!sa && !apns) return 0;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   if (!msg.urgent) {
     const { data: prefs } = await supabaseAdmin
@@ -33,6 +36,18 @@ export async function pushToUser(userId: string, msg: Push) {
     .eq("user_id", userId);
   let sent = 0;
   for (const { token } of tokens ?? []) {
+    // iPhone app: straight through Apple.
+    if (isApnsToken(token)) {
+      if (!apns) continue;
+      const r = await sendApns(apns, apnsDeviceToken(token), msg);
+      if (r.status === 200) sent++;
+      else {
+        console.error(`APNs send failed [${r.status}]: ${r.reason}`);
+        if (apnsTokenGone(r.status, r.reason)) await supabaseAdmin.from("push_tokens").delete().eq("token", token);
+      }
+      continue;
+    }
+    if (!sa) continue;
     const res = await sendFcm(sa, {
       token,
       notification: { title: msg.title, body: msg.body },

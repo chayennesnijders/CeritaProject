@@ -1,6 +1,58 @@
 import { supabase } from "@/integrations/supabase/client";
 import { resolveFirebaseConfig, type FirebaseWebConfig } from "@/lib/firebase-config";
 import { getFirebaseWebConfig } from "@/lib/push.functions";
+import { APNS_PREFIX } from "@/lib/apns";
+import { isNativeApp } from "@/lib/install";
+
+type Listener = { remove: () => void };
+type NativePush = {
+  checkPermissions: () => Promise<{ receive: string }>;
+  requestPermissions: () => Promise<{ receive: string }>;
+  register: () => Promise<void>;
+  addListener: (event: string, cb: (e: never) => void) => Promise<Listener>;
+};
+
+/** The iPhone app's push plugin (Capacitor), or null in a browser. */
+function nativePush(): NativePush | null {
+  if (typeof window === "undefined" || !isNativeApp(navigator.userAgent)) return null;
+  const cap = (window as Window & { Capacitor?: { Plugins?: { PushNotifications?: NativePush } } }).Capacitor;
+  return cap?.Plugins?.PushNotifications ?? null;
+}
+
+/** Asks Apple for this iPhone's token and stores it (as apns:<token>) for this member. */
+async function registerNative(p: NativePush, userId: string): Promise<boolean> {
+  const token = await new Promise<string | null>((resolve) => {
+    const subs: Promise<Listener>[] = [];
+    const done = (t: string | null) => {
+      subs.forEach((s) => void s.then((l) => l.remove()));
+      resolve(t);
+    };
+    subs.push(p.addListener("registration", (e: { value: string }) => done(e.value)));
+    subs.push(p.addListener("registrationError", () => done(null)));
+    setTimeout(() => done(null), 15000);
+    void p.register();
+  });
+  if (!token) return false;
+  await supabase.from("push_tokens").upsert({ token: APNS_PREFIX + token, user_id: userId });
+  return true;
+}
+
+// In the iPhone app: open the right page when a notification is tapped, and refresh the token on
+// every start when notifications are already allowed (Apple can change it).
+if (typeof window !== "undefined") {
+  const p = nativePush();
+  if (p) {
+    void p.addListener("pushNotificationActionPerformed", (e: { notification?: { data?: { link?: string } } }) => {
+      const link = e.notification?.data?.link;
+      if (link && link.startsWith("/")) window.location.assign(link);
+    });
+    void p.checkPermissions().then(async ({ receive }) => {
+      if (receive !== "granted") return;
+      const { data } = await supabase.auth.getUser();
+      if (data.user) await registerNative(p, data.user.id);
+    });
+  }
+}
 
 /** What was wrong the last time push could not be set up (names only, shown in the message). */
 let lastProblems: string[] = [];
@@ -49,6 +101,13 @@ export type PushResult =
 
 // Call from a click handler.
 export async function enablePush(userId: string): Promise<PushResult> {
+  const native = nativePush();
+  if (native) {
+    const { receive } = await native.requestPermissions();
+    if (receive !== "granted") return "denied";
+    return (await registerNative(native, userId)) ? "registered" : "not-configured";
+  }
+  if (isNativeApp(navigator.userAgent)) return "unsupported";
   const fb = await loadConfig();
   if (!fb) {
     loading = undefined; // try again next time (maybe the settings were just fixed)
@@ -76,7 +135,7 @@ export const pushMessages: Record<PushResult, string> = {
   unsupported:
     "Deze browser ondersteunt geen pushmeldingen. Op iPhone: zet de app eerst op je beginscherm.",
   "open-in-new-tab": "Open de app in een eigen tabblad om meldingen aan te zetten.",
-  denied: "Meldingen zijn geblokkeerd. Zet ze aan in de instellingen van je browser.",
+  denied: "Meldingen zijn geblokkeerd. Zet ze aan in de instellingen van je telefoon of browser.",
 };
 
 /** The message for a result; for "not ingesteld" it also says which Firebase setting is missing. */

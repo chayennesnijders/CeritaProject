@@ -23,6 +23,30 @@ PLIST=ios/App/App/Info.plist
 /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" "$PLIST"
 /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PLIST"
 
+# Push notifications: the entitlement, and hand Apple's device token to the Capacitor plugin.
+cat > ios/App/App/App.entitlements <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>aps-environment</key><string>development</string></dict></plist>
+EOF
+python3 - <<'EOF'
+p = "ios/App/App/AppDelegate.swift"
+s = open(p).read()
+if "capacitorDidRegisterForRemoteNotifications" not in s:
+    add = """
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+    }
+"""
+    i = s.rstrip().rfind("}")
+    s = s[:i] + add + s[i:]
+    open(p, "w").write(s)
+EOF
+
 if [ -z "${APPSTORE_KEY_P8:-}" ] || [ -z "${APPLE_TEAM_ID:-}" ]; then
   xcodebuild build -project ios/App/App.xcodeproj -scheme App -configuration Release \
     -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" | tail -20
@@ -34,12 +58,20 @@ KEY="$TMP/AuthKey_$APPSTORE_KEY_ID.p8"
 printf '%s\n' "$APPSTORE_KEY_P8" > "$KEY"
 trap 'rm -f "$KEY"' EXIT
 AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$APPSTORE_KEY_ID" -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID")
-# Archive unsigned: every build runs on a fresh Mac without our certificate keys. The export below
-# signs with Apple's cloud-managed distribution certificate, which needs no local private key.
+# Every build runs on a fresh Mac without the private key of an earlier development certificate, so
+# revoke the old ones first and let Xcode make a new one. Only build Macs use these certificates.
+command -v app-store-connect >/dev/null || pip3 install --quiet codemagic-cli-tools
+export APP_STORE_CONNECT_ISSUER_ID="$APPSTORE_ISSUER_ID" APP_STORE_CONNECT_KEY_IDENTIFIER="$APPSTORE_KEY_ID" APP_STORE_CONNECT_PRIVATE_KEY="$APPSTORE_KEY_P8"
+for id in $(app-store-connect certificates list --type DEVELOPMENT IOS_DEVELOPMENT --json 2>/dev/null \
+  | python3 -c 'import json,sys; print(" ".join(c["id"] for c in json.load(sys.stdin)))' 2>/dev/null); do
+  app-store-connect certificates delete "$id" --ignore-not-found || true
+done
+# Automatic signing also turns on Push Notifications for the app ID (from App.entitlements). The export
+# below signs for the App Store with Apple's cloud-managed distribution certificate.
 xcodebuild archive -project ios/App/App.xcodeproj -scheme App -configuration Release \
-  -destination 'generic/platform=iOS' -archivePath "$TMP/App.xcarchive" \
-  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+  -destination 'generic/platform=iOS' -archivePath "$TMP/App.xcarchive" "${AUTH[@]}" \
+  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+  CODE_SIGN_ENTITLEMENTS=App/App.entitlements \
   IPHONEOS_DEPLOYMENT_TARGET=15.0 MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" | tail -30
 cat > "$TMP/ExportOptions.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
